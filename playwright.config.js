@@ -10,7 +10,7 @@ module.exports = defineConfig({
   },
   fullyParallel: true,
   retries: 0,
-  workers: 4,
+  workers: 1,
   reporter: 'list',
   use: {
     trace: 'on-first-retry',

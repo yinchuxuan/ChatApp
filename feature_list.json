@@ -17,16 +17,38 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "修改聊天界面布局",
-      "agentId": "a5e7bd838bb76d8e2",
-      "user_visible_behavior": "将用户输入区域移至ui界面下方",
+      "title": "修复e2e测试",
+      "agentid": "a493514b7c05993e0,af1ab06fff83fba3f",
+      "user_visible_behavior": "e2e测试的background测试中有一些硬编码图片路径的测试失败了，请进行修改",
       "status": "passing",
       "verification": [
-        "用户输入区域移至ui界面下方",
+        "单元测试，集成测试，e2e测试通过",
+        "eslint 0 warnings, 0 errors"
+      ],
+      "evidence": [
+        "Jest 单元测试: 135 passed",
+        "Integration 测试: 18 passed",
+        "E2E 测试: 29 passed (包含 7 个 background 相关测试全部通过)",
+        "ESLint: 0 errors, 0 warnings",
+        "修复内容: 将 test/e2e/app.e2e.background.test.js 中硬编码的图片路径替换为项目相对路径 test/fixtures/lisa1.jpg",
+        "在 test/fixtures/ 目录下创建了最小有效的 JPEG 测试图片 lisa1.jpg",
+        "将 playwright.config.js 中 workers 从 4 改为 1，避免并行启动多个 Electron 实例导致的超时"
+      ]
+    },
+    {
+      "id": "app-002",
+      "priority": 1,
+      "area": "coding",
+      "title": "修复组件样式丢失问题",
+      "agentid": "",
+      "user_visible_behavior": "在未配置模型API和背景时，存在ui组件样式丢失问题，请修复",
+      "status": "not_started",
+      "verification": [
+        "ui组件在任何时候样式都正常",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": []
-    }
+    },
   ]
 }
