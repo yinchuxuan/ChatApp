@@ -1,0 +1,56 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "globals": {
+    "React": "readonly",
+    "ReactDOM": "readonly",
+    "marked": "readonly",
+    "pdfjsLib": "readonly",
+    "mammoth": "readonly",
+    "ChatPanel": "readonly"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "requireConfigFile": false
+  },
+  "plugins": [
+    "react"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-console": "off",
+    "camelcase": ["warn", { "properties": "never", "ignoreDestructuring": true }],
+    "eqeqeq": ["warn", "always"],
+    "max-lines": ["error", { "max": 200, "skipBlankLines": true, "skipComments": true }]
+  },
+  "overrides": [
+    {
+      "files": ["test/**/*.js", "test/**/*.jsx", "**/*.test.js", "**/*.test.jsx", "**/*.spec.js", "**/*.spec.jsx"],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }]
+      }
+    }
+  ]
+}

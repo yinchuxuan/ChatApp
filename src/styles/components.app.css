@@ -1,0 +1,78 @@
+/* ============================================
+   App Container and Ripple System
+   ============================================ */
+
+/* ============================================
+   App Container
+   ============================================ */
+.app-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  font-family: 'Google Sans Display', 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--md-gradient-mesh), var(--md-background);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Static atmospheric background - No animation */
+.app-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.10) 0%, transparent 35%),
+    radial-gradient(circle at 100% 100%, rgba(96, 165, 250, 0.08) 0%, transparent 35%),
+    radial-gradient(circle at 50% 30%, rgba(96, 165, 250, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hide the atmospheric background when custom background image is set */
+.app-container.has-background-image::before {
+  display: none;
+}
+
+/* Clear CSS background color when custom background image is set via inline style.
+   Use separate property to avoid overriding inline style's background-image/size/position/repeat */
+.app-container.has-background-image {
+  background-color: transparent;
+}
+
+/* ============================================
+   Premium Ripple System
+   ============================================ */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(59, 130, 246, 0.20) 0%,
+    rgba(59, 130, 246, 0.10) 50%,
+    transparent 100%
+  );
+  transform: scale(0);
+  animation: ripple-expand 600ms var(--md-motion-easing-emphasized-decelerate);
+  pointer-events: none;
+}
+
+.ripple-glow {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(59, 130, 246, 0.25) 0%,
+    rgba(96, 165, 250, 0.15) 40%,
+    transparent 70%
+  );
+  transform: scale(0);
+  animation: ripple-glow-expand 800ms var(--md-motion-easing-emphasized-decelerate);
+  pointer-events: none;
+  filter: blur(3px);
+}

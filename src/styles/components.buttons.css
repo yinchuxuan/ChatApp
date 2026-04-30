@@ -1,0 +1,143 @@
+/* ============================================
+   Material Design 3 Button System
+   ============================================ */
+.md-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--md-shape-corner-small);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  transition:
+    background var(--md-motion-duration-short2) var(--md-motion-easing-standard),
+    box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+    transform var(--md-motion-duration-medium1) var(--md-motion-easing-emphasized);
+  padding: 10px 24px;
+  min-height: 40px;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* State Layer System */
+.md-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  transition: background var(--md-motion-duration-short2) var(--md-motion-easing-standard);
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.md-btn:hover::before {
+  background: rgba(59, 130, 246,var(--md-state-hover-opacity));
+}
+
+.md-btn:focus::before {
+  background: rgba(59, 130, 246,var(--md-state-focus-opacity));
+}
+
+.md-btn:active::before {
+  background: rgba(59, 130, 246,var(--md-state-pressed-opacity));
+}
+
+.md-btn:disabled::before {
+  background: transparent;
+}
+
+.md-btn:disabled {
+  color: var(--md-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+/* Text Button */
+.md-btn-primary {
+  color: var(--md-primary);
+}
+
+/* Filled Button */
+.md-btn-contained {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-elevation-level-1);
+}
+
+.md-btn-contained::before {
+  background: transparent;
+}
+
+.md-btn-contained:hover {
+  box-shadow: var(--md-elevation-level-2);
+  background: color-mix(in srgb, var(--md-primary) 92%, var(--md-surface-tint-color));
+}
+
+.md-btn-contained:hover::before {
+  background: rgba(255, 255, 255, var(--md-state-hover-opacity));
+}
+
+.md-btn-contained:active {
+  box-shadow: var(--md-elevation-level-1);
+  background: color-mix(in srgb, var(--md-primary) 88%, var(--md-surface-tint-color));
+}
+
+.md-btn-contained:disabled {
+  background: color-mix(in srgb, var(--md-on-surface) 12%, var(--md-surface));
+  color: color-mix(in srgb, var(--md-on-surface) 38%, var(--md-surface));
+  box-shadow: none;
+}
+
+/* Icon Button - FAB style */
+.md-btn-icon {
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  border-radius: var(--md-shape-corner-full);
+  background: transparent;
+  min-height: unset;
+  color: var(--md-on-surface-variant);
+}
+
+.md-btn-icon:hover {
+  background: rgba(59, 130, 246,var(--md-state-hover-opacity));
+}
+
+.md-btn-icon:active {
+  background: rgba(59, 130, 246,var(--md-state-pressed-opacity));
+}
+
+.md-btn-icon .material-icons {
+  font-size: 24px;
+  transition: transform var(--md-motion-duration-short3) var(--md-motion-easing-emphasized);
+}
+
+.md-btn-icon:hover .material-icons {
+  transform: scale(1.1);
+}
+
+/* Filled Tonal Button */
+.md-btn-tonal {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  box-shadow: var(--md-elevation-level-0);
+}
+
+.md-btn-tonal:hover {
+  background: color-mix(in srgb, var(--md-secondary-container) 92%, var(--md-secondary));
+  box-shadow: var(--md-elevation-level-1);
+}
+
+.md-btn-tonal:active {
+  background: color-mix(in srgb, var(--md-secondary-container) 88%, var(--md-secondary));
+}

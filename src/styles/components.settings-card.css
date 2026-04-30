@@ -1,0 +1,109 @@
+/* ============================================
+   Settings Panel - Config Card and Empty State
+   ============================================ */
+
+/* Config Summary Card */
+.config-summary-card {
+  padding: 24px;
+  margin-bottom: 16px;
+  border-radius: var(--md-shape-corner-large);
+  background: var(--md-surface-container-highest);
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: var(--md-elevation-level-1);
+  transition: box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+}
+
+.config-summary-card:hover {
+  box-shadow: var(--md-elevation-level-2);
+}
+
+.config-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--md-outline-variant);
+  transition:
+    padding-left var(--md-motion-duration-short2) var(--md-motion-easing-standard),
+    background var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+  border-radius: var(--md-shape-corner-small);
+}
+
+.config-summary-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.config-summary-item:hover {
+  padding-left: 12px;
+  background: var(--md-surface-container);
+}
+
+.config-summary-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--md-on-surface-variant);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+}
+
+.config-summary-label .material-icons {
+  font-size: 18px;
+  color: var(--md-primary);
+}
+
+.config-summary-value {
+  color: var(--md-on-surface);
+  font-size: 14px;
+  font-weight: 500;
+  padding-left: 26px;
+  word-break: break-all;
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+}
+
+.config-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 24px;
+  gap: 20px;
+  color: var(--md-on-surface-variant);
+}
+
+.config-empty-state .material-icons {
+  font-size: 64px;
+  color: var(--md-outline-variant);
+  animation: float-rotate-soft 8s ease-in-out infinite;
+}
+
+.config-empty-state .config-empty-hint {
+  font-size: 13px;
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+  padding: 12px 20px;
+  background: var(--md-surface-container);
+  border-radius: var(--md-shape-corner-medium);
+}
+
+.config-add-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--md-on-surface-variant);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.config-add-hint .material-icons {
+  font-size: 14px;
+}
+
+.config-empty-state.background-clickable-empty:hover .config-add-hint {
+  opacity: 1;
+  color: var(--md-primary);
+}

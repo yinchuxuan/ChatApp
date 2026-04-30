@@ -1,0 +1,114 @@
+/* ============================================
+   Delete Confirm Dialog
+   ============================================ */
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(29, 27, 32, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: overlay-fade var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+}
+
+[data-theme="dark"] .delete-confirm-overlay {
+  background: rgba(20, 18, 24, 0.7);
+}
+
+.delete-confirm-dialog {
+  background: var(--md-surface-container-high);
+  border-radius: var(--md-shape-corner-extra-large);
+  padding: 28px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: var(--md-elevation-level-5);
+  animation: dialog-entrance var(--md-motion-duration-medium4) var(--md-motion-easing-emphasized-decelerate);
+  position: relative;
+  overflow: hidden;
+}
+
+.delete-confirm-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  color: var(--md-on-surface);
+  font-size: 22px;
+  font-weight: 600;
+  font-family: 'Google Sans Display', 'Google Sans', sans-serif;
+}
+
+.delete-confirm-title .material-icons {
+  color: var(--md-error);
+  font-size: 26px;
+  animation: error-pulse 2s ease-in-out infinite;
+}
+
+.delete-confirm-message {
+  color: var(--md-on-surface-variant);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.delete-confirm-btn {
+  background: var(--md-error) !important;
+  color: var(--md-on-error) !important;
+  box-shadow: var(--md-elevation-level-1) !important;
+}
+
+.delete-confirm-btn:hover {
+  background: color-mix(in srgb, var(--md-error) 92%, var(--md-primary)) !important;
+  box-shadow: var(--md-elevation-level-2) !important;
+}
+
+/* ============================================
+   Theme Toggle Section
+   ============================================ */
+.theme-toggle-section {
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  border-radius: var(--md-shape-corner-large);
+  background: var(--md-surface-container-highest);
+  border: 1px solid var(--md-outline-variant);
+}
+
+.theme-toggle-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.theme-toggle-header .material-icons {
+  font-size: 20px;
+  color: var(--md-primary);
+}
+
+.theme-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--md-on-surface-variant);
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+}
+
+.theme-toggle-btn {
+  width: 100%;
+  justify-content: center;
+  gap: 12px;
+}
+
+.theme-toggle-btn .material-icons {
+  font-size: 20px;
+}

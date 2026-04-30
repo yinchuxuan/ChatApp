@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识库应用</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;600&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+  <!-- Modular CSS Architecture -->
+  <!-- Colors -->
+  <link rel="stylesheet" href="styles/colors.light.css">
+  <link rel="stylesheet" href="styles/colors.dark.css">
+  <!-- Animations -->
+  <link rel="stylesheet" href="styles/animations.variables.css">
+  <link rel="stylesheet" href="styles/animations.keyframes.css">
+  <!-- Components - Base -->
+  <link rel="stylesheet" href="styles/components.app.css">
+  <link rel="stylesheet" href="styles/components.buttons.css">
+  <link rel="stylesheet" href="styles/components.inputs.css">
+  <!-- Components - Chat Panel -->
+  <link rel="stylesheet" href="styles/components.chat-panel.css">
+  <link rel="stylesheet" href="styles/components.chat-messages.css">
+  <!-- Components - Settings -->
+  <link rel="stylesheet" href="styles/components.settings.css">
+  <link rel="stylesheet" href="styles/components.settings-card.css">
+  <!-- Components - Dialogs -->
+  <link rel="stylesheet" href="styles/components.dialogs.css">
+  <!-- Components - Background -->
+  <link rel="stylesheet" href="styles/components.background-panels.css">
+  <link rel="stylesheet" href="styles/components.background-dark.css">
+  <link rel="stylesheet" href="styles/components.background-form.css">
+  <link rel="stylesheet" href="styles/components.background-actions.css">
+  <!-- Utilities -->
+  <link rel="stylesheet" href="styles/utilities.base.css">
+  <link rel="stylesheet" href="styles/utilities.theme.css">
+  <!-- Local libraries (pre-loaded, no CDN/network requests needed) -->
+  <script src="../node_modules/react/umd/react.production.min.js" crossorigin></script>
+  <script src="../node_modules/react-dom/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="../node_modules/marked/lib/marked.umd.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <!-- Pre-compiled JavaScript files (no runtime Babel transformation needed) -->
+  <script src="../dist/components/ChatPanelRenderers.js"></script>
+  <script src="../dist/components/useTypewriter.js"></script>
+  <script src="../dist/components/SettingsBackground.js"></script>
+  <script src="../dist/components/SettingsModelConfig.js"></script>
+  <script src="../dist/components/useSettingsState.js"></script>
+  <script src="../dist/components/SettingsPanel.js"></script>
+  <script src="../dist/ChatPanel.js"></script>
+  <script src="../dist/App.js"></script>
+</body>
+</html>

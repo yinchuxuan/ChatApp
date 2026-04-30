@@ -1,0 +1,125 @@
+/* ============================================
+   Utility Styles - Theme and Accessibility
+   ============================================ */
+
+/* ============================================
+   Accessibility - High Contrast & Focus
+   ============================================ */
+@media (prefers-contrast: high) {
+  :root {
+    --md-outline: #000000;
+    --md-on-surface: #000000;
+    --md-on-surface-variant: #000000;
+  }
+
+  [data-theme="dark"] {
+    --md-outline: #FFFFFF;
+    --md-on-surface: #FFFFFF;
+    --md-on-surface-variant: #FFFFFF;
+  }
+
+  .md-btn-contained {
+    border: 2px solid var(--md-on-primary);
+  }
+}
+
+/* Selection Styling */
+::selection {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+
+/* Focus Ring for Accessibility */
+.md-btn:focus-visible,
+.md-input:focus-visible {
+  outline: 2px solid var(--md-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Dark Mode Theme Toggle Support
+   ============================================ */
+[data-theme="dark"] .app-container {
+  background: var(--md-gradient-dark-mesh), var(--md-background);
+}
+
+[data-theme="dark"] .app-container::before {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(96, 165, 250, 0.10) 0%, transparent 35%),
+    radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 50% 30%, rgba(37, 99, 235, 0.05) 0%, transparent 40%);
+}
+
+[data-theme="dark"] .md-btn:hover::before {
+  background: rgba(96, 165, 250, var(--md-state-hover-opacity));
+}
+
+[data-theme="dark"] .md-btn:focus::before {
+  background: rgba(96, 165, 250, var(--md-state-focus-opacity));
+}
+
+[data-theme="dark"] .md-btn:active::before {
+  background: rgba(96, 165, 250, var(--md-state-pressed-opacity));
+}
+
+[data-theme="dark"] .md-btn-icon:hover {
+  background: rgba(96, 165, 250, var(--md-state-hover-opacity));
+}
+
+[data-theme="dark"] .md-elevation-level-1 {
+  box-shadow: var(--md-elevation-dark-level-1);
+}
+
+[data-theme="dark"] .md-elevation-level-2 {
+  box-shadow: var(--md-elevation-dark-level-2);
+}
+
+[data-theme="dark"] .md-elevation-level-3 {
+  box-shadow: var(--md-elevation-dark-level-3);
+}
+
+[data-theme="dark"] .md-elevation-level-4 {
+  box-shadow: var(--md-elevation-dark-level-4);
+}
+
+[data-theme="dark"] .md-elevation-level-5 {
+  box-shadow: var(--md-elevation-dark-level-5);
+}
+
+/* ============================================
+   System Preference Dark Mode
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  .app-container:not([data-theme="light"]) {
+    background: var(--md-gradient-dark-mesh), var(--md-background);
+  }
+
+  .delete-confirm-overlay:not([data-theme="light"]) {
+    background: rgba(18, 18, 18, 0.7);
+  }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.md-card {
+  background: var(--md-surface-container-high);
+  border-radius: var(--md-shape-corner-large);
+  box-shadow: var(--md-elevation-level-1);
+}
+
+.md-card-hover:hover {
+  box-shadow: var(--md-elevation-level-2);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

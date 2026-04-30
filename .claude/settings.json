@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl --socks5 127.0.0.1:13659 -s \"https://api.duckduckgo.com/?q=material+design+guidelines+desktop&format=json&no_html=1\")"
+    ]
+  }
+}

@@ -1,0 +1,109 @@
+/* ============================================
+   Color System - Dark Theme: class & media fallbacks
+   ============================================ */
+
+/* Fallback for class-based dark theme */
+.dark-theme {
+  --md-primary: #60A5FA;
+  --md-primary-light: #93C5FD;
+  --md-primary-dark: #3B82F6;
+  --md-primary-container: #1E3A5F;
+  --md-on-primary: #0F172A;
+  --md-on-primary-container: #DBEAFE;
+
+  --md-secondary: #60A5FA;
+  --md-secondary-light: #93C5FD;
+  --md-secondary-dark: #3B82F6;
+  --md-secondary-container: #1E3A5F;
+  --md-on-secondary: #0F172A;
+  --md-on-secondary-container: #DBEAFE;
+
+  --md-background: #0F172A;
+  --md-surface: #0F172A;
+  --md-surface-variant: #1E293B;
+  --md-surface-container: #162032;
+  --md-surface-container-low: #121A2E;
+  --md-surface-container-high: #1E293B;
+  --md-surface-container-highest: #273548;
+  --md-surface-dim: #0B1120;
+  --md-surface-bright: #1E293B;
+  --md-on-surface: #F1F5F9;
+  --md-on-surface-variant: #94A3B8;
+
+  --md-error: #FCA5A5;
+  --md-error-container: #7F1D1D;
+  --md-on-error: #450A0A;
+  --md-on-error-container: #FEF2F2;
+
+  --md-success: #4ADE80;
+  --md-success-container: #14532D;
+  --md-on-success: #14532D;
+  --md-on-success-container: #F0FDF4;
+
+  --md-outline: #475569;
+  --md-outline-variant: #334155;
+  --md-divider: #1E293B;
+
+  --md-text-primary: #F1F5F9;
+  --md-text-secondary: #94A3B8;
+  --md-text-tertiary: #64748B;
+  --md-text-disabled: #334155;
+
+  --md-gradient-header: var(--md-gradient-dark-header);
+  --md-gradient-surface: var(--md-gradient-dark-surface);
+  --md-gradient-mesh: var(--md-gradient-dark-mesh);
+}
+
+/* System preference - applies when no explicit theme is set */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --md-primary: #60A5FA;
+    --md-primary-light: #93C5FD;
+    --md-primary-dark: #3B82F6;
+    --md-primary-container: #1E3A5F;
+    --md-on-primary: #0F172A;
+    --md-on-primary-container: #DBEAFE;
+
+    --md-secondary: #60A5FA;
+    --md-secondary-light: #93C5FD;
+    --md-secondary-dark: #3B82F6;
+    --md-secondary-container: #1E3A5F;
+    --md-on-secondary: #0F172A;
+    --md-on-secondary-container: #DBEAFE;
+
+    --md-background: #0F172A;
+    --md-surface: #0F172A;
+    --md-surface-variant: #1E293B;
+    --md-surface-container: #162032;
+    --md-surface-container-low: #121A2E;
+    --md-surface-container-high: #1E293B;
+    --md-surface-container-highest: #273548;
+    --md-surface-dim: #0B1120;
+    --md-surface-bright: #1E293B;
+    --md-on-surface: #F1F5F9;
+    --md-on-surface-variant: #94A3B8;
+
+    --md-error: #FCA5A5;
+    --md-error-container: #7F1D1D;
+    --md-on-error: #450A0A;
+    --md-on-error-container: #FEF2F2;
+
+    --md-success: #4ADE80;
+    --md-success-container: #14532D;
+    --md-on-success: #14532D;
+    --md-on-success-container: #F0FDF4;
+
+    --md-outline: #475569;
+    --md-outline-variant: #334155;
+    --md-divider: #1E293B;
+
+    --md-text-primary: #F1F5F9;
+    --md-text-secondary: #94A3B8;
+    --md-text-tertiary: #64748B;
+    --md-text-disabled: #334155;
+
+    --md-gradient-header: var(--md-gradient-dark-header);
+    --md-gradient-surface: var(--md-gradient-dark-surface);
+    --md-gradient-mesh: var(--md-gradient-dark-mesh);
+  }
+}

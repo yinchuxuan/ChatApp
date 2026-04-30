@@ -1,0 +1,35 @@
+/* ============================================
+   Background Settings Styles - Semi-transparent Panels
+   ============================================ */
+.app-content-wrapper {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* When custom background image is set, make panels semi-transparent to show background */
+.app-container.has-background-image .chat-panel {
+  background: transparent;
+}
+
+.app-container.has-background-image .chat-header {
+  background: rgba(245, 245, 245, 0.85);
+}
+
+.app-container.has-background-image .chat-history {
+  background: transparent;
+}
+
+.app-container.has-background-image .chat-input-area {
+  background: rgba(245, 245, 245, 0.85);
+}
+
+.app-container.has-background-image .chat-empty .chat-empty-hint {
+  background: rgba(245, 245, 245, 0.85);
+}
+
+.app-container.has-background-image .md-card {
+  background: rgba(245, 245, 245, 0.85);
+}

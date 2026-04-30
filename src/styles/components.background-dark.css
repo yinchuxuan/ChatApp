@@ -1,0 +1,28 @@
+/* ============================================
+   Background Settings Styles - Dark Mode Panels
+   ============================================ */
+
+/* Dark mode adjustments for semi-transparent panels with background image */
+[data-theme="dark"] .app-container.has-background-image .chat-panel {
+  background: transparent;
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-header {
+  background: rgba(30, 30, 30, 0.85);
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-history {
+  background: transparent;
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-input-area {
+  background: rgba(30, 30, 30, 0.85);
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-empty .chat-empty-hint {
+  background: rgba(38, 38, 38, 0.85);
+}
+
+[data-theme="dark"] .app-container.has-background-image .md-card {
+  background: rgba(30, 30, 30, 0.85);
+}

@@ -1,0 +1,176 @@
+/* ============================================
+   Animation System - Keyframes
+   ============================================ */
+
+/* Entrance Animations */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes message-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes badge-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes dialog-entrance {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Overlay Animations */
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Ripple Effect Animations */
+@keyframes ripple-expand {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes ripple-glow-expand {
+  to {
+    transform: scale(5);
+    opacity: 0;
+  }
+}
+
+/* Subtle Interactive Animations */
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Loading State Animations */
+@keyframes rotate-pulse {
+  0% { transform: rotate(0deg); opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { transform: rotate(360deg); opacity: 1; }
+}
+
+/* Error Feedback Animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+@keyframes pulse-error {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.85; }
+}
+
+/* Status Indicator Animations */
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes indicator-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.85; }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: 0.95; }
+}
+
+@keyframes error-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Empty State Animations */
+@keyframes float-rotate {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(5deg); }
+  50% { transform: translateY(-16px) rotate(0deg); }
+  75% { transform: translateY(-8px) rotate(-5deg); }
+}
+
+@keyframes shadow-pulse {
+  0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.6; transform: translateX(-50%) scale(0.8); }
+}
+
+@keyframes float-rotate-soft {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+  15% { transform: translateY(-12px) rotate(8deg); opacity: 1; }
+  30% { transform: translateY(-20px) rotate(0deg); opacity: 0.95; }
+  50% { transform: translateY(-24px) rotate(-8deg); opacity: 1; }
+  70% { transform: translateY(-16px) rotate(0deg); opacity: 0.9; }
+  85% { transform: translateY(-8px) rotate(4deg); opacity: 1; }
+}
+
+@keyframes shadow-pulse-soft {
+  0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); filter: blur(4px); }
+  50% { opacity: 0.7; transform: translateX(-50%) scale(0.85); filter: blur(6px); }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

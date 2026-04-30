@@ -1,0 +1,10 @@
+/* ============================================
+   Material Design 3 Styles - Main Entry Point
+   Modular CSS Architecture
+   ============================================ */
+
+/* Import modular CSS files */
+@import url('./styles/colors.css');
+@import url('./styles/animations.css');
+@import url('./styles/components.css');
+@import url('./styles/utilities.css');

@@ -1,0 +1,143 @@
+/* ============================================
+   Settings Panel - Slide-in Drawer (Main)
+   ============================================ */
+.settings-trigger-zone {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-indicator {
+  width: 24px;
+  height: 80px;
+  background: var(--md-primary-container);
+  border-radius: var(--md-shape-corner-small) 0 0 var(--md-shape-corner-small);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-on-primary-container);
+  transition:
+    width var(--md-motion-duration-medium2) var(--md-motion-easing-emphasized),
+    background var(--md-motion-duration-short2) var(--md-motion-easing-standard),
+    box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+  cursor: pointer;
+  box-shadow: var(--md-elevation-level-1);
+}
+
+.settings-indicator:hover {
+  width: 36px;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-elevation-level-2);
+}
+
+.settings-indicator.configured {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+
+.settings-indicator.configured:hover {
+  background: var(--md-secondary);
+  color: var(--md-on-secondary);
+}
+
+.settings-indicator .material-icons {
+  font-size: 20px;
+  animation: indicator-pulse 2s ease-in-out infinite;
+}
+
+.settings-panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 380px;
+  background: var(--md-surface-container);
+  border-left: 1px solid var(--md-outline-variant);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--md-motion-duration-medium4) var(--md-motion-easing-emphasized-decelerate);
+  box-shadow: var(--md-elevation-level-4);
+  z-index: 99;
+}
+
+.settings-panel.visible {
+  transform: translateX(0);
+}
+
+.settings-header {
+  padding: 20px 24px;
+  background: var(--md-surface-container-high);
+  border-bottom: 1px solid var(--md-outline-variant);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.settings-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    var(--md-primary) 0%,
+    var(--md-primary-light) 50%,
+    var(--md-secondary) 100%
+  );
+}
+
+.settings-header .material-icons {
+  font-size: 24px;
+  color: var(--md-primary);
+}
+
+.settings-header .settings-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--md-on-surface);
+  font-family: 'Google Sans Display', 'Google Sans', sans-serif;
+}
+
+.settings-content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.settings-field {
+  margin-bottom: 20px;
+}
+
+.settings-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--md-on-surface-variant);
+  margin-bottom: 8px;
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.settings-input {
+  width: 100%;
+  border-radius: var(--md-shape-corner-medium);
+}
+
+.settings-actions {
+  padding: 20px 24px;
+  background: var(--md-surface-container-high);
+  border-top: 1px solid var(--md-outline-variant);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}

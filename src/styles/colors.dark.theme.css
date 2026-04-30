@@ -1,0 +1,102 @@
+/* ============================================
+   Color System - Dark Theme: data-theme selector
+   ============================================ */
+
+/* Explicit dark theme via data attribute */
+[data-theme="dark"] {
+  /* Primary - Blue System (Softened for dark) */
+  --md-primary: #60A5FA;
+  --md-primary-light: #93C5FD;
+  --md-primary-dark: #3B82F6;
+  --md-primary-container: #1E3A5F;
+  --md-on-primary: #0F172A;
+  --md-on-primary-container: #DBEAFE;
+
+  /* Secondary - Unified with Primary Blue */
+  --md-secondary: #60A5FA;
+  --md-secondary-light: #93C5FD;
+  --md-secondary-dark: #3B82F6;
+  --md-secondary-container: #1E3A5F;
+  --md-on-secondary: #0F172A;
+  --md-on-secondary-container: #DBEAFE;
+
+  /* Surface System - Zinc Dark */
+  --md-background: #0F172A;
+  --md-surface: #0F172A;
+  --md-surface-variant: #1E293B;
+  --md-surface-container: #162032;
+  --md-surface-container-low: #121A2E;
+  --md-surface-container-high: #1E293B;
+  --md-surface-container-highest: #273548;
+  --md-surface-dim: #0B1120;
+  --md-surface-bright: #1E293B;
+  --md-on-surface: #F1F5F9;
+  --md-on-surface-variant: #94A3B8;
+
+  /* Error System for Dark */
+  --md-error: #FCA5A5;
+  --md-error-container: #7F1D1D;
+  --md-on-error: #450A0A;
+  --md-on-error-container: #FEF2F2;
+
+  /* Success System for Dark */
+  --md-success: #4ADE80;
+  --md-success-container: #14532D;
+  --md-on-success: #14532D;
+  --md-on-success-container: #F0FDF4;
+
+  /* Outline System - Zinc */
+  --md-outline: #475569;
+  --md-outline-variant: #334155;
+  --md-divider: #1E293B;
+
+  /* Text System - Zinc Dark */
+  --md-text-primary: #F1F5F9;
+  --md-text-secondary: #94A3B8;
+  --md-text-tertiary: #64748B;
+  --md-text-disabled: #334155;
+
+  /* Gradients for Dark */
+  --md-gradient-header: var(--md-gradient-dark-header);
+  --md-gradient-surface: var(--md-gradient-dark-surface);
+  --md-gradient-mesh: var(--md-gradient-dark-mesh);
+
+  /* Shape System (inherited from light, redeclared for completeness) */
+  --md-shape-corner-full: 9999px;
+  --md-shape-corner-extra-large: 28px;
+  --md-shape-corner-large: 12px;
+  --md-shape-corner-medium: 12px;
+  --md-shape-corner-small: 8px;
+  --md-shape-corner-extra-small: 4px;
+  --md-shape-corner-none: 0px;
+
+  /* Dark mode elevation shadows */
+  --md-elevation-dark-level-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.3), 0px 1px 2px 0px rgba(0, 0, 0, 0.5);
+  --md-elevation-dark-level-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.3), 0px 1px 2px 0px rgba(0, 0, 0, 0.5);
+  --md-elevation-dark-level-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.35), 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
+  --md-elevation-dark-level-4: 0px 6px 10px 4px rgba(0, 0, 0, 0.35), 0px 2px 3px 0px rgba(0, 0, 0, 0.5);
+  --md-elevation-dark-level-5: 0px 8px 12px 6px rgba(0, 0, 0, 0.4), 0px 4px 4px 0px rgba(0, 0, 0, 0.5);
+
+  /* State Layer Interaction */
+  --md-state-hover-opacity: 0.08;
+  --md-state-focus-opacity: 0.12;
+  --md-state-pressed-opacity: 0.12;
+  --md-state-dragged-opacity: 0.16;
+
+  /* Typography Scale */
+  --md-typography-display-large: 32px;
+  --md-typography-display-medium: 28px;
+  --md-typography-display-small: 24px;
+  --md-typography-headline-large: 32px;
+  --md-typography-headline-medium: 28px;
+  --md-typography-headline-small: 24px;
+  --md-typography-title-large: 22px;
+  --md-typography-title-medium: 18px;
+  --md-typography-title-small: 16px;
+  --md-typography-body-large: 16px;
+  --md-typography-body-medium: 14px;
+  --md-typography-body-small: 12px;
+  --md-typography-label-large: 14px;
+  --md-typography-label-medium: 12px;
+  --md-typography-label-small: 11px;
+}

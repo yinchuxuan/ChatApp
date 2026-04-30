@@ -1,0 +1,89 @@
+/* ============================================
+   Utility Styles - Base and Scrollbar
+   ============================================ */
+
+/* ============================================
+   Base Reset Styles
+   ============================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+/* ============================================
+   Scrollbar System - Premium Design
+   ============================================ */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--md-surface-container);
+  margin: 6px;
+  border-radius: var(--md-shape-corner-small);
+  border: 1px solid var(--md-outline-variant);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--md-outline-variant);
+  border-radius: var(--md-shape-corner-small);
+  border: 3px solid var(--md-surface-container);
+  transition:
+    background var(--md-motion-duration-short2) var(--md-motion-easing-standard),
+    border-color var(--md-motion-duration-short2) var(--md-motion-easing-standard);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-primary-light);
+  border-color: var(--md-surface-container-low);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--md-primary);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Smooth scrolling for content areas */
+.chat-history,
+.settings-content {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--md-outline-variant) var(--md-surface-container);
+}
+
+/* ============================================
+   Responsive Layout
+   ============================================ */
+@media (max-width: 900px) {
+  .chat-message-bubble {
+    max-width: 80%;
+  }
+
+  .settings-panel {
+    width: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .chat-message-bubble {
+    max-width: 85%;
+  }
+
+  .settings-panel {
+    width: 260px;
+  }
+
+  .chat-header .header-title {
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,121 @@
+/* ============================================
+   Color System - Light Theme
+   ============================================ */
+
+/* Light Theme (Default) */
+:root {
+  /* Primary - Blue System */
+  --md-primary: #3B82F6;
+  --md-primary-light: #60A5FA;
+  --md-primary-dark: #2563EB;
+  --md-primary-container: #DBEAFE;
+  --md-on-primary: #FFFFFF;
+  --md-on-primary-container: #1E3A5F;
+
+  /* Secondary - Unified with Primary Blue */
+  --md-secondary: #3B82F6;
+  --md-secondary-light: #60A5FA;
+  --md-secondary-dark: #2563EB;
+  --md-secondary-container: #DBEAFE;
+  --md-on-secondary: #FFFFFF;
+  --md-on-secondary-container: #1E3A5F;
+
+  /* Surface System - Zinc (Cool Gray) */
+  --md-background: #FFFFFF;
+  --md-surface: #FFFFFF;
+  --md-surface-variant: #E4E5E9;
+  --md-surface-container: #F4F5F7;
+  --md-surface-container-low: #FAFBFC;
+  --md-surface-container-high: #EEF0F3;
+  --md-surface-container-highest: #E4E5E9;
+  --md-surface-dim: #DEDFE3;
+  --md-surface-bright: #FFFFFF;
+  --md-on-surface: #0F172A;
+  --md-on-surface-variant: #475569;
+
+  /* Error System */
+  --md-error: #DC2626;
+  --md-error-container: #FEF2F2;
+  --md-on-error: #FFFFFF;
+  --md-on-error-container: #7F1D1D;
+
+  /* Success System */
+  --md-success: #16A34A;
+  --md-success-container: #F0FDF4;
+  --md-on-success: #FFFFFF;
+  --md-on-success-container: #14532D;
+
+  /* Outline System - Zinc */
+  --md-outline: #94A3B8;
+  --md-outline-variant: #D4D5D9;
+  --md-divider: #E2E3E7;
+
+  /* Text System - Zinc */
+  --md-text-primary: #0F172A;
+  --md-text-secondary: #475569;
+  --md-text-tertiary: #94A3B8;
+  --md-text-disabled: #CBD5E1;
+
+  /* Shape System */
+  --md-shape-corner-full: 9999px;
+  --md-shape-corner-extra-large: 28px;
+  --md-shape-corner-large: 12px;
+  --md-shape-corner-medium: 12px;
+  --md-shape-corner-small: 8px;
+  --md-shape-corner-extra-small: 4px;
+  --md-shape-corner-none: 0px;
+
+  /* Shadow System */
+  --md-elevation-level-0: none;
+  --md-elevation-level-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --md-elevation-level-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --md-elevation-level-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.3);
+  --md-elevation-level-4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px 0px rgba(0, 0, 0, 0.3);
+  --md-elevation-level-5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15), 0px 4px 4px 0px rgba(0, 0, 0, 0.3);
+
+  /* Dark mode shadow adjustments */
+  --md-elevation-dark-level-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.3), 0px 1px 2px 0px rgba(0, 0, 0, 0.5);
+  --md-elevation-dark-level-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.3), 0px 1px 2px 0px rgba(0, 0, 0, 0.5);
+  --md-elevation-dark-level-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.35), 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
+  --md-elevation-dark-level-4: 0px 6px 10px 4px rgba(0, 0, 0, 0.35), 0px 2px 3px 0px rgba(0, 0, 0, 0.5);
+  --md-elevation-dark-level-5: 0px 8px 12px 6px rgba(0, 0, 0, 0.4), 0px 4px 4px 0px rgba(0, 0, 0, 0.5);
+
+  /* State Layer Interaction */
+  --md-state-hover-opacity: 0.08;
+  --md-state-focus-opacity: 0.12;
+  --md-state-pressed-opacity: 0.12;
+  --md-state-dragged-opacity: 0.16;
+
+  /* Gradients - Unified Tone */
+  --md-gradient-primary: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  --md-gradient-secondary: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+  --md-gradient-header: linear-gradient(180deg, #60A5FA 0%, #3B82F6 100%);
+  --md-gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F4F5F7 100%);
+
+  /* Simple mesh - blue tones only */
+  --md-gradient-mesh: radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 100%, rgba(96, 165, 250, 0.04) 0%, transparent 50%);
+
+  /* Dark mode gradients */
+  --md-gradient-dark-header: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+  --md-gradient-dark-surface: linear-gradient(180deg, #0F172A 0%, #151B2E 100%);
+  --md-gradient-dark-mesh: radial-gradient(ellipse at 20% 0%, rgba(96, 165, 250, 0.06) 0%, transparent 50%),
+                            radial-gradient(ellipse at 80% 100%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+
+  /* Typography Scale */
+  --md-typography-display-large: 32px;
+  --md-typography-display-medium: 28px;
+  --md-typography-display-small: 24px;
+  --md-typography-headline-large: 32px;
+  --md-typography-headline-medium: 28px;
+  --md-typography-headline-small: 24px;
+  --md-typography-title-large: 22px;
+  --md-typography-title-medium: 18px;
+  --md-typography-title-small: 16px;
+  --md-typography-body-large: 16px;
+  --md-typography-body-medium: 14px;
+  --md-typography-body-small: 12px;
+  --md-typography-label-large: 14px;
+  --md-typography-label-medium: 12px;
+  --md-typography-label-small: 11px;
+}
