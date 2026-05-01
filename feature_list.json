@@ -16,24 +16,47 @@
     {
       "id": "app-001",
       "priority": 1,
-      "area": "coding",
-      "title": "msg历史记录显示调整",
-      "agentid": "",
-      "user_visible_behavior": "msg历史记录面板中只需要显示当前msg的json结构体，不需要额外的ui效果显示",
+      "area": "refact",
+      "title": "在不影响任何应用功能的情况下进行仓库代码重构，简化代码实现",
+      "agentid": "a890046372a3e69a0",
+      "user_visible_behavior": "在不影响任何应用功能的情况下进行仓库代码重构，简化代码实现，将重复实现的、一些坏的代码实践消除，可以简化逻辑的地方尽量简化",
       "status": "passing",
       "verification": [
-        "msg历史面板中只显示msg的json结构体",
+        "消除重复实现",
+        "消除坏的代码实现",
+        "简化所有可以简化的代码逻辑",
+        "仓库代码简化",
+        "严禁改变任何应用功能",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "188 unit tests passed",
-        "23 integration tests passed",
-        "40 e2e tests passed",
-        "eslint 0 warnings, 0 errors",
-        "Removed 6 dead CSS classes from chat-panel.css",
-        "Added .chat-msg-history-json class with monospace styling",
-        "Empty state text localized to Chinese: 暂无消息历史记录"
+        "ESLint: 0 warnings, 0 errors",
+        "Unit tests: 188 passed, 34 suites",
+        "Integration tests: 23 passed, 3 suites",
+        "E2E tests: 40 passed",
+        "apiClient.js: eliminated duplicate error handling",
+        "useTypewriter.js: fixed isLoadingRef._streaming anti-pattern with isStreamingRef",
+        "backgroundHandlers.js: simplified MIME type if-else to lookup table",
+        "ChatPanelRenderers.js: removed unused renderChatHistory (35 lines)"
+      ]
+    },
+    {
+      "id": "app-001",
+      "priority": 1,
+      "area": "doc",
+      "title": "更新架构文档",
+      "agentid": "",
+      "user_visible_behavior": "给予当前仓库的代码结构更新ARCHITECTURE.md文档",
+      "status": "not_started",
+      "verification": [
+        "ARCHITECTURE.md文档和代码仓库结构保持一致",
+        "ARCHITECTURE.md文档不超过50行",
+        "严禁改变任何应用功能",
+        "单元测试，集成测试，e2e测试通过",
+        "eslint 0 warnings, 0 errors"
+      ],
+      "evidence": [
       ]
     }
   ]

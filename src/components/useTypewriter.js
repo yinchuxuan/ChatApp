@@ -8,6 +8,7 @@ function useTypewriter(R) {
   const [thinkingDone, setThinkingDone] = R.useState(false);
 
   const isLoadingRef = R.useRef(false);
+  const isStreamingRef = R.useRef(false);
   const streamContentRef = R.useRef('');
   const displayedCountRef = R.useRef(0);
   const animFrameRef = R.useRef(null);
@@ -15,7 +16,7 @@ function useTypewriter(R) {
   const inThinkingRef = R.useRef(false);
   const thinkingDoneRef = R.useRef(false);
 
-  R.useEffect(() => { isLoadingRef.current = streamContent !== '' || isLoadingRef._streaming; }, [streamContent]);
+  R.useEffect(() => { isLoadingRef.current = streamContent !== '' || isStreamingRef.current; }, [streamContent]);
   R.useEffect(() => { streamContentRef.current = streamContent; }, [streamContent]);
   R.useEffect(() => { displayedCountRef.current = displayedCount; }, [displayedCount]);
 
@@ -38,7 +39,7 @@ function useTypewriter(R) {
   }, [streamContent, displayedCount]);
 
   const startStreaming = R.useCallback(() => {
-    isLoadingRef._streaming = true;
+    isStreamingRef.current = true;
     streamContentRef.current = '';
     displayedCountRef.current = 0;
     thinkingRef.current = '';
@@ -104,7 +105,7 @@ function useTypewriter(R) {
   }, []);
 
   const finishStreaming = R.useCallback(() => {
-    isLoadingRef._streaming = false;
+    isStreamingRef.current = false;
   }, []);
 
   const getAccumulatedContent = R.useCallback(() => streamContentRef.current, []);
@@ -118,7 +119,7 @@ function useTypewriter(R) {
   }, []);
 
   const reset = R.useCallback(() => {
-    isLoadingRef._streaming = false;
+    isStreamingRef.current = false;
     streamContentRef.current = '';
     displayedCountRef.current = 0;
     thinkingRef.current = '';

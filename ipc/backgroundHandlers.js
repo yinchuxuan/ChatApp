@@ -1,6 +1,15 @@
 // Background IPC Handlers
 // Handles background image configuration and file selection
 
+const MIME_TYPES = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.bmp': 'image/bmp'
+};
+
 function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dialog) {
   ipcMain.handle('get-background-config', () => {
     try {
@@ -48,13 +57,7 @@ function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dia
       }
 
       const ext = path.extname(filePath).toLowerCase();
-      let mimeType;
-      if (ext === '.png') mimeType = 'image/png';
-      else if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
-      else if (ext === '.gif') mimeType = 'image/gif';
-      else if (ext === '.webp') mimeType = 'image/webp';
-      else if (ext === '.bmp') mimeType = 'image/bmp';
-      else mimeType = 'image/jpeg';
+      const mimeType = MIME_TYPES[ext] || 'image/jpeg';
 
       const localUrl = `local://${filePath}`;
       return { success: true, localUrl, mimeType, path: filePath };

@@ -142,11 +142,7 @@ async function sendChatRequest(config, callbacks) {
     let errorMsg = `API 错误: ${response.status}`;
     try {
       const errorData = await response.json();
-      if (protocol === 'anthropic') {
-        errorMsg = errorData?.error?.message || errorMsg;
-      } else {
-        errorMsg = errorData?.error?.message || errorMsg;
-      }
+      errorMsg = errorData?.error?.message || errorMsg;
     } catch (_) { /* use default error */ }
     throw new Error(errorMsg);
   }
