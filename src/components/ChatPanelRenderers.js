@@ -2,35 +2,17 @@
 // Used by ChatPanel component
 
 const ChatPanelRenderers = {
-  // Render msg history display - reads msg JSON structures from history file
+  // Render msg history display - shows only the msg JSON structure
   renderMsgHistoryDisplay: (R, msgHistoryMessages) => {
     if (!msgHistoryMessages || msgHistoryMessages.length === 0) {
-      return R.createElement('div', { className: 'chat-empty' },
-        R.createElement('span', { className: 'material-icons empty-icon' }, 'history'),
-        R.createElement('div', null, '暂无消息历史记录'),
-        R.createElement('div', { className: 'chat-empty-hint' }, '发送消息后消息将自动保存到文件')
-      );
+      return R.createElement('div', null, '暂无消息历史记录');
     }
     const messageElements = msgHistoryMessages.map((msg, idx) =>
-      R.createElement('div', { key: idx, className: 'chat-msg-history-item' },
-        R.createElement('div', { className: 'chat-msg-history-item-header' },
-          R.createElement('span', { className: 'material-icons' }, msg.role === 'user' ? 'person' : 'smart_toy'),
-          R.createElement('span', null, `消息 #${idx + 1} (${msg.role})`)
-        ),
-        R.createElement('pre', { className: 'chat-msg-history-content' },
-          JSON.stringify(msg, null, 2)
-        )
+      R.createElement('pre', { key: idx, className: 'chat-msg-history-json' },
+        JSON.stringify(msg, null, 2)
       )
     );
-    return R.createElement('div', { className: 'chat-msg-history-display' },
-      R.createElement('div', { className: 'chat-msg-history-header' },
-        R.createElement('span', { className: 'material-icons' }, 'history'),
-        R.createElement('span', null, `消息历史记录 (${msgHistoryMessages.length} 条消息)`)
-      ),
-      R.createElement('div', { className: 'chat-msg-history-list' },
-        ...messageElements
-      )
-    );
+    return R.createElement('div', null, ...messageElements);
   },
 
   // Render Chat history

@@ -50,16 +50,12 @@ describe('ChatPanel Msg History Display', () => {
     expect(screen.getByText('msg历史记录')).toBeInTheDocument();
     expect(electronAPI.getChatHistory).toHaveBeenCalled();
 
-    // Should show msg history header with count
-    expect(screen.getByText('消息历史记录 (2 条消息)')).toBeInTheDocument();
-
-    const msgHistoryItems = document.querySelectorAll('.chat-msg-history-item');
-    expect(msgHistoryItems.length).toBe(2);
-
-    const msgHistoryContent = document.querySelectorAll('.chat-msg-history-content');
-    expect(msgHistoryContent[0].textContent).toContain('test question');
-    expect(msgHistoryContent[1].textContent).toContain('Test response');
-    expect(msgHistoryContent[1].textContent).toContain('thinking content');
+    // Verify only raw JSON is displayed in <pre> elements
+    const preElements = document.querySelectorAll('.chat-history pre');
+    expect(preElements.length).toBe(2);
+    expect(preElements[0].textContent).toContain('test question');
+    expect(preElements[1].textContent).toContain('Test response');
+    expect(preElements[1].textContent).toContain('thinking content');
   });
 
   test('should show empty state when no msg history', async () => {
@@ -82,7 +78,6 @@ describe('ChatPanel Msg History Display', () => {
 
     expect(screen.getByText('msg历史记录')).toBeInTheDocument();
     expect(screen.getByText('暂无消息历史记录')).toBeInTheDocument();
-    expect(screen.getByText('发送消息后消息将自动保存到文件')).toBeInTheDocument();
 
     const chatHeaderMsgHistory = screen.getByText('msg历史记录').closest('.chat-header');
     fireEvent.click(chatHeaderMsgHistory);
@@ -117,14 +112,14 @@ describe('ChatPanel Msg History Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    // Verify JSON structures are displayed
-    const msgHistoryContent = document.querySelectorAll('.chat-msg-history-content');
-    const firstMsgJson = JSON.parse(msgHistoryContent[0].textContent);
+    // Verify JSON structures are displayed in <pre> elements
+    const preElements = document.querySelectorAll('.chat-history pre');
+    const firstMsgJson = JSON.parse(preElements[0].textContent);
     expect(firstMsgJson.role).toBe('user');
     expect(firstMsgJson.content).toBe('Hello');
     expect(firstMsgJson.isError).toBe(false);
 
-    const secondMsgJson = JSON.parse(msgHistoryContent[1].textContent);
+    const secondMsgJson = JSON.parse(preElements[1].textContent);
     expect(secondMsgJson.role).toBe('assistant');
     expect(secondMsgJson._thinking).toBe('How to respond...');
   });
@@ -194,7 +189,7 @@ describe('ChatPanel Msg History Display', () => {
     // Should call getChatHistory to read from file, not use API request data
     expect(electronAPI.getChatHistory).toHaveBeenCalled();
     // Returned messages should be from file (which we mocked)
-    const msgHistoryContent = document.querySelectorAll('.chat-msg-history-content');
-    expect(msgHistoryContent.length).toBe(2);
+    const preElements = document.querySelectorAll('.chat-history pre');
+    expect(preElements.length).toBe(2);
   });
 });

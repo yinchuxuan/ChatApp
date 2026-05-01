@@ -84,8 +84,9 @@ test.describe('Chat Panel Msg History Toggle', () => {
     });
     expect(titleText).toBe('msg历史记录');
 
-    const emptyState = await appHelper.waitForSelector('.chat-empty, .chat-msg-history-display');
-    expect(emptyState).toBeTruthy();
+    const historyDiv = await appHelper.waitForSelector('.chat-history', { state: 'visible' });
+    expect(historyDiv).toBeTruthy();
+    expect(await appHelper.textContent('.chat-history')).toBeTruthy();
   });
 
   test('should toggle back to Chat panel when clicking chat-header again', async () => {
@@ -98,7 +99,6 @@ test.describe('Chat Panel Msg History Toggle', () => {
       const title = document.querySelector('.chat-header .header-title');
       return title ? title.textContent : '';
     });
-
     if (currentTitle === '聊天') {
       await appHelper.click('.chat-header-clickable');
       await appHelper.waitForTimeout(200);
@@ -172,7 +172,6 @@ test.describe('Chat Panel Clear History', () => {
     await chatPanel.hover({ position: { x: 200, y: 20 } });
     await appHelper.waitForTimeout(200);
     await appHelper.waitForSelector('.chat-header-clear-btn', { state: 'visible', timeout: 5000 });
-    // Use evaluate to click via JS to avoid settings-trigger-zone interception
     await appHelper.evaluate(() => { document.querySelector('.chat-header-clear-btn')?.click(); });
     await appHelper.waitForTimeout(300);
     const countAfter = await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length);

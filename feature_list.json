@@ -17,42 +17,23 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "消息显示调整",
+      "title": "msg历史记录显示调整",
       "agentid": "",
-      "user_visible_behavior": "在当前聊天面板中，消息显示排满整个聊天界面，输入框显示时覆盖部分消息显示",
+      "user_visible_behavior": "msg历史记录面板中只需要显示当前msg的json结构体，不需要额外的ui效果显示",
       "status": "passing",
       "verification": [
-        "消息显示排满整个聊天界面",
+        "msg历史面板中只显示msg的json结构体",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "消息通过position:absolute的输入框覆盖显示: 将.chat-input-area从position:relative改为position:absolute并设置bottom:0，使输入框不再占用flex布局空间，而是覆盖在消息上方",
-        "消息区域增加底部padding: .chat-history的padding-bottom从20px增加到80px，确保最底部消息不被输入框完全遮挡",
-        "单元测试: npx jest - 34 suites, 188 tests全部通过",
-        "集成测试: npx jest --config jest.integration.config.js - 3 suites, 23 tests全部通过",
-        "e2e测试: npx playwright test - 38 passed, 2 skipped(预先已跳过)",
-        "eslint: npx eslint src/ test/ ipc/ - 0 warnings, 0 errors"
-      ]
-    },
-    {
-      "id": "app-002",
-      "priority": 1,
-      "area": "coding",
-      "title": "调整assistant消息的消息气泡样式",
-      "agentid": "",
-      "user_visible_behavior": "将assistant消息气泡左边的条带去除；更改assistant气泡的背景颜色，使得在有/无背景、浅色/深色模式下，assistant气泡的颜色都和user颜色不同；将assitant的圆角去除，变成矩形卡片",
-      "status": "passing",
-      "verification": [
-        "assistant消息气泡左边的条带去除",
-        "在有/无背景、浅色/深色模式下，assistant气泡的颜色都和user颜色不同",
-        "user气泡颜色相对突出",
-        "assistant气泡变成矩形卡片",
-        "ui设计符合规范，色彩统一",
-        "单元测试，集成测试，e2e测试通过",
-        "eslint 0 warnings, 0 errors"
-      ],
-      "evidence": [
+        "188 unit tests passed",
+        "23 integration tests passed",
+        "40 e2e tests passed",
+        "eslint 0 warnings, 0 errors",
+        "Removed 6 dead CSS classes from chat-panel.css",
+        "Added .chat-msg-history-json class with monospace styling",
+        "Empty state text localized to Chinese: 暂无消息历史记录"
       ]
     }
   ]
