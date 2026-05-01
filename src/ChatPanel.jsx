@@ -103,7 +103,7 @@ function ChatPanel() {
   const renderMarkdown = (text) => {
     const rawHtml = window.marked ? window.marked.parse(text) : text;
     const html = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
-    return C('div', { className: 'chat-message-bubble md-card' },
+    return C('div', { className: 'chat-message-bubble' },
       C('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
     );
   };
@@ -112,9 +112,10 @@ function ChatPanel() {
   const renderAssistantMsg = (msg, idx, isStreaming) => {
     const thinking = isStreaming ? currentThinking : msg._thinking;
     const showThinking = isStreaming ? showStreamThinking : (msg._thinkingVisible === true);
-    const classes = thinking
-      ? 'chat-message-bubble md-card bubble-clickable'
-      : 'chat-message-bubble md-card';
+    const rawHtml = window.marked ? window.marked.parse(isStreaming ? msg.slice(0, tw.displayedCount) : msg.content) : (isStreaming ? msg.slice(0, tw.displayedCount) : msg.content);
+    const html = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
+
+    const bubbleClass = thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
 
     const handleClick = thinking ? () => {
       if (isStreaming) {
@@ -124,9 +125,9 @@ function ChatPanel() {
       }
     } : null;
 
-    return C('div', { className: classes, onClick: handleClick },
+    return C('div', { className: bubbleClass, onClick: handleClick },
       thinking && showThinking && R.createElement('div', { className: 'chat-thinking-text' }, thinking),
-      isStreaming ? msg.slice(0, tw.displayedCount) : renderMarkdown(msg.content)
+      C('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
     );
   };
 

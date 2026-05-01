@@ -200,6 +200,6 @@ describe('ChatPanel Component - Markdown Rendering', () => {
 
     const userBubble = document.querySelector('.chat-message.user .chat-message-bubble');
     expect(userBubble).toBeTruthy();
-    expect(userBubble.classList.contains('md-card')).toBe(true);
+    expect(userBubble.classList.contains('md-card')).toBe(false);
   });
 });
