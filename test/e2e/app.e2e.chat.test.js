@@ -118,6 +118,23 @@ test.describe('Chat Panel API Request Toggle', () => {
     expect(chatTitle).toBe('聊天');
   });
 
+  test('should have chat-history with overflow scrolling enabled', async () => {
+    const overflowY = await appHelper.evaluate(() => {
+      const el = document.querySelector('.chat-history');
+      if (!el) return null;
+      return window.getComputedStyle(el).overflowY;
+    });
+    expect(overflowY).toBe('auto');
+  });
+
+  test('should not have custom scrollbar UI components in chat panel', async () => {
+    const count = await appHelper.evaluate(() => {
+      const els = document.querySelectorAll('[class*="scrollbar"], [class*="scroll-bar"], [class*="custom-scroll"]');
+      return els.length;
+    });
+    expect(count).toBe(0);
+  });
+
   test('should not have separate toggle button', async () => {
     const toggleBtnCount = await appHelper.evaluate(() => {
       const chatPanel = document.querySelector('.chat-panel');

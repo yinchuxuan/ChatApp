@@ -17,49 +17,39 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "隐藏聊天区标题栏",
-      "agentid": "worker-app-001-2026-05-01",
-      "user_visible_behavior": "将聊天区标题栏默认隐藏，鼠标靠近时展开显示",
+      "title": "聊天区滑窗支持",
+      "agentid": "ac6d8db46ece54cc2",
+      "user_visible_behavior": "当前聊天区文本长度超过窗口限制后只固定显示最老的历史消息，改为始终默认显示最新的信息，并支持通过鼠标上下滚动显示",
       "status": "passing",
       "verification": [
-        "聊天区标题栏隐藏，鼠标靠近时显示",
+        "聊天区和API msg显示始终默认显示最新的信息，并支持通过鼠标上下滚动显示",
+        "不增加滑窗条的ui组件",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "ChatPanel.jsx: isHeaderHovered state + chat-header-hover-trigger zone + chat-header-visible class toggle on mouseEnter/mouseLeave",
-        "components.chat-panel.css: .chat-header defaults to opacity:0/visibility:hidden, .chat-panel:hover .chat-header shows via opacity:1/visibility:visible, .chat-header-visible forces visible",
-        "Unit tests: 140/140 passing (incl. ChatPanelHeaderHideShow.test.js 5 tests for hidden-by-default/show-on-hover/hide-on-leave/trigger-zone/click-while-hidden)",
-        "Integration tests: 18/18 passing",
-        "E2E tests: 29/29 passing (Playwright, incl. chat header toggle tests with hover-to-reveal)",
-        "ESLint: 0 warnings, 0 errors"
+        "1: Added auto-scroll useEffect in ChatPanel.jsx (line 93-98) depending on [messages, isLoading, tw.displayedCount, showApiRequest]; chat-history has overflow-y: auto CSS for mouse scrolling support",
+        "2: Verified no custom scrollbar components - unit test ChatPanelScroll.test.js:test('should not have custom scrollbar UI components') and e2e test app.e2e.chat.test.js:test('should not have custom scrollbar UI components in chat panel')",
+        "3: All tests pass: 31 unit test suites (165 tests), 2 integration suites (18 tests), 33 e2e tests",
+        "4: eslint 0 warnings, 0 errors on entire project"
       ]
     },
     {
       "id": "app-002",
       "priority": 1,
       "area": "coding",
-      "title": "模型配置兼容anthropic协议",
-      "agentid": "worker-app-002-2026-05-01",
-      "user_visible_behavior": "支持在模型设置中设置anthropic协议的url，通过anthropic客户端发送请求",
-      "status": "passing",
+      "title": "增加聊天历史清空功能",
+      "agentid": "",
+      "user_visible_behavior": "在聊天标题栏中增加支持清空聊天历史的ui组件",
+      "status": "not_started",
       "verification": [
-        "根据url格式自动判断协议(openAI/anthropic)，选择对应客户端进行转发",
-        "API请求中的msg显示要对应当前使用协议的格式",
+        "聊天标题栏中存在清空聊天历史的ui组件",
+        "点击ui组件后可以清空当前聊天历史",
+        "ui设计符合项目ui设计规范",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "apiClient.js: detectProtocol auto-detects protocol from URL (returns 'anthropic' if URL contains anthropic, else 'openai')",
-        "apiClient.js: sendChatRequest builds protocol-specific requests - OpenAI: /chat/completions with Bearer auth; Anthropic: /messages with x-api-key header, anthropic-version: 2023-06-01, max_tokens: 4096",
-        "apiClient.js: protocol-specific SSE parsing - OpenAI: line-by-line choices[0].delta with reasoning_content/content; Anthropic: event-delimited content_block_delta with text_delta/thinking_delta",
-        "ChatPanelRenderers.js: renderApiRequestDisplay accepts protocol param and shows api-protocol-badge (OpenAI/Anthropic)",
-        "ChatPanel.jsx: uses window.detectProtocol and window.sendChatRequest, stores lastApiRequestProtocol for display",
-        "index.html: apiClient.js script loaded before ChatPanel.js for proper dependency order",
-        "Unit tests: 158/158 passing (incl. 18 new: apiClient.detect.test.js 7 tests, apiClient.request.test.js 7 tests, apiClient.display.test.js 4 tests)",
-        "Integration tests: 18/18 passing",
-        "E2E tests: 29/29 passing (1 flaky pre-existing test unrelated to app-002)",
-        "ESLint: 0 warnings, 0 errors"
       ]
     }
   ]

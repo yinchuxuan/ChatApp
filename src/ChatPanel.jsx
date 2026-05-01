@@ -88,6 +88,15 @@ function ChatPanel() {
   const renderers = window.ChatPanelRenderers;
   const renderApiRequestDisplay = (renderers && renderersReady) ? () => renderers.renderApiRequestDisplay(R, lastApiRequestMessages, lastApiRequestProtocol) : () => null;
 
+  const chatHistoryRef = R.useRef(null);
+
+  // Auto-scroll to bottom when messages change, during streaming, or when display toggles
+  R.useEffect(() => {
+    if (chatHistoryRef.current) {
+      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+    }
+  }, [messages, isLoading, tw.displayedCount, showApiRequest]);
+
   const C = R.createElement;
 
   // Thinking state: only use stream thinking during active loading
@@ -159,7 +168,7 @@ function ChatPanel() {
         C('span', { className: 'header-title' }, showApiRequest ? 'API请求' : '聊天'),
         modelConfig && modelConfig.apiUrl && C('span', { className: 'config-status configured' }, modelConfig.modelName || '已连接')
       ),
-      C('div', { className: 'chat-history' },
+      C('div', { className: 'chat-history', ref: chatHistoryRef },
         showApiRequest ? renderApiRequestDisplay() : renderMessages()
       )
     ),
