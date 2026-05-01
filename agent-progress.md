@@ -26,6 +26,12 @@
 - **Verification**: 199 unit + 26 integration + 45 e2e = 270 tests passed; eslint clean
 - **Committed as**: a27227b
 
+### app-002: 优化e2e测试
+- **Status**: passing (accepted after one review)
+- **Changes**: playwright.config.js: workers changed from 1 to Math.min(4, os.cpus().length) for multi-worker parallel execution; maxFailures changed from 0 to 1 for fail-fast on first failure
+- **Verification**: 199 unit + 26 integration + 43 e2e (2 skipped, missing env vars) = 268 tests passed; eslint clean
+- **Committed as**: 37ad3ec
+
 ---
 
 ## 历史记录
