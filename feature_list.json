@@ -1,6 +1,6 @@
 {
   "project": "知识库应用",
-  "last_updated": "2026-04-29",
+  "last_updated": "2026-05-01",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -19,21 +19,20 @@
       "area": "coding",
       "title": "隐藏聊天区标题栏",
       "agentid": "worker-app-001-2026-05-01",
-      "user_visible_behavior": "将聊天区标题栏隐藏，鼠标靠近时显示",
-      "status": "in_progress",
+      "user_visible_behavior": "将聊天区标题栏默认隐藏，鼠标靠近时展开显示",
+      "status": "passing",
       "verification": [
         "聊天区标题栏隐藏，鼠标靠近时显示",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "CSS: .chat-header hidden by default with opacity:0 + visibility:hidden, shown via .chat-panel:hover .chat-header and .chat-header-visible class (no !important). Removed transform:translateY(-100%) so header stays in layout and is clickable. Trigger zone z-index kept at 1 (removed hover z-index:10) to avoid blocking header clicks.",
-        "JSX: ChatPanel.jsx adds isHeaderHovered state, .chat-header-hover-trigger zone at top of chat-panel, onMouseEnter/onMouseLeave handlers on header and trigger zone",
-        "Unit tests: 5 tests in test/components/ChatPanelHeaderHideShow.test.js - hidden by default, shows on hover, hides on leave, trigger zone works, click on hidden header toggles API view",
-        "E2E tests: Added hover before header click in toggle tests (lines 66, 95) to reveal header before interaction",
-        "All 140 unit/integration tests pass (26+2 test suites)",
-        "All 29 e2e tests pass",
-        "eslint 0 warnings, 0 errors"
+        "ChatPanel.jsx: isHeaderHovered state + chat-header-hover-trigger zone + chat-header-visible class toggle on mouseEnter/mouseLeave",
+        "components.chat-panel.css: .chat-header defaults to opacity:0/visibility:hidden, .chat-panel:hover .chat-header shows via opacity:1/visibility:visible, .chat-header-visible forces visible",
+        "Unit tests: 140/140 passing (incl. ChatPanelHeaderHideShow.test.js 5 tests for hidden-by-default/show-on-hover/hide-on-leave/trigger-zone/click-while-hidden)",
+        "Integration tests: 18/18 passing",
+        "E2E tests: 29/29 passing (Playwright, incl. chat header toggle tests with hover-to-reveal)",
+        "ESLint: 0 warnings, 0 errors"
       ]
     },
     {
