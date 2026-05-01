@@ -13,15 +13,18 @@
 ## 项目结构
 
 ```
-harness_lab/
-├── main.js / preload.js          # Electron 主进程 & 安全桥接
-├── ipc/                          # IPC 处理 (backgroundHandlers, configHandlers)
-├── src/                          # 渲染进程 React 应用
-│   ├── App.jsx / ChatPanel.jsx   # 主容器 & 聊天面板
-│   ├── components/               # SettingsPanel, SettingsModelConfig, useTypewriter 等
-│   └── styles/                   # 模块化 CSS (dark/light 主题, 组件样式, 动画)
-├── test/                         # 单元 & 集成测试
-└── docs/                         # 架构文档
+ChatApp/
+├── main.js / preload.js            # Electron 主进程 & contextBridge 安全桥接
+├── ipc/                            # IPC handlers: background, config, chatHistory
+├── src/                            # 渲染进程 React 应用
+│   ├── App.jsx                     # 根组件: 主题管理、背景、路由 ChatPanel/SettingsPanel
+│   ├── ChatPanel.jsx               # 聊天面板: 消息列表、流式渲染、历史加载/保存
+│   ├── ChatInputArea.jsx           # 输入区域: 用户输入、发送消息、流式API调用
+│   ├── components/                 # SettingsPanel, SettingsModelConfig, apiClient,
+│   │                               #   ChatPanelRenderers, useSettingsState, useTypewriter
+│   └── styles/                     # 模块化 CSS: 主题(dark/light)、组件、动画、工具类
+├── test/                           # 单元 & 集成 & E2E 测试 (Jest + Playwright)
+└── docs/                           # 架构、代码规范、UI设计文档
 ```
 
 ## 数据流与安全
