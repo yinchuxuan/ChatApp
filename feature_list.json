@@ -17,49 +17,43 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "将API请求更改为msg历史记录",
-      "agentid": "a7fb4824eb715179b",
-      "user_visible_behavior": "将API请求面板更改为msg历史记录面板，直接从msg历史记录文件中读取，不用从api请求中读取",
+      "title": "删除头像显示",
+      "agentid": "abc9b5114e79d163b",
+      "user_visible_behavior": "在聊天面板中，删除user和assistant的头像显示",
       "status": "passing",
       "verification": [
-        "API请求面板更改为msg历史记录面板",
-        "msg历史记录面板中显示msg历史记录文件中记录的msg json结构体",
+        "聊天面板中不再有头像显示",
+        "消息气泡的宽度和应用ui的宽度匹配",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "ChatPanel header now toggles between 聊天 and msg历史记录 panels",
-        "ChatPanelRenderers.renderMsgHistoryDisplay reads msg JSON structures from history file via getChatHistory IPC",
-        "Removed setLastApiRequestMessages/setLastApiRequestProtocol from ChatInputArea - no longer reads from API requests",
-        "All unit tests pass: 33 suites, 178 tests",
-        "All integration tests pass: 3 suites, 23 tests",
-        "All e2e tests pass: 40 tests",
-        "ESLint: 0 warnings, 0 errors"
+        "Removed chat-avatar div elements from ChatPanel.jsx (both regular messages and streaming loading message)",
+        "Removed all .chat-avatar CSS rules and .chat-message gap from components.chat-messages.css",
+        "Changed .chat-message from row flex to column flex layout",
+        "Changed .chat-message-bubble from inline-block to block display, removed max-width for full-width bubbles",
+        "Updated dist/ChatPanel.js to match source changes",
+        "Unit tests: 188/188 passed (npx jest --forceExit)",
+        "Integration tests: 23/23 passed (npm run test:integration)",
+        "E2E tests: 38/38 app e2e tests passed; 2 unrelated anthropic-config tests fail due to missing API credentials (pre-existing)",
+        "ESLint: 0 warnings, 0 errors (npx eslint .)"
       ]
     },
     {
       "id": "app-002",
       "priority": 1,
       "area": "coding",
-      "title": "将用户输入框默认隐藏",
-      "agentid": "ab382a8f2221689d9",
-      "user_visible_behavior": "用户输入框和聊天标题区一样做成默认隐藏，鼠标标移动到应用下方的边缘时才进行显示，用户在输入时保持显示",
-      "status": "passing",
+      "title": "调整assistant消息的消息气泡样式",
+      "agentid": "",
+      "user_visible_behavior": "调整assistant消息的消息气泡样式，使其能和user的消息作出一定的区分",
+      "status": "not_started",
       "verification": [
-        "用户输入框和聊天标题区一样做成默认隐藏",
-        "鼠标标移动到应用下方的边缘时显示用户输入框",
-        "用户输入时保持输入框的显示",
+        "assistant消息气泡样式和user消息气泡样式不同",
+        "ui设计符合规范，整体色彩基调统一",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "chat-input-area hidden by default with opacity:0 and visibility:hidden, mirrors chat-header pattern",
-        "chat-input-hover-trigger inside chat-main reveals input area on bottom-edge mouse hover",
-        "ChatInputArea keeps input visible while focused or has content (isFocused || inputValue.length > 0)",
-        "All unit tests pass: 34 suites, 188 tests",
-        "All integration tests pass: 3 suites, 23 tests",
-        "All e2e tests pass: 40 tests",
-        "ESLint: 0 warnings, 0 errors"
       ]
     }
   ]

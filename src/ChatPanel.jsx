@@ -140,16 +140,12 @@ function ChatPanel() {
     return R.createElement(R.Fragment, null,
       messages.map((msg, idx) =>
         C('div', { key: idx, className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}` },
-          C('div', { className: 'chat-avatar' },
-            C('span', { className: 'material-icons' }, msg.role === 'user' ? 'person' : 'smart_toy')
-          ),
           msg.role === 'assistant' && msg._thinking
             ? renderAssistantMsg(msg, idx, false)
             : C('div', { className: 'chat-message-bubble md-card' }, msg.content)
         )
       ),
       isLoading && C('div', { className: 'chat-message assistant' },
-        C('div', { className: 'chat-avatar' }, C('span', { className: 'material-icons' }, 'smart_toy')),
         renderAssistantMsg(tw.streamContent, messages.length, true)
       )
     );
