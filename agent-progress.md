@@ -26,6 +26,12 @@
 - **Verification**: 199 unit + 26 integration + 45 e2e = 270 tests passed; eslint clean
 - **Committed as**: a27227b
 
+### app-001: 将user/assistant内容卡片按markdown渲染呈现
+- **Status**: passing (accepted after one revision round for XSS fix)
+- **Changes**: Added renderMarkdown() function using marked.parse() + DOMPurify.sanitize() in ChatPanel.jsx; added CSS for markdown elements in components.chat-messages.css; added DOMPurify script in index.html; added 9 unit tests + 7 e2e tests for markdown rendering and XSS protection
+- **Verification**: 208 unit + 26 integration + 7 e2e = 241 tests passed; eslint clean
+- **Committed as**: f6ff0c8
+
 ### app-002: 优化e2e测试
 - **Status**: passing (accepted after one review)
 - **Changes**: playwright.config.js: workers changed from 1 to Math.min(4, os.cpus().length) for multi-worker parallel execution; maxFailures changed from 0 to 1 for fail-fast on first failure
