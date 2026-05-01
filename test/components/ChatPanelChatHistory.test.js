@@ -70,7 +70,7 @@ describe('ChatPanel Chat History Persistence', () => {
     electronAPI.saveChatHistory.mockClear();
 
     // Send a message
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'Hello' } });
 
     await act(async () => {
@@ -98,7 +98,7 @@ describe('ChatPanel Chat History Persistence', () => {
     });
 
     // Send a message first
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'Hello' } });
 
     await act(async () => {
@@ -157,7 +157,7 @@ describe('ChatPanel Chat History Persistence', () => {
     });
 
     // Send a message - should not crash even if save fails
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'Hello' } });
 
     await act(async () => {

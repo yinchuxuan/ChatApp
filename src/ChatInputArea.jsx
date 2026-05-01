@@ -71,7 +71,7 @@ function ChatInputArea({
       className: 'chat-input-textarea',
       value: inputValue,
       onChange: (e) => setInputValue(e.target.value),
-      placeholder: '输入您的问题...',
+      placeholder: '输入您的回答...',
       disabled: isLoading,
       rows: 1,
       onFocus: () => setIsFocused(true),

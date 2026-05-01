@@ -63,7 +63,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
     });
 
     // Type a message to trigger message addition
-    const input = _screen.getByPlaceholderText('输入您的问题...');
+    const input = _screen.getByPlaceholderText('输入您的回答...');
     _fireEvent.change(input, { target: { value: 'test message' } });
 
     await act(async () => { await Promise.resolve(); });

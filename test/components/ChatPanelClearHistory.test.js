@@ -43,7 +43,7 @@ describe('ChatPanel Clear Chat History', () => {
     });
 
     // Use the input to send a message that will add to messages array
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'Hello' } });
 
     await act(async () => {
@@ -72,7 +72,7 @@ describe('ChatPanel Clear Chat History', () => {
     });
 
     // First send a message to get the clear button to appear
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'Hello' } });
 
     await act(async () => {
@@ -112,7 +112,7 @@ describe('ChatPanel Clear Chat History', () => {
     });
 
     // Send a message
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'Hello' } });
 
     await act(async () => {
@@ -150,7 +150,7 @@ describe('ChatPanel Clear Chat History', () => {
     });
 
     // Send a message to reveal clear button
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'Test' } });
 
     await act(async () => {

@@ -38,7 +38,7 @@ describe('ChatPanel Component - Error Handling', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
     });
 
-    const input = _screen.getByPlaceholderText('输入您的问题...');
+    const input = _screen.getByPlaceholderText('输入您的回答...');
     _fireEvent.change(input, { target: { value: 'test question' } });
 
     await act(async () => { await Promise.resolve(); });
@@ -67,7 +67,7 @@ describe('ChatPanel Component - Error Handling', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
     });
 
-    const input = _screen.getByPlaceholderText('输入您的问题...');
+    const input = _screen.getByPlaceholderText('输入您的回答...');
     _fireEvent.change(input, { target: { value: 'test' } });
 
     await act(async () => { await Promise.resolve(); });
@@ -99,7 +99,7 @@ describe('ChatPanel Component - Error Handling', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
     });
 
-    const input = _screen.getByPlaceholderText('输入您的问题...');
+    const input = _screen.getByPlaceholderText('输入您的回答...');
     _fireEvent.change(input, { target: { value: 'test' } });
 
     await act(async () => { await Promise.resolve(); });
@@ -125,7 +125,7 @@ describe('ChatPanel Component - Error Handling', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
     });
 
-    const input = _screen.getByPlaceholderText('输入您的问题...');
+    const input = _screen.getByPlaceholderText('输入您的回答...');
     _fireEvent.change(input, { target: { value: 'hi' } });
 
     await act(async () => { await Promise.resolve(); });
@@ -160,7 +160,7 @@ describe('ChatPanel Component - Error Handling', () => {
       expect(_screen.getByText('已连接')).toBeInTheDocument();
     }, { timeout: 10000 });
 
-    const input = _screen.getByPlaceholderText('输入您的问题...');
+    const input = _screen.getByPlaceholderText('输入您的回答...');
     _fireEvent.change(input, { target: { value: 'test' } });
     _fireEvent.submit(input.closest('form'));
 

@@ -34,11 +34,7 @@
   background: var(--md-primary-container);
   color: var(--md-on-primary-container);
   box-shadow: var(--md-elevation-level-2);
-  border-radius:
-    var(--md-shape-corner-large)
-    var(--md-shape-corner-small)
-    var(--md-shape-corner-large)
-    var(--md-shape-corner-large);
+  border-radius: 0;
 }
 
 .chat-message.user .chat-message-bubble:hover {
@@ -47,19 +43,13 @@
 
 .chat-message.assistant .chat-message-bubble {
   background: var(--md-surface-container-low);
-  color: var(--md-on-surface);
+  color: var(--md-on-surface-variant);
   box-shadow: var(--md-elevation-level-0);
-  border-radius:
-    var(--md-shape-corner-small)
-    var(--md-shape-corner-large)
-    var(--md-shape-corner-large)
-    var(--md-shape-corner-large);
-  border-left: 3px solid var(--md-primary);
+  border-radius: 0;
 }
 
 .chat-message.assistant .chat-message-bubble:hover {
   box-shadow: var(--md-elevation-level-1);
-  border-left-color: var(--md-primary-dark);
 }
 
 .chat-message.error .chat-message-bubble {

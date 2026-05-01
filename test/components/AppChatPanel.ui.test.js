@@ -89,7 +89,7 @@ describe('ChatPanel Component - UI', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    const input = _screen.getByPlaceholderText('输入您的问题...');
+    const input = _screen.getByPlaceholderText('输入您的回答...');
     _fireEvent.change(input, { target: { value: 'some text' } });
 
     await act(async () => { await Promise.resolve(); });
@@ -105,7 +105,7 @@ describe('ChatPanel Component - UI', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    const input = _screen.getByPlaceholderText('输入您的问题...');
+    const input = _screen.getByPlaceholderText('输入您的回答...');
     _fireEvent.change(input, { target: { value: '   ' } });
 
     await act(async () => { await Promise.resolve(); });

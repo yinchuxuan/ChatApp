@@ -35,7 +35,7 @@ describe('ChatPanel thinking display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'What is 2+2?' } });
     fireEvent.click(document.querySelector('button[type="submit"]'));
 
@@ -62,7 +62,7 @@ describe('ChatPanel thinking display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'test' } });
     fireEvent.click(document.querySelector('button[type="submit"]'));
 
@@ -91,7 +91,7 @@ describe('ChatPanel thinking display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'hello' } });
     fireEvent.click(document.querySelector('button[type="submit"]'));
 

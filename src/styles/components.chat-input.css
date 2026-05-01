@@ -8,7 +8,7 @@
   left: 0;
   right: 0;
   padding: 16px 28px;
-  background: var(--md-surface-container);
+  background: var(--md-surface-container-low);
   display: flex;
   flex-direction: row;
   align-items: center;

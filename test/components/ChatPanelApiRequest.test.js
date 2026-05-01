@@ -161,7 +161,7 @@ describe('ChatPanel Msg History Display', () => {
     });
 
     // Send a message to populate chat
-    const input = screen.getByPlaceholderText('输入您的问题...');
+    const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'test question' } });
     fireEvent.click(document.querySelector('button[type="submit"]'));
 

@@ -16,7 +16,7 @@
 }
 
 [data-theme="dark"] .app-container.has-background-image .chat-input-area {
-  background: rgba(30, 30, 30, 0.85);
+  background: rgba(18, 26, 46, 0.6);
 }
 
 [data-theme="dark"] .app-container.has-background-image .chat-empty .chat-empty-hint {

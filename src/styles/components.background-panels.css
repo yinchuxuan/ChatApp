@@ -23,13 +23,36 @@
 }
 
 .app-container.has-background-image .chat-input-area {
-  background: rgba(245, 245, 245, 0.85);
+  background: rgba(250, 251, 252, 0.6);
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-input-area {
+  background: rgba(18, 26, 46, 0.6);
 }
 
 .app-container.has-background-image .chat-empty .chat-empty-hint {
   background: rgba(245, 245, 245, 0.85);
 }
 
-.app-container.has-background-image .md-card {
-  background: rgba(245, 245, 245, 0.85);
+.app-container.has-background-image .chat-message.user .chat-message-bubble {
+  background: rgba(219, 234, 254, 0.8);
+  color: var(--md-on-primary-container);
+}
+
+.app-container.has-background-image .chat-message.assistant .chat-message-bubble {
+  background: rgba(250, 251, 252, 0.6);
+  color: var(--md-on-surface-variant);
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-message.user .chat-message-bubble {
+  background: rgba(30, 58, 95, 0.8);
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-message.assistant .chat-message-bubble {
+  background: rgba(18, 26, 46, 0.6);
+}
+
+.app-container.has-background-image .chat-message.error .chat-message-bubble {
+  background: rgba(220, 38, 38, 0.4);
+  color: #FFFFFF;
 }
