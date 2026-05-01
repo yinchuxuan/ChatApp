@@ -17,26 +17,22 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "删除头像显示",
-      "agentid": "abc9b5114e79d163b",
-      "user_visible_behavior": "在聊天面板中，删除user和assistant的头像显示",
+      "title": "消息显示调整",
+      "agentid": "",
+      "user_visible_behavior": "在当前聊天面板中，消息显示排满整个聊天界面，输入框显示时覆盖部分消息显示",
       "status": "passing",
       "verification": [
-        "聊天面板中不再有头像显示",
-        "消息气泡的宽度和应用ui的宽度匹配",
+        "消息显示排满整个聊天界面",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "Removed chat-avatar div elements from ChatPanel.jsx (both regular messages and streaming loading message)",
-        "Removed all .chat-avatar CSS rules and .chat-message gap from components.chat-messages.css",
-        "Changed .chat-message from row flex to column flex layout",
-        "Changed .chat-message-bubble from inline-block to block display, removed max-width for full-width bubbles",
-        "Updated dist/ChatPanel.js to match source changes",
-        "Unit tests: 188/188 passed (npx jest --forceExit)",
-        "Integration tests: 23/23 passed (npm run test:integration)",
-        "E2E tests: 38/38 app e2e tests passed; 2 unrelated anthropic-config tests fail due to missing API credentials (pre-existing)",
-        "ESLint: 0 warnings, 0 errors (npx eslint .)"
+        "消息通过position:absolute的输入框覆盖显示: 将.chat-input-area从position:relative改为position:absolute并设置bottom:0，使输入框不再占用flex布局空间，而是覆盖在消息上方",
+        "消息区域增加底部padding: .chat-history的padding-bottom从20px增加到80px，确保最底部消息不被输入框完全遮挡",
+        "单元测试: npx jest - 34 suites, 188 tests全部通过",
+        "集成测试: npx jest --config jest.integration.config.js - 3 suites, 23 tests全部通过",
+        "e2e测试: npx playwright test - 38 passed, 2 skipped(预先已跳过)",
+        "eslint: npx eslint src/ test/ ipc/ - 0 warnings, 0 errors"
       ]
     },
     {
@@ -44,27 +40,19 @@
       "priority": 1,
       "area": "coding",
       "title": "调整assistant消息的消息气泡样式",
-      "agentid": "afc22552ea2392371",
-      "user_visible_behavior": "调整assistant消息的消息气泡样式，使其能和user的消息作出一定的区分",
+      "agentid": "",
+      "user_visible_behavior": "将assistant消息气泡左边的条带去除；更改assistant气泡的背景颜色，使得在有/无背景、浅色/深色模式下，assistant气泡的颜色都和user颜色不同；将assitant的圆角去除，变成矩形卡片",
       "status": "passing",
       "verification": [
-        "assistant消息气泡样式和user消息气泡样式不同",
-        "ui设计符合规范，整体色彩基调统一",
+        "assistant消息气泡左边的条带去除",
+        "在有/无背景、浅色/深色模式下，assistant气泡的颜色都和user颜色不同",
+        "user气泡颜色相对突出",
+        "assistant气泡变成矩形卡片",
+        "ui设计符合规范，色彩统一",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "Enhanced .chat-message.assistant .chat-message-bubble styling with distinct visual treatment:",
-        "  - Background changed to --md-surface-container-low (subtle neutral gray, #FAFBFC light / #121A2E dark) vs user's --md-primary-container (blue tone)",
-        "  - Left accent border: 3px solid --md-primary (blue accent) for clear visual distinction",
-        "  - Shadow reduced to --md-elevation-level-0 (flat) at rest vs user's --md-elevation-level-2, creating depth contrast",
-        "  - Border-radius asymmetric (8px top-left, 12px other corners) opposite to user bubbles (12px top-left, 8px top-right)",
-        "  - Hover state: elevation to level-1, left border darkens to --md-primary-dark",
-        "All color tokens used are from existing Material Design palette - no new colors introduced",
-        "Unit tests: 188/188 passed (npx jest --forceExit)",
-        "Integration tests: 23/23 passed (npm run test:integration)",
-        "E2E tests: 40/40 passed (npx playwright test --config playwright.config.js)",
-        "ESLint: 0 warnings, 0 errors (npx eslint .)"
       ]
     }
   ]

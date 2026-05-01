@@ -3,6 +3,10 @@
    ============================================ */
 
 .chat-input-area {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 16px 28px;
   background: var(--md-surface-container);
   display: flex;
@@ -10,7 +14,7 @@
   align-items: center;
   gap: 12px;
   border-top: 1px solid var(--md-outline-variant);
-  position: relative;
+  z-index: 10;
   /* Hidden by default - show on hover/focus/typing */
   opacity: 0;
   visibility: hidden;
