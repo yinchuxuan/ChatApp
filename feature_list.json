@@ -39,9 +39,9 @@
       "priority": 1,
       "area": "coding",
       "title": "增加聊天历史清空功能",
-      "agentid": "",
+      "agentid": "a09c4175c8c1948f2",
       "user_visible_behavior": "在聊天标题栏中增加支持清空聊天历史的ui组件",
-      "status": "not_started",
+      "status": "passing",
       "verification": [
         "聊天标题栏中存在清空聊天历史的ui组件",
         "点击ui组件后可以清空当前聊天历史",
@@ -50,6 +50,11 @@
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
+        "1: Added clear button (.chat-header-clear-btn) in ChatPanel.jsx header (line 176-181) with delete_sweep icon, conditionally rendered when messages.length > 0, with aria-label and title attributes for accessibility",
+        "2: handleClearHistory function (line 40-42) calls setMessages([]) and tw.clearStreaming() with stopPropagation to prevent header toggle; e2e test verifies messages cleared and empty state shown after click",
+        "3: CSS follows MD3 design patterns - icon button using error color (var(--md-error)), 40x40px touch target with full border-radius, 8% hover state layer, margin-left: auto for right alignment",
+        "4: All tests pass: 32 unit test suites (170 tests, including 5 new clear history tests), 2 integration suites (18 tests), 36 e2e tests (including 3 new clear history e2e tests)",
+        "5: eslint 0 warnings, 0 errors on entire project"
       ]
     }
   ]

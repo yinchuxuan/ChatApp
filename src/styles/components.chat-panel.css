@@ -108,6 +108,8 @@
   border-radius: var(--md-shape-corner-full);
   animation: dot-pulse 2s ease-in-out infinite;
 }
+.chat-header-clear-btn { margin-left: auto; color: var(--md-error, #B3261E); width: 40px; height: 40px; padding: 8px; border-radius: var(--md-shape-corner-full); }
+.chat-header-clear-btn:hover { background: color-mix(in srgb, var(--md-error, #B3261E) 8%, transparent); }
 .chat-history {
   flex: 1;
   overflow-y: auto;

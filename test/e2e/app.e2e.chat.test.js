@@ -38,7 +38,6 @@ test.describe('Chat Panel Interaction', () => {
     expect(emptyText).toContain('开始对话');
   });
 });
-
 test.describe('Chat Panel API Request Toggle', () => {
   test('should have Chat panel input area', async () => {
     const chatInput = await appHelper.waitForSelector('.chat-input-area .md-input');
@@ -139,21 +138,58 @@ test.describe('Chat Panel API Request Toggle', () => {
     const toggleBtnCount = await appHelper.evaluate(() => {
       const chatPanel = document.querySelector('.chat-panel');
       if (!chatPanel) return -1;
-
       const chatHeader = chatPanel.querySelector('.chat-header');
-      const allButtons = chatPanel.querySelectorAll('button');
-
       let count = 0;
-      allButtons.forEach(btn => {
+      chatPanel.querySelectorAll('button').forEach(btn => {
         if (btn.closest('.chat-header') === chatHeader) return;
-
-        const text = btn.textContent || '';
-        if (text.includes('toggle') || text.includes('切换') || text.toLowerCase().includes('api request')) {
-          count++;
-        }
+        if (/toggle|切换|api request/i.test(btn.textContent || '')) count++;
       });
       return count;
     });
     expect(toggleBtnCount).toBe(0);
+  });
+});
+test.describe('Chat Panel Clear History', () => {
+  test('should not have clear button when no messages, appear after sending message', async () => {
+    expect(await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length)).toBe(0);
+    const inputField = await appHelper.waitForSelector('.chat-input-area .md-input');
+    await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
+    await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
+    await appHelper.waitForTimeout(300);
+    const clearBtn = await appHelper.waitForSelector('.chat-header-clear-btn', { state: 'attached', timeout: 5000 });
+    expect(clearBtn).toBeTruthy();
+  });
+
+  test('should clear messages when clicking the clear button and show empty state', async () => {
+    const chatPanel = await appHelper.waitForSelector('.chat-panel');
+    await chatPanel.hover({ position: { x: 200, y: 20 } });
+    await appHelper.waitForTimeout(200);
+
+    await appHelper.waitForSelector('.chat-header-clear-btn', { state: 'visible', timeout: 5000 });
+    // Use evaluate to click via JS to avoid settings-trigger-zone interception
+    await appHelper.evaluate(() => { document.querySelector('.chat-header-clear-btn')?.click(); });
+    await appHelper.waitForTimeout(300);
+
+    const countAfter = await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length);
+    expect(countAfter).toBe(0);
+
+    const chatEmpty = await appHelper.waitForSelector('.chat-empty', { timeout: 5000 });
+    expect(chatEmpty).toBeTruthy();
+  });
+
+  test('clear button should have correct attributes and icon', async () => {
+    const inputField = await appHelper.waitForSelector('.chat-input-area .md-input');
+    await inputField.fill('e2e attr test'); await appHelper.waitForTimeout(100);
+    await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
+    await appHelper.waitForTimeout(300);
+    const result = await appHelper.evaluate(() => {
+      const btn = document.querySelector('.chat-header-clear-btn');
+      if (!btn) return null;
+      return { hasMdBtn: btn.classList.contains('md-btn'), hasMdBtnIcon: btn.classList.contains('md-btn-icon'),
+        ariaLabel: btn.getAttribute('aria-label'), iconName: btn.querySelector('.material-icons')?.textContent };
+    });
+    expect(result).not.toBeNull();
+    expect(result.hasMdBtn).toBe(true); expect(result.hasMdBtnIcon).toBe(true);
+    expect(result.ariaLabel).toBe('清空聊天历史'); expect(result.iconName).toBe('delete_sweep');
   });
 });

@@ -37,6 +37,8 @@ function ChatPanel() {
 
   const handleToggleShowApiRequest = () => setShowApiRequest(p => !p);
 
+  const handleClearHistory = (e) => { e.stopPropagation(); setMessages([]); tw.clearStreaming(); };
+
   const toggleThinkingForMessage = (idx) => {
     setMessages(prev => prev.map((msg, i) =>
       i === idx ? { ...msg, _thinkingVisible: !msg._thinkingVisible } : msg
@@ -166,7 +168,13 @@ function ChatPanel() {
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowApiRequest, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
         C('span', { className: 'material-icons' }, showApiRequest ? 'code' : 'chat'),
         C('span', { className: 'header-title' }, showApiRequest ? 'API请求' : '聊天'),
-        modelConfig && modelConfig.apiUrl && C('span', { className: 'config-status configured' }, modelConfig.modelName || '已连接')
+        modelConfig && modelConfig.apiUrl && C('span', { className: 'config-status configured' }, modelConfig.modelName || '已连接'),
+        messages.length > 0 && C('button', {
+          className: 'chat-header-clear-btn md-btn md-btn-icon',
+          onClick: handleClearHistory,
+          title: '清空聊天历史',
+          'aria-label': '清空聊天历史'
+        }, C('span', { className: 'material-icons' }, 'delete_sweep'))
       ),
       C('div', { className: 'chat-history', ref: chatHistoryRef },
         showApiRequest ? renderApiRequestDisplay() : renderMessages()
