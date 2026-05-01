@@ -11,13 +11,13 @@
   border: 1px solid var(--md-outline-variant);
   box-shadow: var(--md-elevation-level-1);
   transition:
-    background-color var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+    border-color var(--md-motion-duration-short3) var(--md-motion-easing-standard),
     box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
 }
 
 .config-summary-card:hover {
-  background: var(--md-surface-container);
-  box-shadow: var(--md-elevation-level-2);
+  border-color: var(--md-primary);
+  box-shadow: var(--md-elevation-level-3);
 }
 
 /* Inline editable field */
@@ -31,6 +31,7 @@
     padding-left var(--md-motion-duration-short2) var(--md-motion-easing-standard),
     background var(--md-motion-duration-short3) var(--md-motion-easing-standard);
   border-radius: var(--md-shape-corner-small);
+  background: transparent;
 }
 
 .settings-field-inline:last-child {
@@ -40,7 +41,7 @@
 
 .settings-field-inline:hover {
   padding-left: 12px;
-  background: var(--md-surface-container);
+  background: var(--md-surface-container-highest);
 }
 
 .settings-field-label {
