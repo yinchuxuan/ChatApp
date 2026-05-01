@@ -9,8 +9,10 @@ const os = require('os');
 // Get the test directory from environment or create one
 const testDir = process.env.INTEGRATION_TEST_DIR || path.join(os.tmpdir(), 'harness_lab_ipc_test_' + Date.now());
 const dataDir = path.join(testDir, 'knowledge-base-data');
+const chatHistoryDir = path.join(testDir, 'chat-histories');
 const configPath = path.join(testDir, 'model-config.json');
 const backgroundConfigPath = path.join(testDir, 'background-config.json');
+const chatHistoryPath = path.join(chatHistoryDir, 'chat-history.json');
 
 // Ensure directories exist
 const fs = require('fs');
@@ -19,6 +21,9 @@ if (!fs.existsSync(testDir)) {
 }
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
+}
+if (!fs.existsSync(chatHistoryDir)) {
+  fs.mkdirSync(chatHistoryDir, { recursive: true });
 }
 
 // Capture all registered IPC handlers
@@ -72,6 +77,8 @@ module.exports._testDir = testDir;
 module.exports._dataDir = dataDir;
 module.exports._configPath = configPath;
 module.exports._backgroundConfigPath = backgroundConfigPath;
+module.exports._chatHistoryPath = chatHistoryPath;
+module.exports._chatHistoryDir = chatHistoryDir;
 
 module.exports._clearHandlers = () => {
   for (const key in registeredHandlers) {

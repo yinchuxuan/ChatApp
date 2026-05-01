@@ -44,7 +44,9 @@ const mockElectronAPI = {
   saveModelConfig: jest.fn().mockResolvedValue({ success: true }),
   getBackgroundConfig: jest.fn().mockResolvedValue({ success: true, config: { backgroundImageUrl: '', backgroundOpacity: 0.5 } }),
   saveBackgroundConfig: jest.fn().mockResolvedValue({ success: true }),
-  selectBackgroundImage: jest.fn().mockResolvedValue({ success: false, canceled: true })
+  selectBackgroundImage: jest.fn().mockResolvedValue({ success: false, canceled: true }),
+  getChatHistory: jest.fn().mockResolvedValue({ success: true, messages: [] }),
+  saveChatHistory: jest.fn().mockResolvedValue({ success: true })
 };
 
 module.exports = {

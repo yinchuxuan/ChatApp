@@ -6,5 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getBackgroundConfig: () => ipcRenderer.invoke('get-background-config'),
   saveBackgroundConfig: (config) => ipcRenderer.invoke('save-background-config', config),
   selectBackgroundImage: () => ipcRenderer.invoke('select-background-image'),
-  readBackgroundImage: (filePath) => ipcRenderer.invoke('read-background-image', filePath)
+  readBackgroundImage: (filePath) => ipcRenderer.invoke('read-background-image', filePath),
+  getChatHistory: () => ipcRenderer.invoke('get-chat-history'),
+  saveChatHistory: (messages) => ipcRenderer.invoke('save-chat-history', messages)
 });

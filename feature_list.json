@@ -46,9 +46,9 @@
       "priority": 1,
       "area": "coding",
       "title": "默认对聊天历史进行持久化保存",
-      "agentid": "",
+      "agentid": "aec5b6e030d12cf15",
       "user_visible_behavior": "使用文件保存当前聊天历史记录(msg数组)，应用加载时自动从保存的聊天历史记录文件中恢复聊天历史；删除聊天历史时也需要更新聊天历史记录文件",
-      "status": "not_started",
+      "status": "passing",
       "verification": [
         "存在独立的文件夹单独存放聊天历史记录文件",
         "在每次模型回答完毕后自动将msg数组更新到聊天历史记录文件中",
@@ -58,6 +58,15 @@
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
+        "存在独立的文件夹单独存放聊天历史记录文件: chat-histories/ 目录创建在 userData 下, chat-history.json 文件存放其中, ipc/chatHistoryHandlers.js 负责目录创建和文件读写",
+        "在每次模型回答完毕后自动将msg数组更新到聊天历史记录文件中: ChatPanel.jsx 中添加 useEffect 监听 [messages, isLoading], 当 isLoading 为 false 且初始加载完成后自动调用 electronAPI.saveChatHistory(messages)",
+        "应用加载时自动从保存的聊天历史记录文件中恢复聊天历史: ChatPanel.jsx 中添加 useEffect 在组件挂载时调用 electronAPI.getChatHistory(), 成功时恢复消息列表",
+        "删除聊天历史时也需要更新聊天历史记录文件: ChatPanel.jsx 中 handleClearHistory 将 messages 设为空数组, 触发 save effect 自动保存空数组到文件",
+        "单元测试通过: 添加 ipc/chatHistoryHandlers.test.js (8 tests), ChatPanelChatHistory.test.js (6 tests), 共 33 suites 176 tests passed",
+        "集成测试通过: 添加 ipc/chatHistory.integration.test.js (5 tests), 共 3 suites 23 tests passed",
+        "e2e测试通过: 添加 app.e2e.chat-history.test.js (4 tests), 共 40 tests passed",
+        "eslint 0 warnings, 0 errors: npx eslint src/ test/ 验证通过",
+        "所有源文件不超过200行: main.js 69行, preload.js 11行, chatHistoryHandlers.js 42行, ChatPanel.jsx 179行"
       ]
     }
   ]

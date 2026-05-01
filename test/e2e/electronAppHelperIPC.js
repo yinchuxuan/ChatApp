@@ -41,6 +41,20 @@ class ElectronAppHelperIPC {
       return { success: false, error: 'electronAPI not available' };
     }, { filePath });
   }
+
+  async saveChatHistory(messages) {
+    return await this.window.evaluate(async ({ messages }) => {
+      if (window.electronAPI) return await window.electronAPI.saveChatHistory(messages);
+      return { success: false, error: 'electronAPI not available' };
+    }, { messages });
+  }
+
+  async getChatHistory() {
+    return await this.window.evaluate(async () => {
+      if (window.electronAPI) return await window.electronAPI.getChatHistory();
+      return { success: false, error: 'electronAPI not available' };
+    });
+  }
 }
 
 module.exports = { ElectronAppHelperIPC };

@@ -51,6 +51,30 @@ function ChatPanel() {
   const renderApiRequestDisplay = (renderers && renderersReady) ? () => renderers.renderApiRequestDisplay(R, lastApiRequestMessages, lastApiRequestProtocol) : () => null;
 
   const chatHistoryRef = R.useRef(null);
+  const initialLoadDone = R.useRef(false);
+
+  // Load chat history from file on mount
+  R.useEffect(() => {
+    async function loadHistory() {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.getChatHistory();
+        if (result.success && result.messages && result.messages.length > 0) {
+          setMessages(result.messages);
+        }
+      }
+      initialLoadDone.current = true;
+    }
+    loadHistory();
+  }, []);
+
+  // Save chat history to file after model response completes
+  R.useEffect(() => {
+    if (!initialLoadDone.current) return;
+    if (isLoading) return;
+    if (window.electronAPI) {
+      window.electronAPI.saveChatHistory(messages);
+    }
+  }, [messages, isLoading]);
 
   // Auto-scroll to bottom when messages change, during streaming, or when display toggles
   R.useEffect(() => {
