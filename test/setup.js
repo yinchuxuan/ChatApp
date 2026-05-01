@@ -12,6 +12,43 @@ global.TextDecoder = TextDecoder;
 const React = require('react');
 global.window.React = React;
 
+// Set up marked for markdown rendering (simple mock for Jest)
+// Uses a minimal markdown-to-HTML converter that handles common elements
+global.window.marked = {
+  parse: function(text) {
+    // Code blocks (```)
+    text = text.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
+    // Inline code
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // Headers
+    text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    text = text.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    // Bold
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Italic
+    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // Links
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    // Unordered lists
+    text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
+      return '<ul>' + match + '</ul>';
+    });
+    // Paragraphs (lines not already wrapped)
+    text = text.split('\n\n').map(function(block) {
+      if (block.match(/^<(h[1-6]|ul|ol|pre|li|blockquote|hr)/)) return block;
+      return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
+    }).join('\n');
+    return text;
+  }
+};
+
+// Set up DOMPurify for XSS sanitization (pass-through mock for Jest)
+global.window.DOMPurify = {
+  sanitize: function(html) { return html; }
+};
+
 // Mock window.electronAPI for React components
 global.window.electronAPI = {
   getModelConfig: jest.fn(),

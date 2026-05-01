@@ -18,7 +18,7 @@
       "priority": 1,
       "area": "coding",
       "title": "将user内容卡片和assistant内容卡片中的文字内容按markdown渲染呈现",
-      "agentid": "",
+      "agentid": "a30c5aa9ea001c680",
       "user_visible_behavior": "将user内容卡片和assistant内容卡片中的文字内容按markdown渲染呈现",
       "status": "passing",
       "verification": [
@@ -27,6 +27,14 @@
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
+        "src/ChatPanel.jsx: added renderMarkdown() function that uses window.marked.parse() + window.DOMPurify.sanitize() to convert markdown to safe HTML, applied to both user and assistant message bubbles via dangerouslySetInnerHTML",
+        "src/styles/components.chat-messages.css: added .chat-bubble-content styles for markdown elements (headings, lists, code, pre, blockquote, links, tables, hr, images)",
+        "src/index.html: added DOMPurify script tag for HTML sanitization",
+        "package.json: added dompurify 3.4.2 dependency",
+        "test/setup.js: added window.marked mock and window.DOMPurify sanitize pass-through mock",
+        "test/components/ChatPanelMarkdown.test.js: added 9 unit tests covering bold, italic, code, links, lists, headers, thinking+markdown, and bubble wrapper",
+        "test/e2e/app.e2e.markdown.test.js: added 7 e2e tests verifying bold, italic, code, links, headers, lists, and XSS protection",
+        "All unit tests pass (208, 37 suites), integration tests pass (26, 4 suites), e2e tests pass (7 new), eslint 0 warnings 0 errors"
       ]
     },
     {

@@ -126,6 +126,114 @@
   cursor: pointer;
 }
 
+/* Markdown Content inside Chat Bubbles */
+.chat-bubble-content {
+  word-break: break-word;
+}
+
+.chat-bubble-content p {
+  margin: 0 0 0.75em 0;
+}
+
+.chat-bubble-content p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-bubble-content h1,
+.chat-bubble-content h2,
+.chat-bubble-content h3,
+.chat-bubble-content h4,
+.chat-bubble-content h5,
+.chat-bubble-content h6 {
+  margin: 0.75em 0 0.4em;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.chat-bubble-content h1 { font-size: 1.4em; }
+.chat-bubble-content h2 { font-size: 1.25em; }
+.chat-bubble-content h3 { font-size: 1.15em; }
+
+.chat-bubble-content ul,
+.chat-bubble-content ol {
+  margin: 0.4em 0;
+  padding-left: 1.5em;
+}
+
+.chat-bubble-content li {
+  margin: 0.2em 0;
+}
+
+.chat-bubble-content a {
+  color: var(--md-primary);
+  text-decoration: underline;
+}
+
+.chat-bubble-content code {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: var(--md-surface-container-highest);
+}
+
+.chat-message.user .chat-bubble-content code {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.chat-bubble-content pre {
+  margin: 0.5em 0;
+  padding: 12px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--md-surface-container-highest);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+
+.chat-bubble-content pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.chat-bubble-content blockquote {
+  margin: 0.5em 0;
+  padding: 0 0 0 1em;
+  border-left: 3px solid var(--md-outline-variant);
+  color: var(--md-on-surface-variant);
+}
+
+.chat-bubble-content hr {
+  margin: 0.75em 0;
+  border: none;
+  border-top: 1px solid var(--md-outline-variant);
+}
+
+.chat-bubble-content table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  width: 100%;
+}
+
+.chat-bubble-content th,
+.chat-bubble-content td {
+  border: 1px solid var(--md-outline-variant);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.chat-bubble-content th {
+  font-weight: 600;
+  background: var(--md-surface-container);
+}
+
+.chat-bubble-content img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
 /* Thinking text inside bubble */
 .chat-thinking-text {
   margin-bottom: 12px;

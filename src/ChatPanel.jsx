@@ -99,6 +99,15 @@ function ChatPanel() {
   const hasThinking = isLoading && streamThinking && streamThinking.length > 0;
   const currentThinking = hasThinking ? streamThinking : null;
 
+  // Render markdown content as HTML using marked
+  const renderMarkdown = (text) => {
+    const rawHtml = window.marked ? window.marked.parse(text) : text;
+    const html = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
+    return C('div', { className: 'chat-message-bubble md-card' },
+      C('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
+    );
+  };
+
   // Render a single assistant message bubble
   const renderAssistantMsg = (msg, idx, isStreaming) => {
     const thinking = isStreaming ? currentThinking : msg._thinking;
@@ -117,7 +126,7 @@ function ChatPanel() {
 
     return C('div', { className: classes, onClick: handleClick },
       thinking && showThinking && R.createElement('div', { className: 'chat-thinking-text' }, thinking),
-      isStreaming ? msg.slice(0, tw.displayedCount) : msg.content
+      isStreaming ? msg.slice(0, tw.displayedCount) : renderMarkdown(msg.content)
     );
   };
 
@@ -142,7 +151,7 @@ function ChatPanel() {
         C('div', { key: idx, className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}` },
           msg.role === 'assistant' && msg._thinking
             ? renderAssistantMsg(msg, idx, false)
-            : C('div', { className: 'chat-message-bubble md-card' }, msg.content)
+            : renderMarkdown(msg.content)
         )
       ),
       isLoading && C('div', { className: 'chat-message assistant' },
