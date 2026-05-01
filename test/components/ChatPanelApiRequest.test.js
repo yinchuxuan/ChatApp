@@ -34,7 +34,7 @@ describe('ChatPanel API Request Display', () => {
 
     const input = screen.getByPlaceholderText('输入您的问题...');
     fireEvent.change(input, { target: { value: 'test question' } });
-    fireEvent.click(screen.getByText('发送'));
+    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();
@@ -117,7 +117,7 @@ describe('ChatPanel API Request Display', () => {
 
     const input = screen.getByPlaceholderText('输入您的问题...');
     fireEvent.change(input, { target: { value: 'test question' } });
-    fireEvent.click(screen.getByText('发送'));
+    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();

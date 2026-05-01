@@ -33,7 +33,7 @@ describe('ChatPanel - Protocol-Aware API Request Display', () => {
 
     const input = screen.getByPlaceholderText('输入您的问题...');
     fireEvent.change(input, { target: { value: 'test message' } });
-    fireEvent.click(screen.getByText('发送'));
+    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();
@@ -70,7 +70,7 @@ describe('ChatPanel - Protocol-Aware API Request Display', () => {
 
     const input = screen.getByPlaceholderText('输入您的问题...');
     fireEvent.change(input, { target: { value: 'hello claude' } });
-    fireEvent.click(screen.getByText('发送'));
+    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();

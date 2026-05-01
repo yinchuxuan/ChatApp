@@ -51,7 +51,7 @@ describe('ChatPanel Clear Chat History', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const sendBtn = screen.getByText('发送').closest('button');
+    const sendBtn = document.querySelector('button[type="submit"]');
     fireEvent.click(sendBtn);
 
     await act(async () => {
@@ -80,7 +80,7 @@ describe('ChatPanel Clear Chat History', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const sendBtn = screen.getByText('发送').closest('button');
+    const sendBtn = document.querySelector('button[type="submit"]');
     fireEvent.click(sendBtn);
 
     await act(async () => {
@@ -120,7 +120,7 @@ describe('ChatPanel Clear Chat History', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const sendBtn = screen.getByText('发送').closest('button');
+    const sendBtn = document.querySelector('button[type="submit"]');
     fireEvent.click(sendBtn);
 
     await act(async () => {
@@ -158,7 +158,7 @@ describe('ChatPanel Clear Chat History', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const sendBtn = screen.getByText('发送').closest('button');
+    const sendBtn = document.querySelector('button[type="submit"]');
     fireEvent.click(sendBtn);
 
     await act(async () => {

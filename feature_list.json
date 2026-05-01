@@ -17,44 +17,47 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "聊天区滑窗支持",
-      "agentid": "ac6d8db46ece54cc2",
-      "user_visible_behavior": "当前聊天区文本长度超过窗口限制后只固定显示最老的历史消息，改为始终默认显示最新的信息，并支持通过鼠标上下滚动显示",
+      "title": "调整用户输入框样式",
+      "agentid": "a689149d1e1427f27",
+      "user_visible_behavior": "去除用户输入框，直接在输入区中进行文字输入; 同时将发送消息按钮精简为一个icon",
       "status": "passing",
       "verification": [
-        "聊天区和API msg显示始终默认显示最新的信息，并支持通过鼠标上下滚动显示",
-        "不增加滑窗条的ui组件",
+        "用户输入框不存在",
+        "用户直接在输入去中进行文字输入",
+        "发送消息按钮精简为一个icon",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "1: Added auto-scroll useEffect in ChatPanel.jsx (line 93-98) depending on [messages, isLoading, tw.displayedCount, showApiRequest]; chat-history has overflow-y: auto CSS for mouse scrolling support",
-        "2: Verified no custom scrollbar components - unit test ChatPanelScroll.test.js:test('should not have custom scrollbar UI components') and e2e test app.e2e.chat.test.js:test('should not have custom scrollbar UI components in chat panel')",
-        "3: All tests pass: 31 unit test suites (165 tests), 2 integration suites (18 tests), 33 e2e tests",
-        "4: eslint 0 warnings, 0 errors on entire project"
+        "用户输入框不存在: ChatPanel.jsx 中将 <input> 替换为无边框 <textarea>, 不再有 md-input 视觉框, CSS 中移除了 .chat-input-area .md-input 样式",
+        "用户直接在输入区中进行文字输入: 使用 .chat-input-textarea 样式(无 border/outline/background), 用户点击输入区直接输入, Enter 发送 Shift+Enter 换行",
+        "发送消息按钮精简为一个icon: 按钮仅保留 material-icons 图标 (send/refresh), 移除文字标签 ('发送'/'发送中...'), 使用 md-btn-icon send-icon-btn 圆形图标按钮样式",
+        "单元测试通过: 32 suites, 170 tests passed",
+        "集成测试通过: 2 suites, 18 tests passed",
+        "e2e测试通过: 36 tests passed",
+        "eslint 0 warnings, 0 errors: npx eslint src/ test/ 验证通过",
+        "所有源文件不超过200行: ChatPanel.jsx 155行, ChatInputArea.jsx 90行, components.chat-panel.css 174行, components.chat-input.css 66行",
+        "聊天输入区提取为独立组件: src/ChatInputArea.jsx 封装 inputValue state、handleSubmit 逻辑、textarea 键盘处理、发送按钮; ChatPanel.jsx 通过 window.ChatInputArea 引用",
+        "聊天输入区样式提取为独立CSS: src/styles/components.chat-input.css 包含 .chat-input-area、.chat-input-textarea、.send-icon-btn 样式, 在 index.html 和 components.css 中导入"
       ]
     },
     {
       "id": "app-002",
       "priority": 1,
       "area": "coding",
-      "title": "增加聊天历史清空功能",
-      "agentid": "a09c4175c8c1948f2",
-      "user_visible_behavior": "在聊天标题栏中增加支持清空聊天历史的ui组件",
-      "status": "passing",
+      "title": "默认对聊天历史进行持久化保存",
+      "agentid": "",
+      "user_visible_behavior": "使用文件保存当前聊天历史记录(msg数组)，应用加载时自动从保存的聊天历史记录文件中恢复聊天历史；删除聊天历史时也需要更新聊天历史记录文件",
+      "status": "not_started",
       "verification": [
-        "聊天标题栏中存在清空聊天历史的ui组件",
-        "点击ui组件后可以清空当前聊天历史",
-        "ui设计符合项目ui设计规范",
+        "存在独立的文件夹单独存放聊天历史记录文件",
+        "在每次模型回答完毕后自动将msg数组更新到聊天历史记录文件中",
+        "应用加载时自动从保存的聊天历史记录文件中恢复聊天历史",
+        "删除聊天历史时也需要更新聊天历史记录文件",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "1: Added clear button (.chat-header-clear-btn) in ChatPanel.jsx header (line 176-181) with delete_sweep icon, conditionally rendered when messages.length > 0, with aria-label and title attributes for accessibility",
-        "2: handleClearHistory function (line 40-42) calls setMessages([]) and tw.clearStreaming() with stopPropagation to prevent header toggle; e2e test verifies messages cleared and empty state shown after click",
-        "3: CSS follows MD3 design patterns - icon button using error color (var(--md-error)), 40x40px touch target with full border-radius, 8% hover state layer, margin-left: auto for right alignment",
-        "4: All tests pass: 32 unit test suites (170 tests, including 5 new clear history tests), 2 integration suites (18 tests), 36 e2e tests (including 3 new clear history e2e tests)",
-        "5: eslint 0 warnings, 0 errors on entire project"
       ]
     }
   ]

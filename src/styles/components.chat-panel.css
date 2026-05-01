@@ -172,32 +172,3 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-.chat-input-area {
-  padding: 16px 28px;
-  background: var(--md-surface-container);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  border-top: 1px solid var(--md-outline-variant);
-  position: relative;
-}
-.chat-input-area::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--md-primary) 0%, var(--md-secondary) 100%);
-}
-.chat-input-area .md-input-container { flex: 1; }
-.chat-input-area .md-input {
-  border-radius: var(--md-shape-corner-medium);
-  box-shadow: var(--md-elevation-level-0);
-  border: 1px solid var(--md-outline-variant);
-}
-.chat-input-area .md-input:focus {
-  border-color: var(--md-primary);
-  box-shadow: var(--md-elevation-level-1);
-}

@@ -37,7 +37,7 @@ describe('ChatPanel thinking display', () => {
 
     const input = screen.getByPlaceholderText('输入您的问题...');
     fireEvent.change(input, { target: { value: 'What is 2+2?' } });
-    fireEvent.click(screen.getByText('发送'));
+    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();
@@ -64,7 +64,7 @@ describe('ChatPanel thinking display', () => {
 
     const input = screen.getByPlaceholderText('输入您的问题...');
     fireEvent.change(input, { target: { value: 'test' } });
-    fireEvent.click(screen.getByText('发送'));
+    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();
@@ -93,7 +93,7 @@ describe('ChatPanel thinking display', () => {
 
     const input = screen.getByPlaceholderText('输入您的问题...');
     fireEvent.change(input, { target: { value: 'hello' } });
-    fireEvent.click(screen.getByText('发送'));
+    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();

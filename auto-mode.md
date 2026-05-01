@@ -13,7 +13,7 @@
 - 进入工作循环：
 
 1. feature_list.json中只选择一个未完成feature，将其状态置为`in_progress`
-2. 根据feature中记录的agentId启动subagent作为worker围绕feature进行工作；若agentId为空，则起一个新的subagent作为worker，让其阅读worker-rules.md(你自己不用阅读这个文件)并进行工作
+2. 若feature中记录的agentId为空，则起一个新的subagent作为worker，让其阅读worker-rules.md(你自己不用阅读这个文件)并进行工作；若agentId不为空，则resume agentId对应的subagent，让其作为worker继续修改围绕feature的工作
 3. worker完成工作后，在feature_list.json对应的feature中记录worker的agentId
 4. 起一个新的subagent作为evaluater，让其阅读evaluator-rules.md(你自己不用阅读这个文件)，对worker刚刚完成的feature-list中的feature进行评审
 5. 若evaluator的结论不为accept，则回退到步骤2，让该工作项对应的worker根据evaluater的意见修改刚才工作项的内容，起evaluator进行评审，直到结论为accept为止

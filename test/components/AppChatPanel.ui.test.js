@@ -110,7 +110,7 @@ describe('ChatPanel Component - UI', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    _fireEvent.click(_screen.getByText('发送'));
+    _fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => { await Promise.resolve(); });
 

@@ -19,7 +19,7 @@ test.afterAll(async () => {
 
 test.describe('Chat Panel Interaction', () => {
   test('should have input field for questions', async () => {
-    const inputField = await appHelper.waitForSelector('.chat-input-area .md-input');
+    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     expect(inputField).toBeTruthy();
   });
 
@@ -40,7 +40,7 @@ test.describe('Chat Panel Interaction', () => {
 });
 test.describe('Chat Panel API Request Toggle', () => {
   test('should have Chat panel input area', async () => {
-    const chatInput = await appHelper.waitForSelector('.chat-input-area .md-input');
+    const chatInput = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     expect(chatInput).toBeTruthy();
   });
 
@@ -152,7 +152,7 @@ test.describe('Chat Panel API Request Toggle', () => {
 test.describe('Chat Panel Clear History', () => {
   test('should not have clear button when no messages, appear after sending message', async () => {
     expect(await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length)).toBe(0);
-    const inputField = await appHelper.waitForSelector('.chat-input-area .md-input');
+    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
     await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
     await appHelper.waitForTimeout(300);
@@ -178,7 +178,7 @@ test.describe('Chat Panel Clear History', () => {
   });
 
   test('clear button should have correct attributes and icon', async () => {
-    const inputField = await appHelper.waitForSelector('.chat-input-area .md-input');
+    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e attr test'); await appHelper.waitForTimeout(100);
     await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
     await appHelper.waitForTimeout(300);

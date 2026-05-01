@@ -1,0 +1,66 @@
+/* ============================================
+   Chat Input Area - Input textarea and send button
+   ============================================ */
+
+.chat-input-area {
+  padding: 16px 28px;
+  background: var(--md-surface-container);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--md-outline-variant);
+  position: relative;
+}
+.chat-input-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--md-primary) 0%, var(--md-secondary) 100%);
+}
+.chat-input-textarea {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--md-on-surface);
+  font-size: 16px;
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+  line-height: 1.5;
+  padding: 4px 0;
+  resize: none;
+  overflow-y: auto;
+  min-height: 24px;
+  max-height: 120px;
+}
+.chat-input-textarea::placeholder {
+  color: var(--md-on-surface-variant);
+}
+.chat-input-textarea:disabled {
+  color: var(--md-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+.send-icon-btn {
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  border-radius: var(--md-shape-corner-full);
+  color: var(--md-primary);
+  flex-shrink: 0;
+}
+.send-icon-btn:hover {
+  background: rgba(59, 130, 246, var(--md-state-hover-opacity));
+}
+.send-icon-btn:active {
+  background: rgba(59, 130, 246, var(--md-state-pressed-opacity));
+}
+.send-icon-btn:disabled {
+  color: var(--md-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.62;
+  background: transparent;
+}
