@@ -8,10 +8,14 @@ function ChatInputArea({
   isLoading,
   setIsLoading,
   tw,
-  setShowStreamThinking
+  setShowStreamThinking,
+  isInputHovered,
+  setIsInputHovered
 }) {
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
+  const [isFocused, setIsFocused] = R.useState(false);
+  const isVisible = isInputHovered || isFocused || inputValue.length > 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,7 +57,12 @@ function ChatInputArea({
 
   const C = R.createElement;
 
-  return C('form', { className: 'chat-input-area', onSubmit: handleSubmit },
+  return C('form', {
+    className: `chat-input-area${isVisible ? ' chat-input-area-visible' : ''}`,
+    onSubmit: handleSubmit,
+    onMouseEnter: () => setIsInputHovered(true),
+    onMouseLeave: () => setIsInputHovered(false)
+  },
     C('textarea', {
       className: 'chat-input-textarea',
       value: inputValue,
@@ -61,6 +70,8 @@ function ChatInputArea({
       placeholder: '输入您的问题...',
       disabled: isLoading,
       rows: 1,
+      onFocus: () => setIsFocused(true),
+      onBlur: () => setIsFocused(false),
       onKeyDown: (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();

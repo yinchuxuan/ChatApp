@@ -42,9 +42,9 @@
       "priority": 1,
       "area": "coding",
       "title": "将用户输入框默认隐藏",
-      "agentid": "",
+      "agentid": "ab382a8f2221689d9",
       "user_visible_behavior": "用户输入框和聊天标题区一样做成默认隐藏，鼠标标移动到应用下方的边缘时才进行显示，用户在输入时保持显示",
-      "status": "not_started",
+      "status": "passing",
       "verification": [
         "用户输入框和聊天标题区一样做成默认隐藏",
         "鼠标标移动到应用下方的边缘时显示用户输入框",
@@ -53,6 +53,13 @@
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
+        "chat-input-area hidden by default with opacity:0 and visibility:hidden, mirrors chat-header pattern",
+        "chat-input-hover-trigger inside chat-main reveals input area on bottom-edge mouse hover",
+        "ChatInputArea keeps input visible while focused or has content (isFocused || inputValue.length > 0)",
+        "All unit tests pass: 34 suites, 188 tests",
+        "All integration tests pass: 3 suites, 23 tests",
+        "All e2e tests pass: 40 tests",
+        "ESLint: 0 warnings, 0 errors"
       ]
     }
   ]

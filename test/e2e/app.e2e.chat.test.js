@@ -19,33 +19,30 @@ test.afterAll(async () => {
 
 test.describe('Chat Panel Interaction', () => {
   test('should have input field for questions', async () => {
-    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
+    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea', { state: 'attached' });
     expect(inputField).toBeTruthy();
   });
 
   test('should have send button', async () => {
-    const sendBtn = await appHelper.waitForSelector('.chat-input-area button[type="submit"]');
+    const sendBtn = await appHelper.waitForSelector('.chat-input-area button[type="submit"]', { state: 'attached' });
     expect(sendBtn).toBeTruthy();
   });
-
   test('should display empty state message', async () => {
-    // Wait for Babel to transpile scripts and renderers to be available
     await appHelper.waitForTimeout(200);
     const chatEmpty = await appHelper.waitForSelector('.chat-empty');
     expect(chatEmpty).toBeTruthy();
-
     const emptyText = await appHelper.textContent('.chat-empty');
     expect(emptyText).toContain('开始对话');
   });
 });
 test.describe('Chat Panel Msg History Toggle', () => {
   test('should have Chat panel input area', async () => {
-    const chatInput = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
+    const chatInput = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea', { state: 'attached' });
     expect(chatInput).toBeTruthy();
   });
 
   test('should have submit button', async () => {
-    const submitBtn = await appHelper.waitForSelector('.chat-input-area button[type="submit"]');
+    const submitBtn = await appHelper.waitForSelector('.chat-input-area button[type="submit"]', { state: 'attached' });
     expect(submitBtn).toBeTruthy();
   });
 
@@ -152,6 +149,9 @@ test.describe('Chat Panel Msg History Toggle', () => {
 test.describe('Chat Panel Clear History', () => {
   test('should not have clear button when no messages, appear after sending message', async () => {
     expect(await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length)).toBe(0);
+    // Hover bottom edge to reveal input area
+    await (await appHelper.waitForSelector('.chat-input-hover-trigger', { state: 'attached' })).hover();
+    await appHelper.waitForTimeout(200);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
     await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
@@ -159,25 +159,31 @@ test.describe('Chat Panel Clear History', () => {
     const clearBtn = await appHelper.waitForSelector('.chat-header-clear-btn', { state: 'attached', timeout: 5000 });
     expect(clearBtn).toBeTruthy();
   });
-
   test('should clear messages when clicking the clear button and show empty state', async () => {
+    // Hover bottom edge to reveal input area
+    await (await appHelper.waitForSelector('.chat-input-hover-trigger', { state: 'attached' })).hover();
+    await appHelper.waitForTimeout(200);
+    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
+    await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
+    await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
+    await appHelper.waitForTimeout(300);
+    // Hover top edge to reveal header
     const chatPanel = await appHelper.waitForSelector('.chat-panel');
     await chatPanel.hover({ position: { x: 200, y: 20 } });
     await appHelper.waitForTimeout(200);
-
     await appHelper.waitForSelector('.chat-header-clear-btn', { state: 'visible', timeout: 5000 });
     // Use evaluate to click via JS to avoid settings-trigger-zone interception
     await appHelper.evaluate(() => { document.querySelector('.chat-header-clear-btn')?.click(); });
     await appHelper.waitForTimeout(300);
-
     const countAfter = await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length);
     expect(countAfter).toBe(0);
-
     const chatEmpty = await appHelper.waitForSelector('.chat-empty', { timeout: 5000 });
     expect(chatEmpty).toBeTruthy();
   });
-
   test('clear button should have correct attributes and icon', async () => {
+    // Hover bottom edge to reveal input area
+    await (await appHelper.waitForSelector('.chat-input-hover-trigger', { state: 'attached' })).hover();
+    await appHelper.waitForTimeout(200);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e attr test'); await appHelper.waitForTimeout(100);
     await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();

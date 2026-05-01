@@ -12,6 +12,16 @@
   z-index: 1;
 }
 
+/* Hover trigger zone at bottom of chat panel */
+.chat-input-hover-trigger {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  z-index: 1;
+}
+
 .chat-panel {
   flex: 1;
   display: flex;
