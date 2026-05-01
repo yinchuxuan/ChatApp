@@ -10,10 +10,13 @@
   background: var(--md-surface-container-highest);
   border: 1px solid var(--md-outline-variant);
   box-shadow: var(--md-elevation-level-1);
-  transition: box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+  transition:
+    background-color var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+    box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
 }
 
 .config-summary-card:hover {
+  background: var(--md-surface-container);
   box-shadow: var(--md-elevation-level-2);
 }
 
@@ -74,14 +77,24 @@
 .settings-inline-input {
   margin-left: 26px;
   font-size: 14px;
-  padding: 8px 12px;
+  padding: 4px 8px;
   max-width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: var(--md-shape-corner-small);
+  color: var(--md-on-surface);
+  box-shadow: none;
+}
+
+.settings-inline-input:hover {
+  background: var(--md-surface-container);
 }
 
 .settings-inline-input:focus {
+  background: var(--md-surface-container);
   outline: none !important;
   box-shadow: none !important;
-  border-color: var(--md-outline-variant);
+  border: none !important;
 }
 
 .config-empty-state {
