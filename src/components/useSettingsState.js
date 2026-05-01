@@ -3,11 +3,11 @@
 
 function useSettingsState(onBackgroundChange) {
   const [config, setConfig] = React.useState({
-    apiUrl: '', apiKey: '', modelName: ''
+    apiUrl: '', apiKey: '', modelName: '', protocol: 'openai'
   });
   const [editMode, setEditMode] = React.useState(false);
   const [editConfig, setEditConfig] = React.useState({
-    apiUrl: '', apiKey: '', modelName: ''
+    apiUrl: '', apiKey: '', modelName: '', protocol: 'openai'
   });
   const [backgroundConfig, setBackgroundConfig] = React.useState({
     backgroundImageUrl: '', backgroundOpacity: 0.5
@@ -23,8 +23,10 @@ function useSettingsState(onBackgroundChange) {
       if (window.electronAPI) {
         const result = await window.electronAPI.getModelConfig();
         if (result.success) {
-          setConfig(result.config);
-          setEditConfig(result.config);
+          const defaultConfig = { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' };
+          const cfg = { ...defaultConfig, ...result.config };
+          setConfig(cfg);
+          setEditConfig(cfg);
         }
         const bgResult = await window.electronAPI.getBackgroundConfig();
         if (bgResult.success) {
@@ -46,7 +48,11 @@ function useSettingsState(onBackgroundChange) {
   const handleSave = async () => {
     if (window.electronAPI) {
       const result = await window.electronAPI.saveModelConfig(editConfig);
-      if (result.success) { setConfig(editConfig); setEditMode(false); }
+      if (result.success) {
+        setConfig(editConfig);
+        setEditMode(false);
+        window.dispatchEvent(new CustomEvent('model-config-changed', { detail: editConfig }));
+      }
     }
   };
 

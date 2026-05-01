@@ -29,6 +29,12 @@ function ChatPanel() {
     loadConfig();
   }, []);
 
+  R.useEffect(() => {
+    const handler = (e) => setModelConfig(e.detail);
+    window.addEventListener('model-config-changed', handler);
+    return () => window.removeEventListener('model-config-changed', handler);
+  }, []);
+
   const handleToggleShowApiRequest = () => setShowApiRequest(p => !p);
 
   const toggleThinkingForMessage = (idx) => {
@@ -50,7 +56,7 @@ function ChatPanel() {
     tw.startStreaming(); setShowStreamThinking(true);
     try {
       const apiMessages = newMessages.map(msg => ({ role: msg.role, content: msg.content }));
-      const protocol = window.detectProtocol(modelConfig.apiUrl);
+      const protocol = modelConfig.protocol || 'openai';
       setLastApiRequestMessages(apiMessages);
       setLastApiRequestProtocol(protocol);
       await window.sendChatRequest(
@@ -58,6 +64,7 @@ function ChatPanel() {
           apiUrl: modelConfig.apiUrl,
           apiKey: modelConfig.apiKey,
           modelName: modelConfig.modelName,
+          protocol: modelConfig.protocol || 'openai',
           messages: apiMessages
         },
         {

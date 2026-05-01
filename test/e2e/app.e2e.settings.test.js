@@ -66,7 +66,7 @@ test.describe('Settings Panel', () => {
     expect(apiUrlInput).toBeTruthy();
 
     const inputCount = await appHelper.count('.settings-field .settings-input');
-    expect(inputCount).toBe(3);
+    expect(inputCount).toBe(4);
 
     const cancelBtn = await appHelper.waitForSelector('.settings-actions .md-btn-primary');
     expect(cancelBtn).toBeTruthy();

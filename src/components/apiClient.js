@@ -1,14 +1,13 @@
 // apiClient - API Client with OpenAI/Anthropic protocol support
-// Auto-detects protocol from URL and routes to the correct API format
+// Protocol is explicitly selected by the user in settings
 
-function detectProtocol(apiUrl) {
-  if (!apiUrl) return 'openai';
-  return apiUrl.toLowerCase().includes('anthropic') ? 'anthropic' : 'openai';
+function normalizeUrl(url) {
+  return url.replace(/\/+$/, '').replace(/\/v1$/, '');
 }
 
 function buildOpenAIRequest({ apiUrl, apiKey, modelName, messages }) {
   return {
-    url: `${apiUrl}/chat/completions`,
+    url: `${normalizeUrl(apiUrl)}/v1/chat/completions`,
     options: {
       method: 'POST',
       headers: {
@@ -26,7 +25,7 @@ function buildOpenAIRequest({ apiUrl, apiKey, modelName, messages }) {
 
 function buildAnthropicRequest({ apiUrl, apiKey, modelName, messages }) {
   return {
-    url: `${apiUrl}/messages`,
+    url: `${normalizeUrl(apiUrl)}/v1/messages`,
     options: {
       method: 'POST',
       headers: {
@@ -45,7 +44,7 @@ function buildAnthropicRequest({ apiUrl, apiKey, modelName, messages }) {
 }
 
 function buildRequest(config) {
-  const protocol = detectProtocol(config.apiUrl);
+  const protocol = config.protocol || 'openai';
   const builder = protocol === 'anthropic' ? buildAnthropicRequest : buildOpenAIRequest;
   return { protocol, ...builder(config) };
 }
@@ -74,8 +73,8 @@ function parseSSEEvent(eventText, protocol, callbacks) {
   const lines = eventText.split('\n');
   const dataParts = [];
   for (const line of lines) {
-    if (line.startsWith('data: ')) {
-      dataParts.push(line.slice(6));
+    if (line.startsWith('data:')) {
+      dataParts.push(line.slice(5).replace(/^ /, ''));
     }
   }
   if (dataParts.length === 0) return;
@@ -124,8 +123,8 @@ async function readSSEStream(reader, protocol, callbacks) {
       buffer = lines.pop() || '';
       for (const line of lines) {
         const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith('data: ')) continue;
-        const data = trimmed.slice(6);
+        if (!trimmed || !trimmed.startsWith('data:')) continue;
+        const data = trimmed.slice(5).replace(/^ /, '');
         if (data === '[DONE]') continue;
         try {
           parseOpenAIChunk(JSON.parse(data), callbacks);
@@ -162,8 +161,7 @@ async function sendChatRequest(config, callbacks) {
 
 // Make available globally for browser environment
 if (typeof window !== 'undefined') {
-  window.detectProtocol = detectProtocol;
   window.sendChatRequest = sendChatRequest;
 }
 
-export { detectProtocol, sendChatRequest };
+export { sendChatRequest };

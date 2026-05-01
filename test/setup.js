@@ -157,11 +157,8 @@ global.window.ChatPanelRenderers = ChatPanelRenderers;
 const useTypewriter = require('../src/components/useTypewriter.js');
 global.window.useTypewriter = useTypewriter;
 
-// Import apiClient for protocol detection and chat requests
+// Import apiClient for chat requests
 const apiClient = require('../src/components/apiClient.js');
-if (apiClient.detectProtocol) {
-  global.window.detectProtocol = apiClient.detectProtocol;
-}
 if (apiClient.sendChatRequest) {
   global.window.sendChatRequest = apiClient.sendChatRequest;
 }

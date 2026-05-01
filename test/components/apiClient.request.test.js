@@ -53,6 +53,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
     const body = JSON.parse(options.body);
     expect(body.model).toBe('gpt-3.5-turbo');
   });
+
 });
 
 describe('sendChatRequest - Anthropic protocol', () => {
@@ -67,9 +68,10 @@ describe('sendChatRequest - Anthropic protocol', () => {
 
     await window.sendChatRequest(
       {
-        apiUrl: 'https://api.anthropic.com/v1',
+        apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test-key',
         modelName: 'claude-sonnet-4-20250514',
+        protocol: 'anthropic',
         messages: [{ role: 'user', content: 'Hello Claude' }]
       },
       { onToken, onThinkingToken }
@@ -77,7 +79,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
 
     expect(global.fetch).toHaveBeenCalled();
     const [url, options] = global.fetch.mock.calls[0];
-    expect(url).toBe('https://api.anthropic.com/v1/messages');
+    expect(url).toBe('https://proxy.example.com/anthropic/v1/messages');
     expect(options.method).toBe('POST');
     expect(options.headers['x-api-key']).toBe('sk-ant-test-key');
     expect(options.headers['anthropic-version']).toBe('2023-06-01');
@@ -96,9 +98,10 @@ describe('sendChatRequest - Anthropic protocol', () => {
 
     await window.sendChatRequest(
       {
-        apiUrl: 'https://api.anthropic.com/v1',
+        apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
         modelName: '',
+        protocol: 'anthropic',
         messages: [{ role: 'user', content: 'Hi' }]
       },
       { onToken }
@@ -117,9 +120,10 @@ describe('sendChatRequest - Anthropic protocol', () => {
 
     await window.sendChatRequest(
       {
-        apiUrl: 'https://api.anthropic.com/v1',
+        apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
         modelName: 'claude-sonnet-4-20250514',
+        protocol: 'anthropic',
         messages: [{ role: 'user', content: 'Hi' }]
       },
       { onToken, onThinkingToken }
@@ -139,9 +143,10 @@ describe('sendChatRequest - Anthropic protocol', () => {
 
     await window.sendChatRequest(
       {
-        apiUrl: 'https://api.anthropic.com/v1',
+        apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
         modelName: 'claude-sonnet-4-20250514',
+        protocol: 'anthropic',
         messages: [{ role: 'user', content: 'Complex question' }]
       },
       { onToken, onThinkingToken }
@@ -163,9 +168,10 @@ describe('sendChatRequest - Anthropic protocol', () => {
     await expect(
       window.sendChatRequest(
         {
-          apiUrl: 'https://api.anthropic.com/v1',
+          apiUrl: 'https://proxy.example.com/anthropic',
           apiKey: 'bad-key',
           modelName: 'claude-sonnet-4-20250514',
+          protocol: 'anthropic',
           messages: [{ role: 'user', content: 'Hi' }]
         },
         { onToken: jest.fn() }

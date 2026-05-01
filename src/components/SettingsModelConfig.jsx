@@ -40,6 +40,17 @@ function SettingsModelConfig({
             />
           </div>
           <div className="settings-field">
+            <label className="settings-label">协议类型</label>
+            <select
+              className="md-input settings-input"
+              value={editConfig.protocol}
+              onChange={(e) => onChange('protocol', e.target.value)}
+            >
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+            </select>
+          </div>
+          <div className="settings-field">
             <label className="settings-label">模型名称</label>
             <input
               type="text"
@@ -69,6 +80,13 @@ function SettingsModelConfig({
                 API Key
               </span>
               <span className="config-summary-value">{maskApiKey(config.apiKey) || '未设置'}</span>
+            </div>
+            <div className="config-summary-item">
+              <span className="config-summary-label">
+                <span className="material-icons">settings_ethernet</span>
+                协议类型
+              </span>
+              <span className="config-summary-value">{config.protocol === 'anthropic' ? 'Anthropic' : 'OpenAI'}</span>
             </div>
             <div className="config-summary-item">
               <span className="config-summary-label">

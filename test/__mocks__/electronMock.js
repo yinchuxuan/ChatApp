@@ -40,7 +40,7 @@ const mockProtocol = {
 
 // Mock window.electronAPI for renderer process tests
 const mockElectronAPI = {
-  getModelConfig: jest.fn().mockResolvedValue({ success: true, config: { apiUrl: '', apiKey: '', modelName: '' } }),
+  getModelConfig: jest.fn().mockResolvedValue({ success: true, config: { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' } }),
   saveModelConfig: jest.fn().mockResolvedValue({ success: true }),
   getBackgroundConfig: jest.fn().mockResolvedValue({ success: true, config: { backgroundImageUrl: '', backgroundOpacity: 0.5 } }),
   saveBackgroundConfig: jest.fn().mockResolvedValue({ success: true }),

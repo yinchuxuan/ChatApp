@@ -56,7 +56,7 @@ describe('ChatPanel - Protocol-Aware API Request Display', () => {
   test('should show Anthropic protocol badge when using Anthropic URL', async () => {
     electronAPI.getModelConfig.mockResolvedValue({
       success: true,
-      config: { apiUrl: 'https://api.anthropic.com/v1', apiKey: 'sk-ant-test', modelName: 'claude-sonnet-4-20250514' }
+      config: { apiUrl: 'https://proxy.example.com/anthropic', apiKey: 'sk-ant-test', modelName: 'claude-sonnet-4-20250514', protocol: 'anthropic' }
     });
     global.fetch.mockResolvedValue(global.createAnthropicStreamingMock('Claude response'));
 
