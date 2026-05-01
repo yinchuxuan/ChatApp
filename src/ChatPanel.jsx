@@ -13,6 +13,7 @@ function ChatPanel() {
   const [showStreamThinking, setShowStreamThinking] = R.useState(true);
   const [isHeaderHovered, setIsHeaderHovered] = R.useState(false);
   const [isInputHovered, setIsInputHovered] = R.useState(false);
+  const [isInputTriggerHovered, setIsInputTriggerHovered] = R.useState(false);
   const tw = window.useTypewriter(R);
 
   R.useEffect(() => {
@@ -171,7 +172,7 @@ function ChatPanel() {
       C('div', { className: 'chat-history', ref: chatHistoryRef },
         showMsgHistory ? renderMsgHistoryDisplay() : renderMessages()
       ),
-      C('div', { className: 'chat-input-hover-trigger', onMouseEnter: () => setIsInputHovered(true), onMouseLeave: () => setIsInputHovered(false) })
+      C('div', { className: 'chat-input-hover-trigger', onMouseEnter: () => setIsInputTriggerHovered(true), onMouseLeave: () => setIsInputTriggerHovered(false) })
     ),
     C(InputArea, {
       messages, setMessages,
@@ -180,7 +181,9 @@ function ChatPanel() {
       tw,
       setShowStreamThinking,
       isInputHovered,
-      setIsInputHovered
+      setIsInputHovered,
+      isInputTriggerHovered,
+      setIsInputTriggerHovered
     })
   );
 }

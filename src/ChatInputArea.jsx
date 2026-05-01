@@ -10,23 +10,27 @@ function ChatInputArea({
   tw,
   setShowStreamThinking,
   isInputHovered,
-  setIsInputHovered
+  setIsInputHovered,
+  isInputTriggerHovered,
+  setIsInputTriggerHovered
 }) {
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
   const [isFocused, setIsFocused] = R.useState(false);
-  const isVisible = isInputHovered || isFocused || inputValue.length > 0;
+  const isVisible = isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
     if (!modelConfig || !modelConfig.apiUrl || !modelConfig.apiKey) {
       setMessages(prev => [...prev, { role: 'user', content: inputValue }, { role: 'assistant', content: '请先在右侧设置面板配置模型 API', isError: true }]);
-      setInputValue(''); return;
+      setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); return;
     }
     const userMessage = { role: 'user', content: inputValue };
     const newMessages = [...messages, userMessage];
-    setMessages(newMessages); setInputValue(''); setIsLoading(true);
+    setMessages(newMessages); setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); setIsLoading(true);
+    const textarea = e.currentTarget.querySelector('textarea');
+    if (textarea) textarea.blur();
     tw.startStreaming(); setShowStreamThinking(true);
     try {
       await window.sendChatRequest(
