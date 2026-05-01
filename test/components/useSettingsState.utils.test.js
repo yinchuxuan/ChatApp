@@ -175,6 +175,7 @@ describe('useSettingsState Hook - Utilities', () => {
       expect(returned.handleChange).toBeDefined();
       expect(returned.handleBackgroundChange).toBeDefined();
       expect(returned.handleSelectBackgroundImage).toBeDefined();
+      expect(returned.handleClearBackgroundImage).toBeDefined();
     });
   });
 

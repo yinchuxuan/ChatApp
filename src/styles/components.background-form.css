@@ -125,3 +125,36 @@
   font-size: 12px;
   font-weight: 500;
 }
+
+.background-preview-clear {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+    background var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+}
+
+.background-preview:hover .background-preview-clear {
+  opacity: 1;
+}
+
+.background-preview-clear:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.background-preview-clear .material-icons {
+  font-size: 16px;
+}

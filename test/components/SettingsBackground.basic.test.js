@@ -16,7 +16,8 @@ describe('SettingsBackground Component - Basic', () => {
     const props = {
       backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
       onBackgroundChange: jest.fn(),
-      onSelectBackgroundImage: jest.fn()
+      onSelectBackgroundImage: jest.fn(),
+      onClearBackgroundImage: jest.fn()
     };
 
     _render(React.createElement(SettingsBackground, props));
@@ -32,7 +33,8 @@ describe('SettingsBackground Component - Basic', () => {
     const props = {
       backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
       onBackgroundChange: jest.fn(),
-      onSelectBackgroundImage: jest.fn()
+      onSelectBackgroundImage: jest.fn(),
+      onClearBackgroundImage: jest.fn()
     };
 
     _render(React.createElement(SettingsBackground, props));

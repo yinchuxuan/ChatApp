@@ -16,7 +16,8 @@ describe('SettingsBackground Component - Preview Actions', () => {
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
       onBackgroundChange: jest.fn(),
-      onSelectBackgroundImage: jest.fn()
+      onSelectBackgroundImage: jest.fn(),
+      onClearBackgroundImage: jest.fn()
     };
 
     _render(React.createElement(SettingsBackground, props));
@@ -51,7 +52,30 @@ describe('SettingsBackground Component - Preview Actions', () => {
     expect(onSelectBackgroundImage).toHaveBeenCalled();
   });
 
-  test('should not show preview in empty state', async () => {
+  test('should call onClearBackgroundImage when clear button clicked', async () => {
+    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+
+    const onClearBackgroundImage = jest.fn();
+    const props = {
+      backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
+      onSelectBackgroundImage: jest.fn(),
+      onBackgroundChange: jest.fn(),
+      onClearBackgroundImage
+    };
+
+    _render(React.createElement(SettingsBackground, props));
+
+    await act(async () => { await Promise.resolve(); });
+
+    const clearBtn = document.querySelector('.background-preview-clear');
+    expect(clearBtn).toBeTruthy();
+
+    _fireEvent.click(clearBtn);
+
+    expect(onClearBackgroundImage).toHaveBeenCalled();
+  });
+
+  test('should not show preview or clear button in empty state', async () => {
     const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
 
     const props = {
@@ -66,5 +90,6 @@ describe('SettingsBackground Component - Preview Actions', () => {
     await act(async () => { await Promise.resolve(); });
 
     expect(document.querySelector('.background-preview')).toBeNull();
+    expect(document.querySelector('.background-preview-clear')).toBeNull();
   });
 });

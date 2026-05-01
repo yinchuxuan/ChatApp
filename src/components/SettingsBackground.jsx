@@ -5,7 +5,8 @@
 function SettingsBackground({
   backgroundConfig,
   onBackgroundChange,
-  onSelectBackgroundImage
+  onSelectBackgroundImage,
+  onClearBackgroundImage
 }) {
   const [editingField, setEditingField] = React.useState(null);
   const [tempValue, setTempValue] = React.useState('');
@@ -33,6 +34,11 @@ function SettingsBackground({
   const handlePreviewClick = (e) => {
     e.stopPropagation();
     onSelectBackgroundImage();
+  };
+
+  const handleClearClick = (e) => {
+    e.stopPropagation();
+    onClearBackgroundImage();
   };
 
   const opacityPercent = Math.round((editingField === 'backgroundOpacity' ? parseFloat(tempValue) || 0 : backgroundConfig.backgroundOpacity) * 100);
@@ -66,6 +72,9 @@ function SettingsBackground({
                 <span className="material-icons">photo_library</span>
                 <span>更换图片</span>
               </div>
+              <button className="background-preview-clear" onClick={handleClearClick} title="清除背景图片">
+                <span className="material-icons">close</span>
+              </button>
             </div>
           )}
           {renderField('backgroundOpacity', '透明度', 'tune')}

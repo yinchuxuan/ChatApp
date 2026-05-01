@@ -33,14 +33,14 @@ describe('SettingsBackground Component - Opacity', () => {
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
       onBackgroundChange: jest.fn(),
-      onSelectBackgroundImage: jest.fn()
+      onSelectBackgroundImage: jest.fn(),
+      onClearBackgroundImage: jest.fn()
     };
 
     _render(React.createElement(SettingsBackground, props));
 
     await act(async () => { await Promise.resolve(); });
 
-    // Find and click the opacity value
     const opacityValue = _screen.getByText('50%');
     _fireEvent.click(opacityValue);
 

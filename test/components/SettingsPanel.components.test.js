@@ -18,7 +18,8 @@ const mockUseSettingsStateReturn = {
   maskApiKey: (key) => key ? '****' : '',
   handleChange: jest.fn(),
   handleBackgroundChange: jest.fn(),
-  handleSelectBackgroundImage: jest.fn()
+  handleSelectBackgroundImage: jest.fn(),
+  handleClearBackgroundImage: jest.fn()
 };
 
 const mockUseSettingsState = jest.fn(() => mockUseSettingsStateReturn);
