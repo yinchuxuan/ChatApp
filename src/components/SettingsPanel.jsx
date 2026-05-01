@@ -8,11 +8,11 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
 
   const state = useSettingsStateHook(onBackgroundChange);
   const {
-    config, editConfig, editMode, backgroundConfig, editBackgroundConfig,
+    config, backgroundConfig, editBackgroundConfig,
     backgroundEditMode, isConfigured, maskApiKey,
-    handleEditClick, handleCancelEdit, handleChange, handleSave,
     handleBackgroundEditClick, handleBackgroundCancelEdit, handleBackgroundChange,
-    handleBackgroundSave, handleSelectBackgroundImage, handleClearBackgroundImage
+    handleBackgroundSave, handleSelectBackgroundImage, handleClearBackgroundImage,
+    handleChange
   } = state;
 
   const handleMouseEnter = () => setVisible(true);
@@ -55,28 +55,12 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
           {SettingsModelConfigComp ? (
             <SettingsModelConfigComp
               config={config}
-              editConfig={editConfig}
-              editMode={editMode}
-              onEditClick={handleEditClick}
-              onCancelEdit={handleCancelEdit}
               onChange={handleChange}
-              onSave={handleSave}
               maskApiKey={maskApiKey}
               isConfigured={isConfigured}
             />
           ) : null}
         </div>
-        {editMode && (
-          <div className="settings-actions">
-            <button className="md-btn md-btn-primary" onClick={handleCancelEdit}>
-              <span>取消</span>
-            </button>
-            <button className="md-btn md-btn-contained" onClick={handleSave}>
-              <span className="material-icons">save</span>
-              <span>保存模型</span>
-            </button>
-          </div>
-        )}
       </div>
       <div className={`settings-indicator ${isConfigured ? 'configured' : ''}`}>
         <span className="material-icons">chevron_left</span>

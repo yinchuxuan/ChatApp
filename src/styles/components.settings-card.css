@@ -10,36 +10,23 @@
   background: var(--md-surface-container-highest);
   border: 1px solid var(--md-outline-variant);
   box-shadow: var(--md-elevation-level-1);
-  transition: box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
 }
 
-.config-summary-card:hover {
-  box-shadow: var(--md-elevation-level-2);
-}
-
-.config-summary-item {
+/* Inline editable field */
+.settings-field-inline {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 16px 0;
   border-bottom: 1px solid var(--md-outline-variant);
-  transition:
-    padding-left var(--md-motion-duration-short2) var(--md-motion-easing-standard),
-    background var(--md-motion-duration-short3) var(--md-motion-easing-standard);
-  border-radius: var(--md-shape-corner-small);
 }
 
-.config-summary-item:last-child {
+.settings-field-inline:last-child {
   border-bottom: none;
   padding-bottom: 0;
 }
 
-.config-summary-item:hover {
-  padding-left: 12px;
-  background: var(--md-surface-container);
-}
-
-.config-summary-label {
+.settings-field-label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -50,18 +37,44 @@
   font-family: 'Google Sans Text', 'Roboto', sans-serif;
 }
 
-.config-summary-label .material-icons {
+.settings-field-label .material-icons {
   font-size: 18px;
   color: var(--md-primary);
 }
 
-.config-summary-value {
+.settings-field-value {
   color: var(--md-on-surface);
   font-size: 14px;
   font-weight: 500;
   padding-left: 26px;
   word-break: break-all;
   font-family: 'Google Sans Text', 'Roboto', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color var(--md-motion-duration-short2) var(--md-motion-easing-standard);
+}
+
+.settings-field-value:hover {
+  color: var(--md-primary);
+}
+
+.settings-edit-icon {
+  font-size: 16px !important;
+  opacity: 0;
+  transition: opacity var(--md-motion-duration-short2) var(--md-motion-easing-standard);
+}
+
+.settings-field-value:hover .settings-edit-icon {
+  opacity: 1;
+}
+
+.settings-inline-input {
+  margin-left: 26px;
+  font-size: 14px;
+  padding: 8px 12px;
+  max-width: 100%;
 }
 
 .config-empty-state {

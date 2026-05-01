@@ -13,17 +13,12 @@ const mockSettingsModelConfig = (_props) =>
 
 const mockUseSettingsStateReturn = {
   config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' },
-  editConfig: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' },
-  editMode: false,
   backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
   editBackgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
   backgroundEditMode: false,
   isConfigured: 'http://api.example.com',
   maskApiKey: (key) => key ? '****' : '',
-  handleEditClick: jest.fn(),
-  handleCancelEdit: jest.fn(),
   handleChange: jest.fn(),
-  handleSave: jest.fn(),
   handleBackgroundEditClick: jest.fn(),
   handleBackgroundCancelEdit: jest.fn(),
   handleBackgroundChange: jest.fn(),

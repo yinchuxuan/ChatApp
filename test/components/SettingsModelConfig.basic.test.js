@@ -14,10 +14,7 @@ describe('SettingsModelConfig Component - Basic', () => {
     const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
 
     const props = {
-      config: { apiUrl: '', apiKey: '', modelName: '' },
-      editConfig: { apiUrl: '', apiKey: '', modelName: '' },
-      editMode: false,
-      onEditClick: jest.fn(),
+      config: { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' },
       onChange: jest.fn(),
       maskApiKey: (key) => key ? '****' : '',
       isConfigured: false
@@ -34,10 +31,7 @@ describe('SettingsModelConfig Component - Basic', () => {
     const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
 
     const props = {
-      config: { apiUrl: '', apiKey: '', modelName: '' },
-      editConfig: { apiUrl: '', apiKey: '', modelName: '' },
-      editMode: false,
-      onEditClick: jest.fn(),
+      config: { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' },
       onChange: jest.fn(),
       maskApiKey: (key) => key ? '****' : '',
       isConfigured: false
@@ -55,10 +49,7 @@ describe('SettingsModelConfig Component - Basic', () => {
     const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
 
     const props = {
-      config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' },
-      editConfig: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' },
-      editMode: false,
-      onEditClick: jest.fn(),
+      config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4', protocol: 'openai' },
       onChange: jest.fn(),
       maskApiKey: (key) => key ? 'tes****key' : '',
       isConfigured: true
@@ -71,62 +62,11 @@ describe('SettingsModelConfig Component - Basic', () => {
     expect(_screen.getByText('已配置')).toBeInTheDocument();
   });
 
-  test('should call onEditClick when empty state clicked', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
-
-    const onEditClick = jest.fn();
-    const props = {
-      config: { apiUrl: '', apiKey: '', modelName: '' },
-      editConfig: { apiUrl: '', apiKey: '', modelName: '' },
-      editMode: false,
-      onEditClick,
-      onChange: jest.fn(),
-      maskApiKey: (key) => key ? '****' : '',
-      isConfigured: false
-    };
-
-    _render(React.createElement(SettingsModelConfig, props));
-
-    await act(async () => { await Promise.resolve(); });
-
-    const emptyState = _screen.getByText('尚未配置模型').closest('.config-empty-state');
-    _fireEvent.click(emptyState);
-
-    expect(onEditClick).toHaveBeenCalled();
-  });
-
-  test('should call onEditClick when config summary card clicked', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
-
-    const onEditClick = jest.fn();
-    const props = {
-      config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' },
-      editConfig: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' },
-      editMode: false,
-      onEditClick,
-      onChange: jest.fn(),
-      maskApiKey: (key) => key ? '****' : '',
-      isConfigured: true
-    };
-
-    _render(React.createElement(SettingsModelConfig, props));
-
-    await act(async () => { await Promise.resolve(); });
-
-    const summaryCard = document.querySelector('.config-summary-card');
-    _fireEvent.click(summaryCard);
-
-    expect(onEditClick).toHaveBeenCalled();
-  });
-
-  test('should display config summary when configured and not in edit mode', async () => {
+  test('should display config summary values when configured', async () => {
     const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
 
     const props = {
-      config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key-12345', modelName: 'gpt-4' },
-      editConfig: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key-12345', modelName: 'gpt-4' },
-      editMode: false,
-      onEditClick: jest.fn(),
+      config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key-12345', modelName: 'gpt-4', protocol: 'openai' },
       onChange: jest.fn(),
       maskApiKey: (key) => key ? key.substring(0, 4) + '****' + key.substring(key.length - 4) : '',
       isConfigured: true

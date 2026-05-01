@@ -39,40 +39,33 @@ test.describe('Settings Panel', () => {
     expect(settingsTitle).toContain('系统配置');
   });
 
-  test('should show clickable config card in settings', async () => {
+  test('should show config card in settings', async () => {
     await appHelper.hover('.settings-trigger-zone');
     await appHelper.waitForTimeout(200);
 
-    const configCard = await appHelper.waitForSelector('.config-summary-card.background-clickable-card, .config-empty-state.background-clickable-empty');
+    const configCard = await appHelper.waitForSelector('.config-summary-card, .config-empty-state');
     expect(configCard).toBeTruthy();
   });
 
-  test('should enter edit mode when clicking config card', async () => {
+  test('should show inline editable fields in config card', async () => {
     await appHelper.hover('.settings-trigger-zone');
     await appHelper.waitForTimeout(200);
 
+    // Verify field labels are present
     const hasEmptyState = await appHelper.isVisible('.config-empty-state.background-clickable-empty');
-    const hasConfiguredCard = await appHelper.isVisible('.config-summary-card.background-clickable-card');
 
-    if (hasEmptyState) {
-      await appHelper.click('.config-empty-state.background-clickable-empty');
-    } else if (hasConfiguredCard) {
-      await appHelper.click('.config-summary-card.background-clickable-card');
+    if (!hasEmptyState) {
+      // Configured: should show inline field labels
+      const urlLabel = await appHelper.textContent('.settings-field-label');
+      expect(urlLabel).toContain('模型 URL');
+
+      const labelCount = await appHelper.count('.settings-field-label');
+      expect(labelCount).toBeGreaterThanOrEqual(4);
+
+      // Click a value to enter inline edit
+      const firstValue = await appHelper.waitForSelector('.settings-field-value');
+      expect(firstValue).toBeTruthy();
     }
-
-    await appHelper.waitForTimeout(200);
-
-    const apiUrlInput = await appHelper.waitForSelector('.settings-field .settings-input');
-    expect(apiUrlInput).toBeTruthy();
-
-    const inputCount = await appHelper.count('.settings-field .settings-input');
-    expect(inputCount).toBe(4);
-
-    const cancelBtn = await appHelper.waitForSelector('.settings-actions .md-btn-primary');
-    expect(cancelBtn).toBeTruthy();
-
-    const saveBtn = await appHelper.waitForSelector('.settings-actions .md-btn-contained');
-    expect(saveBtn).toBeTruthy();
   });
 
   test('should save model configuration via IPC', async () => {

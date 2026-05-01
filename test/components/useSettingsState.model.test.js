@@ -21,57 +21,20 @@ describe('useSettingsState Hook - Model Handlers', () => {
     electronAPI.saveBackgroundConfig.mockResolvedValue({ success: true });
   });
 
-  test('should handle handleEditClick', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
-      success: true,
-      config: { apiUrl: 'http://api.com', apiKey: 'key', modelName: 'model' }
-    });
-
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
-    const { result } = renderHook(() => useSettingsState(jest.fn()));
-
-    await hookAct(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
-    });
-
-    expect(result.current.editMode).toBe(false);
-
-    hookAct(() => { result.current.handleEditClick(); });
-
-    expect(result.current.editMode).toBe(true);
-    expect(result.current.editConfig.apiUrl).toBe('http://api.com');
-  });
-
-  test('should handle handleCancelEdit', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
-      success: true,
-      config: { apiUrl: 'http://api.com', apiKey: 'key', modelName: 'model' }
-    });
-
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
-    const { result } = renderHook(() => useSettingsState(jest.fn()));
-
-    await hookAct(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
-    });
-
-    hookAct(() => { result.current.handleEditClick(); });
-    expect(result.current.editMode).toBe(true);
-
-    hookAct(() => { result.current.handleCancelEdit(); });
-
-    expect(result.current.editMode).toBe(false);
-    expect(result.current.editConfig.apiUrl).toBe('http://api.com');
-  });
-
-  test('should handle handleChange', async () => {
+  test('should handle handleChange to update and auto-save config', async () => {
     const useSettingsState = require('../../src/components/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
 
     hookAct(() => { result.current.handleChange('apiUrl', 'http://new-api.com'); });
-    expect(result.current.editConfig.apiUrl).toBe('http://new-api.com');
+
+    // State updated immediately
+    expect(result.current.config.apiUrl).toBe('http://new-api.com');
+
+    // Auto-save triggered
+    await hookAct(async () => { await Promise.resolve(); });
+    expect(electronAPI.saveModelConfig).toHaveBeenCalled();
   });
 
   test('should handle handleChange for apiKey', async () => {
@@ -81,7 +44,7 @@ describe('useSettingsState Hook - Model Handlers', () => {
     await hookAct(async () => { await Promise.resolve(); });
 
     hookAct(() => { result.current.handleChange('apiKey', 'new-key-123'); });
-    expect(result.current.editConfig.apiKey).toBe('new-key-123');
+    expect(result.current.config.apiKey).toBe('new-key-123');
   });
 
   test('should handle handleChange for modelName', async () => {
@@ -91,57 +54,25 @@ describe('useSettingsState Hook - Model Handlers', () => {
     await hookAct(async () => { await Promise.resolve(); });
 
     hookAct(() => { result.current.handleChange('modelName', 'new-model'); });
-    expect(result.current.editConfig.modelName).toBe('new-model');
+    expect(result.current.config.modelName).toBe('new-model');
   });
 
-  test('should handle handleSave successfully', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
-      success: true,
-      config: { apiUrl: 'http://api.com', apiKey: 'key', modelName: 'model' }
-    });
-    electronAPI.saveModelConfig.mockResolvedValue({ success: true });
-
+  test('should dispatch model-config-changed event on save', async () => {
     const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
-    await hookAct(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
-    });
+    await hookAct(async () => { await Promise.resolve(); });
 
-    hookAct(() => {
-      result.current.handleEditClick();
-      result.current.handleChange('apiUrl', 'http://saved-api.com');
-    });
+    hookAct(() => { result.current.handleChange('apiUrl', 'http://saved-api.com'); });
 
-    await hookAct(async () => { await result.current.handleSave(); });
+    // Wait for async save
+    await hookAct(async () => { await new Promise(r => setTimeout(r, 10)); });
 
-    expect(electronAPI.saveModelConfig).toHaveBeenCalled();
-    expect(result.current.editMode).toBe(false);
-    expect(result.current.config.apiUrl).toBe('http://saved-api.com');
-  });
-
-  test('should not update state on failed save', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
-      success: true,
-      config: { apiUrl: 'http://api.com', apiKey: 'key', modelName: 'model' }
-    });
-    electronAPI.saveModelConfig.mockResolvedValue({ success: false, error: 'Save failed' });
-
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
-    const { result } = renderHook(() => useSettingsState(jest.fn()));
-
-    await hookAct(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
-    });
-
-    hookAct(() => {
-      result.current.handleEditClick();
-      result.current.handleChange('apiUrl', 'http://new-api.com');
-    });
-
-    await hookAct(async () => { await result.current.handleSave(); });
-
-    expect(result.current.editMode).toBe(true);
-    expect(result.current.config.apiUrl).toBe('http://api.com');
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'model-config-changed' })
+    );
+    dispatchSpy.mockRestore();
   });
 });

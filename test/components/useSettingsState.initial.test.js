@@ -39,12 +39,12 @@ describe('useSettingsState Hook - Initial State', () => {
     expect(result.current.config.modelName).toBe('');
   });
 
-  test('should initialize editMode as false', async () => {
+  test('should initialize protocol as openai', async () => {
     const useSettingsState = require('../../src/components/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
-    expect(result.current.editMode).toBe(false);
+    expect(result.current.config.protocol).toBe('openai');
   });
 
   test('should initialize backgroundEditMode as false', async () => {

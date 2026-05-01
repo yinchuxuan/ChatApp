@@ -169,17 +169,12 @@ describe('useSettingsState Hook - Utilities', () => {
       const returned = result.current;
 
       expect(returned.config).toBeDefined();
-      expect(returned.editConfig).toBeDefined();
-      expect(returned.editMode).toBeDefined();
       expect(returned.backgroundConfig).toBeDefined();
       expect(returned.editBackgroundConfig).toBeDefined();
       expect(returned.backgroundEditMode).toBeDefined();
       expect(returned.isConfigured).toBeDefined();
       expect(returned.maskApiKey).toBeDefined();
-      expect(returned.handleEditClick).toBeDefined();
-      expect(returned.handleCancelEdit).toBeDefined();
       expect(returned.handleChange).toBeDefined();
-      expect(returned.handleSave).toBeDefined();
       expect(returned.handleBackgroundEditClick).toBeDefined();
       expect(returned.handleBackgroundCancelEdit).toBeDefined();
       expect(returned.handleBackgroundChange).toBeDefined();

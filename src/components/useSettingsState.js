@@ -5,10 +5,6 @@ function useSettingsState(onBackgroundChange) {
   const [config, setConfig] = React.useState({
     apiUrl: '', apiKey: '', modelName: '', protocol: 'openai'
   });
-  const [editMode, setEditMode] = React.useState(false);
-  const [editConfig, setEditConfig] = React.useState({
-    apiUrl: '', apiKey: '', modelName: '', protocol: 'openai'
-  });
   const [backgroundConfig, setBackgroundConfig] = React.useState({
     backgroundImageUrl: '', backgroundOpacity: 0.5
   });
@@ -26,7 +22,6 @@ function useSettingsState(onBackgroundChange) {
           const defaultConfig = { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' };
           const cfg = { ...defaultConfig, ...result.config };
           setConfig(cfg);
-          setEditConfig(cfg);
         }
         const bgResult = await window.electronAPI.getBackgroundConfig();
         if (bgResult.success) {
@@ -39,21 +34,19 @@ function useSettingsState(onBackgroundChange) {
     loadConfig();
   }, []);
 
-  // Model config handlers
-  const handleEditClick = () => { setEditConfig(config); setEditMode(true); };
-  const handleCancelEdit = () => { setEditConfig(config); setEditMode(false); };
-  const handleChange = (field, value) => {
-    setEditConfig(prev => ({ ...prev, [field]: value }));
-  };
-  const handleSave = async () => {
-    if (window.electronAPI) {
-      const result = await window.electronAPI.saveModelConfig(editConfig);
-      if (result.success) {
-        setConfig(editConfig);
-        setEditMode(false);
-        window.dispatchEvent(new CustomEvent('model-config-changed', { detail: editConfig }));
+  // Model config - auto-save on change
+  const handleChange = async (field, value) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      if (window.electronAPI) {
+        window.electronAPI.saveModelConfig(updated).then(result => {
+          if (result.success) {
+            window.dispatchEvent(new CustomEvent('model-config-changed', { detail: updated }));
+          }
+        });
       }
-    }
+      return updated;
+    });
   };
 
   // Background handlers
@@ -100,10 +93,10 @@ function useSettingsState(onBackgroundChange) {
   };
 
   return {
-    config, editConfig, editMode, backgroundConfig, editBackgroundConfig,
+    config, backgroundConfig, editBackgroundConfig,
     backgroundEditMode, isConfigured: config.apiUrl || config.apiKey || config.modelName,
     maskApiKey,
-    handleEditClick, handleCancelEdit, handleChange, handleSave,
+    handleChange,
     handleBackgroundEditClick, handleBackgroundCancelEdit, handleBackgroundChange,
     handleBackgroundSave, handleSelectBackgroundImage, handleClearBackgroundImage
   };
