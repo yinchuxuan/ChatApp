@@ -64,6 +64,11 @@ test.describe('Chat Panel API Request Toggle', () => {
   });
 
   test('should toggle to API request display when clicking chat-header', async () => {
+    // Hover to reveal the header before clicking
+    const chatPanel = await appHelper.waitForSelector('.chat-panel');
+    await chatPanel.hover();
+    await appHelper.waitForTimeout(100);
+
     const currentTitle = await appHelper.evaluate(() => {
       const title = document.querySelector('.chat-header .header-title');
       return title ? title.textContent : '';
@@ -88,6 +93,11 @@ test.describe('Chat Panel API Request Toggle', () => {
   });
 
   test('should toggle back to Chat panel when clicking chat-header again', async () => {
+    // Hover to reveal the header before clicking
+    const chatPanel = await appHelper.waitForSelector('.chat-panel');
+    await chatPanel.hover();
+    await appHelper.waitForTimeout(100);
+
     const currentTitle = await appHelper.evaluate(() => {
       const title = document.querySelector('.chat-header .header-title');
       return title ? title.textContent : '';

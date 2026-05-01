@@ -17,48 +17,40 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "修复e2e测试",
-      "agentid": "a493514b7c05993e0,af1ab06fff83fba3f",
-      "user_visible_behavior": "e2e测试的background测试中有一些硬编码图片路径的测试失败了，请进行修改",
-      "status": "passing",
+      "title": "隐藏聊天区标题栏",
+      "agentid": "worker-app-001-2026-05-01",
+      "user_visible_behavior": "将聊天区标题栏隐藏，鼠标靠近时显示",
+      "status": "in_progress",
       "verification": [
+        "聊天区标题栏隐藏，鼠标靠近时显示",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "Jest 单元测试: 135 passed",
-        "Integration 测试: 18 passed",
-        "E2E 测试: 29 passed (包含 7 个 background 相关测试全部通过)",
-        "ESLint: 0 errors, 0 warnings",
-        "修复内容: 将 test/e2e/app.e2e.background.test.js 中硬编码的图片路径替换为项目相对路径 test/fixtures/lisa1.jpg",
-        "在 test/fixtures/ 目录下创建了最小有效的 JPEG 测试图片 lisa1.jpg",
-        "将 playwright.config.js 中 workers 从 4 改为 1，避免并行启动多个 Electron 实例导致的超时"
+        "CSS: .chat-header hidden by default with opacity:0 + visibility:hidden, shown via .chat-panel:hover .chat-header and .chat-header-visible class (no !important). Removed transform:translateY(-100%) so header stays in layout and is clickable. Trigger zone z-index kept at 1 (removed hover z-index:10) to avoid blocking header clicks.",
+        "JSX: ChatPanel.jsx adds isHeaderHovered state, .chat-header-hover-trigger zone at top of chat-panel, onMouseEnter/onMouseLeave handlers on header and trigger zone",
+        "Unit tests: 5 tests in test/components/ChatPanelHeaderHideShow.test.js - hidden by default, shows on hover, hides on leave, trigger zone works, click on hidden header toggles API view",
+        "E2E tests: Added hover before header click in toggle tests (lines 66, 95) to reveal header before interaction",
+        "All 140 unit/integration tests pass (26+2 test suites)",
+        "All 29 e2e tests pass",
+        "eslint 0 warnings, 0 errors"
       ]
     },
     {
       "id": "app-002",
       "priority": 1,
       "area": "coding",
-      "title": "修复组件样式丢失问题",
-      "agentid": "a80a4b4e454acb487",
-      "user_visible_behavior": "在未配置模型API和背景时，存在ui组件样式丢失问题，请修复",
-      "status": "passing",
+      "title": "模型配置兼容anthropic协议",
+      "agentid": "",
+      "user_visible_behavior": "支持在模型设置中设置anthropic协议的url，通过anthropic客户端发送请求",
+      "status": "not_started",
       "verification": [
-        "ui组件在任何时候样式都正常",
+        "根据url格式自动判断协议(openAI/anthropic)，选择对应客户端进行转发",
+        "API请求中的msg显示要对应当前使用协议的格式",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "根本原因: App.css 中 @import 的 4 个 CSS 入口文件不存在 (colors.css, animations.css, components.css, utilities.css)，导致所有样式无法加载",
-        "修复: 创建了 4 个 CSS 入口聚合文件，正确 import 所有子模块",
-        "  - src/styles/colors.css: 导入 colors.light.css 和 colors.dark.css",
-        "  - src/styles/animations.css: 导入 animations.variables.css 和 animations.keyframes.css",
-        "  - src/styles/components.css: 导入所有 components.*.css 文件",
-        "  - src/styles/utilities.css: 导入 utilities.base.css 和 utilities.theme.css",
-        "Jest 单元测试: 135 passed",
-        "Integration 测试: 18 passed",
-        "E2E 测试: 19 passed (startup/settings/thinking/background)",
-        "ESLint: 0 errors, 0 warnings"
       ]
     }
   ]

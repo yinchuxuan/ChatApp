@@ -9,6 +9,7 @@ function ChatPanel() {
   const [lastApiRequestMessages, setLastApiRequestMessages] = R.useState(null);
   const [renderersReady, setRenderersReady] = R.useState(false);
   const [showStreamThinking, setShowStreamThinking] = R.useState(true);
+  const [isHeaderHovered, setIsHeaderHovered] = R.useState(false);
   const tw = window.useTypewriter(R);
 
   R.useEffect(() => {
@@ -143,8 +144,9 @@ function ChatPanel() {
   };
 
   return C('div', { className: 'chat-panel' },
+    C('div', { className: 'chat-header-hover-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
     C('div', { className: 'chat-main' },
-      C('div', { className: 'chat-header chat-header-clickable', onClick: handleToggleShowApiRequest },
+      C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowApiRequest, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
         C('span', { className: 'material-icons' }, showApiRequest ? 'code' : 'chat'),
         C('span', { className: 'header-title' }, showApiRequest ? 'API请求' : '聊天'),
         modelConfig && modelConfig.apiUrl && C('span', { className: 'config-status configured' }, modelConfig.modelName || '已连接')
