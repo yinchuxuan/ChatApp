@@ -5,7 +5,10 @@ const ChatPanelRenderers = {
   // Render msg history display - single rectangular card with msgs JSON
   renderMsgHistoryDisplay: (R, msgHistoryMessages) => {
     if (!msgHistoryMessages || msgHistoryMessages.length === 0) {
-      return R.createElement('div', null, '暂无消息历史记录');
+      return R.createElement('div', { className: 'chat-empty' },
+        R.createElement('span', { className: 'material-icons empty-icon' }, 'inbox'),
+        R.createElement('div', null, '暂无消息历史记录')
+      );
     }
     const msgsObj = {};
     msgHistoryMessages.forEach((msg, idx) => {

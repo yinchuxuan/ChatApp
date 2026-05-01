@@ -100,12 +100,20 @@ describe('MsgHistoryDisplay Card', () => {
 
   test('should render empty state when no messages', () => {
     const result = ChatPanelRenderers.renderMsgHistoryDisplay(React, null);
-    expect(result.props.children).toBe('暂无消息历史记录');
+    expect(result.props.className).toBe('chat-empty');
+    const children = result.props.children;
+    expect(children[0].props.className).toBe('material-icons empty-icon');
+    expect(children[0].props.children).toBe('inbox');
+    expect(children[1].props.children).toBe('暂无消息历史记录');
   });
 
   test('should render empty state when messages array is empty', () => {
     const result = ChatPanelRenderers.renderMsgHistoryDisplay(React, []);
-    expect(result.props.children).toBe('暂无消息历史记录');
+    expect(result.props.className).toBe('chat-empty');
+    const children = result.props.children;
+    expect(children[0].props.className).toBe('material-icons empty-icon');
+    expect(children[0].props.children).toBe('inbox');
+    expect(children[1].props.children).toBe('暂无消息历史记录');
   });
 
   test('should render a single rectangular card with msgs JSON', () => {
