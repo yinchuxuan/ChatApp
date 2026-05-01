@@ -15,12 +15,18 @@ function SettingsBackground({
 
   const startEdit = (field) => {
     setEditingField(field);
-    setTempValue(backgroundConfig[field] !== undefined ? backgroundConfig[field] : '');
+    const val = backgroundConfig[field];
+    setTempValue(field === 'backgroundOpacity' ? String(Math.round((val ?? 0.5) * 100)) : (val !== undefined ? val : ''));
   };
 
   const finishEdit = () => {
-    if (editingField && tempValue !== backgroundConfig[editingField]) {
-      onBackgroundChange(editingField, editingField === 'backgroundOpacity' ? parseFloat(tempValue) / 100 : tempValue);
+    if (editingField && editingField === 'backgroundOpacity') {
+      const newValue = parseInt(tempValue, 10) / 100;
+      if (newValue !== backgroundConfig.backgroundOpacity) {
+        onBackgroundChange(editingField, newValue);
+      }
+    } else if (editingField && tempValue !== backgroundConfig[editingField]) {
+      onBackgroundChange(editingField, tempValue);
     }
     setEditingField(null);
   };
@@ -41,7 +47,7 @@ function SettingsBackground({
     onClearBackgroundImage();
   };
 
-  const opacityPercent = Math.round((editingField === 'backgroundOpacity' ? parseFloat(tempValue) || 0 : backgroundConfig.backgroundOpacity) * 100);
+  const opacityPercent = editingField === 'backgroundOpacity' ? (parseInt(tempValue, 10) || 0) : Math.round(backgroundConfig.backgroundOpacity * 100);
 
   return (
     <div className="background-settings-section">
