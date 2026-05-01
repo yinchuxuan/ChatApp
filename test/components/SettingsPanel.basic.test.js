@@ -99,7 +99,7 @@ describe('SettingsPanel Component - Basic', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.getByText('模型配置')).toBeInTheDocument();
+    expect(_screen.getByText('系统配置')).toBeInTheDocument();
   });
 
   test('should render theme toggle section', async () => {

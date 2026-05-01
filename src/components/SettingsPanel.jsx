@@ -26,8 +26,7 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
       <div className={`settings-panel ${visible ? 'visible' : ''}`}>
         <div className="settings-header">
           <span className="material-icons">settings</span>
-          <span className="settings-title">模型配置</span>
-          {isConfigured && !editMode && <span className="config-status configured">已配置</span>}
+          <span className="settings-title">系统配置</span>
         </div>
         <div className="settings-content">
           <div className="theme-toggle-section">

@@ -36,7 +36,7 @@ test.describe('Settings Panel', () => {
     await appHelper.waitForTimeout(200);
 
     const settingsTitle = await appHelper.textContent('.settings-header .settings-title');
-    expect(settingsTitle).toContain('模型配置');
+    expect(settingsTitle).toContain('系统配置');
   });
 
   test('should show clickable config card in settings', async () => {

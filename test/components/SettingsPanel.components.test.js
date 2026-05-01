@@ -108,7 +108,7 @@ describe('SettingsPanel Component - Components', () => {
     expect(_screen.queryByText('SettingsModelConfig Mock')).not.toBeInTheDocument();
   });
 
-  test('should show configured status when model is configured', async () => {
+  test('should not show configured status badge in header after removal', async () => {
     mockUseSettingsState.mockReturnValue({
       ...mockUseSettingsStateReturn,
       isConfigured: 'http://api.example.com'
@@ -124,7 +124,7 @@ describe('SettingsPanel Component - Components', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.getByText('已配置')).toBeInTheDocument();
+    expect(_screen.queryByText('已配置')).not.toBeInTheDocument();
   });
 
   test('should handle not configured state', async () => {
