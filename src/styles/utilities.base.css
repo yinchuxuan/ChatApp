@@ -54,7 +54,6 @@ html, body, #root {
 }
 
 /* Smooth scrolling for content areas */
-.chat-history,
 .settings-content {
   scroll-behavior: smooth;
   scrollbar-width: thin;
