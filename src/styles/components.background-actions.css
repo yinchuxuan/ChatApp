@@ -1,17 +1,6 @@
 /* ============================================
-   Background Settings Styles - Inline Actions
+   Background Settings Styles - Shared Section
    ============================================ */
-
-.background-inline-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: 26px;
-}
-
-.background-inline-actions .md-btn {
-  flex: 1;
-  min-width: 100px;
-}
 
 .model-config-section {
   margin-top: 16px;

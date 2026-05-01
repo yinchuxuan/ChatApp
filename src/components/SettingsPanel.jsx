@@ -9,7 +9,7 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
   const state = useSettingsStateHook(onBackgroundChange);
   const {
     config, backgroundConfig, isConfigured, maskApiKey,
-    handleBackgroundChange, handleSelectBackgroundImage, handleClearBackgroundImage,
+    handleBackgroundChange, handleSelectBackgroundImage,
     handleChange
   } = state;
 
@@ -42,7 +42,6 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
               backgroundConfig={backgroundConfig}
               onBackgroundChange={handleBackgroundChange}
               onSelectBackgroundImage={handleSelectBackgroundImage}
-              onClearBackgroundImage={handleClearBackgroundImage}
             />
           ) : null}
           {SettingsModelConfigComp ? (

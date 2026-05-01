@@ -125,28 +125,6 @@ describe('useSettingsState Hook - Background Handlers', () => {
     expect(result.current.backgroundConfig.backgroundImageUrl).toBe(initialUrl);
   });
 
-  test('should handle handleClearBackgroundImage with auto-save', async () => {
-    electronAPI.getBackgroundConfig.mockResolvedValue({
-      success: true,
-      config: { backgroundImageUrl: 'bg-url', backgroundOpacity: 0.5 }
-    });
-
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
-    const { result } = renderHook(() => useSettingsState(jest.fn()));
-
-    await hookAct(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
-    });
-
-    hookAct(() => { result.current.handleClearBackgroundImage(); });
-
-    expect(result.current.backgroundConfig.backgroundImageUrl).toBe('');
-    expect(electronAPI.saveBackgroundConfig).toHaveBeenCalledWith({
-      backgroundImageUrl: '',
-      backgroundOpacity: 0.5
-    });
-  });
-
   test('should call onBackgroundChange callback on save success', async () => {
     const onBackgroundChange = jest.fn();
     const useSettingsState = require('../../src/components/useSettingsState.js').default;

@@ -33,8 +33,7 @@ describe('SettingsBackground Component - Opacity', () => {
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
       onBackgroundChange: jest.fn(),
-      onSelectBackgroundImage: jest.fn(),
-      onClearBackgroundImage: jest.fn()
+      onSelectBackgroundImage: jest.fn()
     };
 
     _render(React.createElement(SettingsBackground, props));

@@ -16,8 +16,7 @@ describe('SettingsBackground Component - Basic', () => {
     const props = {
       backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
       onBackgroundChange: jest.fn(),
-      onSelectBackgroundImage: jest.fn(),
-      onClearBackgroundImage: jest.fn()
+      onSelectBackgroundImage: jest.fn()
     };
 
     _render(React.createElement(SettingsBackground, props));
@@ -33,8 +32,7 @@ describe('SettingsBackground Component - Basic', () => {
     const props = {
       backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
       onBackgroundChange: jest.fn(),
-      onSelectBackgroundImage: jest.fn(),
-      onClearBackgroundImage: jest.fn()
+      onSelectBackgroundImage: jest.fn()
     };
 
     _render(React.createElement(SettingsBackground, props));
@@ -61,7 +59,7 @@ describe('SettingsBackground Component - Basic', () => {
     expect(_screen.getByText('已设置')).toBeInTheDocument();
   });
 
-  test('should show config card with inline fields when background is set', async () => {
+  test('should show config card with preview and opacity when background is set', async () => {
     const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
 
     const props = {
@@ -76,17 +74,16 @@ describe('SettingsBackground Component - Basic', () => {
     await act(async () => { await Promise.resolve(); });
 
     expect(document.querySelector('.config-summary-card')).toBeTruthy();
-    expect(_screen.getByText('图片路径')).toBeInTheDocument();
+    expect(document.querySelector('.background-preview')).toBeTruthy();
     expect(_screen.getByText('透明度')).toBeInTheDocument();
   });
 
-  test('should call onBackgroundChange when field clicked and edited', async () => {
+  test('should show opacity value in display mode', async () => {
     const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
 
-    const onBackgroundChange = jest.fn();
     const props = {
-      backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
-      onBackgroundChange,
+      backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.7 },
+      onBackgroundChange: jest.fn(),
       onSelectBackgroundImage: jest.fn(),
       onClearBackgroundImage: jest.fn()
     };
@@ -95,26 +92,17 @@ describe('SettingsBackground Component - Basic', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    const fieldValue = document.querySelector('.settings-field-value');
-    _fireEvent.click(fieldValue);
-
-    const input = document.querySelector('.settings-inline-input');
-    expect(input).toBeTruthy();
-
-    _fireEvent.change(input, { target: { value: 'new-url' } });
-    _fireEvent.blur(input);
-
-    expect(onBackgroundChange).toHaveBeenCalledWith('backgroundImageUrl', 'new-url');
+    expect(_screen.getByText('70%')).toBeInTheDocument();
   });
 
-  test('should show empty state clickable, clicking starts edit', async () => {
+  test('should call onSelectBackgroundImage when empty state clicked', async () => {
     const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
 
-    const onBackgroundChange = jest.fn();
+    const onSelectBackgroundImage = jest.fn();
     const props = {
       backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
-      onBackgroundChange,
-      onSelectBackgroundImage: jest.fn(),
+      onSelectBackgroundImage,
+      onBackgroundChange: jest.fn(),
       onClearBackgroundImage: jest.fn()
     };
 
@@ -123,9 +111,29 @@ describe('SettingsBackground Component - Basic', () => {
     await act(async () => { await Promise.resolve(); });
 
     const emptyState = _screen.getByText('未设置背景图片').closest('.config-empty-state');
-    await act(async () => { _fireEvent.click(emptyState); });
+    _fireEvent.click(emptyState);
 
-    const input = document.querySelector('.settings-inline-input');
-    expect(input).toBeTruthy();
+    expect(onSelectBackgroundImage).toHaveBeenCalled();
+  });
+
+  test('should call onSelectBackgroundImage when preview image clicked', async () => {
+    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+
+    const onSelectBackgroundImage = jest.fn();
+    const props = {
+      backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
+      onSelectBackgroundImage,
+      onBackgroundChange: jest.fn(),
+      onClearBackgroundImage: jest.fn()
+    };
+
+    _render(React.createElement(SettingsBackground, props));
+
+    await act(async () => { await Promise.resolve(); });
+
+    const preview = document.querySelector('.background-preview');
+    _fireEvent.click(preview);
+
+    expect(onSelectBackgroundImage).toHaveBeenCalled();
   });
 });

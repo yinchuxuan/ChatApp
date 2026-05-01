@@ -83,21 +83,6 @@ function useSettingsState(onBackgroundChange) {
     }
   };
 
-  const handleClearBackgroundImage = async () => {
-    setBackgroundConfig(prev => {
-      const updated = { ...prev, backgroundImageUrl: '' };
-      if (window.electronAPI) {
-        window.electronAPI.saveBackgroundConfig(updated).then(result => {
-          if (result.success) {
-            window.dispatchEvent(new CustomEvent('background-config-changed', { detail: updated }));
-            if (onBackgroundChange) onBackgroundChange(updated);
-          }
-        });
-      }
-      return updated;
-    });
-  };
-
   // Mask API key
   const maskApiKey = (key) => {
     if (!key || key.length <= 8) return key ? '****' : '';
@@ -109,7 +94,7 @@ function useSettingsState(onBackgroundChange) {
     isConfigured: config.apiUrl || config.apiKey || config.modelName,
     maskApiKey,
     handleChange,
-    handleBackgroundChange, handleSelectBackgroundImage, handleClearBackgroundImage
+    handleBackgroundChange, handleSelectBackgroundImage
   };
 }
 
