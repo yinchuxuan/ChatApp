@@ -1,5 +1,5 @@
 /**
- * Tests for ChatPanel - Protocol-aware API request display
+ * Tests for ChatPanel - Msg history display from file
  */
 
 const React = require('react');
@@ -7,7 +7,7 @@ const { render, screen, fireEvent, act } = require('@testing-library/react');
 
 const electronAPI = global.window.electronAPI;
 
-describe('ChatPanel - Protocol-Aware API Request Display', () => {
+describe('ChatPanel - Msg History Display from File', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
@@ -15,6 +15,7 @@ describe('ChatPanel - Protocol-Aware API Request Display', () => {
       success: true,
       config: { apiUrl: 'https://api.openai.com/v1', apiKey: 'test-key', modelName: 'gpt-4' }
     });
+    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
     global.fetch.mockResolvedValue(global.createStreamingMock('Test'));
   });
 
@@ -22,18 +23,15 @@ describe('ChatPanel - Protocol-Aware API Request Display', () => {
     jest.useRealTimers();
   });
 
-  test('should show OpenAI protocol badge in API request display', async () => {
+  test('should show msg history with correct message roles', async () => {
+    const savedMessages = [
+      { role: 'user', content: 'test message' },
+      { role: 'assistant', content: 'Test' }
+    ];
+    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+
     const ChatPanel = require('../../src/ChatPanel.jsx').default;
     render(React.createElement(ChatPanel));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    const input = screen.getByPlaceholderText('输入您的问题...');
-    fireEvent.change(input, { target: { value: 'test message' } });
-    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();
@@ -48,29 +46,25 @@ describe('ChatPanel - Protocol-Aware API Request Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const badge = document.querySelector('.api-protocol-badge');
-    expect(badge).toBeTruthy();
-    expect(badge.textContent).toBe('OpenAI');
+    expect(screen.getByText('msg历史记录')).toBeInTheDocument();
+    expect(screen.getByText('消息历史记录 (2 条消息)')).toBeInTheDocument();
+
+    // Verify message items are displayed with correct role indicators
+    const items = document.querySelectorAll('.chat-msg-history-item');
+    expect(items.length).toBe(2);
+    expect(items[0].textContent).toContain('user');
+    expect(items[1].textContent).toContain('assistant');
   });
 
-  test('should show Anthropic protocol badge when using Anthropic URL', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
-      success: true,
-      config: { apiUrl: 'https://proxy.example.com/anthropic', apiKey: 'sk-ant-test', modelName: 'claude-sonnet-4-20250514', protocol: 'anthropic' }
-    });
-    global.fetch.mockResolvedValue(global.createAnthropicStreamingMock('Claude response'));
+  test('should show msg history with assistant message thinking field', async () => {
+    const savedMessages = [
+      { role: 'user', content: 'hello claude' },
+      { role: 'assistant', content: 'Claude response', _thinking: 'How to respond...' }
+    ];
+    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     const ChatPanel = require('../../src/ChatPanel.jsx').default;
     render(React.createElement(ChatPanel));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    const input = screen.getByPlaceholderText('输入您的问题...');
-    fireEvent.change(input, { target: { value: 'hello claude' } });
-    fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await act(async () => {
       await Promise.resolve();
@@ -85,9 +79,13 @@ describe('ChatPanel - Protocol-Aware API Request Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const badge = document.querySelector('.api-protocol-badge');
-    expect(badge).toBeTruthy();
-    expect(badge.textContent).toBe('Anthropic');
+    expect(screen.getByText('msg历史记录')).toBeInTheDocument();
+
+    // Verify thinking field is shown in the JSON structure
+    const items = document.querySelectorAll('.chat-msg-history-content');
+    const assistantJson = items[1].textContent;
+    expect(assistantJson).toContain('_thinking');
+    expect(assistantJson).toContain('How to respond...');
   });
 
   test('should handle OpenAI API errors', async () => {

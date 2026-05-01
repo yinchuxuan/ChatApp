@@ -100,6 +100,6 @@ describe('ChatPanel Header Hide/Show on Hover', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('API请求')).toBeInTheDocument();
+    expect(screen.getByText('msg历史记录')).toBeInTheDocument();
   });
 });

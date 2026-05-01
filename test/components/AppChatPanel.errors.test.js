@@ -15,7 +15,7 @@ describe('ChatPanel Component - Error Handling', () => {
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-key', modelName: 'gpt-4' }
     });
     window.ChatPanelRenderers = {
-      renderApiRequestDisplay: jest.fn(() => null),
+      renderMsgHistoryDisplay: jest.fn(() => null),
       renderChatHistory: jest.fn((R, messages) =>
         R.createElement('div', null,
           messages.map(m => R.createElement('div', { key: m.content, className: 'chat-message' }, m.content))

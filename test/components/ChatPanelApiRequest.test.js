@@ -1,5 +1,5 @@
 /**
- * Tests for ChatPanel API Request Display after Message Submission
+ * Tests for ChatPanel Msg History Display after Message Submission
  */
 
 import React from 'react';
@@ -9,7 +9,7 @@ import ChatPanel from '../../src/ChatPanel.jsx';
 
 const electronAPI = global.window.electronAPI;
 
-describe('ChatPanel API Request Display', () => {
+describe('ChatPanel Msg History Display', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
@@ -17,6 +17,7 @@ describe('ChatPanel API Request Display', () => {
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
+    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
     global.fetch = jest.fn().mockResolvedValue(global.createStreamingMock('Test response'));
   });
 
@@ -24,7 +25,13 @@ describe('ChatPanel API Request Display', () => {
     jest.useRealTimers();
   });
 
-  test('should show API request content after sending message', async () => {
+  test('should show msg history content after sending message and toggling', async () => {
+    const savedMessages = [
+      { role: 'user', content: 'test question' },
+      { role: 'assistant', content: 'Test response', _thinking: 'thinking content' }
+    ];
+    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -32,6 +39,133 @@ describe('ChatPanel API Request Display', () => {
       jest.advanceTimersByTime(100);
     });
 
+    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    fireEvent.click(chatHeader);
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    expect(screen.getByText('msg历史记录')).toBeInTheDocument();
+    expect(electronAPI.getChatHistory).toHaveBeenCalled();
+
+    // Should show msg history header with count
+    expect(screen.getByText('消息历史记录 (2 条消息)')).toBeInTheDocument();
+
+    const msgHistoryItems = document.querySelectorAll('.chat-msg-history-item');
+    expect(msgHistoryItems.length).toBe(2);
+
+    const msgHistoryContent = document.querySelectorAll('.chat-msg-history-content');
+    expect(msgHistoryContent[0].textContent).toContain('test question');
+    expect(msgHistoryContent[1].textContent).toContain('Test response');
+    expect(msgHistoryContent[1].textContent).toContain('thinking content');
+  });
+
+  test('should show empty state when no msg history', async () => {
+    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+
+    render(React.createElement(ChatPanel));
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    fireEvent.click(chatHeader);
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    expect(screen.getByText('msg历史记录')).toBeInTheDocument();
+    expect(screen.getByText('暂无消息历史记录')).toBeInTheDocument();
+    expect(screen.getByText('发送消息后消息将自动保存到文件')).toBeInTheDocument();
+
+    const chatHeaderMsgHistory = screen.getByText('msg历史记录').closest('.chat-header');
+    fireEvent.click(chatHeaderMsgHistory);
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    expect(screen.getByText('聊天')).toBeInTheDocument();
+  });
+
+  test('should display full msg JSON structure from history file', async () => {
+    const savedMessages = [
+      { role: 'user', content: 'Hello', isError: false },
+      { role: 'assistant', content: 'Hi there', _thinking: 'How to respond...' }
+    ];
+    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+
+    render(React.createElement(ChatPanel));
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    fireEvent.click(chatHeader);
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    // Verify JSON structures are displayed
+    const msgHistoryContent = document.querySelectorAll('.chat-msg-history-content');
+    const firstMsgJson = JSON.parse(msgHistoryContent[0].textContent);
+    expect(firstMsgJson.role).toBe('user');
+    expect(firstMsgJson.content).toBe('Hello');
+    expect(firstMsgJson.isError).toBe(false);
+
+    const secondMsgJson = JSON.parse(msgHistoryContent[1].textContent);
+    expect(secondMsgJson.role).toBe('assistant');
+    expect(secondMsgJson._thinking).toBe('How to respond...');
+  });
+
+  test('should handle getChatHistory failure gracefully', async () => {
+    electronAPI.getChatHistory.mockResolvedValue({ success: false, error: 'Read error', messages: [] });
+
+    render(React.createElement(ChatPanel));
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    fireEvent.click(chatHeader);
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    // Should show empty state on failure
+    expect(screen.getByText('暂无消息历史记录')).toBeInTheDocument();
+  });
+
+  test('should not load msg history from API request but from file', async () => {
+    const savedMessages = [
+      { role: 'user', content: 'test question' },
+      { role: 'assistant', content: 'Test response', _thinking: 'thinking content' }
+    ];
+    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+
+    render(React.createElement(ChatPanel));
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    // Send a message to populate chat
     const input = screen.getByPlaceholderText('输入您的问题...');
     fireEvent.change(input, { target: { value: 'test question' } });
     fireEvent.click(document.querySelector('button[type="submit"]'));
@@ -42,8 +176,12 @@ describe('ChatPanel API Request Display', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Test response')).toBeInTheDocument();
+      const responses = screen.getAllByText('Test response');
+      expect(responses.length).toBeGreaterThan(0);
     });
+
+    // Clear mock to check if it's called again on toggle
+    electronAPI.getChatHistory.mockClear();
 
     const chatHeader = screen.getByText('聊天').closest('.chat-header');
     fireEvent.click(chatHeader);
@@ -53,77 +191,10 @@ describe('ChatPanel API Request Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('API请求')).toBeInTheDocument();
-    expect(screen.getByText('最后一次 API 请求消息')).toBeInTheDocument();
-
-    const apiRequestContent = document.querySelector('.chat-api-request-content');
-    expect(apiRequestContent).toBeTruthy();
-    expect(apiRequestContent.textContent).toContain('test question');
-  });
-
-  test('should be able to toggle even when no API request history', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
-      success: true,
-      config: { apiUrl: '', apiKey: '', modelName: '' }
-    });
-
-    render(React.createElement(ChatPanel));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
-    fireEvent.click(chatHeader);
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    expect(screen.getByText('API请求')).toBeInTheDocument();
-    expect(screen.getByText('暂无 API 请求历史')).toBeInTheDocument();
-    expect(screen.getByText('发送消息后将显示 API 请求内容')).toBeInTheDocument();
-
-    const chatHeaderApi = screen.getByText('API请求').closest('.chat-header');
-    fireEvent.click(chatHeaderApi);
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    expect(screen.getByText('聊天')).toBeInTheDocument();
-  });
-
-  test('should not duplicate user messages in API request', async () => {
-    global.fetch.mockImplementation(async (url, options) => {
-      const requestBody = JSON.parse(options.body);
-      const userMessages = requestBody.messages.filter(m => m.role === 'user');
-
-      expect(userMessages.length).toBe(1);
-      expect(userMessages[0].content).toBe('test question');
-
-      return global.createStreamingMock('Test response');
-    });
-
-    render(React.createElement(ChatPanel));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    const input = screen.getByPlaceholderText('输入您的问题...');
-    fireEvent.change(input, { target: { value: 'test question' } });
-    fireEvent.click(document.querySelector('button[type="submit"]'));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    expect(global.fetch).toHaveBeenCalled();
+    // Should call getChatHistory to read from file, not use API request data
+    expect(electronAPI.getChatHistory).toHaveBeenCalled();
+    // Returned messages should be from file (which we mocked)
+    const msgHistoryContent = document.querySelectorAll('.chat-msg-history-content');
+    expect(msgHistoryContent.length).toBe(2);
   });
 });

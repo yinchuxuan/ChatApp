@@ -23,7 +23,7 @@ describe('ChatPanel Component - Renderers', () => {
 
   test('should render with ChatPanelRenderers', async () => {
     window.ChatPanelRenderers = {
-      renderApiRequestDisplay: jest.fn(() => _React.createElement('div', null, 'API Request Display')),
+      renderMsgHistoryDisplay: jest.fn(() => _React.createElement('div', null, 'Msg History Display')),
       renderChatHistory: jest.fn(() => _React.createElement('div', null, 'Chat History'))
     };
 
@@ -37,9 +37,9 @@ describe('ChatPanel Component - Renderers', () => {
     expect(document.querySelector('.chat-empty')).toBeTruthy();
   });
 
-  test('should toggle to API request view', async () => {
+  test('should toggle to msg history view', async () => {
     window.ChatPanelRenderers = {
-      renderApiRequestDisplay: jest.fn(() => _React.createElement('div', null, 'API Request Display')),
+      renderMsgHistoryDisplay: jest.fn(() => _React.createElement('div', null, 'Msg History Display')),
       renderChatHistory: jest.fn(() => _React.createElement('div', null, 'Chat History'))
     };
 
@@ -57,7 +57,7 @@ describe('ChatPanel Component - Renderers', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(window.ChatPanelRenderers.renderApiRequestDisplay).toHaveBeenCalled();
+    expect(window.ChatPanelRenderers.renderMsgHistoryDisplay).toHaveBeenCalled();
   });
 
   test('should return null for renderers when not ready', async () => {

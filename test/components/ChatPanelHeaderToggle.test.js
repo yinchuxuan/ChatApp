@@ -37,7 +37,7 @@ describe('ChatPanel Header Toggle Click', () => {
     expect(chatHeader.classList.contains('chat-header-clickable')).toBe(true);
   });
 
-  test('should toggle to API request display when clicking chat-header', async () => {
+  test('should toggle to msg history display when clicking chat-header', async () => {
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -55,8 +55,8 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('API请求')).toBeInTheDocument();
-    expect(screen.getByText('暂无 API 请求历史')).toBeInTheDocument();
+    expect(screen.getByText('msg历史记录')).toBeInTheDocument();
+    expect(screen.getByText('暂无消息历史记录')).toBeInTheDocument();
   });
 
   test('should toggle back to Chat panel when clicking chat-header again', async () => {
@@ -75,10 +75,10 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('API请求')).toBeInTheDocument();
+    expect(screen.getByText('msg历史记录')).toBeInTheDocument();
 
-    const chatHeaderApi = screen.getByText('API请求').closest('.chat-header');
-    fireEvent.click(chatHeaderApi);
+    const chatHeaderMsg = screen.getByText('msg历史记录').closest('.chat-header');
+    fireEvent.click(chatHeaderMsg);
 
     await act(async () => {
       await Promise.resolve();

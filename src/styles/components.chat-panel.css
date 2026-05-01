@@ -125,13 +125,13 @@
 .chat-history::-webkit-scrollbar {
   display: none;
 }
-.chat-api-request-display {
+.chat-msg-history-display {
   background: var(--md-surface-container-high);
   border-radius: var(--md-shape-corner-large);
   padding: 16px;
   box-shadow: var(--md-elevation-level-1);
 }
-.chat-api-request-header {
+.chat-msg-history-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -141,34 +141,47 @@
   font-weight: 500;
   font-family: 'Google Sans Text', 'Roboto', sans-serif;
 }
-.chat-api-request-header .material-icons {
+.chat-msg-history-header .material-icons {
   font-size: 20px;
 }
-.api-protocol-badge {
-  display: inline-flex;
-  align-items: center;
-  margin-left: auto;
-  padding: 2px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  font-family: 'Google Sans Text', 'Roboto', sans-serif;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(135deg, var(--md-primary, #6c5ce7) 0%, var(--md-secondary, #a29bfe) 100%);
-  border-radius: var(--md-shape-corner-full, 999px);
-  box-shadow: var(--md-elevation-level-1, 0 1px 2px rgba(0,0,0,0.1));
+.chat-msg-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
 }
-.chat-api-request-content {
-  margin: 12px 0 0 0;
-  padding: 16px;
+.chat-msg-history-item {
   background: var(--md-surface-container-highest);
   border-radius: var(--md-shape-corner-medium);
+  padding: 12px;
+  border: 1px solid var(--md-outline-variant);
+}
+.chat-msg-history-item-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--md-on-surface-variant);
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+}
+.chat-msg-history-item-header .material-icons {
+  font-size: 16px;
+  color: var(--md-primary);
+}
+.chat-msg-history-content {
+  margin: 0;
+  padding: 8px;
+  background: var(--md-surface-container-low);
+  border-radius: var(--md-shape-corner-small);
   font-family: 'Roboto Mono', monospace;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
   color: var(--md-on-surface);
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
 }

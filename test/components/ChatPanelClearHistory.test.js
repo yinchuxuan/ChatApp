@@ -103,7 +103,7 @@ describe('ChatPanel Clear Chat History', () => {
     expect(screen.queryByTitle('清空聊天历史')).not.toBeInTheDocument();
   });
 
-  test('clear button should not toggle to API request view', async () => {
+  test('clear button should not toggle to msg history view', async () => {
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -136,9 +136,9 @@ describe('ChatPanel Clear Chat History', () => {
       jest.advanceTimersByTime(100);
     });
 
-    // Should still be in chat view (not API request view)
+    // Should still be in chat view (not msg history view)
     expect(screen.getByText('聊天')).toBeInTheDocument();
-    expect(screen.queryByText('API请求')).not.toBeInTheDocument();
+    expect(screen.queryByText('msg历史记录')).not.toBeInTheDocument();
   });
 
   test('clear button should have correct aria-label and title attributes', async () => {

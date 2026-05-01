@@ -8,8 +8,6 @@ function ChatInputArea({
   isLoading,
   setIsLoading,
   tw,
-  setLastApiRequestMessages,
-  setLastApiRequestProtocol,
   setShowStreamThinking
 }) {
   const R = window.React || React;
@@ -27,17 +25,13 @@ function ChatInputArea({
     setMessages(newMessages); setInputValue(''); setIsLoading(true);
     tw.startStreaming(); setShowStreamThinking(true);
     try {
-      const apiMessages = newMessages.map(msg => ({ role: msg.role, content: msg.content }));
-      const protocol = modelConfig.protocol || 'openai';
-      setLastApiRequestMessages(apiMessages);
-      setLastApiRequestProtocol(protocol);
       await window.sendChatRequest(
         {
           apiUrl: modelConfig.apiUrl,
           apiKey: modelConfig.apiKey,
           modelName: modelConfig.modelName,
           protocol: modelConfig.protocol || 'openai',
-          messages: apiMessages
+          messages: newMessages.map(msg => ({ role: msg.role, content: msg.content }))
         },
         {
           onToken: (text) => tw.pushContent(text),

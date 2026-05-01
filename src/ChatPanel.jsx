@@ -7,9 +7,8 @@ function ChatPanel() {
   const [messages, setMessages] = R.useState([]);
   const [isLoading, setIsLoading] = R.useState(false);
   const [modelConfig, setModelConfig] = R.useState(null);
-  const [showApiRequest, setShowApiRequest] = R.useState(false);
-  const [lastApiRequestMessages, setLastApiRequestMessages] = R.useState(null);
-  const [lastApiRequestProtocol, setLastApiRequestProtocol] = R.useState(null);
+  const [showMsgHistory, setShowMsgHistory] = R.useState(false);
+  const [msgHistoryMessages, setMsgHistoryMessages] = R.useState(null);
   const [renderersReady, setRenderersReady] = R.useState(false);
   const [showStreamThinking, setShowStreamThinking] = R.useState(true);
   const [isHeaderHovered, setIsHeaderHovered] = R.useState(false);
@@ -37,7 +36,15 @@ function ChatPanel() {
     return () => window.removeEventListener('model-config-changed', handler);
   }, []);
 
-  const handleToggleShowApiRequest = () => setShowApiRequest(p => !p);
+  const handleToggleShowMsgHistory = () => {
+    const newShow = !showMsgHistory;
+    setShowMsgHistory(newShow);
+    if (newShow && window.electronAPI) {
+      window.electronAPI.getChatHistory().then(result => {
+        if (result.success) setMsgHistoryMessages(result.messages);
+      });
+    }
+  };
 
   const handleClearHistory = (e) => { e.stopPropagation(); setMessages([]); tw.clearStreaming(); };
 
@@ -48,7 +55,7 @@ function ChatPanel() {
   };
 
   const renderers = window.ChatPanelRenderers;
-  const renderApiRequestDisplay = (renderers && renderersReady) ? () => renderers.renderApiRequestDisplay(R, lastApiRequestMessages, lastApiRequestProtocol) : () => null;
+  const renderMsgHistoryDisplay = (renderers && renderersReady) ? () => renderers.renderMsgHistoryDisplay(R, msgHistoryMessages) : () => null;
 
   const chatHistoryRef = R.useRef(null);
   const initialLoadDone = R.useRef(false);
@@ -81,7 +88,7 @@ function ChatPanel() {
     if (chatHistoryRef.current) {
       chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
     }
-  }, [messages, isLoading, tw.displayedCount, showApiRequest]);
+  }, [messages, isLoading, tw.displayedCount, showMsgHistory]);
 
   const C = R.createElement;
 
@@ -149,9 +156,9 @@ function ChatPanel() {
   return C('div', { className: 'chat-panel' },
     C('div', { className: 'chat-header-hover-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
     C('div', { className: 'chat-main' },
-      C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowApiRequest, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
-        C('span', { className: 'material-icons' }, showApiRequest ? 'code' : 'chat'),
-        C('span', { className: 'header-title' }, showApiRequest ? 'API请求' : '聊天'),
+      C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
+        C('span', { className: 'material-icons' }, showMsgHistory ? 'history' : 'chat'),
+        C('span', { className: 'header-title' }, showMsgHistory ? 'msg历史记录' : '聊天'),
         modelConfig && modelConfig.apiUrl && C('span', { className: 'config-status configured' }, modelConfig.modelName || '已连接'),
         messages.length > 0 && C('button', {
           className: 'chat-header-clear-btn md-btn md-btn-icon',
@@ -161,7 +168,7 @@ function ChatPanel() {
         }, C('span', { className: 'material-icons' }, 'delete_sweep'))
       ),
       C('div', { className: 'chat-history', ref: chatHistoryRef },
-        showApiRequest ? renderApiRequestDisplay() : renderMessages()
+        showMsgHistory ? renderMsgHistoryDisplay() : renderMessages()
       )
     ),
     C(InputArea, {
@@ -169,7 +176,6 @@ function ChatPanel() {
       modelConfig,
       isLoading, setIsLoading,
       tw,
-      setLastApiRequestMessages, setLastApiRequestProtocol,
       setShowStreamThinking
     })
   );

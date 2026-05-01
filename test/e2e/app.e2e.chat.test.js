@@ -38,7 +38,7 @@ test.describe('Chat Panel Interaction', () => {
     expect(emptyText).toContain('开始对话');
   });
 });
-test.describe('Chat Panel API Request Toggle', () => {
+test.describe('Chat Panel Msg History Toggle', () => {
   test('should have Chat panel input area', async () => {
     const chatInput = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     expect(chatInput).toBeTruthy();
@@ -62,7 +62,7 @@ test.describe('Chat Panel API Request Toggle', () => {
     expect(chatHeaderClickable).toBeTruthy();
   });
 
-  test('should toggle to API request display when clicking chat-header', async () => {
+  test('should toggle to msg history display when clicking chat-header', async () => {
     // Hover near top edge to reveal the header
     const chatPanel = await appHelper.waitForSelector('.chat-panel');
     await chatPanel.hover({ position: { x: 200, y: 20 } });
@@ -73,7 +73,7 @@ test.describe('Chat Panel API Request Toggle', () => {
       return title ? title.textContent : '';
     });
 
-    if (currentTitle === 'API请求') {
+    if (currentTitle === 'msg历史记录') {
       await appHelper.click('.chat-header-clickable');
       await appHelper.waitForTimeout(200);
     }
@@ -85,9 +85,9 @@ test.describe('Chat Panel API Request Toggle', () => {
       const title = document.querySelector('.chat-header .header-title');
       return title ? title.textContent : '';
     });
-    expect(titleText).toBe('API请求');
+    expect(titleText).toBe('msg历史记录');
 
-    const emptyState = await appHelper.waitForSelector('.chat-empty, .chat-api-request-display');
+    const emptyState = await appHelper.waitForSelector('.chat-empty, .chat-msg-history-display');
     expect(emptyState).toBeTruthy();
   });
 

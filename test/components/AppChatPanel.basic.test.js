@@ -16,7 +16,7 @@ describe('ChatPanel Component - Basic', () => {
     });
     global.fetch.mockResolvedValue(global.createStreamingMock('Test response'));
     window.ChatPanelRenderers = {
-      renderApiRequestDisplay: jest.fn(() => null),
+      renderMsgHistoryDisplay: jest.fn(() => null),
       renderChatHistory: jest.fn(() => null)
     };
   });
@@ -157,13 +157,13 @@ describe('ChatPanel Component - Basic', () => {
   });
 
   test('should verify chat-header toggle pattern', async () => {
-    const handleToggleShowApiRequest = jest.fn();
+    const handleToggleShowMsgHistory = jest.fn();
     electronAPI.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-key', modelName: 'gpt-4' }
     });
 
-    handleToggleShowApiRequest();
-    expect(handleToggleShowApiRequest).toHaveBeenCalled();
+    handleToggleShowMsgHistory();
+    expect(handleToggleShowMsgHistory).toHaveBeenCalled();
   });
 });

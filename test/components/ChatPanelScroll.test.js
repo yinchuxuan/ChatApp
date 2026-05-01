@@ -19,7 +19,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
     });
     global.fetch.mockResolvedValue(global.createStreamingMock('Test response'));
     window.ChatPanelRenderers = {
-      renderApiRequestDisplay: jest.fn(() => null),
+      renderMsgHistoryDisplay: jest.fn(() => null),
       renderChatHistory: jest.fn(() => null)
     };
   });
@@ -84,9 +84,9 @@ describe('ChatPanel Component - Auto-scroll', () => {
     Object.defineProperty(HTMLElement.prototype, 'scrollTop', originalScrollTop || {});
   });
 
-  test('should auto-scroll when toggling to API request display', async () => {
-    window.ChatPanelRenderers.renderApiRequestDisplay = jest.fn((R) =>
-      R.createElement('div', { className: 'chat-api-request-display' }, 'API Request Content')
+  test('should auto-scroll when toggling to msg history display', async () => {
+    window.ChatPanelRenderers.renderMsgHistoryDisplay = jest.fn((R) =>
+      R.createElement('div', { className: 'chat-msg-history-display' }, 'Msg History Content')
     );
 
     ChatPanel = require('../../src/ChatPanel.jsx').default;
@@ -97,13 +97,13 @@ describe('ChatPanel Component - Auto-scroll', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
     });
 
-    // Toggle to API request display
+    // Toggle to msg history display
     const header = document.querySelector('.chat-header');
     _fireEvent.click(header);
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.getByText('API Request Content')).toBeInTheDocument();
+    expect(_screen.getByText('Msg History Content')).toBeInTheDocument();
 
     const chatHistory = document.querySelector('.chat-history');
     expect(chatHistory).toBeTruthy();

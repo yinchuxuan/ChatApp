@@ -1,26 +1,35 @@
-// ChatPanel render helpers - Renders Chat history and API request display
+// ChatPanel render helpers - Renders Chat history and msg history display
 // Used by ChatPanel component
 
 const ChatPanelRenderers = {
-  // Render API request display
-  renderApiRequestDisplay: (R, lastApiRequestMessages, lastApiRequestProtocol) => {
-    if (lastApiRequestMessages && lastApiRequestMessages.length > 0) {
-      const protocolLabel = lastApiRequestProtocol === 'anthropic' ? 'Anthropic' : 'OpenAI';
-      return R.createElement('div', { className: 'chat-api-request-display' },
-        R.createElement('div', { className: 'chat-api-request-header' },
-          R.createElement('span', { className: 'material-icons' }, 'api'),
-          R.createElement('span', null, '最后一次 API 请求消息'),
-          R.createElement('span', { className: 'api-protocol-badge' }, protocolLabel)
-        ),
-        R.createElement('pre', { className: 'chat-api-request-content' },
-          JSON.stringify(lastApiRequestMessages, null, 2)
-        )
+  // Render msg history display - reads msg JSON structures from history file
+  renderMsgHistoryDisplay: (R, msgHistoryMessages) => {
+    if (!msgHistoryMessages || msgHistoryMessages.length === 0) {
+      return R.createElement('div', { className: 'chat-empty' },
+        R.createElement('span', { className: 'material-icons empty-icon' }, 'history'),
+        R.createElement('div', null, '暂无消息历史记录'),
+        R.createElement('div', { className: 'chat-empty-hint' }, '发送消息后消息将自动保存到文件')
       );
     }
-    return R.createElement('div', { className: 'chat-empty' },
-      R.createElement('span', { className: 'material-icons empty-icon' }, 'api'),
-      R.createElement('div', null, '暂无 API 请求历史'),
-      R.createElement('div', { className: 'chat-empty-hint' }, '发送消息后将显示 API 请求内容')
+    const messageElements = msgHistoryMessages.map((msg, idx) =>
+      R.createElement('div', { key: idx, className: 'chat-msg-history-item' },
+        R.createElement('div', { className: 'chat-msg-history-item-header' },
+          R.createElement('span', { className: 'material-icons' }, msg.role === 'user' ? 'person' : 'smart_toy'),
+          R.createElement('span', null, `消息 #${idx + 1} (${msg.role})`)
+        ),
+        R.createElement('pre', { className: 'chat-msg-history-content' },
+          JSON.stringify(msg, null, 2)
+        )
+      )
+    );
+    return R.createElement('div', { className: 'chat-msg-history-display' },
+      R.createElement('div', { className: 'chat-msg-history-header' },
+        R.createElement('span', { className: 'material-icons' }, 'history'),
+        R.createElement('span', null, `消息历史记录 (${msgHistoryMessages.length} 条消息)`)
+      ),
+      R.createElement('div', { className: 'chat-msg-history-list' },
+        ...messageElements
+      )
     );
   },
 

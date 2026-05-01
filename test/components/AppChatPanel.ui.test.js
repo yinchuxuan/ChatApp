@@ -16,7 +16,7 @@ describe('ChatPanel Component - UI', () => {
     });
     global.fetch.mockResolvedValue(global.createStreamingMock('Test response'));
     window.ChatPanelRenderers = {
-      renderApiRequestDisplay: jest.fn(() => null),
+      renderMsgHistoryDisplay: jest.fn(() => null),
       renderChatHistory: jest.fn(() => null)
     };
   });
@@ -39,7 +39,7 @@ describe('ChatPanel Component - UI', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.getByText('API请求')).toBeInTheDocument();
+    expect(_screen.getByText('msg历史记录')).toBeInTheDocument();
   });
 
   test('should show model name when configured', async () => {
