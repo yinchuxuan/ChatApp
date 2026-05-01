@@ -39,7 +39,7 @@ describe('IPC Chat History Operations', () => {
   test('should save and retrieve chat history', async () => {
     const messages = [
       { role: 'user', content: 'Hello' },
-      { role: 'assistant', content: 'Hi there!', _thinking: 'Let me think...' }
+      { role: 'assistant', content: 'Hi there!', thinking: 'Let me think...' }
     ];
 
     const saveResult = await handlers['save-chat-history']({}, messages);
@@ -48,7 +48,10 @@ describe('IPC Chat History Operations', () => {
 
     const getResult = await handlers['get-chat-history']();
     expect(getResult.success).toBe(true);
-    expect(getResult.messages).toEqual(messages);
+    expect(getResult.messages).toEqual([
+      { role: 'user', content: 'Hello' },
+      { role: 'assistant', content: 'Hi there!', thinking: 'Let me think...', _thinking: 'Let me think...' }
+    ]);
   });
 
   test('should overwrite existing chat history', async () => {

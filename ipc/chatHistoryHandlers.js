@@ -15,7 +15,13 @@ function registerChatHistoryHandlers(ipcMain, chatHistoryPath, fs) {
       if (fs.existsSync(chatHistoryPath)) {
         const content = fs.readFileSync(chatHistoryPath, 'utf-8');
         const messages = JSON.parse(content);
-        return { success: true, messages: Array.isArray(messages) ? messages : [] };
+        // Restore _thinking from thinking field for UI compatibility
+        const restored = Array.isArray(messages) ? messages.map(msg => {
+          const restored = { ...msg };
+          if (msg.thinking) restored._thinking = msg.thinking;
+          return restored;
+        }) : [];
+        return { success: true, messages: restored };
       }
       return { success: true, messages: [] };
     } catch (err) {
@@ -30,7 +36,13 @@ function registerChatHistoryHandlers(ipcMain, chatHistoryPath, fs) {
       if (!fs.existsSync(chatHistoryDir)) {
         fs.mkdirSync(chatHistoryDir, { recursive: true });
       }
-      fs.writeFileSync(chatHistoryPath, JSON.stringify(messages, null, 2), 'utf-8');
+      // Only keep role, content, thinking fields
+      const cleanedMessages = messages.map(msg => {
+        const cleaned = { role: msg.role, content: msg.content };
+        if (msg.thinking) cleaned.thinking = msg.thinking;
+        return cleaned;
+      });
+      fs.writeFileSync(chatHistoryPath, JSON.stringify(cleanedMessages, null, 2), 'utf-8');
       return { success: true };
     } catch (err) {
       console.error('Error saving chat history:', err);

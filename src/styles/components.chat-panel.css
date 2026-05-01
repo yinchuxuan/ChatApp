@@ -138,7 +138,7 @@
 .msg-history-card {
   display: block;
   padding: 16px 20px;
-  border-radius: var(--md-shape-corner-large);
+  border-radius: 0;
   background: var(--md-surface-container-low);
   color: var(--md-on-surface-variant);
   box-shadow: var(--md-elevation-level-0);
@@ -159,9 +159,6 @@
   font-size: 12px;
   line-height: 1.5;
   color: inherit;
-  overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  max-height: 400px;
-  overflow-y: auto;
 }

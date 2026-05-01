@@ -50,7 +50,7 @@ function ChatInputArea({
       const content = tw.getAccumulatedContent();
       const savedThinking = tw.getThinkingContent();
       if (content) {
-        setMessages(prev => [...prev, { role: 'assistant', content, _thinking: savedThinking }]);
+        setMessages(prev => [...prev, { role: 'assistant', content, _thinking: savedThinking, thinking: savedThinking }]);
         tw.clearStreaming();
       }
     } catch (err) {

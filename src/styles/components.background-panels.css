@@ -52,6 +52,15 @@
   background: rgba(18, 26, 46, 0.6);
 }
 
+/* msg history card - match assistant bubble transparency with background image */
+.app-container.has-background-image .msg-history-card {
+  background: rgba(250, 251, 252, 0.6);
+}
+
+[data-theme="dark"] .app-container.has-background-image .msg-history-card {
+  background: rgba(18, 26, 46, 0.6);
+}
+
 .app-container.has-background-image .chat-message.error .chat-message-bubble {
   background: rgba(220, 38, 38, 0.4);
   color: #FFFFFF;

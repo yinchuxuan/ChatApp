@@ -2,7 +2,7 @@
 // Used by ChatPanel component
 
 const ChatPanelRenderers = {
-  // Render msg history display - single rectangular card with msgs JSON
+  // Render msg history display - array of msgs with role, content, thinking
   renderMsgHistoryDisplay: (R, msgHistoryMessages) => {
     if (!msgHistoryMessages || msgHistoryMessages.length === 0) {
       return R.createElement('div', { className: 'chat-empty' },
@@ -10,11 +10,14 @@ const ChatPanelRenderers = {
         R.createElement('div', null, '暂无消息历史记录')
       );
     }
-    const msgsObj = {};
-    msgHistoryMessages.forEach((msg, idx) => {
-      msgsObj[idx] = { ...msg };
+    const msgsArray = msgHistoryMessages.map(msg => {
+      const result = { role: msg.role, content: msg.content };
+      if (msg._thinking) {
+        result.thinking = msg._thinking;
+      }
+      return result;
     });
-    const jsonStr = JSON.stringify({ msgs: msgsObj }, null, 2);
+    const jsonStr = JSON.stringify({ msgs: msgsArray }, null, 2);
     return R.createElement('div', { className: 'msg-history-card' },
       R.createElement('pre', { className: 'msg-history-json' }, jsonStr)
     );

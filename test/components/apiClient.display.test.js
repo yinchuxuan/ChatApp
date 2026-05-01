@@ -88,7 +88,7 @@ describe('ChatPanel - Msg History Display from File', () => {
     // Verify thinking field is present in the msgs JSON structure
     const jsonPre = document.querySelector('.msg-history-json');
     const jsonText = jsonPre.textContent;
-    expect(jsonText).toContain('_thinking');
+    expect(jsonText).toContain('thinking');
     expect(jsonText).toContain('How to respond...');
   });
 
