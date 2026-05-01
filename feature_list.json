@@ -17,47 +17,39 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "修改msg历史记录的显示格式",
-      "agentid": "a5b9d87f2fa52fd0a",
-      "user_visible_behavior": "将msg历史记录的显示修改为：一个和assistant回答卡片颜色透明度相同的矩形卡片，包含一个msgs{} json结构体，里面包含每条msg的内容",
+      "title": "将user内容卡片和assistant内容卡片中的文字内容按markdown渲染呈现",
+      "agentid": "",
+      "user_visible_behavior": "将user内容卡片和assistant内容卡片中的文字内容按markdown渲染呈现",
       "status": "passing",
       "verification": [
-        "msg历史记录中的矩形卡片和assistant回答卡片颜色透明度保持一致(无论有无背景，深色/浅色模式)",
-        "其中包含内容为一个msgs json结构体",
+        "user内容卡片和assistant内容卡片中的文字内容按markdown渲染呈现",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "msg历史记录使用单个矩形卡片(msg-history-card)展示，背景色使用var(--md-surface-container-low)，与assistant回答卡片一致",
-        "卡片内包含msgs{} JSON结构体，以numeric index为key，包含每条消息的完整字段",
-        "CSS样式(components.chat-panel.css)中.msg-history-card使用与assistant卡片相同的background/color/box-shadow变量",
-        "单元测试(AppChatPanel.renderers.test.js)验证card结构、msgs JSON格式、空状态",
-        "集成测试(MsgHistoryDisplayCard.test.js)验证完整toggle流程和卡片渲染",
-        "集成测试(ChatPanelApiRequest.test.js, apiClient.display.test.js)已更新适配新格式",
-        "e2e测试(app.e2e.msg-history-card.test.js)验证卡片显示和尺寸",
-        "npm test: 196 unit + 23 integration + 42 e2e = 261 passed, eslint: 0 warnings 0 errors, npm run build: success"
       ]
     },
     {
       "id": "app-002",
       "priority": 1,
       "area": "coding",
-      "title": "修改聊天区两侧padding",
-      "agentid": "a08645a8ab76c3021",
-      "user_visible_behavior": "聊天区所有卡片(包括user卡片，assistant卡片，msg历史卡片)的两侧padding改为左右两边各10%",
+      "title": "优化e2e测试",
+      "agentid": "",
+      "user_visible_behavior": "使用多worker并行优化e2e测试时间；将e2e测试设置为遇到一个fail case后立即终止",
       "status": "passing",
       "verification": [
-        "聊天区所有卡片(包括user卡片，assistant卡片，msg历史卡片)的两侧padding改为左右两边各10%",
+        "多worker并行跑e2e测试",
+        "e2e测试遇到一个fail case后立即终止",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "CSS样式(components.chat-panel.css)中.chat-history的padding从20px 28px 80px修改为20px 10% 80px，使所有聊天区卡片左右两侧各10%的padding",
-        "所有消息卡片(.chat-message-bubble, .msg-history-card)使用width: 100%以填充容器，继承父元素的10%侧边距",
-        "单元测试(ChatCardSidePadding.test.js)验证CSS规则正确性: 10%水平padding、bubble宽度、msg-history-card宽度",
-        "集成测试(chatCardSidePadding.test.js)验证chat-history容器、msg-history-card和chat-message-bubble的10% padding和100%宽度",
-        "e2e测试(app.e2e.chat-card-padding.test.js)验证chat-history容器计算后的padding值与容器宽度的10%匹配",
-        "npm test: 199 unit + 26 integration + 45 e2e = 270 passed, eslint: 0 warnings 0 errors, npm run build: success"
+        "playwright.config.js: workers changed from 1 to Math.min(4, os.cpus().length) for multi-worker parallel execution",
+        "playwright.config.js: maxFailures changed from 0 to 1 for fail-fast on first failure",
+        "E2E tests: 43 passed, 2 skipped (anthropic-config tests require env vars not set), ran in parallel across multiple workers",
+        "Unit tests: 199 passed, 36 suites",
+        "Integration tests: 26 passed, 4 suites",
+        "ESLint: 0 warnings, 0 errors"
       ]
     }
   ]
