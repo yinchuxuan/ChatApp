@@ -10,6 +10,11 @@
   background: var(--md-surface-container-highest);
   border: 1px solid var(--md-outline-variant);
   box-shadow: var(--md-elevation-level-1);
+  transition: box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+}
+
+.config-summary-card:hover {
+  box-shadow: var(--md-elevation-level-2);
 }
 
 /* Inline editable field */
@@ -50,9 +55,6 @@
   word-break: break-all;
   font-family: 'Google Sans Text', 'Roboto', sans-serif;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
   transition: color var(--md-motion-duration-short2) var(--md-motion-easing-standard);
 }
 
@@ -60,21 +62,18 @@
   color: var(--md-primary);
 }
 
-.settings-edit-icon {
-  font-size: 16px !important;
-  opacity: 0;
-  transition: opacity var(--md-motion-duration-short2) var(--md-motion-easing-standard);
-}
-
-.settings-field-value:hover .settings-edit-icon {
-  opacity: 1;
-}
-
 .settings-inline-input {
   margin-left: 26px;
   font-size: 14px;
   padding: 8px 12px;
   max-width: 100%;
+  outline: none;
+}
+
+.settings-inline-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--md-outline-variant);
 }
 
 .config-empty-state {

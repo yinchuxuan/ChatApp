@@ -68,10 +68,8 @@ function SettingsModelConfig({
           <span
             className="settings-field-value"
             onClick={() => startEdit(field)}
-            title="点击编辑"
           >
             {field === 'protocol' ? protocolLabel : displayValue}
-            <span className="material-icons settings-edit-icon">edit</span>
           </span>
         )}
       </div>
