@@ -46,20 +46,20 @@
 }
 
 .chat-message.assistant .chat-message-bubble {
-  background: var(--md-surface-container-high);
+  background: var(--md-surface-container-low);
   color: var(--md-on-surface);
-  box-shadow: var(--md-elevation-level-1);
+  box-shadow: var(--md-elevation-level-0);
   border-radius:
     var(--md-shape-corner-small)
     var(--md-shape-corner-large)
     var(--md-shape-corner-large)
     var(--md-shape-corner-large);
-  border: 1px solid var(--md-outline-variant);
+  border-left: 3px solid var(--md-primary);
 }
 
 .chat-message.assistant .chat-message-bubble:hover {
-  box-shadow: var(--md-elevation-level-2);
-  border-color: var(--md-primary-light);
+  box-shadow: var(--md-elevation-level-1);
+  border-left-color: var(--md-primary-dark);
 }
 
 .chat-message.error .chat-message-bubble {
