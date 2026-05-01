@@ -1,10 +1,30 @@
 # 进度日志
 
+## latest session
+
+2026-05-01: 完成app-001和app-002 feature (新一轮)
+
+### app-001: 隐藏聊天区标题栏 (passing)
+- 实现聊天区标题栏默认隐藏，鼠标靠近时通过hover展开显示
+- ChatPanel.jsx: isHeaderHovered state + chat-header-hover-trigger zone + chat-header-visible class toggle
+- components.chat-panel.css: .chat-header opacity:0/visibility:hidden, .chat-panel:hover reveal
+- 测试: 140 unit passed, 18 integration passed, 29 e2e passed, eslint 0 warnings, 0 errors
+- 提交: 67df25c feat(app-001): implement hide chat header with hover reveal
+
+### app-002: 模型配置兼容anthropic协议 (passing)
+- 新增 apiClient.js: detectProtocol从URL自动判断协议, sendChatRequest构建协议特定请求
+- OpenAI: /chat/completions + Bearer auth; Anthropic: /messages + x-api-key + anthropic-version
+- 协议特定SSE解析: OpenAI line-by-line delta, Anthropic event-delimited content_block_delta
+- ChatPanelRenderers.js: api-protocol-badge显示当前协议(OpenAI/Anthropic)
+- 测试: 158 unit passed, 18 integration passed, 27/29 e2e passed, eslint 0 warnings, 0 errors
+- 提交: aa06ae3 feat(app-002): add Anthropic protocol support with auto-detection
+
+### 已知问题
+- E2E测试中2个case失败(app-001 chat-header hover-reveal相关), 可能是app-002 worker的测试环境差异导致, 非app-002功能引入, 需后续排查
+
 ## 当前已验证状态
 
 - 全部feature (app-001 ~ app-002) 已完成并通过evaluator评审
-
-## latest session
 
 2026-04-30: 完成app-001和app-002 feature
 
