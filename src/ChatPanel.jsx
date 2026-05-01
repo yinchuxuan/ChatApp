@@ -7,6 +7,7 @@ function ChatPanel() {
   const [modelConfig, setModelConfig] = R.useState(null);
   const [showApiRequest, setShowApiRequest] = R.useState(false);
   const [lastApiRequestMessages, setLastApiRequestMessages] = R.useState(null);
+  const [lastApiRequestProtocol, setLastApiRequestProtocol] = R.useState(null);
   const [renderersReady, setRenderersReady] = R.useState(false);
   const [showStreamThinking, setShowStreamThinking] = R.useState(true);
   const [isHeaderHovered, setIsHeaderHovered] = R.useState(false);
@@ -49,28 +50,28 @@ function ChatPanel() {
     tw.startStreaming(); setShowStreamThinking(true);
     try {
       const apiMessages = newMessages.map(msg => ({ role: msg.role, content: msg.content }));
+      const protocol = window.detectProtocol(modelConfig.apiUrl);
       setLastApiRequestMessages(apiMessages);
-      const response = await fetch(`${modelConfig.apiUrl}/chat/completions`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modelConfig.apiKey}` },
-        body: JSON.stringify({ model: modelConfig.modelName || 'gpt-3.5-turbo', messages: apiMessages, stream: true })
-      });
-      if (!response.ok) { const errorData = await response.json().catch(() => {}); throw new Error(errorData?.error?.message || `API 错误: ${response.status}`); }
-      const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        const { done, value } = await reader.read(); if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n'); buffer = lines.pop() || '';
-        for (const line of lines) {
-          const trimmed = line.trim(); if (!trimmed || !trimmed.startsWith('data: ')) continue;
-          const data = trimmed.slice(6); if (data === '[DONE]') continue;
-          try { const parsed = JSON.parse(data); const choice = parsed.choices?.[0]?.delta; if (choice?.reasoning_content) tw.pushContent(choice.reasoning_content, 'reasoning'); if (choice?.content) tw.pushContent(choice.content); } catch { /* skip */ }
+      setLastApiRequestProtocol(protocol);
+      await window.sendChatRequest(
+        {
+          apiUrl: modelConfig.apiUrl,
+          apiKey: modelConfig.apiKey,
+          modelName: modelConfig.modelName,
+          messages: apiMessages
+        },
+        {
+          onToken: (text) => tw.pushContent(text),
+          onThinkingToken: (text) => tw.pushContent(text, 'reasoning')
         }
-      }
+      );
       setIsLoading(false); tw.finishStreaming();
       const content = tw.getAccumulatedContent();
       const savedThinking = tw.getThinkingContent();
-      if (content) { setMessages(prev => [...prev, { role: 'assistant', content, _thinking: savedThinking }]); tw.clearStreaming(); }
+      if (content) {
+        setMessages(prev => [...prev, { role: 'assistant', content, _thinking: savedThinking }]);
+        tw.clearStreaming();
+      }
     } catch (err) {
       setIsLoading(false); tw.reset();
       setMessages(prev => [...prev, { role: 'assistant', content: `请求失败: ${err.message}`, isError: true }]);
@@ -78,7 +79,7 @@ function ChatPanel() {
   };
 
   const renderers = window.ChatPanelRenderers;
-  const renderApiRequestDisplay = (renderers && renderersReady) ? () => renderers.renderApiRequestDisplay(R, lastApiRequestMessages) : () => null;
+  const renderApiRequestDisplay = (renderers && renderersReady) ? () => renderers.renderApiRequestDisplay(R, lastApiRequestMessages, lastApiRequestProtocol) : () => null;
 
   const C = R.createElement;
 

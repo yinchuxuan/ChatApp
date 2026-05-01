@@ -3,12 +3,14 @@
 
 const ChatPanelRenderers = {
   // Render API request display
-  renderApiRequestDisplay: (R, lastApiRequestMessages) => {
+  renderApiRequestDisplay: (R, lastApiRequestMessages, lastApiRequestProtocol) => {
     if (lastApiRequestMessages && lastApiRequestMessages.length > 0) {
+      const protocolLabel = lastApiRequestProtocol === 'anthropic' ? 'Anthropic' : 'OpenAI';
       return R.createElement('div', { className: 'chat-api-request-display' },
         R.createElement('div', { className: 'chat-api-request-header' },
           R.createElement('span', { className: 'material-icons' }, 'api'),
-          R.createElement('span', null, '最后一次 API 请求消息')
+          R.createElement('span', null, '最后一次 API 请求消息'),
+          R.createElement('span', { className: 'api-protocol-badge' }, protocolLabel)
         ),
         R.createElement('pre', { className: 'chat-api-request-content' },
           JSON.stringify(lastApiRequestMessages, null, 2)

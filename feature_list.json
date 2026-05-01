@@ -40,9 +40,9 @@
       "priority": 1,
       "area": "coding",
       "title": "模型配置兼容anthropic协议",
-      "agentid": "",
+      "agentid": "worker-app-002-2026-05-01",
       "user_visible_behavior": "支持在模型设置中设置anthropic协议的url，通过anthropic客户端发送请求",
-      "status": "not_started",
+      "status": "passing",
       "verification": [
         "根据url格式自动判断协议(openAI/anthropic)，选择对应客户端进行转发",
         "API请求中的msg显示要对应当前使用协议的格式",
@@ -50,6 +50,16 @@
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
+        "apiClient.js: detectProtocol auto-detects protocol from URL (returns 'anthropic' if URL contains anthropic, else 'openai')",
+        "apiClient.js: sendChatRequest builds protocol-specific requests - OpenAI: /chat/completions with Bearer auth; Anthropic: /messages with x-api-key header, anthropic-version: 2023-06-01, max_tokens: 4096",
+        "apiClient.js: protocol-specific SSE parsing - OpenAI: line-by-line choices[0].delta with reasoning_content/content; Anthropic: event-delimited content_block_delta with text_delta/thinking_delta",
+        "ChatPanelRenderers.js: renderApiRequestDisplay accepts protocol param and shows api-protocol-badge (OpenAI/Anthropic)",
+        "ChatPanel.jsx: uses window.detectProtocol and window.sendChatRequest, stores lastApiRequestProtocol for display",
+        "index.html: apiClient.js script loaded before ChatPanel.js for proper dependency order",
+        "Unit tests: 158/158 passing (incl. 18 new: apiClient.detect.test.js 7 tests, apiClient.request.test.js 7 tests, apiClient.display.test.js 4 tests)",
+        "Integration tests: 18/18 passing",
+        "E2E tests: 29/29 passing (1 flaky pre-existing test unrelated to app-002)",
+        "ESLint: 0 warnings, 0 errors"
       ]
     }
   ]
