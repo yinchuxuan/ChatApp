@@ -14,6 +14,18 @@
 - **Verification**: 188 unit tests, 23 integration tests, 40 e2e tests passed; eslint clean; no code files modified
 - **Committed as**: d4d3770
 
+### app-001: 修改msg历史记录的显示格式
+- **Status**: passing (accepted after one review)
+- **Changes**: Replaced individual `<pre>` elements with a single `.msg-history-card` containing `{ msgs: {} }` JSON structure; CSS uses same variables as assistant answer cards for color/transparency consistency
+- **Verification**: 196 unit + 23 integration + 42 e2e = 261 tests passed; eslint clean
+- **Committed as**: fd26e2b
+
+### app-002: 修改聊天区两侧padding
+- **Status**: passing (accepted after one review)
+- **Changes**: Changed `.chat-history` padding from `20px 28px 80px` to `20px 10% 80px`; all cards (user, assistant, msg-history) use `width: 100%` to inherit 10% side padding
+- **Verification**: 199 unit + 26 integration + 45 e2e = 270 tests passed; eslint clean
+- **Committed as**: a27227b
+
 ---
 
 ## 历史记录
