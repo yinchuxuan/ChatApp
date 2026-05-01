@@ -1,5 +1,21 @@
 # 进度日志
 
+## 2026-05-01 second session
+
+### app-001: 调整msg历史显示默认样式
+- **Status**: passing (accepted after evaluator review)
+- **Changes**: Replaced plain div empty state in ChatPanelRenderers.js with styled chat-empty container using material-icons inbox icon, matching the chat panel's "开始对话" empty state UI pattern
+- **Verification**: 208 unit + 26 integration + 52 e2e = 286 tests passed; eslint clean
+- **Committed as**: da6c118
+
+### app-002: 更改配置区标题栏
+- **Status**: passing (accepted after evaluator review)
+- **Changes**: Changed SettingsPanel.jsx header title from "模型配置" to "系统配置"; removed "已配置" status badge span from header; updated unit and e2e tests
+- **Verification**: 208 unit + 26 integration + 52 e2e = 286 tests passed; eslint clean
+- **Committed as**: b912635
+
+---
+
 ## 2026-05-01 session
 
 ### app-001: 代码重构（不影响应用功能）
