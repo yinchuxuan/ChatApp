@@ -24,11 +24,20 @@
   gap: 8px;
   padding: 16px 0;
   border-bottom: 1px solid var(--md-outline-variant);
+  transition:
+    padding-left var(--md-motion-duration-short2) var(--md-motion-easing-standard),
+    background var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+  border-radius: var(--md-shape-corner-small);
 }
 
 .settings-field-inline:last-child {
   border-bottom: none;
   padding-bottom: 0;
+}
+
+.settings-field-inline:hover {
+  padding-left: 12px;
+  background: var(--md-surface-container);
 }
 
 .settings-field-label {
@@ -67,12 +76,11 @@
   font-size: 14px;
   padding: 8px 12px;
   max-width: 100%;
-  outline: none;
 }
 
 .settings-inline-input:focus {
-  outline: none;
-  box-shadow: none;
+  outline: none !important;
+  box-shadow: none !important;
   border-color: var(--md-outline-variant);
 }
 
