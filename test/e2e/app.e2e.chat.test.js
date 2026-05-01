@@ -51,22 +51,22 @@ test.describe('Chat Panel API Request Toggle', () => {
   });
 
   test('should verify Chat header and history structure', async () => {
-    const chatHeader = await appHelper.waitForSelector('.chat-header');
+    const chatHeader = await appHelper.waitForSelector('.chat-header', { state: 'attached' });
     expect(chatHeader).toBeTruthy();
 
-    const chatHistory = await appHelper.waitForSelector('.chat-history');
+    const chatHistory = await appHelper.waitForSelector('.chat-history', { state: 'attached' });
     expect(chatHistory).toBeTruthy();
   });
 
   test('should have clickable chat-header for toggle', async () => {
-    const chatHeaderClickable = await appHelper.waitForSelector('.chat-header-clickable');
+    const chatHeaderClickable = await appHelper.waitForSelector('.chat-header-clickable', { state: 'attached' });
     expect(chatHeaderClickable).toBeTruthy();
   });
 
   test('should toggle to API request display when clicking chat-header', async () => {
-    // Hover to reveal the header before clicking
+    // Hover near top edge to reveal the header
     const chatPanel = await appHelper.waitForSelector('.chat-panel');
-    await chatPanel.hover();
+    await chatPanel.hover({ position: { x: 200, y: 20 } });
     await appHelper.waitForTimeout(100);
 
     const currentTitle = await appHelper.evaluate(() => {
@@ -93,9 +93,9 @@ test.describe('Chat Panel API Request Toggle', () => {
   });
 
   test('should toggle back to Chat panel when clicking chat-header again', async () => {
-    // Hover to reveal the header before clicking
+    // Hover near top edge to reveal the header
     const chatPanel = await appHelper.waitForSelector('.chat-panel');
-    await chatPanel.hover();
+    await chatPanel.hover({ position: { x: 200, y: 20 } });
     await appHelper.waitForTimeout(100);
 
     const currentTitle = await appHelper.evaluate(() => {
