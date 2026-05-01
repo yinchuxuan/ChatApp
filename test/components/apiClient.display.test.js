@@ -48,13 +48,16 @@ describe('ChatPanel - Msg History Display from File', () => {
 
     expect(screen.getByText('msg历史记录')).toBeInTheDocument();
 
-    // Verify only raw JSON is displayed in <pre> elements
-    const preElements = document.querySelectorAll('.chat-history pre');
-    expect(preElements.length).toBe(2);
-    expect(preElements[0].textContent).toContain('"role": "user"');
-    expect(preElements[0].textContent).toContain('"content": "test message"');
-    expect(preElements[1].textContent).toContain('"role": "assistant"');
-    expect(preElements[1].textContent).toContain('"content": "Test"');
+    // Verify the card with msgs JSON structure
+    const card = document.querySelector('.msg-history-card');
+    expect(card).toBeTruthy();
+    const jsonPre = document.querySelector('.msg-history-json');
+    expect(jsonPre).toBeTruthy();
+    const jsonText = jsonPre.textContent;
+    expect(jsonText).toContain('"role": "user"');
+    expect(jsonText).toContain('"content": "test message"');
+    expect(jsonText).toContain('"role": "assistant"');
+    expect(jsonText).toContain('"content": "Test"');
   });
 
   test('should show msg history with assistant message thinking field', async () => {
@@ -82,11 +85,11 @@ describe('ChatPanel - Msg History Display from File', () => {
 
     expect(screen.getByText('msg历史记录')).toBeInTheDocument();
 
-    // Verify thinking field is shown in the JSON structure
-    const preElements = document.querySelectorAll('.chat-history pre');
-    const assistantJson = preElements[1].textContent;
-    expect(assistantJson).toContain('_thinking');
-    expect(assistantJson).toContain('How to respond...');
+    // Verify thinking field is present in the msgs JSON structure
+    const jsonPre = document.querySelector('.msg-history-json');
+    const jsonText = jsonPre.textContent;
+    expect(jsonText).toContain('_thinking');
+    expect(jsonText).toContain('How to respond...');
   });
 
   test('should handle OpenAI API errors', async () => {

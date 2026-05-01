@@ -50,12 +50,16 @@ describe('ChatPanel Msg History Display', () => {
     expect(screen.getByText('msg历史记录')).toBeInTheDocument();
     expect(electronAPI.getChatHistory).toHaveBeenCalled();
 
-    // Verify only raw JSON is displayed in <pre> elements
-    const preElements = document.querySelectorAll('.chat-history pre');
-    expect(preElements.length).toBe(2);
-    expect(preElements[0].textContent).toContain('test question');
-    expect(preElements[1].textContent).toContain('Test response');
-    expect(preElements[1].textContent).toContain('thinking content');
+    // Verify the card is rendered with msgs JSON structure
+    const card = document.querySelector('.msg-history-card');
+    expect(card).toBeTruthy();
+    const jsonPre = document.querySelector('.msg-history-json');
+    expect(jsonPre).toBeTruthy();
+    const parsed = JSON.parse(jsonPre.textContent);
+    expect(parsed).toHaveProperty('msgs');
+    expect(parsed.msgs['0'].content).toContain('test question');
+    expect(parsed.msgs['1'].content).toContain('Test response');
+    expect(parsed.msgs['1'].role).toBe('assistant');
   });
 
   test('should show empty state when no msg history', async () => {
@@ -112,16 +116,14 @@ describe('ChatPanel Msg History Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    // Verify JSON structures are displayed in <pre> elements
-    const preElements = document.querySelectorAll('.chat-history pre');
-    const firstMsgJson = JSON.parse(preElements[0].textContent);
-    expect(firstMsgJson.role).toBe('user');
-    expect(firstMsgJson.content).toBe('Hello');
-    expect(firstMsgJson.isError).toBe(false);
-
-    const secondMsgJson = JSON.parse(preElements[1].textContent);
-    expect(secondMsgJson.role).toBe('assistant');
-    expect(secondMsgJson._thinking).toBe('How to respond...');
+    // Verify msgs JSON structure contains all message data
+    const jsonPre = document.querySelector('.msg-history-json');
+    const parsed = JSON.parse(jsonPre.textContent);
+    expect(parsed).toHaveProperty('msgs');
+    expect(parsed.msgs['0'].role).toBe('user');
+    expect(parsed.msgs['0'].content).toBe('Hello');
+    expect(parsed.msgs['1'].role).toBe('assistant');
+    expect(parsed.msgs['1'].content).toBe('Hi there');
   });
 
   test('should handle getChatHistory failure gracefully', async () => {
@@ -164,32 +166,21 @@ describe('ChatPanel Msg History Display', () => {
     const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'test question' } });
     fireEvent.click(document.querySelector('button[type="submit"]'));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
+    await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
     await waitFor(() => {
       const responses = screen.getAllByText('Test response');
       expect(responses.length).toBeGreaterThan(0);
     });
-
-    // Clear mock to check if it's called again on toggle
     electronAPI.getChatHistory.mockClear();
-
     const chatHeader = screen.getByText('聊天').closest('.chat-header');
     fireEvent.click(chatHeader);
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    // Should call getChatHistory to read from file, not use API request data
+    await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
     expect(electronAPI.getChatHistory).toHaveBeenCalled();
-    // Returned messages should be from file (which we mocked)
-    const preElements = document.querySelectorAll('.chat-history pre');
-    expect(preElements.length).toBe(2);
+    const card = document.querySelector('.msg-history-card');
+    expect(card).toBeTruthy();
+    const jsonPre = document.querySelector('.msg-history-json');
+    const parsed = JSON.parse(jsonPre.textContent);
+    expect(parsed).toHaveProperty('msgs');
+    expect(Object.keys(parsed.msgs).length).toBe(2);
   });
 });

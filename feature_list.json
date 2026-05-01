@@ -16,54 +16,42 @@
     {
       "id": "app-001",
       "priority": 1,
-      "area": "refact",
-      "title": "在不影响任何应用功能的情况下进行仓库代码重构，简化代码实现",
-      "agentid": "a890046372a3e69a0",
-      "user_visible_behavior": "在不影响任何应用功能的情况下进行仓库代码重构，简化代码实现，将重复实现的、一些坏的代码实践消除，可以简化逻辑的地方尽量简化",
+      "area": "coding",
+      "title": "修改msg历史记录的显示格式",
+      "agentid": "a5b9d87f2fa52fd0a",
+      "user_visible_behavior": "将msg历史记录的显示修改为：一个和assistant回答卡片颜色透明度相同的矩形卡片，包含一个msgs{} json结构体，里面包含每条msg的内容",
       "status": "passing",
       "verification": [
-        "消除重复实现",
-        "消除坏的代码实现",
-        "简化所有可以简化的代码逻辑",
-        "仓库代码简化",
-        "严禁改变任何应用功能",
+        "msg历史记录中的矩形卡片和assistant回答卡片颜色透明度保持一致(无论有无背景，深色/浅色模式)",
+        "其中包含内容为一个msgs json结构体",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "ESLint: 0 warnings, 0 errors",
-        "Unit tests: 188 passed, 34 suites",
-        "Integration tests: 23 passed, 3 suites",
-        "E2E tests: 40 passed",
-        "apiClient.js: eliminated duplicate error handling",
-        "useTypewriter.js: fixed isLoadingRef._streaming anti-pattern with isStreamingRef",
-        "backgroundHandlers.js: simplified MIME type if-else to lookup table",
-        "ChatPanelRenderers.js: removed unused renderChatHistory (35 lines)"
+        "msg历史记录使用单个矩形卡片(msg-history-card)展示，背景色使用var(--md-surface-container-low)，与assistant回答卡片一致",
+        "卡片内包含msgs{} JSON结构体，以numeric index为key，包含每条消息的完整字段",
+        "CSS样式(components.chat-panel.css)中.msg-history-card使用与assistant卡片相同的background/color/box-shadow变量",
+        "单元测试(AppChatPanel.renderers.test.js)验证card结构、msgs JSON格式、空状态",
+        "集成测试(MsgHistoryDisplayCard.test.js)验证完整toggle流程和卡片渲染",
+        "集成测试(ChatPanelApiRequest.test.js, apiClient.display.test.js)已更新适配新格式",
+        "e2e测试(app.e2e.msg-history-card.test.js)验证卡片显示和尺寸",
+        "npm test: 196 unit + 23 integration + 42 e2e = 261 passed, eslint: 0 warnings 0 errors, npm run build: success"
       ]
     },
     {
-      "id": "app-001",
+      "id": "app-002",
       "priority": 1,
-      "area": "doc",
-      "title": "更新架构文档",
-      "agentid": "a9d34bd7e99cd8eaf",
-      "user_visible_behavior": "给予当前仓库的代码结构更新ARCHITECTURE.md文档",
-      "status": "passing",
+      "area": "coding",
+      "title": "修改聊天区两侧padding",
+      "agentid": "",
+      "user_visible_behavior": "聊天区所有卡片(包括user卡片，assistant卡片，msg历史卡片)的两侧padding改为左右两边各10%",
+      "status": "not_started",
       "verification": [
-        "ARCHITECTURE.md文档和代码仓库结构保持一致",
-        "ARCHITECTURE.md文档不超过50行",
-        "严禁改变任何应用功能",
+        "聊天区所有卡片(包括user卡片，assistant卡片，msg历史卡片)的两侧padding改为左右两边各10%",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "ARCHITECTURE.md: 40 lines (<=50 limit)",
-        "All referenced files exist in src/ directory",
-        "No code files modified",
-        "ESLint: 0 warnings, 0 errors",
-        "Unit tests: 188 passed, 34 suites",
-        "Integration tests: 23 passed, 3 suites",
-        "E2E tests: 40 passed"
       ]
     }
   ]

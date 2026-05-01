@@ -2,17 +2,19 @@
 // Used by ChatPanel component
 
 const ChatPanelRenderers = {
-  // Render msg history display - shows only the msg JSON structure
+  // Render msg history display - single rectangular card with msgs JSON
   renderMsgHistoryDisplay: (R, msgHistoryMessages) => {
     if (!msgHistoryMessages || msgHistoryMessages.length === 0) {
       return R.createElement('div', null, '暂无消息历史记录');
     }
-    const messageElements = msgHistoryMessages.map((msg, idx) =>
-      R.createElement('pre', { key: idx, className: 'chat-msg-history-json' },
-        JSON.stringify(msg, null, 2)
-      )
+    const msgsObj = {};
+    msgHistoryMessages.forEach((msg, idx) => {
+      msgsObj[idx] = { ...msg };
+    });
+    const jsonStr = JSON.stringify({ msgs: msgsObj }, null, 2);
+    return R.createElement('div', { className: 'msg-history-card' },
+      R.createElement('pre', { className: 'msg-history-json' }, jsonStr)
     );
-    return R.createElement('div', null, ...messageElements);
   }
 };
 

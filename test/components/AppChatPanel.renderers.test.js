@@ -94,3 +94,71 @@ describe('ChatPanel Component - Renderers', () => {
     jest.useRealTimers();
   });
 });
+
+describe('MsgHistoryDisplay Card', () => {
+  const ChatPanelRenderers = require('../../src/components/ChatPanelRenderers');
+
+  test('should render empty state when no messages', () => {
+    const result = ChatPanelRenderers.renderMsgHistoryDisplay(React, null);
+    expect(result.props.children).toBe('暂无消息历史记录');
+  });
+
+  test('should render empty state when messages array is empty', () => {
+    const result = ChatPanelRenderers.renderMsgHistoryDisplay(React, []);
+    expect(result.props.children).toBe('暂无消息历史记录');
+  });
+
+  test('should render a single rectangular card with msgs JSON', () => {
+    const messages = [
+      { role: 'user', content: 'Hello' },
+      { role: 'assistant', content: 'Hi there!' }
+    ];
+    const result = ChatPanelRenderers.renderMsgHistoryDisplay(React, messages);
+
+    // Outer element should have msg-history-card class
+    expect(result.type).toBe('div');
+    expect(result.props.className).toBe('msg-history-card');
+
+    // Inner element should be a pre with msg-history-json class
+    const pre = result.props.children;
+    expect(pre.type).toBe('pre');
+    expect(pre.props.className).toBe('msg-history-json');
+
+    // JSON should contain msgs structure
+    const parsed = JSON.parse(pre.props.children);
+    expect(parsed).toHaveProperty('msgs');
+    expect(parsed.msgs['0']).toEqual({ role: 'user', content: 'Hello' });
+    expect(parsed.msgs['1']).toEqual({ role: 'assistant', content: 'Hi there!' });
+  });
+
+  test('should include all messages in msgs JSON with correct structure', () => {
+    const messages = [
+      { role: 'user', content: 'Message 1' },
+      { role: 'assistant', content: 'Response 1' },
+      { role: 'user', content: 'Message 2' },
+      { role: 'assistant', content: 'Response 2' }
+    ];
+    const result = ChatPanelRenderers.renderMsgHistoryDisplay(React, messages);
+    const pre = result.props.children;
+    const parsed = JSON.parse(pre.props.children);
+
+    expect(Object.keys(parsed.msgs).length).toBe(4);
+    expect(parsed.msgs['0'].content).toBe('Message 1');
+    expect(parsed.msgs['1'].content).toBe('Response 1');
+    expect(parsed.msgs['2'].content).toBe('Message 2');
+    expect(parsed.msgs['3'].content).toBe('Response 2');
+  });
+
+  test('should use numeric index keys in msgs JSON', () => {
+    const messages = [
+      { role: 'user', content: 'Test' }
+    ];
+    const result = ChatPanelRenderers.renderMsgHistoryDisplay(React, messages);
+    const pre = result.props.children;
+    const parsed = JSON.parse(pre.props.children);
+
+    expect(parsed.msgs).toHaveProperty('0');
+    expect(typeof parsed.msgs['0'].role).toBe('string');
+    expect(typeof parsed.msgs['0'].content).toBe('string');
+  });
+});
