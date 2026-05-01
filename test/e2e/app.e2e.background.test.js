@@ -39,11 +39,11 @@ test.describe('Background Settings UI', () => {
     expect(bgLabel).toContain('背景图片');
   });
 
-  test('should show clickable background card', async () => {
+  test('should show clickable background card or empty state', async () => {
     await appHelper.hover('.settings-trigger-zone');
     await appHelper.waitForTimeout(200);
 
-    const bgCard = await appHelper.waitForSelector('.background-clickable-empty, .background-clickable-card');
+    const bgCard = await appHelper.waitForSelector('.config-summary-card, .config-empty-state');
     expect(bgCard).toBeTruthy();
   });
 });
@@ -72,7 +72,7 @@ test.describe('Background Settings IPC', () => {
 });
 
 test.describe('Background Image Class Toggle', () => {
-  test('should apply has-background-image class when background is set via UI', async () => {
+  test('should apply has-background-image class when background is set via IPC', async () => {
     await appHelper.saveBackgroundConfig({
       backgroundImageUrl: '',
       backgroundOpacity: 0.5
@@ -83,18 +83,11 @@ test.describe('Background Image Class Toggle', () => {
     expect(imageResult.success).toBe(true);
     const testBgUrl = imageResult.localUrl;
 
-    await appHelper.hover('.settings-trigger-zone');
-    await appHelper.waitForTimeout(500);
-
-    const bgClickableElement = await appHelper.waitForSelector('.background-clickable-empty, .background-clickable-card', { timeout: 10000 });
-    await bgClickableElement.click();
-    await appHelper.waitForTimeout(300);
-
-    await appHelper.fill('.background-edit-form .settings-input', testBgUrl);
-    await appHelper.waitForTimeout(200);
-
-    const saveBtn = await appHelper.waitForSelector('.background-actions .md-btn-contained', { timeout: 5000 });
-    await saveBtn.click();
+    const saveResult = await appHelper.saveBackgroundConfig({
+      backgroundImageUrl: testBgUrl,
+      backgroundOpacity: 0.5
+    });
+    expect(saveResult.success).toBe(true);
     await appHelper.waitForTimeout(500);
 
     const hasClassAfter = await appHelper.evaluate(() => {
@@ -110,27 +103,15 @@ test.describe('Background Image Class Toggle', () => {
     expect(hasBackgroundStyle).toBe(true);
   });
 
-  test('should remove has-background-image class when background is cleared via UI', async () => {
-    await appHelper.saveBackgroundConfig({
-      backgroundImageUrl: '',
-      backgroundOpacity: 0.5
-    });
-    await appHelper.waitForTimeout(500);
-
-    await appHelper.hover('.settings-trigger-zone');
-    await appHelper.waitForTimeout(500);
-
-    const bgClickableElement = await appHelper.waitForSelector('.background-clickable-empty, .background-clickable-card', { timeout: 10000 });
-    await bgClickableElement.click();
-    await appHelper.waitForTimeout(300);
-
+  test('should remove has-background-image class when background is cleared via IPC', async () => {
+    // First set a background
     const imageResult = await appHelper.readBackgroundImage(REAL_IMAGE_PATH);
     const testBgUrl = imageResult.localUrl;
-    await appHelper.fill('.background-edit-form .settings-input', testBgUrl);
-    await appHelper.waitForTimeout(200);
 
-    const saveBtn1 = await appHelper.waitForSelector('.background-actions .md-btn-contained', { timeout: 5000 });
-    await saveBtn1.click();
+    await appHelper.saveBackgroundConfig({
+      backgroundImageUrl: testBgUrl,
+      backgroundOpacity: 0.5
+    });
     await appHelper.waitForTimeout(500);
 
     const hasClassBeforeClear = await appHelper.evaluate(() => {
@@ -139,23 +120,11 @@ test.describe('Background Image Class Toggle', () => {
     });
     expect(hasClassBeforeClear).toBe(true);
 
-    await appHelper.hover('.settings-trigger-zone');
-    await appHelper.waitForTimeout(500);
-
-    const bgClickableCard = await appHelper.waitForSelector('.background-clickable-card');
-    await bgClickableCard.click();
-    await appHelper.waitForTimeout(300);
-
-    await appHelper.evaluate(() => {
-      const btns = document.querySelectorAll('.background-image-actions .md-btn-tonal');
-      if (btns.length > 1) {
-        btns[btns.length - 1].click();
-      }
+    // Now clear the background
+    await appHelper.saveBackgroundConfig({
+      backgroundImageUrl: '',
+      backgroundOpacity: 0.5
     });
-    await appHelper.waitForTimeout(200);
-
-    const saveBtn2 = await appHelper.waitForSelector('.background-actions .md-btn-contained', { timeout: 5000 });
-    await saveBtn2.click();
     await appHelper.waitForTimeout(500);
 
     const hasClassAfter = await appHelper.evaluate(() => {

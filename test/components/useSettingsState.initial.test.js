@@ -47,11 +47,12 @@ describe('useSettingsState Hook - Initial State', () => {
     expect(result.current.config.protocol).toBe('openai');
   });
 
-  test('should initialize backgroundEditMode as false', async () => {
+  test('should initialize backgroundConfig with default values', async () => {
     const useSettingsState = require('../../src/components/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
-    expect(result.current.backgroundEditMode).toBe(false);
+    expect(result.current.backgroundConfig.backgroundOpacity).toBe(0.5);
+    expect(result.current.backgroundConfig.backgroundImageUrl).toBe('');
   });
 });

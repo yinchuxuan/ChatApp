@@ -1,102 +1,128 @@
 // SettingsBackground - Background image settings section
-// Part of SettingsPanel component
+// Inline editing pattern: click field to edit in place, auto-save on blur/enter
 
 function SettingsBackground({
   backgroundConfig,
-  editBackgroundConfig,
-  backgroundEditMode,
-  onBackgroundEditClick,
-  onBackgroundCancelEdit,
   onBackgroundChange,
-  onBackgroundSave,
   onSelectBackgroundImage,
   onClearBackgroundImage
 }) {
-  return (
-    <div className="background-settings-section">
-      <div className="background-settings-header">
-        <span className="material-icons">wallpaper</span>
-        <span className="background-label">背景图片</span>
-        {backgroundConfig.backgroundImageUrl && !backgroundEditMode && (
-          <span className="config-status configured">已设置</span>
-        )}
-      </div>
-      {backgroundEditMode ? (
-        <div className="background-edit-form">
-          <div className="settings-field">
-            <label className="settings-label">图片路径</label>
-            <input
-              type="text"
-              className="md-input settings-input"
-              value={editBackgroundConfig.backgroundImageUrl}
-              onChange={(e) => onBackgroundChange('backgroundImageUrl', e.target.value)}
-              placeholder="输入图片URL或选择本地文件"
-            />
-          </div>
-          <div className="background-image-actions">
-            <button className="md-btn md-btn-tonal" onClick={onSelectBackgroundImage} title="选择本地图片">
-              <span className="material-icons">folder_open</span>
-              <span>选择文件</span>
-            </button>
-            <button className="md-btn md-btn-tonal" onClick={onClearBackgroundImage} title="清除背景">
-              <span className="material-icons">clear</span>
-              <span>清除</span>
-            </button>
-          </div>
-          <div className="settings-field">
-            <label className="settings-label">透明度</label>
+  const [editingField, setEditingField] = React.useState(null);
+  const [tempValue, setTempValue] = React.useState('');
+
+  const hasBackground = !!backgroundConfig.backgroundImageUrl;
+
+  const startEdit = (field) => {
+    setEditingField(field);
+    setTempValue(backgroundConfig[field] !== undefined ? backgroundConfig[field] : '');
+  };
+
+  const finishEdit = () => {
+    if (editingField && tempValue !== backgroundConfig[editingField]) {
+      onBackgroundChange(editingField, editingField === 'backgroundOpacity' ? parseFloat(tempValue) / 100 : tempValue);
+    }
+    setEditingField(null);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur();
+    }
+  };
+
+  const opacityPercent = Math.round((editingField === 'backgroundOpacity' ? parseFloat(tempValue) || 0 : backgroundConfig.backgroundOpacity) * 100);
+
+  const renderField = (field, label, icon, type = 'text', placeholder = '') => {
+    const isEditing = editingField === field;
+    const displayValue = field === 'backgroundOpacity'
+      ? `${Math.round(backgroundConfig.backgroundOpacity * 100)}%`
+      : (backgroundConfig[field] || '未设置');
+
+    return (
+      <div className="settings-field-inline">
+        <span className="settings-field-label">
+          <span className="material-icons">{icon}</span>
+          {label}
+        </span>
+        {isEditing ? (
+          field === 'backgroundOpacity' ? (
             <div className="opacity-slider-container">
               <input
                 type="range"
                 className="opacity-slider"
                 min="0"
                 max="100"
-                value={Math.round(editBackgroundConfig.backgroundOpacity * 100)}
-                onChange={(e) => onBackgroundChange('backgroundOpacity', parseInt(e.target.value) / 100)}
+                value={opacityPercent}
+                onChange={(e) => setTempValue(e.target.value)}
+                onBlur={finishEdit}
+                autoFocus
               />
-              <span className="opacity-value">{Math.round(editBackgroundConfig.backgroundOpacity * 100)}%</span>
+              <span className="opacity-value">{opacityPercent}%</span>
             </div>
+          ) : (
+            <input
+              type={type}
+              className="md-input settings-inline-input"
+              value={tempValue}
+              onChange={(e) => setTempValue(e.target.value)}
+              onBlur={finishEdit}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              autoFocus
+            />
+          )
+        ) : (
+          <span
+            className="settings-field-value"
+            onClick={() => startEdit(field)}
+          >
+            {displayValue}
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="background-settings-section">
+      <div className="background-settings-header">
+        <span className="material-icons">wallpaper</span>
+        <span className="background-label">背景图片</span>
+        {hasBackground && <span className="config-status configured">已设置</span>}
+      </div>
+      {!hasBackground && editingField === null ? (
+        <div
+          className="config-empty-state background-clickable-empty"
+          onClick={() => startEdit('backgroundImageUrl')}
+          title="点击设置背景图片"
+        >
+          <span className="material-icons">image_not_supported</span>
+          <div>未设置背景图片</div>
+          <div className="config-add-hint">
+            <span className="material-icons">add</span>
+            <span>点击设置</span>
           </div>
         </div>
       ) : (
-        <div className="background-display">
-          {backgroundConfig.backgroundImageUrl ? (
-            <div
-              className="background-summary-card md-card background-clickable-card"
-              onClick={onBackgroundEditClick}
-            >
-              <div className="background-preview">
-                <img src={backgroundConfig.backgroundImageUrl} alt="背景预览" className="background-preview-image" />
-              </div>
-              <div className="background-info">
-                <span className="background-opacity-label">透明度: {Math.round(backgroundConfig.backgroundOpacity * 100)}%</span>
-              </div>
+        <div className="config-summary-card">
+          {renderField('backgroundImageUrl', '图片路径', 'link', 'text', '输入图片URL')}
+          <div className="settings-field-inline">
+            <span className="settings-field-label">
+              <span className="material-icons">folder_open</span>
+              <span>操作</span>
+            </span>
+            <div className="background-inline-actions">
+              <button className="md-btn md-btn-tonal" onClick={onSelectBackgroundImage} title="选择本地图片">
+                <span className="material-icons">file_open</span>
+                <span>选择文件</span>
+              </button>
+              <button className="md-btn md-btn-tonal" onClick={onClearBackgroundImage} title="清除背景">
+                <span className="material-icons">delete</span>
+                <span>清除</span>
+              </button>
             </div>
-          ) : (
-            <div
-              className="background-empty-state background-clickable-empty"
-              onClick={onBackgroundEditClick}
-              title="点击设置背景图片"
-            >
-              <span className="material-icons">image_not_supported</span>
-              <div>未设置背景图片</div>
-              <div className="background-add-hint">
-                <span className="material-icons">add</span>
-                <span>点击设置</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      {backgroundEditMode && (
-        <div className="settings-actions background-actions">
-          <button className="md-btn md-btn-primary" onClick={onBackgroundCancelEdit}>
-            <span>取消</span>
-          </button>
-          <button className="md-btn md-btn-contained" onClick={onBackgroundSave}>
-            <span className="material-icons">save</span>
-            <span>保存背景</span>
-          </button>
+          </div>
+          {renderField('backgroundOpacity', '透明度', 'tune')}
         </div>
       )}
     </div>

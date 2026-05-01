@@ -8,10 +8,6 @@ function useSettingsState(onBackgroundChange) {
   const [backgroundConfig, setBackgroundConfig] = React.useState({
     backgroundImageUrl: '', backgroundOpacity: 0.5
   });
-  const [backgroundEditMode, setBackgroundEditMode] = React.useState(false);
-  const [editBackgroundConfig, setEditBackgroundConfig] = React.useState({
-    backgroundImageUrl: '', backgroundOpacity: 0.5
-  });
 
   // Load configs on mount
   React.useEffect(() => {
@@ -26,7 +22,6 @@ function useSettingsState(onBackgroundChange) {
         const bgResult = await window.electronAPI.getBackgroundConfig();
         if (bgResult.success) {
           setBackgroundConfig(bgResult.config);
-          setEditBackgroundConfig(bgResult.config);
           if (onBackgroundChange) onBackgroundChange(bgResult.config);
         }
       }
@@ -49,41 +44,58 @@ function useSettingsState(onBackgroundChange) {
     });
   };
 
-  // Background handlers
-  const handleBackgroundEditClick = () => {
-    setEditBackgroundConfig(backgroundConfig); setBackgroundEditMode(true);
-  };
-  const handleBackgroundCancelEdit = () => {
-    setEditBackgroundConfig(backgroundConfig); setBackgroundEditMode(false);
-  };
-  const handleBackgroundChange = (field, value) => {
-    setEditBackgroundConfig(prev => ({ ...prev, [field]: value }));
-  };
-  const handleBackgroundSave = async () => {
-    if (window.electronAPI) {
-      const result = await window.electronAPI.saveBackgroundConfig(editBackgroundConfig);
-      if (result.success) {
-        setBackgroundConfig(editBackgroundConfig);
-        setBackgroundEditMode(false);
-        if (onBackgroundChange) onBackgroundChange(editBackgroundConfig);
+  // Background config - auto-save on change
+  const handleBackgroundChange = async (field, value) => {
+    setBackgroundConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      if (window.electronAPI) {
+        window.electronAPI.saveBackgroundConfig(updated).then(result => {
+          if (result.success) {
+            window.dispatchEvent(new CustomEvent('background-config-changed', { detail: updated }));
+            if (onBackgroundChange) onBackgroundChange(updated);
+          }
+        });
       }
-    }
+      return updated;
+    });
   };
+
   const handleSelectBackgroundImage = async () => {
     if (window.electronAPI) {
       const result = await window.electronAPI.selectBackgroundImage();
       if (result.success && result.filePath) {
         const imageResult = await window.electronAPI.readBackgroundImage(result.filePath);
         if (imageResult.success) {
-          setEditBackgroundConfig(prev => ({
-            ...prev, backgroundImageUrl: imageResult.localUrl
-          }));
+          setBackgroundConfig(prev => {
+            const updated = { ...prev, backgroundImageUrl: imageResult.localUrl };
+            if (window.electronAPI) {
+              window.electronAPI.saveBackgroundConfig(updated).then(saveResult => {
+                if (saveResult.success) {
+                  window.dispatchEvent(new CustomEvent('background-config-changed', { detail: updated }));
+                  if (onBackgroundChange) onBackgroundChange(updated);
+                }
+              });
+            }
+            return updated;
+          });
         }
       }
     }
   };
-  const handleClearBackgroundImage = () => {
-    setEditBackgroundConfig(prev => ({ ...prev, backgroundImageUrl: '' }));
+
+  const handleClearBackgroundImage = async () => {
+    setBackgroundConfig(prev => {
+      const updated = { ...prev, backgroundImageUrl: '' };
+      if (window.electronAPI) {
+        window.electronAPI.saveBackgroundConfig(updated).then(result => {
+          if (result.success) {
+            window.dispatchEvent(new CustomEvent('background-config-changed', { detail: updated }));
+            if (onBackgroundChange) onBackgroundChange(updated);
+          }
+        });
+      }
+      return updated;
+    });
   };
 
   // Mask API key
@@ -93,12 +105,11 @@ function useSettingsState(onBackgroundChange) {
   };
 
   return {
-    config, backgroundConfig, editBackgroundConfig,
-    backgroundEditMode, isConfigured: config.apiUrl || config.apiKey || config.modelName,
+    config, backgroundConfig,
+    isConfigured: config.apiUrl || config.apiKey || config.modelName,
     maskApiKey,
     handleChange,
-    handleBackgroundEditClick, handleBackgroundCancelEdit, handleBackgroundChange,
-    handleBackgroundSave, handleSelectBackgroundImage, handleClearBackgroundImage
+    handleBackgroundChange, handleSelectBackgroundImage, handleClearBackgroundImage
   };
 }
 

@@ -36,6 +36,18 @@ function App() {
     setBackgroundConfig(config);
   }, []);
 
+  // Listen for background-config-changed events (from IPC saves)
+  React.useEffect(() => {
+    const handler = (e) => { setBackgroundConfig(e.detail); };
+    window.addEventListener('background-config-changed', handler);
+    if (window.electronAPI) {
+      window.electronAPI.onBackgroundConfigChanged((config) => {
+        setBackgroundConfig(config);
+      });
+    }
+    return () => window.removeEventListener('background-config-changed', handler);
+  }, []);
+
   // Generate background style
   const getBackgroundStyle = React.useCallback(() => {
     if (backgroundConfig.backgroundImageUrl) {

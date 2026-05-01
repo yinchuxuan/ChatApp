@@ -58,7 +58,8 @@ global.window.electronAPI = {
   selectBackgroundImage: jest.fn(),
   readBackgroundImage: jest.fn(),
   getChatHistory: jest.fn().mockResolvedValue({ success: true, messages: [] }),
-  saveChatHistory: jest.fn().mockResolvedValue({ success: true })
+  saveChatHistory: jest.fn().mockResolvedValue({ success: true }),
+  onBackgroundConfigChanged: jest.fn()
 };
 
 // Mock fetch for ChatPanel API calls

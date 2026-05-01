@@ -8,10 +8,8 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
 
   const state = useSettingsStateHook(onBackgroundChange);
   const {
-    config, backgroundConfig, editBackgroundConfig,
-    backgroundEditMode, isConfigured, maskApiKey,
-    handleBackgroundEditClick, handleBackgroundCancelEdit, handleBackgroundChange,
-    handleBackgroundSave, handleSelectBackgroundImage, handleClearBackgroundImage,
+    config, backgroundConfig, isConfigured, maskApiKey,
+    handleBackgroundChange, handleSelectBackgroundImage, handleClearBackgroundImage,
     handleChange
   } = state;
 
@@ -42,12 +40,7 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
           {SettingsBackgroundComp ? (
             <SettingsBackgroundComp
               backgroundConfig={backgroundConfig}
-              editBackgroundConfig={editBackgroundConfig}
-              backgroundEditMode={backgroundEditMode}
-              onBackgroundEditClick={handleBackgroundEditClick}
-              onBackgroundCancelEdit={handleBackgroundCancelEdit}
               onBackgroundChange={handleBackgroundChange}
-              onBackgroundSave={handleBackgroundSave}
               onSelectBackgroundImage={handleSelectBackgroundImage}
               onClearBackgroundImage={handleClearBackgroundImage}
             />

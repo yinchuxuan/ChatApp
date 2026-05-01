@@ -27,6 +27,16 @@ function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dia
   ipcMain.handle('save-background-config', (event, config) => {
     try {
       fs.writeFileSync(backgroundConfigPath, JSON.stringify(config, null, 2), 'utf-8');
+      // Notify renderer process of the change
+      try {
+        const win = event.sender.getOwnerBrowserWindow();
+        if (win && win.webContents) {
+          win.webContents.send('background-config-changed', config);
+        }
+      } catch (notifyErr) {
+        // Ignore notification errors (e.g., in tests with mock events)
+        console.warn('Failed to notify renderer of background config change:', notifyErr.message);
+      }
       return { success: true };
     } catch (err) {
       console.error('Error saving background config:', err);

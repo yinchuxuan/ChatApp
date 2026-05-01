@@ -170,15 +170,10 @@ describe('useSettingsState Hook - Utilities', () => {
 
       expect(returned.config).toBeDefined();
       expect(returned.backgroundConfig).toBeDefined();
-      expect(returned.editBackgroundConfig).toBeDefined();
-      expect(returned.backgroundEditMode).toBeDefined();
       expect(returned.isConfigured).toBeDefined();
       expect(returned.maskApiKey).toBeDefined();
       expect(returned.handleChange).toBeDefined();
-      expect(returned.handleBackgroundEditClick).toBeDefined();
-      expect(returned.handleBackgroundCancelEdit).toBeDefined();
       expect(returned.handleBackgroundChange).toBeDefined();
-      expect(returned.handleBackgroundSave).toBeDefined();
       expect(returned.handleSelectBackgroundImage).toBeDefined();
       expect(returned.handleClearBackgroundImage).toBeDefined();
     });

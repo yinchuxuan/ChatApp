@@ -1,66 +1,16 @@
 /* ============================================
-   Background Settings Styles - Empty State and Actions
+   Background Settings Styles - Inline Actions
    ============================================ */
-.background-empty-state {
+
+.background-inline-actions {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  color: var(--md-on-surface-variant);
-  text-align: center;
+  gap: 8px;
+  margin-left: 26px;
 }
 
-.background-empty-state .material-icons {
-  font-size: 24px;
-  margin-bottom: 8px;
-  opacity: 0.6;
-}
-
-/* Clickable background card styles */
-.background-clickable-card {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.background-clickable-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--md-shadow-2);
-  border-color: var(--md-primary);
-}
-
-/* Clickable empty state styles */
-.background-clickable-empty {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  border: 1px solid var(--md-outline-variant);
-}
-
-.background-clickable-empty:hover {
-  background: var(--md-surface-variant);
-  border-color: var(--md-primary);
-}
-
-.background-clickable-empty:hover .background-add-hint {
-  opacity: 1;
-  color: var(--md-primary);
-}
-
-.background-add-hint {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--md-on-surface-variant);
-  opacity: 0.7;
-  transition: all 0.2s ease;
-}
-
-.background-add-hint .material-icons {
-  font-size: 14px;
+.background-inline-actions .md-btn {
+  flex: 1;
+  min-width: 100px;
 }
 
 .model-config-section {
@@ -85,10 +35,4 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--md-on-surface);
-}
-
-.background-actions {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--md-outline-variant);
 }
