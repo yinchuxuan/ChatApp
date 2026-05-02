@@ -26,10 +26,9 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const view = container.container.querySelector('.collapsed-message-view');
     expect(view).toBeInTheDocument();
 
-    const mouseDownEvent = new MouseEvent('mousedown', { button: 0, clientY: 100, bubbles: true });
-    view.dispatchEvent(mouseDownEvent);
-    const mouseMoveEvent = new MouseEvent('mousemove', { clientY: 180, bubbles: true });
-    document.dispatchEvent(mouseMoveEvent);
+    // Simulate drag via the onmousedown handler set on the element
+    view.onmousedown({ button: 0, clientY: 100 });
+    document.dispatchEvent(new MouseEvent('mousemove', { clientY: 180 }));
 
     expect(mockOnExpand).toHaveBeenCalled();
   });
@@ -42,12 +41,9 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const container = _render(result);
     const view = container.container.querySelector('.collapsed-message-view');
 
-    const mouseDownEvent = new MouseEvent('mousedown', { button: 0, clientY: 100, bubbles: true });
-    view.dispatchEvent(mouseDownEvent);
-    const mouseMoveEvent = new MouseEvent('mousemove', { clientY: 105, bubbles: true });
-    document.dispatchEvent(mouseMoveEvent);
-    const mouseUpEvent = new MouseEvent('mouseup', { bubbles: true });
-    document.dispatchEvent(mouseUpEvent);
+    view.onmousedown({ button: 0, clientY: 100 });
+    document.dispatchEvent(new MouseEvent('mousemove', { clientY: 105 }));
+    document.dispatchEvent(new MouseEvent('mouseup'));
 
     expect(mockOnExpand).not.toHaveBeenCalled();
   });
@@ -60,11 +56,8 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const container = _render(result);
     const view = container.container.querySelector('.collapsed-message-view');
 
-    const mouseDownEvent = new MouseEvent('mousedown', { button: 0, clientY: 100, bubbles: true });
-    view.dispatchEvent(mouseDownEvent);
-    const mouseMoveEvent = new MouseEvent('mousemove', { clientY: 200, bubbles: true });
-    document.dispatchEvent(mouseMoveEvent);
-
+    // When already expanded, no drag handler is attached
+    expect(view.onmousedown).toBeNull();
     expect(mockOnExpand).not.toHaveBeenCalled();
   });
 
@@ -76,5 +69,17 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const chatMessages = container.container.querySelectorAll('.chat-message');
     expect(chatMessages.length).toBe(3);
     expect(container.container.querySelector('.collapsed-history-indicator')).not.toBeInTheDocument();
+  });
+
+  test('collapsed view shows pinned divider and last user message', () => {
+    const result = MessageCollapseRenderer.render(
+      R, mockMsgs, false, mockTw, renderMarkdown, renderAssistantMsg, false, () => {}
+    );
+    const container = _render(result);
+    const divider = container.container.querySelector('.pinned-divider');
+    expect(divider).toBeInTheDocument();
+    const chatMessages = container.container.querySelectorAll('.chat-message');
+    expect(chatMessages.length).toBe(1); // only the last user message (pinned)
+    expect(chatMessages[0].classList.contains('user')).toBe(true);
   });
 });

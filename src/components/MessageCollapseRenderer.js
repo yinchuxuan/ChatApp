@@ -1,8 +1,7 @@
 // MessageCollapseRenderer - Renders collapsed/pinned message view
-// Last user message is pinned; earlier messages are collapsed; drag down to expand with progress indicator
+// Last user message is pinned; earlier messages are collapsed; drag down to expand with visual feedback
 
 const MessageCollapseRenderer = {
-  dragProgress: 0,
 
   findLastUserIndex(messages) {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -11,57 +10,60 @@ const MessageCollapseRenderer = {
     return -1;
   },
 
-  _updateProgress(progress) {
-    this.dragProgress = progress;
-    const bar = document.querySelector('.collapsed-history-progress-bar');
-    if (bar) {
-      bar.style.width = (progress * 100) + '%';
-    }
-    // Animate collapsed history section sliding down
-    const collapsed = document.querySelector('.collapsed-history');
-    if (collapsed) {
-      collapsed.style.maxHeight = (progress * 400) + 'px';
-      collapsed.style.opacity = progress;
-      collapsed.style.transform = `translateY(${(1 - progress) * -20}px)`;
-    }
-    // Shift pinned section down to make room
-    const pinnedDivider = document.querySelector('.pinned-divider');
-    if (pinnedDivider) {
-      pinnedDivider.style.transform = `translateY(${progress * -10}px)`;
-      const view = pinnedDivider.closest('.collapsed-message-view');
-      if (view) {
-        const afterPinned = view.querySelectorAll('.chat-message[class*="pinned"]');
-        afterPinned.forEach(el => {
-          el.style.transform = `translateY(${progress * -10}px)`;
-        });
-      }
-    }
-  },
+  _handleDrag(container, dragThreshold, onExpand) {
+    return (e) => {
+      if (e.button !== 0) return;
+      const startY = e.clientY;
+      let expanded = false;
 
-  _cleanupDrag() {
-    this.dragProgress = 0;
-    const bar = document.querySelector('.collapsed-history-progress-bar');
-    if (bar) {
-      bar.style.width = '0%';
-    }
-    // Reset transforms on drag end
-    const collapsed = document.querySelector('.collapsed-history');
-    if (collapsed) {
-      collapsed.style.maxHeight = '';
-      collapsed.style.opacity = '';
-      collapsed.style.transform = '';
-    }
-    const pinnedDivider = document.querySelector('.pinned-divider');
-    if (pinnedDivider) {
-      pinnedDivider.style.transform = '';
-      const view = pinnedDivider.closest('.collapsed-message-view');
-      if (view) {
-        const afterPinned = view.querySelectorAll('.chat-message[class*="pinned"]');
-        afterPinned.forEach(el => {
-          el.style.transform = '';
+      const onMove = (ev) => {
+        const distance = ev.clientY - startY;
+        const progress = Math.min(Math.max(distance / dragThreshold, 0), 1);
+
+        // Animate collapsed history sliding open during drag
+        const collapsed = container.querySelector('.collapsed-history');
+        if (collapsed) {
+          collapsed.style.maxHeight = (progress * 500) + 'px';
+          collapsed.style.opacity = progress;
+        }
+
+        // Shift all chat messages and divider down together
+        const els = container.querySelectorAll('.chat-message, .pinned-divider');
+        els.forEach(el => {
+          el.style.transform = 'translateY(' + (progress * 16) + 'px)';
         });
-      }
-    }
+
+        if (distance >= dragThreshold && !expanded) {
+          expanded = true;
+          if (onExpand) onExpand();
+        }
+      };
+
+      const onUp = () => {
+        const collapsed = container.querySelector('.collapsed-history');
+        if (collapsed && !expanded) {
+          collapsed.style.transition = 'max-height 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s ease';
+          collapsed.style.maxHeight = '0px';
+          collapsed.style.opacity = '0';
+          setTimeout(() => { collapsed.style.transition = ''; }, 300);
+        }
+
+        const els = container.querySelectorAll('.chat-message, .pinned-divider');
+        els.forEach(el => {
+          el.style.transition = 'transform 0.3s cubic-bezier(0.2, 0, 0, 1)';
+          if (!expanded) {
+            el.style.transform = 'translateY(0)';
+          }
+          setTimeout(() => { el.style.transition = ''; }, 300);
+        });
+
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    };
   },
 
   render(R, messages, isLoading, tw, renderMarkdown, renderAssistantMsg,
@@ -71,14 +73,14 @@ const MessageCollapseRenderer = {
     }
 
     const lastUserIdx = this.findLastUserIndex(messages);
-    const collapsedCount = lastUserIdx >= 0 ? lastUserIdx : 0;
     const isCollapsed = !isHistoryExpanded && messages.length > 1 && lastUserIdx >= 0;
+    const dragThreshold = 60;
 
     const elements = [];
 
     // Collapsed history section (above pinned message)
     if (isCollapsed) {
-      const collapsedMsgs = messages.slice(0, collapsedCount);
+      const collapsedMsgs = messages.slice(0, lastUserIdx);
       if (collapsedMsgs.length > 0) {
         elements.push(
           R.createElement('div', {
@@ -98,7 +100,7 @@ const MessageCollapseRenderer = {
       for (let i = 0; i < lastUserIdx; i++) {
         const msg = messages[i];
         elements.push(
-          R.createElement('div', { key: 'hist-' + i, className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}` },
+          R.createElement('div', { key: 'hist-' + i, className: 'chat-message ' + msg.role + (msg.isError ? ' error' : '') },
             msg.role === 'assistant' && msg._thinking
               ? renderAssistantMsg(msg, i, false)
               : renderMarkdown(msg.content)
@@ -107,19 +109,19 @@ const MessageCollapseRenderer = {
       }
     }
 
-    // Pinned section (divider)
+    // Pinned divider
     if (lastUserIdx >= 0) {
       elements.push(
         R.createElement('div', { key: 'pinned-divider', className: 'pinned-divider' })
       );
     }
 
-    // Pinned message + messages after it + streaming response
+    // Pinned message + messages after it
     const startIdx = lastUserIdx >= 0 ? lastUserIdx : 0;
     for (let i = startIdx; i < messages.length; i++) {
       const msg = messages[i];
       elements.push(
-        R.createElement('div', { key: 'pinned-' + i, className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}` },
+        R.createElement('div', { key: 'pinned-' + i, className: 'chat-message ' + msg.role + (msg.isError ? ' error' : '') },
           msg.role === 'assistant' && msg._thinking
             ? renderAssistantMsg(msg, i, false)
             : renderMarkdown(msg.content)
@@ -136,33 +138,12 @@ const MessageCollapseRenderer = {
       );
     }
 
-    // Drag-to-expand with visual progress
-    const dragThreshold = 60; // pixels of downward drag to trigger expand
-    const onMouseDown = (e) => {
-      if (e.button !== 0 || isHistoryExpanded) return;
-      const startY = e.clientY;
-      const onMove = (ev) => {
-        const distance = ev.clientY - startY;
-        if (distance > 0) {
-          MessageCollapseRenderer._updateProgress(Math.min(distance / dragThreshold, 1));
-        }
-        if (distance >= dragThreshold) {
-          if (onExpand) onExpand();
-          MessageCollapseRenderer._cleanupDrag();
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
-        }
-      };
-      const onUp = () => {
-        MessageCollapseRenderer._cleanupDrag();
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      };
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
+    // Drag handler via ref callback
+    const refCallback = (el) => {
+      if (!el || isHistoryExpanded) return;
+      el.onmousedown = MessageCollapseRenderer._handleDrag(el, dragThreshold, onExpand);
     };
 
-    // Scroll-to-expand fallback
     const onWheel = (e) => {
       if (!isHistoryExpanded && e.deltaY > 0) {
         if (onExpand) onExpand();
@@ -171,8 +152,8 @@ const MessageCollapseRenderer = {
     };
 
     return R.createElement('div', {
-      className: `collapsed-message-view${isHistoryExpanded ? ' expanded' : ''}`,
-      onMouseDown: onMouseDown,
+      className: 'collapsed-message-view' + (isHistoryExpanded ? ' expanded' : ''),
+      ref: refCallback,
       onWheel: onWheel
     }, elements);
   }

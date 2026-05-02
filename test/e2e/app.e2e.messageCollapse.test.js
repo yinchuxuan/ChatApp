@@ -10,10 +10,8 @@ const { ElectronAppHelper } = require('./electronAppHelper');
 let appHelper;
 
 async function injectMessages(messages) {
-  // Save via IPC (writes to disk)
   await appHelper.saveChatHistory(messages);
   await appHelper.waitForTimeout(500);
-  // Use evaluate to have React reload from IPC by reloading the page
   await appHelper.getWindow().reload();
   await appHelper.waitForSelector('.app-container', { timeout: 15000 });
   await appHelper.waitForTimeout(1000);
@@ -63,26 +61,24 @@ test.describe.serial('Message Collapse Behavior', () => {
     await injectMessages(MULTI_TURN);
     await waitForCollapseView();
 
-    const childRoles = await appHelper.evaluate(() => {
-      const view = document.querySelector('.collapsed-message-view');
-      return Array.from(view.children)
-        .filter(el => el.classList.contains('chat-message'))
-        .map(el => [...el.classList].find(c => c === 'user' || c === 'assistant'));
-    });
-
-    expect(childRoles.length).toBeGreaterThanOrEqual(1);
-    expect(childRoles[0]).toBe('user');
-
     const hasDivider = await appHelper.evaluate(() => {
       return !!document.querySelector('.pinned-divider');
     });
     expect(hasDivider).toBe(true);
 
-    const lastUserContent = await appHelper.evaluate(() => {
-      const firstMsg = document.querySelector('.collapsed-message-view > .chat-message');
-      return firstMsg ? firstMsg.textContent : '';
+    const pinnedMessages = await appHelper.evaluate(() => {
+      const view = document.querySelector('.collapsed-message-view');
+      return Array.from(view.children)
+        .filter(el => el.classList.contains('chat-message'))
+        .map(el => ({
+          role: [...el.classList].find(c => c === 'user' || c === 'assistant'),
+          content: el.textContent.trim(),
+        }));
     });
-    expect(lastUserContent).toContain('Show me useEffect');
+
+    expect(pinnedMessages.length).toBeGreaterThanOrEqual(1);
+    expect(pinnedMessages[0].role).toBe('user');
+    expect(pinnedMessages[0].content).toContain('Show me useEffect');
   });
 
   test('should expand history on drag-down gesture', async () => {
@@ -108,11 +104,10 @@ test.describe.serial('Message Collapse Behavior', () => {
     const indicatorVisible = await appHelper.isVisible('.collapsed-history-indicator');
     expect(indicatorVisible).toBe(false);
 
-    const priorMessages = await appHelper.evaluate(() => {
-      const container = document.querySelector('.collapsed-message-view');
-      return Array.from(container.querySelectorAll('.chat-message')).length;
+    const allMessages = await appHelper.evaluate(() => {
+      return Array.from(document.querySelectorAll('.collapsed-message-view .chat-message')).length;
     });
-    expect(priorMessages).toBeGreaterThan(1);
+    expect(allMessages).toBeGreaterThan(1);
 
     const expanded = await appHelper.evaluate(() => {
       const view = document.querySelector('.collapsed-message-view');
@@ -122,8 +117,6 @@ test.describe.serial('Message Collapse Behavior', () => {
   });
 
   test('should position assistant response below pinned user message', async () => {
-    // Messages where the assistant response is in the pinned section
-    // (comes after the last user message that triggers collapse)
     const msgs = [
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi there!' },
@@ -136,28 +129,18 @@ test.describe.serial('Message Collapse Behavior', () => {
     const result = await appHelper.evaluate(() => {
       const view = document.querySelector('.collapsed-message-view');
       const children = Array.from(view.children);
-      // Find visible (non-collapsed) messages
-      const visibleMsgs = [];
-      for (const child of children) {
-        if (child.classList.contains('chat-message')) {
-          visibleMsgs.push({
-            role: [...child.classList].find(c => c === 'user' || c === 'assistant'),
-            content: child.textContent.trim(),
-            domIndex: children.indexOf(child),
-          });
-        }
-      }
-      return visibleMsgs;
+      return children
+        .filter(el => el.classList.contains('chat-message'))
+        .map(el => ({
+          role: [...el.classList].find(c => c === 'user' || c === 'assistant'),
+          content: el.textContent.trim(),
+          domIndex: children.indexOf(el),
+        }));
     });
 
-    // Should see pinned divider and at least the last user + assistant
     expect(result.length).toBeGreaterThanOrEqual(2);
-
-    // Last user message should be first visible (pinned at top)
     expect(result[0].role).toBe('user');
     expect(result[0].content).toContain('2+2');
-
-    // Assistant response should be after the pinned user message
     expect(result[1].role).toBe('assistant');
     expect(result[1].content).toContain('4');
     expect(result[1].domIndex).toBeGreaterThan(result[0].domIndex);
