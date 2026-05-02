@@ -28,7 +28,7 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
 
     const mouseDownEvent = new MouseEvent('mousedown', { button: 0, clientY: 100, bubbles: true });
     view.dispatchEvent(mouseDownEvent);
-    const mouseMoveEvent = new MouseEvent('mousemove', { clientY: 120, bubbles: true });
+    const mouseMoveEvent = new MouseEvent('mousemove', { clientY: 180, bubbles: true });
     document.dispatchEvent(mouseMoveEvent);
 
     expect(mockOnExpand).toHaveBeenCalled();

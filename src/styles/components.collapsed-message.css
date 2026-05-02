@@ -9,6 +9,11 @@
   overflow-y: auto;
   height: 100%;
   scrollbar-width: none;
+  cursor: grab;
+}
+
+.collapsed-message-view:active {
+  cursor: grabbing;
 }
 
 .collapsed-message-view::-webkit-scrollbar {
@@ -19,8 +24,14 @@
   max-height: 0;
   overflow: hidden;
   opacity: 0;
+  transform: translateY(-20px);
   transition: max-height var(--md-motion-duration-medium3) var(--md-motion-easing-emphasized-decelerate),
-              opacity var(--md-motion-duration-short4) var(--md-motion-easing-standard);
+              opacity var(--md-motion-duration-short4) var(--md-motion-easing-standard),
+              transform var(--md-motion-duration-medium3) var(--md-motion-easing-emphasized-decelerate);
+}
+
+.collapsed-history .chat-message {
+  transition: transform 50ms linear;
 }
 
 .collapsed-message-view.expanded .collapsed-history {
@@ -42,6 +53,22 @@
   cursor: pointer;
   opacity: 0.7;
   transition: opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.collapsed-history-progress-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: var(--md-primary);
+  opacity: 0.15;
+  transition: width 50ms linear;
+  pointer-events: none;
+  border-radius: var(--md-shape-corner-medium);
 }
 
 .collapsed-history-indicator:hover {
@@ -58,10 +85,28 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--md-outline-variant), transparent);
   margin: 4px 0;
+  transition: transform 50ms linear;
+}
+
+.pinned-divider::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--md-primary);
+  margin: 0 auto;
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 100ms linear;
+}
+
+.collapsed-message-view:active .pinned-divider::after {
+  opacity: 0.6;
 }
 
 .pinned-message-glow {
   animation: pinned-glow 2s ease-in-out infinite alternate;
+  transition: transform 50ms linear;
 }
 
 @keyframes pinned-glow {
