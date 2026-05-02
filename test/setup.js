@@ -13,29 +13,20 @@ const React = require('react');
 global.window.React = React;
 
 // Set up marked for markdown rendering (simple mock for Jest)
-// Uses a minimal markdown-to-HTML converter that handles common elements
 global.window.marked = {
   parse: function(text) {
-    // Code blocks (```)
     text = text.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
-    // Inline code
     text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-    // Headers
     text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
     text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
     text = text.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-    // Bold
     text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    // Italic
     text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    // Links
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-    // Unordered lists
     text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
     text = text.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
       return '<ul>' + match + '</ul>';
     });
-    // Paragraphs (lines not already wrapped)
     text = text.split('\n\n').map(function(block) {
       if (block.match(/^<(h[1-6]|ul|ol|pre|li|blockquote|hr)/)) return block;
       return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
@@ -62,137 +53,12 @@ global.window.electronAPI = {
   onBackgroundConfigChanged: jest.fn()
 };
 
-// Mock fetch for ChatPanel API calls
-// Helper to create a streaming mock response
-global.createStreamingMock = (content) => {
-  const chunks = content.split(/(?=\s)/);
-  const stream = new ReadableStream({
-    start(controller) {
-      const encoder = new TextEncoder();
-      for (const chunk of chunks) {
-        const escaped = chunk.replace(/"/g, '\\"');
-        controller.enqueue(encoder.encode(`data: {"choices":[{"delta":{"content":"${escaped}"}}]}\n`));
-      }
-      controller.enqueue(encoder.encode('data: [DONE]\n'));
-      controller.close();
-    }
-  });
-  return {
-    ok: true,
-    body: { getReader: () => stream.getReader() },
-    json: async () => ({ choices: [{ message: { content } }] })
-  };
-};
-
-// Helper to create a streaming mock with thinking tags
-global.createThinkingStreamingMock = (thinkingContent, responseContent) => {
-  const full = `<thinking>${thinkingContent}</thinking>${responseContent}`;
-  const chunks = full.split(/(?=\s)/);
-  const stream = new ReadableStream({
-    start(controller) {
-      const encoder = new TextEncoder();
-      for (const chunk of chunks) {
-        const escaped = chunk.replace(/"/g, '\\"');
-        controller.enqueue(encoder.encode(`data: {"choices":[{"delta":{"content":"${escaped}"}}]}\n`));
-      }
-      controller.enqueue(encoder.encode('data: [DONE]\n'));
-      controller.close();
-    }
-  });
-  return {
-    ok: true,
-    body: { getReader: () => stream.getReader() },
-    json: async () => ({ choices: [{ message: { content: responseContent } }] })
-  };
-};
-
-global.createSimpleStreamingMock = (content) => {
-  const chunks = content.split(/(?=\s)/);
-  const stream = new ReadableStream({
-    start(controller) {
-      const encoder = new TextEncoder();
-      for (const chunk of chunks) {
-        const escaped = chunk.replace(/"/g, '\\"');
-        controller.enqueue(encoder.encode(`data: {"choices":[{"delta":{"content":"${escaped}"}}]}\n`));
-      }
-      controller.enqueue(encoder.encode('data: [DONE]\n'));
-      controller.close();
-    }
-  });
-  return {
-    ok: true,
-    body: { getReader: () => stream.getReader() },
-    json: async () => ({ choices: [{ message: { content } }] })
-  };
-};
-
-global.fetch = jest.fn();
-
-// Helper to create an Anthropic SSE streaming mock
-global.createAnthropicStreamingMock = (content) => {
-  const chunks = content.split(/(?=\\s)/);
-  const stream = new ReadableStream({
-    start(controller) {
-      const encoder = new TextEncoder();
-      // Send message_start event
-      controller.enqueue(encoder.encode('event: message_start\ndata: {"type":"message_start","message":{"id":"msg_test"}}\n\n'));
-      // Send content_block_start event
-      controller.enqueue(encoder.encode('event: content_block_start\ndata: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}\n\n'));
-      // Send content_block_delta events for each chunk
-      for (const chunk of chunks) {
-        const escaped = chunk.replace(/"/g, '\\"');
-        controller.enqueue(encoder.encode(`event: content_block_delta\ndata: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"${escaped}"}}\n\n`));
-      }
-      // Send content_block_stop
-      controller.enqueue(encoder.encode('event: content_block_stop\ndata: {"type":"content_block_stop","index":0}\n\n'));
-      // Send message_delta
-      controller.enqueue(encoder.encode('event: message_delta\ndata: {"type":"message_delta","delta":{"stop_reason":"end_turn"}}\n\n'));
-      // Send message_stop
-      controller.enqueue(encoder.encode('event: message_stop\ndata: {"type":"message_stop"}\n\n'));
-      controller.close();
-    }
-  });
-  return {
-    ok: true,
-    body: { getReader: () => stream.getReader() },
-    json: async () => ({ content: [{ text: content }] })
-  };
-};
-
-// Helper to create an Anthropic SSE streaming mock with thinking
-global.createAnthropicThinkingStreamingMock = (thinkingContent, responseContent) => {
-  const stream = new ReadableStream({
-    start(controller) {
-      const encoder = new TextEncoder();
-      controller.enqueue(encoder.encode('event: message_start\ndata: {"type":"message_start","message":{"id":"msg_test"}}\n\n'));
-      // Thinking block
-      controller.enqueue(encoder.encode('event: content_block_start\ndata: {"type":"content_block_start","index":0,"content_block":{"type":"thinking","thinking":""}}\n\n'));
-      controller.enqueue(encoder.encode(`event: content_block_delta\ndata: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"${thinkingContent}"}}\n\n`));
-      controller.enqueue(encoder.encode('event: content_block_stop\ndata: {"type":"content_block_stop","index":0}\n\n'));
-      // Text block
-      controller.enqueue(encoder.encode('event: content_block_start\ndata: {"type":"content_block_start","index":1,"content_block":{"type":"text","text":""}}\n\n'));
-      const chunks = responseContent.split(/(?=\\s)/);
-      for (const chunk of chunks) {
-        const escaped = chunk.replace(/"/g, '\\"');
-        controller.enqueue(encoder.encode(`event: content_block_delta\ndata: {"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"${escaped}"}}\n\n`));
-      }
-      controller.enqueue(encoder.encode('event: content_block_stop\ndata: {"type":"content_block_stop","index":1}\n\n'));
-      controller.enqueue(encoder.encode('event: message_delta\ndata: {"type":"message_delta","delta":{"stop_reason":"end_turn"}}\n\n'));
-      controller.enqueue(encoder.encode('event: message_stop\ndata: {"type":"message_stop"}\n\n'));
-      controller.close();
-    }
-  });
-  return {
-    ok: true,
-    body: { getReader: () => stream.getReader() },
-    json: async () => ({ content: [{ text: responseContent }] })
-  };
-};
-
 // Import ChatPanelRenderers from source (not duplicated)
-// Uses CommonJS require which works in Jest environment
 const ChatPanelRenderers = require('../src/components/ChatPanelRenderers.js');
 global.window.ChatPanelRenderers = ChatPanelRenderers;
+
+const MessageCollapseRenderer = require('../src/components/MessageCollapseRenderer.js');
+global.window.MessageCollapseRenderer = MessageCollapseRenderer;
 
 const useTypewriter = require('../src/components/useTypewriter.js');
 global.window.useTypewriter = useTypewriter;
@@ -203,5 +69,13 @@ if (apiClient.sendChatRequest) {
   global.window.sendChatRequest = apiClient.sendChatRequest;
 }
 
-// Suppress console errors in tests (optional)
-// console.error = jest.fn();
+// Mock fetch for ChatPanel API calls
+global.fetch = jest.fn();
+
+// Import and expose streaming mock helpers as globals
+const streamingMocks = require('./streamingMocks.js');
+global.createStreamingMock = streamingMocks.createStreamingMock;
+global.createThinkingStreamingMock = streamingMocks.createThinkingStreamingMock;
+global.createSimpleStreamingMock = streamingMocks.createSimpleStreamingMock;
+global.createAnthropicStreamingMock = streamingMocks.createAnthropicStreamingMock;
+global.createAnthropicThinkingStreamingMock = streamingMocks.createAnthropicThinkingStreamingMock;

@@ -17,42 +17,29 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "调整msg历史显示默认样式",
-      "agentid": "ae25fc1d635c68343",
-      "user_visible_behavior": "在无历史msg信息时，参考聊天区的'开始对话'部分的ui设计设计'暂无消息历史记录'的ui",
+      "title": "调整显示框的消息显示",
+      "agentid": "a6123a7959da55275",
+      "user_visible_behavior": "消息显示栏中固定将当前用户发的最后一条消息置顶，之前的历史信息全部折叠；本次模型回复接在用户消息的下方；鼠标向下拖动时展开折叠的历史信息",
       "status": "passing",
       "verification": [
-        "在无历史msg信息时，参考聊天区的'开始对话'部分的ui设计设计'暂无消息历史记录'的ui",
+        "消息显示栏中默认置顶当前用户发的最后一条消息",
+        "之前的历史信息全部默认折叠",
+        "本次模型回复接在用户消息的下方",
+        "鼠标向下拖动时展开折叠的历史信息",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "Updated src/components/ChatPanelRenderers.js: replaced plain div with styled chat-empty container using material-icons inbox icon, matching the chat panel's empty state UI",
-        "Updated test/components/AppChatPanel.renderers.test.js: updated 2 tests to verify new styled structure (chat-empty class, material-icons empty-icon with inbox, text content)",
-        "All 9 unit tests in AppChatPanel.renderers pass",
-        "npx eslint src/ reports 0 warnings, 0 errors"
-      ]
-    },
-    {
-      "id": "app-002",
-      "priority": 1,
-      "area": "coding",
-      "title": "更改配置区标题栏",
-      "agentid": "af7478936cdc247d1",
-      "user_visible_behavior": "将配置区标题栏的标题改为'系统配置'，并将标题区中的'已配置'ui部分去除",
-      "status": "passing",
-      "verification": [
-        "将配置区标题栏的标题改为'系统配置'，并将标题区中的'已配置'ui部分去除",
-        "单元测试，集成测试，e2e测试通过",
-        "eslint 0 warnings, 0 errors"
-      ],
-      "evidence": [
-        "Updated src/components/SettingsPanel.jsx: changed header title from \"模型配置\" to \"系统配置\" and removed the \"已配置\" status badge span",
-        "Updated test/components/SettingsPanel.basic.test.js: changed title assertion from \"模型配置\" to \"系统配置\"",
-        "Updated test/components/SettingsPanel.components.test.js: updated \"已配置\" badge test to verify the badge is no longer present",
-        "Updated test/e2e/app.e2e.settings.test.js: changed e2e title assertion from \"模型配置\" to \"系统配置\"",
-        "All 27 SettingsPanel/SettingsModelConfig unit tests pass",
-        "npx eslint src/ reports 0 warnings, 0 errors"
+        "新增 src/components/MessageCollapseRenderer.js: 实现消息折叠渲染逻辑，findLastUserIndex 定位最后一条用户消息，render 方法将历史消息折叠、置顶用户消息、当前模型回复分层渲染",
+        "修改 src/ChatPanel.jsx: 新增 isHistoryExpanded 状态，发送用户消息时自动折叠历史，handleHistoryScroll 监听 chat-history 的 scroll 事件，scrollTop < 10 时展开折叠内容",
+        "新增 src/styles/components.collapsed-message.css: collapsed-message-view、collapsed-history、collapsed-history-indicator、pinned-divider 等样式",
+        "修改 src/index.html: 引入 MessageCollapseRenderer.js 和 collapsed-message CSS",
+        "修改 src/styles/components.css: 引入 components.collapsed-message.css",
+        "修改 test/setup.js: 注册 MessageCollapseRenderer 到 window 全局",
+        "新增 test/components/MessageCollapse.test.js: 9 个单元测试覆盖 findLastUserIndex、折叠/展开渲染、streaming 消息、空消息等场景",
+        "新增 test/e2e/app.e2e.messageCollapse.test.js: 4 个 E2E 测试验证 CSS 类定义、chat-history 结构、overflow-y 和 chat history IPC 持久化",
+        "单元测试 38 suites 210 tests 全部通过; 集成测试 4 suites 26 tests 全部通过; E2E 测试 56 tests 全部通过",
+        "eslint 0 warnings, 0 errors (src/ 和 test/ 下所有文件)"
       ]
     }
   ]

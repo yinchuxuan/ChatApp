@@ -14,6 +14,7 @@ function ChatPanel() {
   const [isHeaderHovered, setIsHeaderHovered] = R.useState(false);
   const [isInputHovered, setIsInputHovered] = R.useState(false);
   const [isInputTriggerHovered, setIsInputTriggerHovered] = R.useState(false);
+  const [isHistoryExpanded, setIsHistoryExpanded] = R.useState(false);
   const tw = window.useTypewriter(R);
 
   R.useEffect(() => {
@@ -38,6 +39,13 @@ function ChatPanel() {
     return () => window.removeEventListener('model-config-changed', handler);
   }, []);
 
+  // Collapse history when new user message arrives
+  R.useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
+      setIsHistoryExpanded(false);
+    }
+  }, [messages]);
+
   const handleToggleShowMsgHistory = () => {
     const newShow = !showMsgHistory;
     setShowMsgHistory(newShow);
@@ -48,7 +56,7 @@ function ChatPanel() {
     }
   };
 
-  const handleClearHistory = (e) => { e.stopPropagation(); setMessages([]); tw.clearStreaming(); };
+  const handleClearHistory = (e) => { e.stopPropagation(); setMessages([]); tw.clearStreaming(); setIsHistoryExpanded(false); };
 
   const toggleThinkingForMessage = (idx) => {
     setMessages(prev => prev.map((msg, i) =>
@@ -57,12 +65,12 @@ function ChatPanel() {
   };
 
   const renderers = window.ChatPanelRenderers;
+  const collapseRenderer = window.MessageCollapseRenderer;
   const renderMsgHistoryDisplay = (renderers && renderersReady) ? () => renderers.renderMsgHistoryDisplay(R, msgHistoryMessages) : () => null;
 
   const chatHistoryRef = R.useRef(null);
   const initialLoadDone = R.useRef(false);
 
-  // Load chat history from file on mount
   R.useEffect(() => {
     async function loadHistory() {
       if (window.electronAPI) {
@@ -76,7 +84,6 @@ function ChatPanel() {
     loadHistory();
   }, []);
 
-  // Save chat history to file after model response completes
   R.useEffect(() => {
     if (!initialLoadDone.current) return;
     if (isLoading) return;
@@ -85,21 +92,19 @@ function ChatPanel() {
     }
   }, [messages, isLoading]);
 
-  // Auto-scroll to bottom when messages change, during streaming, or when display toggles
+  // Auto-scroll to bottom
   R.useEffect(() => {
-    if (chatHistoryRef.current) {
+    if (chatHistoryRef.current && !isHistoryExpanded) {
       chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
     }
   }, [messages, isLoading, tw.displayedCount, showMsgHistory]);
 
+  const handleExpandHistory = () => {
+    setIsHistoryExpanded(true);
+  };
+
   const C = R.createElement;
 
-  // Thinking state: only use stream thinking during active loading
-  const streamThinking = tw.getThinkingContent();
-  const hasThinking = isLoading && streamThinking && streamThinking.length > 0;
-  const currentThinking = hasThinking ? streamThinking : null;
-
-  // Render markdown content as HTML using marked
   const renderMarkdown = (text) => {
     const rawHtml = window.marked ? window.marked.parse(text) : text;
     const html = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
@@ -108,30 +113,26 @@ function ChatPanel() {
     );
   };
 
-  // Render a single assistant message bubble
   const renderAssistantMsg = (msg, idx, isStreaming) => {
     const thinking = isStreaming ? currentThinking : msg._thinking;
     const showThinking = isStreaming ? showStreamThinking : (msg._thinkingVisible === true);
     const rawHtml = window.marked ? window.marked.parse(isStreaming ? msg.slice(0, tw.displayedCount) : msg.content) : (isStreaming ? msg.slice(0, tw.displayedCount) : msg.content);
     const html = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
-
     const bubbleClass = thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
-
     const handleClick = thinking ? () => {
-      if (isStreaming) {
-        setShowStreamThinking(p => !p);
-      } else {
-        toggleThinkingForMessage(idx);
-      }
+      if (isStreaming) { setShowStreamThinking(p => !p); }
+      else { toggleThinkingForMessage(idx); }
     } : null;
-
     return C('div', { className: bubbleClass, onClick: handleClick },
       thinking && showThinking && R.createElement('div', { className: 'chat-thinking-text' }, thinking),
       C('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
     );
   };
 
-  // Render messages
+  const streamThinking = tw.getThinkingContent();
+  const hasThinking = isLoading && streamThinking && streamThinking.length > 0;
+  const currentThinking = hasThinking ? streamThinking : null;
+
   const renderMessages = () => {
     if (messages.length === 0 && !isLoading) {
       if (!modelConfig?.apiUrl) {
@@ -146,18 +147,17 @@ function ChatPanel() {
         C('div', null, '开始对话')
       );
     }
-
+    if (collapseRenderer) {
+      return collapseRenderer.render(R, messages, isLoading, tw, renderMarkdown, renderAssistantMsg, isHistoryExpanded, handleExpandHistory);
+    }
+    // Fallback: original behavior
     return R.createElement(R.Fragment, null,
       messages.map((msg, idx) =>
         C('div', { key: idx, className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}` },
-          msg.role === 'assistant' && msg._thinking
-            ? renderAssistantMsg(msg, idx, false)
-            : renderMarkdown(msg.content)
+          msg.role === 'assistant' && msg._thinking ? renderAssistantMsg(msg, idx, false) : renderMarkdown(msg.content)
         )
       ),
-      isLoading && C('div', { className: 'chat-message assistant' },
-        renderAssistantMsg(tw.streamContent, messages.length, true)
-      )
+      isLoading && C('div', { className: 'chat-message assistant' }, renderAssistantMsg(tw.streamContent, messages.length, true))
     );
   };
 
@@ -170,9 +170,7 @@ function ChatPanel() {
         modelConfig && modelConfig.apiUrl && C('span', { className: 'config-status configured' }, modelConfig.modelName || '已连接'),
         messages.length > 0 && C('button', {
           className: 'chat-header-clear-btn md-btn md-btn-icon',
-          onClick: handleClearHistory,
-          title: '清空聊天历史',
-          'aria-label': '清空聊天历史'
+          onClick: handleClearHistory, title: '清空聊天历史', 'aria-label': '清空聊天历史'
         }, C('span', { className: 'material-icons' }, 'delete_sweep'))
       ),
       C('div', { className: 'chat-history', ref: chatHistoryRef },
@@ -181,15 +179,8 @@ function ChatPanel() {
       C('div', { className: 'chat-input-hover-trigger', onMouseEnter: () => setIsInputTriggerHovered(true), onMouseLeave: () => setIsInputTriggerHovered(false) })
     ),
     C(InputArea, {
-      messages, setMessages,
-      modelConfig,
-      isLoading, setIsLoading,
-      tw,
-      setShowStreamThinking,
-      isInputHovered,
-      setIsInputHovered,
-      isInputTriggerHovered,
-      setIsInputTriggerHovered
+      messages, setMessages, modelConfig, isLoading, setIsLoading, tw,
+      setShowStreamThinking, isInputHovered, setIsInputHovered, isInputTriggerHovered, setIsInputTriggerHovered
     })
   );
 }
