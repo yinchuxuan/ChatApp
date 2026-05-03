@@ -26,9 +26,7 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const view = container.querySelector('.collapsed-message-view');
     expect(view).toBeInTheDocument();
 
-    // Trigger the mousedown handler directly (it was attached via addEventListener in ref callback)
-    view._dragConfig = { dragThreshold: 60, isHistoryExpanded: false, onExpand: mockOnExpand };
-    MessageCollapseRenderer._onMouseDown({ currentTarget: view, button: 0, preventDefault: jest.fn(), clientY: 100 });
+    fireEvent.mouseDown(view, { button: 0, clientY: 100 });
     document.dispatchEvent(new MouseEvent('mousemove', { clientY: 180 }));
 
     expect(mockOnExpand).toHaveBeenCalled();
@@ -42,8 +40,7 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const { container } = _render(result);
     const view = container.querySelector('.collapsed-message-view');
 
-    view._dragConfig = { dragThreshold: 60, isHistoryExpanded: false, onExpand: mockOnExpand };
-    MessageCollapseRenderer._onMouseDown({ currentTarget: view, button: 0, preventDefault: jest.fn(), clientY: 100 });
+    fireEvent.mouseDown(view, { button: 0, clientY: 100 });
     document.dispatchEvent(new MouseEvent('mousemove', { clientY: 105 }));
     document.dispatchEvent(new MouseEvent('mouseup'));
 
@@ -58,8 +55,9 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const { container } = _render(result);
     const view = container.querySelector('.collapsed-message-view');
 
-    view._dragConfig = { dragThreshold: 60, isHistoryExpanded: true, onExpand: mockOnExpand };
-    MessageCollapseRenderer._onMouseDown({ currentTarget: view, button: 0, preventDefault: jest.fn(), clientY: 100 });
+    // No onMouseDown when already expanded
+    fireEvent.mouseDown(view, { button: 0, clientY: 100 });
+    document.dispatchEvent(new MouseEvent('mousemove', { clientY: 200 }));
 
     expect(mockOnExpand).not.toHaveBeenCalled();
   });
