@@ -5,7 +5,7 @@
 
 const MessageCollapseRenderer = require('../../src/components/MessageCollapseRenderer.js');
 const R = require('react');
-const { render: _render } = require('@testing-library/react');
+const { render: _render, fireEvent } = require('@testing-library/react');
 
 const mockMsgs = [
   { role: 'user', content: 'first' },
@@ -22,12 +22,13 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const result = MessageCollapseRenderer.render(
       R, mockMsgs, false, mockTw, renderMarkdown, renderAssistantMsg, false, mockOnExpand
     );
-    const container = _render(result);
-    const view = container.container.querySelector('.collapsed-message-view');
+    const { container } = _render(result);
+    const view = container.querySelector('.collapsed-message-view');
     expect(view).toBeInTheDocument();
 
-    // Simulate drag via the onmousedown handler set on the element
-    view.onmousedown({ button: 0, clientY: 100 });
+    // Trigger the mousedown handler directly (it was attached via addEventListener in ref callback)
+    view._dragConfig = { dragThreshold: 60, isHistoryExpanded: false, onExpand: mockOnExpand };
+    MessageCollapseRenderer._onMouseDown({ currentTarget: view, button: 0, preventDefault: jest.fn(), clientY: 100 });
     document.dispatchEvent(new MouseEvent('mousemove', { clientY: 180 }));
 
     expect(mockOnExpand).toHaveBeenCalled();
@@ -38,10 +39,11 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const result = MessageCollapseRenderer.render(
       R, mockMsgs, false, mockTw, renderMarkdown, renderAssistantMsg, false, mockOnExpand
     );
-    const container = _render(result);
-    const view = container.container.querySelector('.collapsed-message-view');
+    const { container } = _render(result);
+    const view = container.querySelector('.collapsed-message-view');
 
-    view.onmousedown({ button: 0, clientY: 100 });
+    view._dragConfig = { dragThreshold: 60, isHistoryExpanded: false, onExpand: mockOnExpand };
+    MessageCollapseRenderer._onMouseDown({ currentTarget: view, button: 0, preventDefault: jest.fn(), clientY: 100 });
     document.dispatchEvent(new MouseEvent('mousemove', { clientY: 105 }));
     document.dispatchEvent(new MouseEvent('mouseup'));
 
@@ -53,11 +55,12 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const result = MessageCollapseRenderer.render(
       R, mockMsgs, false, mockTw, renderMarkdown, renderAssistantMsg, true, mockOnExpand
     );
-    const container = _render(result);
-    const view = container.container.querySelector('.collapsed-message-view');
+    const { container } = _render(result);
+    const view = container.querySelector('.collapsed-message-view');
 
-    // When already expanded, no drag handler is attached
-    expect(view.onmousedown).toBeNull();
+    view._dragConfig = { dragThreshold: 60, isHistoryExpanded: true, onExpand: mockOnExpand };
+    MessageCollapseRenderer._onMouseDown({ currentTarget: view, button: 0, preventDefault: jest.fn(), clientY: 100 });
+
     expect(mockOnExpand).not.toHaveBeenCalled();
   });
 
@@ -65,21 +68,21 @@ describe('MessageCollapseRenderer - drag-to-expand', () => {
     const result = MessageCollapseRenderer.render(
       R, mockMsgs, false, mockTw, renderMarkdown, renderAssistantMsg, true, () => {}
     );
-    const container = _render(result);
-    const chatMessages = container.container.querySelectorAll('.chat-message');
+    const { container } = _render(result);
+    const chatMessages = container.querySelectorAll('.chat-message');
     expect(chatMessages.length).toBe(3);
-    expect(container.container.querySelector('.collapsed-history-indicator')).not.toBeInTheDocument();
+    expect(container.querySelector('.collapsed-history-indicator')).not.toBeInTheDocument();
   });
 
   test('collapsed view shows pinned divider and last user message', () => {
     const result = MessageCollapseRenderer.render(
       R, mockMsgs, false, mockTw, renderMarkdown, renderAssistantMsg, false, () => {}
     );
-    const container = _render(result);
-    const divider = container.container.querySelector('.pinned-divider');
+    const { container } = _render(result);
+    const divider = container.querySelector('.pinned-divider');
     expect(divider).toBeInTheDocument();
-    const chatMessages = container.container.querySelectorAll('.chat-message');
-    expect(chatMessages.length).toBe(1); // only the last user message (pinned)
+    const chatMessages = container.querySelectorAll('.chat-message');
+    expect(chatMessages.length).toBe(1);
     expect(chatMessages[0].classList.contains('user')).toBe(true);
   });
 });

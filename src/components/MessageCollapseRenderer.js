@@ -10,66 +10,10 @@ const MessageCollapseRenderer = {
     return -1;
   },
 
-  _handleDrag(container, dragThreshold, onExpand) {
-    return (e) => {
-      if (e.button !== 0) return;
-      const startY = e.clientY;
-      let expanded = false;
-
-      const onMove = (ev) => {
-        const distance = ev.clientY - startY;
-        const progress = Math.min(Math.max(distance / dragThreshold, 0), 1);
-
-        // Animate collapsed history sliding open during drag
-        const collapsed = container.querySelector('.collapsed-history');
-        if (collapsed) {
-          collapsed.style.maxHeight = (progress * 500) + 'px';
-          collapsed.style.opacity = progress;
-        }
-
-        // Shift all chat messages and divider down together
-        const els = container.querySelectorAll('.chat-message, .pinned-divider');
-        els.forEach(el => {
-          el.style.transform = 'translateY(' + (progress * 16) + 'px)';
-        });
-
-        if (distance >= dragThreshold && !expanded) {
-          expanded = true;
-          if (onExpand) onExpand();
-        }
-      };
-
-      const onUp = () => {
-        const collapsed = container.querySelector('.collapsed-history');
-        if (collapsed && !expanded) {
-          collapsed.style.transition = 'max-height 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s ease';
-          collapsed.style.maxHeight = '0px';
-          collapsed.style.opacity = '0';
-          setTimeout(() => { collapsed.style.transition = ''; }, 300);
-        }
-
-        const els = container.querySelectorAll('.chat-message, .pinned-divider');
-        els.forEach(el => {
-          el.style.transition = 'transform 0.3s cubic-bezier(0.2, 0, 0, 1)';
-          if (!expanded) {
-            el.style.transform = 'translateY(0)';
-          }
-          setTimeout(() => { el.style.transition = ''; }, 300);
-        });
-
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      };
-
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    };
-  },
-
   render(R, messages, isLoading, tw, renderMarkdown, renderAssistantMsg,
          isHistoryExpanded, onExpand) {
     if (messages.length === 0 && !isLoading) {
-      return null; // caller renders empty state
+      return null;
     }
 
     const lastUserIdx = this.findLastUserIndex(messages);
@@ -96,7 +40,6 @@ const MessageCollapseRenderer = {
         );
       }
     } else if (lastUserIdx >= 0) {
-      // Expanded: render all prior messages
       for (let i = 0; i < lastUserIdx; i++) {
         const msg = messages[i];
         elements.push(
@@ -116,7 +59,7 @@ const MessageCollapseRenderer = {
       );
     }
 
-    // Pinned message + messages after it
+    // Pinned messages
     const startIdx = lastUserIdx >= 0 ? lastUserIdx : 0;
     for (let i = startIdx; i < messages.length; i++) {
       const msg = messages[i];
@@ -138,12 +81,6 @@ const MessageCollapseRenderer = {
       );
     }
 
-    // Drag handler via ref callback
-    const refCallback = (el) => {
-      if (!el || isHistoryExpanded) return;
-      el.onmousedown = MessageCollapseRenderer._handleDrag(el, dragThreshold, onExpand);
-    };
-
     const onWheel = (e) => {
       if (!isHistoryExpanded && e.deltaY > 0) {
         if (onExpand) onExpand();
@@ -151,11 +88,82 @@ const MessageCollapseRenderer = {
       }
     };
 
+    // Ref callback: uses addEventListener (not el.onmousedown) which is not overwritten by React
+    const refCallback = (el) => {
+      if (!el) return;
+
+      // Remove old listener if re-calling
+      el.removeEventListener('mousedown', MessageCollapseRenderer._onMouseDown);
+
+      // Store drag config on the element so _onMouseDown can access it
+      el._dragConfig = { dragThreshold, isHistoryExpanded, onExpand };
+      el.addEventListener('mousedown', MessageCollapseRenderer._onMouseDown);
+    };
+
     return R.createElement('div', {
       className: 'collapsed-message-view' + (isHistoryExpanded ? ' expanded' : ''),
       ref: refCallback,
       onWheel: onWheel
     }, elements);
+  },
+
+  // Static handler - reads config from the element itself
+  _onMouseDown(e) {
+    const el = e.currentTarget;
+    const cfg = el._dragConfig;
+    if (!cfg || e.button !== 0 || cfg.isHistoryExpanded) return;
+    e.preventDefault();
+
+    const startY = e.clientY;
+    let expanded = false;
+
+    const onMove = (ev) => {
+      const distance = ev.clientY - startY;
+      const progress = Math.min(Math.max(distance / cfg.dragThreshold, 0), 1);
+
+      // Animate collapsed history sliding open during drag
+      const collapsed = el.querySelector('.collapsed-history');
+      if (collapsed) {
+        collapsed.style.maxHeight = (progress * 500) + 'px';
+        collapsed.style.opacity = String(progress);
+      }
+
+      // Shift all chat messages and divider down together
+      const els = el.querySelectorAll('.chat-message, .pinned-divider');
+      els.forEach(function(item) {
+        item.style.transform = 'translateY(' + (progress * 16) + 'px)';
+      });
+
+      if (distance >= cfg.dragThreshold && !expanded) {
+        expanded = true;
+        if (cfg.onExpand) cfg.onExpand();
+      }
+    };
+
+    const onUp = () => {
+      const collapsed = el.querySelector('.collapsed-history');
+      if (collapsed && !expanded) {
+        collapsed.style.transition = 'max-height 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s ease';
+        collapsed.style.maxHeight = '0px';
+        collapsed.style.opacity = '0';
+        setTimeout(function() { if (collapsed) collapsed.style.transition = ''; }, 300);
+      }
+
+      const els = el.querySelectorAll('.chat-message, .pinned-divider');
+      els.forEach(function(item) {
+        item.style.transition = 'transform 0.3s cubic-bezier(0.2, 0, 0, 1)';
+        if (!expanded) {
+          item.style.transform = 'translateY(0)';
+        }
+        setTimeout(function() { if (item) item.style.transition = ''; }, 300);
+      });
+
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   }
 };
 
