@@ -250,3 +250,31 @@
   from { opacity: 0; max-height: 0; }
   to { opacity: 1; max-height: 1000px; }
 }
+
+/* Retry Button */
+.retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-shape-corner-medium);
+  background: var(--md-surface-container);
+  color: var(--md-on-surface-variant);
+  font-size: 13px;
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+  cursor: pointer;
+  transition:
+    background var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+    box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+}
+
+.retry-btn:hover {
+  background: var(--md-surface-container-high);
+  box-shadow: var(--md-elevation-level-1);
+}
+
+.retry-btn .material-icons {
+  font-size: 16px;
+}

@@ -38,9 +38,10 @@ describe('MessageCollapseRenderer', () => {
     const mockTw = { displayedCount: 0, streamContent: { slice: () => '', content: '' } };
     const renderMarkdown = (text) => R.createElement('div', { className: 'content' }, text);
     const renderAssistantMsg = (msg) => R.createElement('div', { className: 'assistant' }, msg.content);
+    const renderRetryBtn = () => null;
 
     const result = MessageCollapseRenderer.render(
-      R, messages, false, mockTw, renderMarkdown, renderAssistantMsg, false, () => {}
+      R, messages, false, mockTw, renderMarkdown, renderAssistantMsg, renderRetryBtn, false, () => {}
     );
 
     const container = _render(result);
@@ -57,9 +58,10 @@ describe('MessageCollapseRenderer', () => {
     const mockTw = { displayedCount: 0, streamContent: { slice: () => '', content: '' } };
     const renderMarkdown = (text) => R.createElement('div', { className: 'content' }, text);
     const renderAssistantMsg = (msg) => R.createElement('div', { className: 'assistant' }, msg.content);
+    const renderRetryBtn = () => null;
 
     const result = MessageCollapseRenderer.render(
-      R, messages, false, mockTw, renderMarkdown, renderAssistantMsg, true, () => {}
+      R, messages, false, mockTw, renderMarkdown, renderAssistantMsg, renderRetryBtn, true, () => {}
     );
 
     const container = _render(result);
@@ -74,9 +76,10 @@ describe('MessageCollapseRenderer', () => {
     const mockTw = { displayedCount: 0, streamContent: { slice: () => '', content: '' } };
     const renderMarkdown = (text) => R.createElement('div', { className: 'content' }, text);
     const renderAssistantMsg = () => null;
+    const renderRetryBtn = () => null;
 
     const result = MessageCollapseRenderer.render(
-      R, messages, false, mockTw, renderMarkdown, renderAssistantMsg, false, () => {}
+      R, messages, false, mockTw, renderMarkdown, renderAssistantMsg, renderRetryBtn, false, () => {}
     );
 
     const container = _render(result);
@@ -90,9 +93,10 @@ describe('MessageCollapseRenderer', () => {
     const mockTw = { displayedCount: 0, streamContent: { slice: () => '', content: '' } };
     const renderMarkdown = (text) => R.createElement('div', { className: 'content' }, text);
     const renderAssistantMsg = () => R.createElement('div', { className: 'streaming' }, 'streaming');
+    const renderRetryBtn = () => null;
 
     const result = MessageCollapseRenderer.render(
-      R, messages, true, mockTw, renderMarkdown, renderAssistantMsg, false, () => {}
+      R, messages, true, mockTw, renderMarkdown, renderAssistantMsg, renderRetryBtn, false, () => {}
     );
 
     const container = _render(result);
@@ -100,7 +104,7 @@ describe('MessageCollapseRenderer', () => {
   });
 
   test('render returns null for empty messages and not loading', () => {
-    const result = MessageCollapseRenderer.render(R, [], false, null, () => {}, () => {}, false, () => {});
+    const result = MessageCollapseRenderer.render(R, [], false, null, () => {}, () => {}, () => null, false, () => {});
     expect(result).toBe(null);
   });
 
@@ -115,9 +119,10 @@ describe('MessageCollapseRenderer', () => {
     const mockTw = { displayedCount: 0, streamContent: { slice: () => '', content: '' } };
     const renderMarkdown = (text) => R.createElement('div', { className: 'content' }, text);
     const renderAssistantMsg = () => null;
+    const renderRetryBtn = () => null;
 
     const result = MessageCollapseRenderer.render(
-      R, messages, false, mockTw, renderMarkdown, renderAssistantMsg, false, () => {}
+      R, messages, false, mockTw, renderMarkdown, renderAssistantMsg, renderRetryBtn, false, () => {}
     );
 
     const container = _render(result);

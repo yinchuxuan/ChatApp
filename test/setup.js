@@ -63,6 +63,9 @@ global.window.MessageCollapseRenderer = MessageCollapseRenderer;
 const useTypewriter = require('../src/components/useTypewriter.js');
 global.window.useTypewriter = useTypewriter;
 
+const useRetry = require('../src/components/useRetry.js');
+global.window.useRetry = useRetry;
+
 // Import apiClient for chat requests
 const apiClient = require('../src/components/apiClient.js');
 if (apiClient.sendChatRequest) {

@@ -17,29 +17,29 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "调整显示框的消息显示",
-      "agentid": "a6123a7959da55275",
-      "user_visible_behavior": "消息显示栏中固定将当前用户发的最后一条消息置顶，之前的历史信息全部折叠；本次模型回复接在用户消息的下方；鼠标向下拖动时展开折叠的历史信息",
+      "title": "给assistant的最后一条回复信息添加retry ui按钮",
+      "agentid": "a24455665aa61808a",
+      "user_visible_behavior": "给assistant的最后一条回复信息添加retry ui按钮，在点击该按钮后清空该msg中的内容，重新发送只包含到user最后一条信息的req，重新生成回复",
       "status": "passing",
       "verification": [
-        "消息显示栏中默认置顶当前用户发的最后一条消息",
-        "之前的历史信息全部默认折叠",
-        "本次模型回复接在用户消息的下方",
-        "鼠标向下拖动时展开折叠的历史信息",
+        "只有assistant的最后一条回复信息有retry ui按钮",
+        "在点击该按钮后清空该msg中的内容",
+        "重新发送只包含到user最后一条信息的req，重新生成回复",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "新增 src/components/MessageCollapseRenderer.js: 实现消息折叠渲染逻辑，findLastUserIndex 定位最后一条用户消息，render 方法将历史消息折叠、置顶用户消息、当前模型回复分层渲染",
-        "修改 src/ChatPanel.jsx: 新增 isHistoryExpanded 状态，发送用户消息时自动折叠历史，handleHistoryScroll 监听 chat-history 的 scroll 事件，scrollTop < 10 时展开折叠内容",
-        "新增 src/styles/components.collapsed-message.css: collapsed-message-view、collapsed-history、collapsed-history-indicator、pinned-divider 等样式",
-        "修改 src/index.html: 引入 MessageCollapseRenderer.js 和 collapsed-message CSS",
-        "修改 src/styles/components.css: 引入 components.collapsed-message.css",
-        "修改 test/setup.js: 注册 MessageCollapseRenderer 到 window 全局",
-        "新增 test/components/MessageCollapse.test.js: 9 个单元测试覆盖 findLastUserIndex、折叠/展开渲染、streaming 消息、空消息等场景",
-        "新增 test/e2e/app.e2e.messageCollapse.test.js: 4 个 E2E 测试验证 CSS 类定义、chat-history 结构、overflow-y 和 chat history IPC 持久化",
-        "单元测试 38 suites 210 tests 全部通过; 集成测试 4 suites 26 tests 全部通过; E2E 测试 56 tests 全部通过",
-        "eslint 0 warnings, 0 errors (src/ 和 test/ 下所有文件)"
+        "新增 src/components/useRetry.js: 实现 retry hook，点击后找到最后一条用户消息，slice 消息到该位置，调用 sendChatRequest 重新生成回复",
+        "修改 src/ChatPanel.jsx: 新增 renderRetryBtn 函数，仅对最后一条 assistant 消息且 !isLoading 时显示 retry 按钮；点击后清空消息并重发请求",
+        "修改 src/components/MessageCollapseRenderer.js: 在折叠和展开状态下均渲染 retry 按钮到最后一条 assistant 消息",
+        "修改 src/styles/components.chat-messages.css: 新增 .retry-btn 样式，适配 Material Design 主题",
+        "修改 src/index.html: 引入 useRetry.js",
+        "修改 test/setup.js: 注册 useRetry 到 window 全局",
+        "新增 test/integration/retry.test.js: 6 个集成测试覆盖 findLastUserIndex、findLastAssistantIndex、消息切片、请求 payload",
+        "新增 test/components/ChatPanelRetry.test.js: 7 个单元测试覆盖 retry 按钮可见性和点击行为",
+        "新增 test/e2e/app.e2e.retry.test.js: 5 个 E2E 测试验证按钮显示、唯一性、图标文本",
+        "单元测试 39 suites 217 tests 全部通过; 集成测试 5 suites 32 tests 全部通过; E2E 测试 61 tests 全部通过",
+        "eslint 0 warnings, 0 errors"
       ]
     }
   ]
