@@ -160,8 +160,10 @@ test.describe('Chat Panel Clear History', () => {
     expect(clearBtn).toBeTruthy();
   });
   test('should clear messages when clicking the clear button and show empty state', async () => {
-    // Hover bottom edge to reveal input area
-    await (await appHelper.waitForSelector('.chat-input-hover-trigger', { state: 'attached' })).hover();
+    // Trigger hover via JS to avoid pointer interception by .chat-input-area
+    await appHelper.evaluate(() => {
+      document.querySelector('.chat-input-hover-trigger')?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    });
     await appHelper.waitForTimeout(200);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
