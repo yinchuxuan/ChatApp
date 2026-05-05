@@ -1,4 +1,5 @@
 import './ChatInputArea.jsx';
+import { highlightQuotes } from './components/highlightQuotes.js';
 // ChatPanel Component
 function ChatPanel() {
   const R = window.React || React;
@@ -110,7 +111,8 @@ function ChatPanel() {
 
   const renderMarkdown = (text) => {
     const rawHtml = window.marked ? window.marked.parse(text) : text;
-    const html = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
+    const sanitizedHtml = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
+    const html = highlightQuotes(sanitizedHtml);
     return C('div', { className: 'chat-message-bubble' },
       C('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
     );
@@ -119,8 +121,10 @@ function ChatPanel() {
   const renderAssistantMsg = (msg, idx, isStreaming) => {
     const thinking = isStreaming ? currentThinking : msg._thinking;
     const showThinking = isStreaming ? showStreamThinking : (msg._thinkingVisible === true);
-    const rawHtml = window.marked ? window.marked.parse(isStreaming ? msg.slice(0, tw.displayedCount) : msg.content) : (isStreaming ? msg.slice(0, tw.displayedCount) : msg.content);
-    const html = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
+    const rawContent = isStreaming ? msg.slice(0, tw.displayedCount) : msg.content;
+    const rawHtml = window.marked ? window.marked.parse(rawContent) : rawContent;
+    const sanitizedHtml = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
+    const html = highlightQuotes(sanitizedHtml);
     const bubbleClass = thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
     const handleClick = thinking ? () => {
       if (isStreaming) { setShowStreamThinking(p => !p); }

@@ -66,6 +66,9 @@ global.window.useTypewriter = useTypewriter;
 const useRetry = require('../src/components/useRetry.js');
 global.window.useRetry = useRetry;
 
+const highlightQuotes = require('../src/components/highlightQuotes.js');
+global.window.highlightQuotes = highlightQuotes.highlightQuotes;
+
 // Import apiClient for chat requests
 const apiClient = require('../src/components/apiClient.js');
 if (apiClient.sendChatRequest) {

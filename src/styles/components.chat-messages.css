@@ -139,6 +139,19 @@
   cursor: pointer;
 }
 
+/* Quoted Text Highlighting - text wrapped in quotes ("", '', "", 「」, 『』) */
+.chat-bubble-content .quoted-text {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  border-radius: var(--md-shape-corner-extra-small);
+  padding: 0.05em 0.25em;
+}
+
+[data-theme="dark"] .chat-bubble-content .quoted-text {
+  background: rgba(96, 165, 250, 0.15);
+  color: var(--md-on-surface);
+}
+
 /* Markdown Content inside Chat Bubbles */
 .chat-bubble-content {
   word-break: break-word;

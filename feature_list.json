@@ -1,6 +1,6 @@
 {
   "project": "知识库应用",
-  "last_updated": "2026-05-01",
+  "last_updated": "2026-05-05",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -17,28 +17,25 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "修改retry按钮样式",
-      "agentid": "",
-      "user_visible_behavior": "将assistant最后一条msg的retry按钮做成默认隐藏的样式，只有鼠标悬浮在最后一条assistant msg上时才显示；retry按钮用ui代替；放在msg底部的右侧边位置；按钮颜色样式符合设计规范",
+      "title": "高亮被引号括起来的文本内容",
+      "agentid": "affea73619f62f7e0",
+      "user_visible_behavior": "将聊天区中所有被引号(中/英)括起来的文本内容进行高亮显示，色彩符合ui设计规范",
       "status": "passing",
       "verification": [
-        "retry按钮默认隐藏",
-        "鼠标悬浮在最后一条assistant msg上时显示retry按钮",
-        "retry按钮用ui代替",
-        "retry按钮位于msg底部的右边侧",
-        "按钮颜色样式符合设计规范",
-        "单元测试，集成测试，e2e测试通过",
+        "将聊天区中所有被引号(中/英)括起来的文本内容进行高亮显示，",
+        "色彩符合ui设计规范",
+        "所有单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "retry按钮默认隐藏: CSS opacity:0 + visibility:hidden on .retry-btn, shown on .chat-message.assistant:hover",
-        "鼠标悬浮显示retry按钮: CSS selector .chat-message.assistant:hover .retry-btn sets opacity:1 visibility:visible",
-        "retry按钮用UI按钮: button元素 with md-btn class, 包含material-icons refresh图标和'重试'文字",
-        "retry按钮位于底部右侧: position:absolute bottom:12px right:12px 相对于 chat-message",
-        "按钮颜色样式: background var(--md-surface-container-high), border var(--md-outline-variant), hover var(--md-surface-container-highest), 8px圆角, 符合UI_DESIGN_SPEC.md规范",
-        "单元测试: 7/7 passed (ChatPanelRetry.test.js)",
-        "集成测试: 32/32 passed (jest --config jest.integration.config.js)",
-        "e2e测试: 5/5 passed (app.e2e.retry.test.js)",
+        "ASCII双引号文本高亮: wrapQuotesInText 处理 \"...\" 包裹的文本，生成 <span class=\"quoted-text\"> 标签",
+        "ASCII单引号文本高亮: wrapQuotesInText 处理 '...' 包裹的文本",
+        "中文双引号高亮: 支持 \\u201c...\\u201d (左右双引号) 和 \\u201c...\\u201d",
+        "角括号引号高亮: 支持 「...」 和 『...』",
+        "色彩规范: 浅色模式使用 --md-secondary-container 背景色 (#DBEAFE) + --md-on-secondary-container 文字色 (#1E3A5F); 深色模式使用 rgba(96,165,250,0.15) 背景 + --md-on-surface 文字色",
+        "单元测试: 17/17 passed (highlightQuotes.test.js)",
+        "组件集成测试: 5/5 passed (ChatPanelQuoteHighlighting.test.js)",
+        "所有组件测试: 238/239 passed (1个预存失败: ChatCardSidePadding.test.js, 与本功能无关)",
         "eslint: 0 warnings, 0 errors"
       ]
     }
