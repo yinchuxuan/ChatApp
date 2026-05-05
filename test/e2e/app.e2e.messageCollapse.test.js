@@ -66,8 +66,12 @@ test.describe.serial('Message Collapse Behavior', () => {
     const childRoles = await appHelper.evaluate(() => {
       const wrapper = document.querySelector('.collapse-inner-wrapper');
       return Array.from(wrapper.children)
-        .filter(el => el.classList.contains('chat-message'))
-        .map(el => [...el.classList].find(c => c === 'user' || c === 'assistant'));
+        .filter(el => el.classList.contains('chat-message-row'))
+        .map(el => {
+          const msg = el.querySelector('.chat-message');
+          return msg ? [...msg.classList].find(c => c === 'user' || c === 'assistant') : null;
+        })
+        .filter(Boolean);
     });
 
     expect(childRoles.length).toBeGreaterThanOrEqual(1);
@@ -80,7 +84,8 @@ test.describe.serial('Message Collapse Behavior', () => {
 
     const lastUserContent = await appHelper.evaluate(() => {
       const wrapper = document.querySelector('.collapse-inner-wrapper');
-      const firstMsg = wrapper.querySelector(':scope > .chat-message');
+      const firstRow = wrapper.querySelector(':scope > .chat-message-row');
+      const firstMsg = firstRow ? firstRow.querySelector('.chat-message') : null;
       return firstMsg ? firstMsg.textContent : '';
     });
     expect(lastUserContent).toContain('Show me useEffect');
@@ -111,7 +116,7 @@ test.describe.serial('Message Collapse Behavior', () => {
 
     const priorMessages = await appHelper.evaluate(() => {
       const container = document.querySelector('.collapsed-message-view');
-      return Array.from(container.querySelectorAll('.chat-message')).length;
+      return Array.from(container.querySelectorAll('.chat-message-row')).length;
     });
     expect(priorMessages).toBeGreaterThan(1);
 
@@ -137,15 +142,19 @@ test.describe.serial('Message Collapse Behavior', () => {
     const result = await appHelper.evaluate(() => {
       const wrapper = document.querySelector('.collapse-inner-wrapper');
       const children = Array.from(wrapper.children);
-      // Find visible (non-collapsed) messages
+      // Find visible (non-collapsed) message rows
       const visibleMsgs = [];
-      for (const child of children) {
-        if (child.classList.contains('chat-message')) {
-          visibleMsgs.push({
-            role: [...child.classList].find(c => c === 'user' || c === 'assistant'),
-            content: child.textContent.trim(),
-            domIndex: children.indexOf(child),
-          });
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        if (child.classList.contains('chat-message-row')) {
+          const msg = child.querySelector('.chat-message');
+          if (msg) {
+            visibleMsgs.push({
+              role: [...msg.classList].find(c => c === 'user' || c === 'assistant'),
+              content: msg.textContent.trim(),
+              domIndex: i,
+            });
+          }
         }
       }
       return visibleMsgs;

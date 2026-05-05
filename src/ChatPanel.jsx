@@ -137,7 +137,7 @@ function ChatPanel() {
     return C('button', {
       className: 'md-btn retry-btn', onClick: (e) => { e.stopPropagation(); handleRetry(); },
       title: '重新生成', 'aria-label': '重新生成回复'
-    }, C('span', { className: 'material-icons' }, 'refresh'), ' 重试');
+    }, C('span', { className: 'material-icons' }, 'refresh'));
   };
 
   const streamThinking = tw.getThinkingContent();
@@ -166,13 +166,17 @@ function ChatPanel() {
       messages.map((msg, idx) => {
         const isLast = idx === lastAssistantIdx;
         if (msg.role === 'assistant') {
-          return C('div', { key: idx, className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}` },
-            msg._thinking ? renderAssistantMsg(msg, idx, false) : renderMarkdown(msg.content),
+          return C('div', { key: idx, className: 'chat-message-row' },
+            C('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+              msg._thinking ? renderAssistantMsg(msg, idx, false) : renderMarkdown(msg.content)
+            ),
             renderRetryBtn(isLast, isLoading)
           );
         }
-        return C('div', { key: idx, className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}` },
-          renderMarkdown(msg.content)
+        return C('div', { key: idx, className: 'chat-message-row' },
+          C('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+            renderMarkdown(msg.content)
+          )
         );
       }),
       isLoading && C('div', { className: 'chat-message assistant' }, renderAssistantMsg(tw.streamContent, messages.length, true))

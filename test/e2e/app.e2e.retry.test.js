@@ -39,8 +39,8 @@ test.describe.serial('Retry Button', () => {
       { role: 'assistant', content: 'JavaScript is a programming language.', _thinking: 'Defining JavaScript...' }
     ]);
 
-    // Hover over the last assistant message to reveal the retry button
-    await appHelper.hover('.chat-message.assistant:last-of-type');
+    // Hover over the last message row to reveal the retry button
+    await appHelper.hover('.chat-message-row:last-of-type');
 
     const retryBtnVisible = await appHelper.isVisible('.retry-btn');
     expect(retryBtnVisible).toBe(true);
@@ -74,21 +74,21 @@ test.describe.serial('Retry Button', () => {
       { role: 'assistant', content: 'Second answer', _thinking: 'think 2' }
     ]);
 
-    // Find all chat-message divs and check which ones have retry buttons
+    // Find all chat-message-row divs and check which ones have retry buttons
     const result = await appHelper.evaluate(() => {
-      const msgs = Array.from(document.querySelectorAll('.chat-message.assistant'));
-      return msgs.map(m => ({
-        hasRetry: m.querySelector('.retry-btn') !== null,
-        content: m.textContent.substring(0, 50)
+      const rows = Array.from(document.querySelectorAll('.chat-message-row'));
+      return rows.map(r => ({
+        hasRetry: r.querySelector('.retry-btn') !== null,
+        hasMsg: r.querySelector('.chat-message.assistant') !== null
       }));
     });
 
-    // Only the last assistant message should have a retry button
+    // Only the last assistant message row should have a retry button
     const withRetry = result.filter(m => m.hasRetry);
     expect(withRetry.length).toBe(1);
   });
 
-  test('should have correct icon and text in retry button', async () => {
+  test('should have correct icon in retry button', async () => {
     await injectMessages([
       { role: 'user', content: 'Test question' },
       { role: 'assistant', content: 'Test answer', _thinking: 'thinking' }
@@ -100,14 +100,12 @@ test.describe.serial('Retry Button', () => {
       const icon = btn.querySelector('.material-icons');
       return {
         hasRefreshIcon: icon ? icon.textContent === 'refresh' : false,
-        hasRetryText: btn.textContent.includes('重试'),
         hasMdBtn: btn.classList.contains('md-btn'),
         title: btn.getAttribute('title')
       };
     });
     expect(btnInfo).not.toBeNull();
     expect(btnInfo.hasRefreshIcon).toBe(true);
-    expect(btnInfo.hasRetryText).toBe(true);
     expect(btnInfo.hasMdBtn).toBe(true);
     expect(btnInfo.title).toBe('重新生成');
   });

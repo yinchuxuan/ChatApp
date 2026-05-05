@@ -56,9 +56,9 @@ describe('Retry Button - Visibility', () => {
     const retryBtns = screen.queryAllByRole('button', { name: '重新生成回复' });
     expect(retryBtns.length).toBe(1);
 
-    // Should be near the last assistant message content
+    // Should be inside a chat-message-row wrapper
     const btn = retryBtns[0];
-    expect(btn.closest('.chat-message')).toBeTruthy();
+    expect(btn.closest('.chat-message-row')).toBeTruthy();
   });
 
   test('should show retry button on last assistant message without _thinking', async () => {

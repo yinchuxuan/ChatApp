@@ -2,6 +2,19 @@
    Chat Panel - Messages and Empty State
    ============================================ */
 
+/* Message Row - wrapper for message + side actions */
+.chat-message-row {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding-right: 40px;
+}
+
+.chat-message-row .chat-message {
+  flex: 1;
+  min-width: 0;
+}
+
 /* Message Animation */
 .chat-message {
   display: flex;
@@ -251,41 +264,41 @@
   to { opacity: 1; max-height: 1000px; }
 }
 
-/* Retry Button - hidden by default, shown on hover */
-.retry-btn {
-  display: inline-flex;
+/* Retry Button - positioned on the right side of message, hidden until hover */
+.chat-message-row .retry-btn {
+  display: inline-flex !important;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border: 1px solid var(--md-outline-variant);
-  border-radius: var(--md-shape-corner-small);
-  background: var(--md-surface-container-high);
-  color: var(--md-on-surface-variant);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: 'Google Sans Text', 'Roboto', sans-serif;
-  cursor: pointer;
+  justify-content: center;
+  width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  margin-top: 12px;
   position: absolute;
-  bottom: 12px;
-  right: 12px;
+  bottom: 8px;
+  right: 8px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--md-shape-corner-small);
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  cursor: pointer;
+  overflow: visible !important;
   opacity: 0;
-  visibility: hidden;
+  pointer-events: none;
   transition:
-    opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard),
-    background var(--md-motion-duration-short3) var(--md-motion-easing-standard),
-    box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+    opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard);
   z-index: 2;
 }
 
-.chat-message.assistant:hover .retry-btn,
-.chat-message.assistant .retry-btn:focus-visible {
-  opacity: 1;
-  visibility: visible;
+.chat-message-row:has(.chat-message:hover) .retry-btn,
+.chat-message-row:has(.retry-btn:hover) .retry-btn {
+  opacity: 1 !important;
+  pointer-events: auto;
 }
 
-.retry-btn:hover {
-  background: var(--md-surface-container-highest);
-  box-shadow: var(--md-elevation-level-1);
+.chat-message-row .retry-btn:hover {
+  background: transparent;
 }
 
 .retry-btn .material-icons {
