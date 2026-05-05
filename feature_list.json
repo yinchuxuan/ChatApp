@@ -17,29 +17,29 @@
       "id": "app-001",
       "priority": 1,
       "area": "coding",
-      "title": "给assistant的最后一条回复信息添加retry ui按钮",
-      "agentid": "a24455665aa61808a",
-      "user_visible_behavior": "给assistant的最后一条回复信息添加retry ui按钮，在点击该按钮后清空该msg中的内容，重新发送只包含到user最后一条信息的req，重新生成回复",
+      "title": "修改retry按钮样式",
+      "agentid": "",
+      "user_visible_behavior": "将assistant最后一条msg的retry按钮做成默认隐藏的样式，只有鼠标悬浮在最后一条assistant msg上时才显示；retry按钮用ui代替；放在msg底部的右侧边位置；按钮颜色样式符合设计规范",
       "status": "passing",
       "verification": [
-        "只有assistant的最后一条回复信息有retry ui按钮",
-        "在点击该按钮后清空该msg中的内容",
-        "重新发送只包含到user最后一条信息的req，重新生成回复",
+        "retry按钮默认隐藏",
+        "鼠标悬浮在最后一条assistant msg上时显示retry按钮",
+        "retry按钮用ui代替",
+        "retry按钮位于msg底部的右边侧",
+        "按钮颜色样式符合设计规范",
         "单元测试，集成测试，e2e测试通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": [
-        "新增 src/components/useRetry.js: 实现 retry hook，点击后找到最后一条用户消息，slice 消息到该位置，调用 sendChatRequest 重新生成回复",
-        "修改 src/ChatPanel.jsx: 新增 renderRetryBtn 函数，仅对最后一条 assistant 消息且 !isLoading 时显示 retry 按钮；点击后清空消息并重发请求",
-        "修改 src/components/MessageCollapseRenderer.js: 在折叠和展开状态下均渲染 retry 按钮到最后一条 assistant 消息",
-        "修改 src/styles/components.chat-messages.css: 新增 .retry-btn 样式，适配 Material Design 主题",
-        "修改 src/index.html: 引入 useRetry.js",
-        "修改 test/setup.js: 注册 useRetry 到 window 全局",
-        "新增 test/integration/retry.test.js: 6 个集成测试覆盖 findLastUserIndex、findLastAssistantIndex、消息切片、请求 payload",
-        "新增 test/components/ChatPanelRetry.test.js: 7 个单元测试覆盖 retry 按钮可见性和点击行为",
-        "新增 test/e2e/app.e2e.retry.test.js: 5 个 E2E 测试验证按钮显示、唯一性、图标文本",
-        "单元测试 39 suites 217 tests 全部通过; 集成测试 5 suites 32 tests 全部通过; E2E 测试 61 tests 全部通过",
-        "eslint 0 warnings, 0 errors"
+        "retry按钮默认隐藏: CSS opacity:0 + visibility:hidden on .retry-btn, shown on .chat-message.assistant:hover",
+        "鼠标悬浮显示retry按钮: CSS selector .chat-message.assistant:hover .retry-btn sets opacity:1 visibility:visible",
+        "retry按钮用UI按钮: button元素 with md-btn class, 包含material-icons refresh图标和'重试'文字",
+        "retry按钮位于底部右侧: position:absolute bottom:12px right:12px 相对于 chat-message",
+        "按钮颜色样式: background var(--md-surface-container-high), border var(--md-outline-variant), hover var(--md-surface-container-highest), 8px圆角, 符合UI_DESIGN_SPEC.md规范",
+        "单元测试: 7/7 passed (ChatPanelRetry.test.js)",
+        "集成测试: 32/32 passed (jest --config jest.integration.config.js)",
+        "e2e测试: 5/5 passed (app.e2e.retry.test.js)",
+        "eslint: 0 warnings, 0 errors"
       ]
     }
   ]

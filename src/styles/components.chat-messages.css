@@ -251,27 +251,40 @@
   to { opacity: 1; max-height: 1000px; }
 }
 
-/* Retry Button */
+/* Retry Button - hidden by default, shown on hover */
 .retry-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 8px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   border: 1px solid var(--md-outline-variant);
-  border-radius: var(--md-shape-corner-medium);
-  background: var(--md-surface-container);
+  border-radius: var(--md-shape-corner-small);
+  background: var(--md-surface-container-high);
   color: var(--md-on-surface-variant);
   font-size: 13px;
+  font-weight: 500;
   font-family: 'Google Sans Text', 'Roboto', sans-serif;
   cursor: pointer;
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  opacity: 0;
+  visibility: hidden;
   transition:
+    opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard),
     background var(--md-motion-duration-short3) var(--md-motion-easing-standard),
     box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+  z-index: 2;
+}
+
+.chat-message.assistant:hover .retry-btn,
+.chat-message.assistant .retry-btn:focus-visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .retry-btn:hover {
-  background: var(--md-surface-container-high);
+  background: var(--md-surface-container-highest);
   box-shadow: var(--md-elevation-level-1);
 }
 

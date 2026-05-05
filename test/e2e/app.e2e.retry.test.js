@@ -39,6 +39,9 @@ test.describe.serial('Retry Button', () => {
       { role: 'assistant', content: 'JavaScript is a programming language.', _thinking: 'Defining JavaScript...' }
     ]);
 
+    // Hover over the last assistant message to reveal the retry button
+    await appHelper.hover('.chat-message.assistant:last-of-type');
+
     const retryBtnVisible = await appHelper.isVisible('.retry-btn');
     expect(retryBtnVisible).toBe(true);
 
