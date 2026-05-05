@@ -39,7 +39,6 @@ function ChatPanel() {
     return () => window.removeEventListener('model-config-changed', handler);
   }, []);
 
-  // Collapse history when new user message arrives
   R.useEffect(() => {
     if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
       setIsHistoryExpanded(false);
@@ -92,12 +91,20 @@ function ChatPanel() {
     }
   }, [messages, isLoading]);
 
-  // Auto-scroll to bottom
   R.useEffect(() => {
     if (chatHistoryRef.current && !isHistoryExpanded) {
       chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
     }
   }, [messages, isLoading, tw.displayedCount, showMsgHistory]);
+
+  R.useEffect(() => {
+    if (!chatHistoryRef.current || !isHistoryExpanded) return;
+    const view = chatHistoryRef.current.querySelector('.collapsed-message-view');
+    if (view) {
+      const divider = view.querySelector('.pinned-divider');
+      if (divider) view.scrollTop = Math.max(0, divider.offsetTop - 80);
+    }
+  }, [isHistoryExpanded]);
 
   const handleExpandHistory = () => {
     setIsHistoryExpanded(true);
