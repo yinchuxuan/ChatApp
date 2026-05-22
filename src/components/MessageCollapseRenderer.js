@@ -90,7 +90,7 @@ const MessageCollapseRenderer = {
           },
             R.createElement('div', { className: 'collapsed-history-indicator' },
               R.createElement('span', { className: 'material-icons' }, 'expand_more'),
-              R.createElement('span', null, collapsedMsgs.length + ' 条更早的消息')
+              R.createElement('span', null, `${collapsedMsgs.length} 条更早的消息`)
             )
           )
         );

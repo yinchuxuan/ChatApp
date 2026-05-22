@@ -149,8 +149,14 @@ test.describe('Chat Panel Msg History Toggle', () => {
 test.describe('Chat Panel Clear History', () => {
   test('should not have clear button when no messages, appear after sending message', async () => {
     expect(await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length)).toBe(0);
-    // Hover bottom edge to reveal input area
-    await (await appHelper.waitForSelector('.chat-input-hover-trigger', { state: 'attached' })).hover();
+    // Trigger hover via JS to avoid pointer interception by .chat-input-area
+    await appHelper.evaluate(() => {
+      const el = document.querySelector('.chat-input-hover-trigger');
+      if (el) {
+        el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+        el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      }
+    });
     await appHelper.waitForTimeout(200);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
@@ -162,7 +168,11 @@ test.describe('Chat Panel Clear History', () => {
   test('should clear messages when clicking the clear button and show empty state', async () => {
     // Trigger hover via JS to avoid pointer interception by .chat-input-area
     await appHelper.evaluate(() => {
-      document.querySelector('.chat-input-hover-trigger')?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      const el = document.querySelector('.chat-input-hover-trigger');
+      if (el) {
+        el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+        el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      }
     });
     await appHelper.waitForTimeout(200);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');

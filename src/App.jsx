@@ -3,6 +3,10 @@
 
 // App Component
 function App() {
+  // Destructure globally-registered components to local variables for JSX usage
+  const ChatPanel = typeof window !== 'undefined' ? window.ChatPanel : null;
+  const SettingsPanel = typeof window !== 'undefined' ? window.SettingsPanel : null;
+
   const [theme, setTheme] = React.useState('light');
   const [backgroundConfig, setBackgroundConfig] = React.useState({
     backgroundImageUrl: '',
@@ -71,7 +75,7 @@ function App() {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: baseColor + ' 1)',
+        backgroundColor: `${baseColor} 1)`,
         zIndex: 0,
         pointerEvents: 'none',
         opacity: backgroundConfig.backgroundOpacity
@@ -80,10 +84,6 @@ function App() {
     return {};
   }, [backgroundConfig.backgroundImageUrl, backgroundConfig.backgroundOpacity, theme]);
 
-  // Get components from global scope
-  const ChatPanelComp = window.ChatPanel;
-  const SettingsPanelComp = window.SettingsPanel;
-
   return (
     <div
       className={`app-container${backgroundConfig.backgroundImageUrl ? ' has-background-image' : ''}`}
@@ -91,10 +91,10 @@ function App() {
     >
       {backgroundConfig.backgroundImageUrl && <div style={getOverlayStyle()} />}
       <div className="app-content-wrapper">
-        {ChatPanelComp ? <ChatPanelComp /> : null}
+        {ChatPanel ? <ChatPanel /> : null}
       </div>
-      {SettingsPanelComp ? (
-        <SettingsPanelComp onToggleTheme={toggleTheme} theme={theme} onBackgroundChange={handleBackgroundChange} />
+      {SettingsPanel ? (
+        <SettingsPanel onToggleTheme={toggleTheme} theme={theme} onBackgroundChange={handleBackgroundChange} />
       ) : null}
     </div>
   );

@@ -1,5 +1,10 @@
 import './ChatInputArea.jsx';
+import './components/ChatPanelMessageRenderers.js';
 // highlightQuotes exposes itself on window.highlightQuotes
+
+const RENDERER_POLL_INTERVAL = 100;
+const RENDERER_POLL_TIMEOUT = 5000;
+
 // ChatPanel Component
 function ChatPanel() {
   const R = window.React || React;
@@ -17,14 +22,16 @@ function ChatPanel() {
   const [isHistoryExpanded, setIsHistoryExpanded] = R.useState(false);
   const tw = window.useTypewriter(R);
   const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw);
+
   R.useEffect(() => {
     if (window.ChatPanelRenderers) { setRenderersReady(true); return; }
     const checkInterval = setInterval(() => {
       if (window.ChatPanelRenderers) { setRenderersReady(true); clearInterval(checkInterval); }
-    }, 100);
-    const timeout = setTimeout(() => clearInterval(checkInterval), 5000);
+    }, RENDERER_POLL_INTERVAL);
+    const timeout = setTimeout(() => clearInterval(checkInterval), RENDERER_POLL_TIMEOUT);
     return () => { clearInterval(checkInterval); clearTimeout(timeout); };
   }, []);
+
   R.useEffect(() => {
     async function loadConfig() {
       if (window.electronAPI) { const result = await window.electronAPI.getModelConfig(); if (result.success) setModelConfig(result.config); }
@@ -65,6 +72,10 @@ function ChatPanel() {
   const renderers = window.ChatPanelRenderers;
   const collapseRenderer = window.MessageCollapseRenderer;
   const renderMsgHistoryDisplay = (renderers && renderersReady) ? () => renderers.renderMsgHistoryDisplay(R, msgHistoryMessages) : () => null;
+  const msgRenderers = window.ChatPanelMessageRenderers;
+  const renderMarkdown = msgRenderers ? (text) => msgRenderers.renderMarkdown(R, text, window.marked, window.DOMPurify, window.highlightQuotes) : null;
+  const renderAssistantMsg = msgRenderers ? (msg, idx, isStreaming) => msgRenderers.renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, window.marked, window.DOMPurify, window.highlightQuotes) : null;
+  const renderRetryBtn = msgRenderers ? (isLast, isLoading) => msgRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry) : null;
 
   const chatHistoryRef = R.useRef(null);
   const initialLoadDone = R.useRef(false);
@@ -90,6 +101,8 @@ function ChatPanel() {
     }
   }, [messages, isLoading]);
 
+  const SCROLL_DIVIDER_OFFSET = 80;
+
   R.useEffect(() => {
     if (chatHistoryRef.current && !isHistoryExpanded) {
       chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
@@ -101,7 +114,7 @@ function ChatPanel() {
     const view = chatHistoryRef.current.querySelector('.collapsed-message-view');
     if (view) {
       const divider = view.querySelector('.pinned-divider');
-      if (divider) view.scrollTop = Math.max(0, divider.offsetTop - 80);
+      if (divider) view.scrollTop = Math.max(0, divider.offsetTop - SCROLL_DIVIDER_OFFSET);
     }
   }, [isHistoryExpanded]);
 
@@ -109,82 +122,17 @@ function ChatPanel() {
 
   const C = R.createElement;
 
-  const renderMarkdown = (text) => {
-    const rawHtml = window.marked ? window.marked.parse(text) : text;
-    const sanitizedHtml = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
-    const html = window.highlightQuotes(sanitizedHtml);
-    return C('div', { className: 'chat-message-bubble' },
-      C('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
-    );
-  };
-
-  const renderAssistantMsg = (msg, idx, isStreaming) => {
-    const thinking = isStreaming ? currentThinking : msg._thinking;
-    const showThinking = isStreaming ? showStreamThinking : (msg._thinkingVisible === true);
-    const rawContent = isStreaming ? msg.slice(0, tw.displayedCount) : msg.content;
-    const rawHtml = window.marked ? window.marked.parse(rawContent) : rawContent;
-    const sanitizedHtml = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
-    const html = window.highlightQuotes(sanitizedHtml);
-    const bubbleClass = thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
-    const handleClick = thinking ? () => {
-      if (isStreaming) { setShowStreamThinking(p => !p); }
-      else { toggleThinkingForMessage(idx); }
-    } : null;
-    return R.createElement('div', { className: bubbleClass, onClick: handleClick },
-      thinking && showThinking && R.createElement('div', { className: 'chat-thinking-text' }, thinking),
-      R.createElement('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
-    );
-  };
-
-  const renderRetryBtn = (isLast, isLoading) => {
-    if (!isLast || isLoading) return null;
-    return C('button', {
-      className: 'md-btn retry-btn', onClick: (e) => { e.stopPropagation(); handleRetry(); },
-      title: '重新生成', 'aria-label': '重新生成回复'
-    }, C('span', { className: 'material-icons' }, 'refresh'));
-  };
-
   const streamThinking = tw.getThinkingContent();
   const hasThinking = isLoading && streamThinking && streamThinking.length > 0;
   const currentThinking = hasThinking ? streamThinking : null;
 
   const renderMessages = () => {
-    if (messages.length === 0 && !isLoading) {
-      if (!modelConfig?.apiUrl) {
-        return C('div', { className: 'chat-empty' },
-          C('span', { className: 'material-icons empty-icon' }, 'question_answer'),
-          C('div', null, '开始对话'),
-          C('div', { className: 'chat-empty-hint' }, '请先配置模型 API')
-        );
-      }
-      return C('div', { className: 'chat-empty' },
-        C('span', { className: 'material-icons empty-icon' }, 'question_answer'),
-        C('div', null, '开始对话')
-      );
+    if (msgRenderers && renderMarkdown && renderAssistantMsg && renderRetryBtn) {
+      return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
     }
-    if (collapseRenderer) {
-      return collapseRenderer.render(R, messages, isLoading, tw, renderMarkdown, renderAssistantMsg, renderRetryBtn, isHistoryExpanded, handleExpandHistory);
-    }
-    const lastAssistantIdx = messages.map((m, i) => m.role === 'assistant' ? i : -1).filter(i => i >= 0).pop();
-    return R.createElement(R.Fragment, null,
-      messages.map((msg, idx) => {
-        const isLast = idx === lastAssistantIdx;
-        if (msg.role === 'assistant') {
-          return C('div', { key: idx, className: 'chat-message-row' },
-            C('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-              msg._thinking ? renderAssistantMsg(msg, idx, false) : renderMarkdown(msg.content)
-            ),
-            renderRetryBtn(isLast, isLoading)
-          );
-        }
-        return C('div', { key: idx, className: 'chat-message-row' },
-          C('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-            renderMarkdown(msg.content)
-          )
-        );
-      }),
-      isLoading && C('div', { className: 'chat-message assistant' }, renderAssistantMsg(tw.streamContent, messages.length, true))
-    );
+    // Fallback: renderers not loaded
+    if (messages.length === 0) return C('div', { className: 'chat-empty' }, C('div', null, '加载中...'));
+    return C('div', null, messages.map((msg, idx) => C('div', { key: idx }, msg.content)));
   };
 
   return C('div', { className: 'chat-panel' },

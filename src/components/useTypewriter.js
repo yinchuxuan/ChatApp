@@ -52,9 +52,8 @@ function useTypewriter(R) {
   }, []);
 
   const pushContent = R.useCallback((delta, type) => {
-    let d = delta;
     if (type === 'reasoning') {
-      thinkingRef.current += d;
+      thinkingRef.current += delta;
       setThinkingContent(thinkingRef.current);
       return;
     }
@@ -63,17 +62,17 @@ function useTypewriter(R) {
     let foundClose = -1;
 
     if (!inThinkingRef.current && !thinkingDoneRef.current) {
-      foundOpen = d.indexOf('<thinking>');
+      foundOpen = delta.indexOf('<thinking>');
     }
     if (inThinkingRef.current) {
-      foundClose = d.indexOf('</thinking>');
+      foundClose = delta.indexOf('</thinking>');
     }
 
     if (foundOpen !== -1 && !inThinkingRef.current && !thinkingDoneRef.current) {
-      streamContentRef.current += d.slice(0, foundOpen);
-      setStreamContent(prev => prev + d.slice(0, foundOpen));
+      streamContentRef.current += delta.slice(0, foundOpen);
+      setStreamContent(prev => prev + delta.slice(0, foundOpen));
       inThinkingRef.current = true;
-      const after = d.slice(foundOpen + 10);
+      const after = delta.slice(foundOpen + 10);
       foundClose = after.indexOf('</thinking>');
       if (foundClose !== -1) {
         thinkingRef.current += after.slice(0, foundClose);
@@ -88,19 +87,19 @@ function useTypewriter(R) {
         setThinkingContent(thinkingRef.current);
       }
     } else if (foundClose !== -1 && inThinkingRef.current) {
-      thinkingRef.current += d.slice(0, foundClose);
+      thinkingRef.current += delta.slice(0, foundClose);
       inThinkingRef.current = false;
       thinkingDoneRef.current = true;
       setThinkingContent(thinkingRef.current);
       setThinkingDone(true);
-      streamContentRef.current += d.slice(foundClose + 11);
-      setStreamContent(prev => prev + d.slice(foundClose + 11));
+      streamContentRef.current += delta.slice(foundClose + 11);
+      setStreamContent(prev => prev + delta.slice(foundClose + 11));
     } else if (inThinkingRef.current) {
-      thinkingRef.current += d;
+      thinkingRef.current += delta;
       setThinkingContent(thinkingRef.current);
     } else {
-      streamContentRef.current += d;
-      setStreamContent(prev => prev + d);
+      streamContentRef.current += delta;
+      setStreamContent(prev => prev + delta);
     }
   }, []);
 
