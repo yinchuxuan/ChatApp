@@ -1,5 +1,5 @@
 import './ChatInputArea.jsx';
-import { highlightQuotes } from './components/highlightQuotes.js';
+// highlightQuotes exposes itself on window.highlightQuotes
 // ChatPanel Component
 function ChatPanel() {
   const R = window.React || React;
@@ -112,7 +112,7 @@ function ChatPanel() {
   const renderMarkdown = (text) => {
     const rawHtml = window.marked ? window.marked.parse(text) : text;
     const sanitizedHtml = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
-    const html = highlightQuotes(sanitizedHtml);
+    const html = window.highlightQuotes(sanitizedHtml);
     return C('div', { className: 'chat-message-bubble' },
       C('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
     );
@@ -124,7 +124,7 @@ function ChatPanel() {
     const rawContent = isStreaming ? msg.slice(0, tw.displayedCount) : msg.content;
     const rawHtml = window.marked ? window.marked.parse(rawContent) : rawContent;
     const sanitizedHtml = window.DOMPurify ? window.DOMPurify.sanitize(rawHtml) : rawHtml;
-    const html = highlightQuotes(sanitizedHtml);
+    const html = window.highlightQuotes(sanitizedHtml);
     const bubbleClass = thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
     const handleClick = thinking ? () => {
       if (isStreaming) { setShowStreamThinking(p => !p); }

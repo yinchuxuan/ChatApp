@@ -37,6 +37,7 @@ function wrapForBrowser(code) {
   const lines = code.split('\n');
   const result = [];
   let skipBlockDepth = -1;
+  let unwrapWindowBlockDepth = -1;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -49,6 +50,21 @@ function wrapForBrowser(code) {
       }
       if (skipBlockDepth < 0) skipBlockDepth = -1;
       continue;
+    }
+
+    // If we're inside a typeof window block, track depth and skip closing brace
+    if (unwrapWindowBlockDepth >= 0) {
+      let wasOpen = unwrapWindowBlockDepth >= 0;
+      for (const ch of line) {
+        if (ch === '{') unwrapWindowBlockDepth++;
+        if (ch === '}') unwrapWindowBlockDepth--;
+      }
+      if (unwrapWindowBlockDepth < 0 && wasOpen) {
+        // This line closed the window block - skip it
+        unwrapWindowBlockDepth = -1;
+        continue;
+      }
+      // Don't continue - process other lines normally
     }
 
     const trimmed = line.trimStart();
@@ -65,6 +81,34 @@ function wrapForBrowser(code) {
         continue;
       }
       // Single-line version: still skip
+      continue;
+    }
+
+    // Skip if-blocks for CommonJS/Node.js environment checks (typeof module)
+    if (/^if\s*\(typeof module/.test(trimmed) && /{/.test(line)) {
+      let depth = 0;
+      for (const ch of line) {
+        if (ch === '{') depth++;
+        if (ch === '}') depth--;
+      }
+      if (depth > 0) {
+        skipBlockDepth = depth - 1;
+        continue;
+      }
+      continue;
+    }
+
+    // Unwrap if (typeof window !== 'undefined') { ... } - keep contents, drop wrapper
+    if (/^if\s*\(typeof window/.test(trimmed) && /{/.test(line)) {
+      let depth = 0;
+      for (const ch of line) {
+        if (ch === '{') depth++;
+        if (ch === '}') depth--;
+      }
+      if (depth > 0) {
+        // Multi-line block: track depth but don't skip contents
+        unwrapWindowBlockDepth = depth - 1;
+      }
       continue;
     }
 
