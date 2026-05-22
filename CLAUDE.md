@@ -8,4 +8,11 @@ Node.js + Electron + React
 
 ## auto mode
 
-若用户在会话开始输入"start auto mode"，则阅读auto-mode.md文件，进入auto mode工作流
+```
+if user types "start auto mode ${dir}" at the beginning of a session:
+    if ${dir} is provided:
+        read auto_mode_harness/${dir}/auto-mode.md
+    else :  // dir is empty
+        read auto_mode_harness/auto-mode.md
+enter the auto mode workflow
+```

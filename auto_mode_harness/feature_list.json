@@ -1,0 +1,32 @@
+{
+  "project": "",
+  "last_updated": "",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "do_not_skip_verification": true
+  },
+  "status_legend": {
+    "not_started": "Feature has not been started yet.",
+    "working": "This feature is the only currently active task.",
+    "evaluating": "This feature is the only one currently being evaluated.",
+    "recovering": "This feature's implementation was interrupted and needs to be continued.",
+    "blocked": "This feature cannot proceed due to a documented blocking issue.",
+    "passing": "Required verification has passed and evidence has been recorded."
+  },
+  "features": [
+    {
+      "id": "dev1",
+      "priority": 1,
+      "task_type": "tp固件开发",
+      "title": "实现一个GEMM函数",
+      "agentId": "ad802384b7b7294eb",
+      "description": "在tile_processor目录下，使用x86指令实现一个GEMM函数",
+      "status": "passing",
+      "verification": [
+        "编译测试通过"
+      ],
+      "evidence": ["bash build.sh test: 100% tests passed, 0 tests failed out of 9 (including tp_gemm_ut). Native build and RISC-V cross build both succeeded."]
+    }
+  ]
+}
