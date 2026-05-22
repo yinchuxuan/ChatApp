@@ -11,7 +11,7 @@ describe('Chat Area Card Side Padding', () => {
     const cssContent = execSync(`cat "${cssPath}"`, { encoding: 'utf8' });
 
     // Verify the .chat-history rule has 10% horizontal padding
-    expect(cssContent).toMatch(/\.chat-history\s*\{[\s\S]*?padding:\s*20px\s+10%\s+80px/);
+    expect(cssContent).toMatch(/\.chat-history\s*\{[\s\S]*?padding:\s*20px\s+10%\s+20px/);
   });
 
   test('chat-message bubbles have full width for parent padding effect', () => {

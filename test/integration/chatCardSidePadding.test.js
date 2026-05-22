@@ -12,7 +12,7 @@ describe('Chat Card Side Padding - Integration', () => {
 
   test('chat-history container has 10% horizontal padding', () => {
     const cssContent = fs.readFileSync(chatPanelCssPath, 'utf8');
-    expect(cssContent).toMatch(/\.chat-history\s*\{[\s\S]*?padding:\s*20px\s+10%\s+80px/);
+    expect(cssContent).toMatch(/\.chat-history\s*\{[\s\S]*?padding:\s*20px\s+10%\s+20px/);
   });
 
   test('msg-history-card has full width to inherit container padding', () => {
