@@ -56,6 +56,23 @@ describe('ChatInputArea game card pre_send integration', () => {
     expect(body.messages).toEqual([{ role: 'user', content: 'hello' }]);
   });
 
+  test('keeps normal message append behavior when no game card is active', async () => {
+    const setMessages = jest.fn();
+    window.electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });
+    renderInputArea({ setMessages });
+
+    fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
+    fireEvent.click(screen.getByRole('button', { name: '发送消息' }));
+
+    await waitFor(() => expect(setMessages).toHaveBeenCalledTimes(2));
+    expect(setMessages.mock.calls[0][0]).toEqual([{ role: 'user', content: 'hello' }]);
+    expect(typeof setMessages.mock.calls[1][0]).toBe('function');
+    expect(setMessages.mock.calls[1][0]([{ role: 'user', content: 'hello' }])).toEqual([
+      { role: 'user', content: 'hello' },
+      { role: 'assistant', content: 'ok', _thinking: '', thinking: '' }
+    ]);
+  });
+
   test('sends pre_send transformed messages when a game card is active', async () => {
     window.electronAPI.getActiveGameCard.mockResolvedValue({
       success: true,
@@ -80,5 +97,30 @@ describe('ChatInputArea game card pre_send integration', () => {
       { role: 'system', content: 'rules' },
       { role: 'user', content: 'hello' }
     ]);
+  });
+
+  test('applies after_response rules before storing assistant message', async () => {
+    const setMessages = jest.fn();
+    window.electronAPI.getActiveGameCard.mockResolvedValue({
+      success: true,
+      card: {
+        id: 'active',
+        rules: [{
+          when: { phase: 'after_response' },
+          then: [{ type: 'replace', predicate: { index: 'last' }, content: 'cleaned' }]
+        }]
+      }
+    });
+    renderInputArea({ setMessages });
+
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
+      fireEvent.click(screen.getByRole('button', { name: '发送消息' }));
+    });
+
+    await waitFor(() => expect(setMessages).toHaveBeenLastCalledWith([
+      { role: 'user', content: 'hello' },
+      { role: 'assistant', content: 'cleaned', _thinking: '', thinking: '' }
+    ]));
   });
 });

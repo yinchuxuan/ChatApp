@@ -53,7 +53,19 @@ function ChatInputArea({
       const content = tw.getAccumulatedContent();
       const savedThinking = tw.getThinkingContent();
       if (content) {
-        setMessages(prev => [...prev, { role: 'assistant', content, _thinking: savedThinking, thinking: savedThinking }]);
+        const assistantMessage = { role: 'assistant', content, _thinking: savedThinking, thinking: savedThinking };
+        const prepareAfterResponse = window.prepareAfterResponseMessages || (async ({ messages }) => ({ messages, applied: false }));
+        const baseMessages = preSend.applied ? preSend.messages : newMessages;
+        const messagesWithAssistant = [...baseMessages, assistantMessage];
+        const afterResponse = await prepareAfterResponse({
+          messages: messagesWithAssistant,
+          card: preSend.card || null
+        });
+        if (afterResponse.applied) {
+          setMessages(afterResponse.messages);
+        } else {
+          setMessages(prev => [...prev, assistantMessage]);
+        }
         tw.clearStreaming();
       }
     } catch (err) {

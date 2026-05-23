@@ -2,6 +2,7 @@ const {
   extractActiveCard,
   loadActiveGameCard,
   preparePreSendMessages,
+  prepareAfterResponseMessages,
   toApiMessages
 } = require('../../src/gameCard/sendPipeline');
 
@@ -59,6 +60,36 @@ describe('game card send pipeline', () => {
       { role: 'system', content: 'system rules', _meta: { visibility: 'llm_only' } },
       { role: 'user', content: 'start' }
     ]);
+  });
+
+  test('returns the original messages object after response when no card is active', async () => {
+    const messages = [{ role: 'assistant', content: 'hello', ttl: 1 }];
+    const result = await prepareAfterResponseMessages({ messages, card: null });
+
+    expect(result.applied).toBe(false);
+    expect(result.messages).toBe(messages);
+    expect(result.messages).toEqual([{ role: 'assistant', content: 'hello', ttl: 1 }]);
+  });
+
+  test('applies after_response rules and decays ttl when a card is active', async () => {
+    const messages = [{ role: 'assistant', content: 'raw' }];
+    const result = await prepareAfterResponseMessages({
+      messages,
+      card: {
+        id: 'after-card',
+        rules: [{
+          when: { phase: 'after_response', last: { role: 'assistant' } },
+          then: [
+            { type: 'replace', predicate: { index: 'last' }, content: 'clean' },
+            { type: 'insert', predicate: { index: 'last' }, anchor: 'after', role: 'system', content: 'next', ttl: 1 }
+          ]
+        }]
+      }
+    });
+
+    expect(result.applied).toBe(true);
+    expect(result.messages).toEqual([{ role: 'assistant', content: 'clean' }]);
+    expect(result.ttlTrace.summary.messages.removed).toBe(1);
   });
 
   test('maps runtime messages to API messages without runtime-only fields', () => {
