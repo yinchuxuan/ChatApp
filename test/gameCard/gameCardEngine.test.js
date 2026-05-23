@@ -71,7 +71,7 @@ describe('game card runtime step 2', () => {
 
     expect(result.trace.phase).toBe('pre_send');
     expect(result.trace.rules).toEqual([
-      { ruleIndex: 0, ruleId: 'pre', matched: true, actions: [] }
+      expect.objectContaining({ ruleIndex: 0, ruleId: 'pre', matched: true, actions: [] })
     ]);
     expect(result.state).toEqual({});
   });
@@ -102,7 +102,7 @@ describe('game card runtime step 2', () => {
     const result = applyGameCard({ card, phase: 'after_response', messages: [] });
 
     expect(result.trace.rules).toEqual([
-      { ruleIndex: 1, ruleId: 'after', matched: true, actions: [] }
+      expect.objectContaining({ ruleIndex: 1, ruleId: 'after', matched: true, actions: [] })
     ]);
   });
 
@@ -149,7 +149,7 @@ describe('game card runtime step 2', () => {
 
     expect(result.messages).toEqual([]);
     expect(result.trace.rules[0].actions).toEqual([
-      { type: 'remove', applied: true, matched: 1 }
+      expect.objectContaining({ type: 'remove', applied: true, matched: 1 })
     ]);
   });
 

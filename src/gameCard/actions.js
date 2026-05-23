@@ -10,11 +10,26 @@ function findMatchingIndexes(messages, predicate) {
   }, []);
 }
 
-function buildTrace(action, matches, applied) {
+function summarizeMessages(before, after, type, matched) {
   return {
-    type: action?.type || 'unknown',
+    before: before.length,
+    after: after.length,
+    inserted: type === 'insert' && after.length > before.length ? 1 : 0,
+    removed: type === 'remove' ? before.length - after.length : 0,
+    replaced: type === 'replace' ? matched : 0
+  };
+}
+
+function buildTrace(action, matches, applied, before, after) {
+  const type = action?.type || 'unknown';
+  return {
+    type,
     applied,
-    matched: matches.length
+    matched: matches.length,
+    summary: {
+      messages: summarizeMessages(before, after, type, matches.length),
+      state: { changedKeys: [] }
+    }
   };
 }
 
@@ -29,7 +44,7 @@ function insertMessage(action) {
 
 function applyInsert(messages, action) {
   const matches = findMatchingIndexes(messages, action.predicate);
-  if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false) };
+  if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false, messages, messages) };
 
   const anchorIndex = matches[0] + (action.anchor === 'after' ? 1 : 0);
   const nextMessages = [
@@ -37,20 +52,20 @@ function applyInsert(messages, action) {
     insertMessage(action),
     ...messages.slice(anchorIndex)
   ];
-  return { messages: nextMessages, trace: buildTrace(action, matches, true) };
+  return { messages: nextMessages, trace: buildTrace(action, matches, true, messages, nextMessages) };
 }
 
 function applyRemove(messages, action) {
   const matches = findMatchingIndexes(messages, action.predicate);
-  if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false) };
+  if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false, messages, messages) };
 
   const nextMessages = messages.filter((_, index) => !matches.includes(index));
-  return { messages: nextMessages, trace: buildTrace(action, matches, true) };
+  return { messages: nextMessages, trace: buildTrace(action, matches, true, messages, nextMessages) };
 }
 
 function applyReplace(messages, action) {
   const matches = findMatchingIndexes(messages, action.predicate);
-  if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false) };
+  if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false, messages, messages) };
 
   const nextMessages = messages.map((message, index) => {
     if (!matches.includes(index)) return message;
@@ -61,7 +76,7 @@ function applyReplace(messages, action) {
       ...(action._meta ? { _meta: { ...message._meta, ...action._meta } } : {})
     };
   });
-  return { messages: nextMessages, trace: buildTrace(action, matches, true) };
+  return { messages: nextMessages, trace: buildTrace(action, matches, true, messages, nextMessages) };
 }
 
 function applyAction(messages, action) {
@@ -74,7 +89,11 @@ function applyAction(messages, action) {
     trace: {
       type: action?.type || 'unknown',
       applied: false,
-      reason: 'not_implemented'
+      reason: 'not_implemented',
+      summary: {
+        messages: summarizeMessages(messages, messages, 'unknown', 0),
+        state: { changedKeys: [] }
+      }
     }
   };
 }

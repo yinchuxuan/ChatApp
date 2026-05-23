@@ -165,9 +165,9 @@ describe('game card predicate actions runtime', () => {
     });
 
     expect(removed.messages).toBe(messages);
-    expect(removed.trace).toEqual({ type: 'remove', applied: false, matched: 0 });
+    expect(removed.trace).toMatchObject({ type: 'remove', applied: false, matched: 0 });
     expect(replaced.messages).toBe(messages);
-    expect(replaced.trace).toEqual({ type: 'replace', applied: false, matched: 0 });
+    expect(replaced.trace).toMatchObject({ type: 'replace', applied: false, matched: 0 });
   });
 
   test('runs matching rules and actions in stable order', () => {

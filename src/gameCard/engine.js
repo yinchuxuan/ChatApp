@@ -13,22 +13,57 @@ function cloneMessages(messages) {
   return Array.isArray(messages) ? messages.map(cloneMessage) : [];
 }
 
-function applyMatchingRule(messages, rule, index) {
+function cloneState(state) {
+  return state && typeof state === 'object' && !Array.isArray(state) ? { ...state } : {};
+}
+
+function summarizeActionMessages(actions, before, after) {
+  return {
+    before: before.length,
+    after: after.length,
+    inserted: sumActionCount(actions, 'inserted'),
+    removed: sumActionCount(actions, 'removed'),
+    replaced: sumActionCount(actions, 'replaced')
+  };
+}
+
+function sumActionCount(actions, key) {
+  return actions.reduce((total, action) => total + (action.summary?.messages?.[key] || 0), 0);
+}
+
+function summarizeState(before, after) {
+  const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+  return {
+    changedKeys: [...keys].filter((key) => before[key] !== after[key])
+  };
+}
+
+function applyMatchingRule(messages, state, rule, index) {
   const applied = applyActions(messages, rule.then || []);
   return {
     messages: applied.messages,
+    state,
     trace: {
       ruleIndex: index,
       ruleId: rule.id,
       matched: true,
-      actions: applied.trace
+      actions: applied.trace,
+      summary: {
+        messages: summarizeActionMessages(applied.trace, messages, applied.messages),
+        state: summarizeState(state, state)
+      }
     }
   };
 }
 
-function applyGameCard({ card, phase, messages = [] } = {}) {
+function formatRuleError(index, stage, error) {
+  return `rule[${index}] ${stage}: ${error.message}`;
+}
+
+function applyGameCard({ card, phase, messages = [], state = {} } = {}) {
   const validation = validateGameCard(card);
   const initialMessages = cloneMessages(messages);
+  const initialState = cloneState(state);
   const trace = {
     phase,
     rules: [],
@@ -36,25 +71,47 @@ function applyGameCard({ card, phase, messages = [] } = {}) {
   };
 
   if (!validation.valid) {
-    return { messages: initialMessages, state: {}, trace };
+    return { messages: initialMessages, state: initialState, trace };
   }
 
   const result = card.rules.reduce((current, rule, index) => {
-    if (!matchesWhen(rule.when, phase, current.messages)) return current;
+    try {
+      if (!matchesWhen(rule.when, phase, current.messages)) return current;
+    } catch (error) {
+      return {
+        ...current,
+        trace: {
+          ...current.trace,
+          errors: [...current.trace.errors, formatRuleError(index, 'when', error)]
+        }
+      };
+    }
 
-    const applied = applyMatchingRule(current.messages, rule, index);
+    let applied;
+    try {
+      applied = applyMatchingRule(current.messages, current.state, rule, index);
+    } catch (error) {
+      return {
+        ...current,
+        trace: {
+          ...current.trace,
+          errors: [...current.trace.errors, formatRuleError(index, 'then', error)]
+        }
+      };
+    }
     return {
       messages: applied.messages,
+      state: applied.state,
       trace: {
         ...current.trace,
         rules: [...current.trace.rules, applied.trace]
       }
     };
-  }, { messages: initialMessages, trace });
+  }, { messages: initialMessages, state: initialState, trace });
 
   return {
     messages: result.messages,
-    state: {},
+    state: result.state,
     trace: result.trace
   };
 }
