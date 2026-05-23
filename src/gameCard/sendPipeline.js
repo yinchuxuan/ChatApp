@@ -1,4 +1,5 @@
 const { applyGameCard } = require('./engine');
+const { adaptMessagesToProtocol } = require('./protocolAdapter');
 const { decayTTL } = require('./ttl');
 
 function extractActiveCard(result) {
@@ -54,9 +55,7 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
 }
 
 function toApiMessages(messages) {
-  return messages
-    .filter((msg) => msg?._meta?.visibility !== 'debug_only')
-    .map((msg) => ({ role: msg.role, content: msg.content }));
+  return adaptMessagesToProtocol(messages, 'openai').messages;
 }
 
 if (typeof window !== 'undefined') {
@@ -71,6 +70,7 @@ if (typeof module !== 'undefined' && module.exports) {
     loadActiveGameCard,
     preparePreSendMessages,
     prepareAfterResponseMessages,
-    toApiMessages
+    toApiMessages,
+    adaptMessagesToProtocol
   };
 }

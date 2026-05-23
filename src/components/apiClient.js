@@ -6,6 +6,7 @@ function normalizeUrl(url) {
 }
 
 function buildOpenAIRequest({ apiUrl, apiKey, modelName, messages }) {
+  const adapted = adaptMessagesForRequest(messages, 'openai');
   return {
     url: `${normalizeUrl(apiUrl)}/v1/chat/completions`,
     options: {
@@ -16,7 +17,7 @@ function buildOpenAIRequest({ apiUrl, apiKey, modelName, messages }) {
       },
       body: JSON.stringify({
         model: modelName || 'gpt-3.5-turbo',
-        messages,
+        messages: adapted.messages,
         stream: true
       })
     }
@@ -24,6 +25,15 @@ function buildOpenAIRequest({ apiUrl, apiKey, modelName, messages }) {
 }
 
 function buildAnthropicRequest({ apiUrl, apiKey, modelName, messages }) {
+  const adapted = adaptMessagesForRequest(messages, 'anthropic');
+  const body = {
+    model: modelName || 'claude-sonnet-4-20250514',
+    max_tokens: 4096,
+    messages: adapted.messages,
+    stream: true
+  };
+  if (adapted.system) body.system = adapted.system;
+
   return {
     url: `${normalizeUrl(apiUrl)}/v1/messages`,
     options: {
@@ -33,14 +43,21 @@ function buildAnthropicRequest({ apiUrl, apiKey, modelName, messages }) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify({
-        model: modelName || 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        messages,
-        stream: true
-      })
+      body: JSON.stringify(body)
     }
   };
+}
+
+function adaptMessagesForRequest(messages, protocol) {
+  if (typeof window !== 'undefined' && window.adaptMessagesToProtocol) {
+    return window.adaptMessagesToProtocol(messages, protocol);
+  }
+  if (typeof require !== 'undefined') {
+    try {
+      return require('../gameCard/protocolAdapter').adaptMessagesToProtocol(messages, protocol);
+    } catch (_) { /* use fallback */ }
+  }
+  return { messages: Array.isArray(messages) ? messages : [] };
 }
 
 function buildRequest(config) {
