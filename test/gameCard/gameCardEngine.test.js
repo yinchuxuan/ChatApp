@@ -136,7 +136,7 @@ describe('game card runtime step 2', () => {
     expect(result.trace.rules.map((rule) => rule.ruleId)).toEqual(['one']);
   });
 
-  test('keeps step 2 actions as no-op trace entries', () => {
+  test('applies supported actions during matched rules', () => {
     const card = cardWithRules([
       {
         when: { phase: 'pre_send' },
@@ -147,9 +147,9 @@ describe('game card runtime step 2', () => {
 
     const result = applyGameCard({ card, phase: 'pre_send', messages });
 
-    expect(result.messages).toEqual(messages);
+    expect(result.messages).toEqual([]);
     expect(result.trace.rules[0].actions).toEqual([
-      { type: 'remove', applied: false, reason: 'not_implemented' }
+      { type: 'remove', applied: true, matched: 1 }
     ]);
   });
 

@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 你正在一个AI Roleplay Game平台仓库中工作
 
