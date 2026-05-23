@@ -50,6 +50,7 @@ global.window.electronAPI = {
   readBackgroundImage: jest.fn(),
   getChatHistory: jest.fn().mockResolvedValue({ success: true, messages: [] }),
   saveChatHistory: jest.fn().mockResolvedValue({ success: true }),
+  getActiveGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
   onBackgroundConfigChanged: jest.fn()
 };
 
@@ -68,6 +69,8 @@ global.window.useRetry = useRetry;
 
 const highlightQuotes = require('../src/components/highlightQuotes.js');
 global.window.highlightQuotes = highlightQuotes.highlightQuotes;
+
+require('../src/gameCard/sendPipeline.js');
 
 // Import apiClient for chat requests
 const apiClient = require('../src/components/apiClient.js');

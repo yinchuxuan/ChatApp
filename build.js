@@ -38,9 +38,18 @@ function wrapForBrowser(code) {
   const result = [];
   let skipBlockDepth = -1;
   let unwrapWindowBlockDepth = -1;
+  let skipRequireDestructure = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const trimmed = line.trimStart();
+
+    if (skipRequireDestructure) {
+      if (/^}\s*=\s*require\(['"][^'"]+['"]\);?\s*$/.test(trimmed)) {
+        skipRequireDestructure = false;
+      }
+      continue;
+    }
 
     // If we're inside a skip-block, track depth until it closes
     if (skipBlockDepth >= 0) {
@@ -66,8 +75,6 @@ function wrapForBrowser(code) {
       }
       // Don't continue - process other lines normally
     }
-
-    const trimmed = line.trimStart();
 
     // Start skip-block for multi-line Object.defineProperty(exports, "__esModule", ...)
     if (/^Object\.defineProperty\(exports,?\s*"?__esModule"?/.test(trimmed) && /{/.test(line)) {
@@ -126,6 +133,11 @@ function wrapForBrowser(code) {
     }
 
     // Skip require() assignments
+    if (/^(var|let|const)\s+\{\s*$/.test(trimmed) &&
+        lines.slice(i + 1, i + 8).some(next => /^}\s*=\s*require\(['"][^'"]+['"]\);?\s*$/.test(next.trimStart()))) {
+      skipRequireDestructure = true;
+      continue;
+    }
     if (/^var\s+\w+\s*=\s*require\(['"][^'"]+['"]\);?\s*$/.test(trimmed)) continue;
     if (/^require\(['"][^'"]+['"]\);?\s*$/.test(trimmed)) continue;
 

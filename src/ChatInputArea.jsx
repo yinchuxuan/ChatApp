@@ -33,13 +33,16 @@ function ChatInputArea({
     if (textarea) textarea.blur();
     tw.startStreaming(); setShowStreamThinking(true);
     try {
+      const preparePreSend = window.preparePreSendMessages || (async ({ messages }) => ({ messages }));
+      const toApiMessages = window.toGameCardApiMessages || ((msgs) => msgs.map(msg => ({ role: msg.role, content: msg.content })));
+      const preSend = await preparePreSend({ messages: newMessages });
       await window.sendChatRequest(
         {
           apiUrl: modelConfig.apiUrl,
           apiKey: modelConfig.apiKey,
           modelName: modelConfig.modelName,
           protocol: modelConfig.protocol || 'openai',
-          messages: newMessages.map(msg => ({ role: msg.role, content: msg.content }))
+          messages: toApiMessages(preSend.messages)
         },
         {
           onToken: (text) => tw.pushContent(text),
