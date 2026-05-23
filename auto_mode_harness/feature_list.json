@@ -20,9 +20,9 @@
       "priority": 3,
       "task_type": "UI优化",
       "title": "消息流阅读列宽优化",
-      "agentId": "",
+      "agentId": "worker-ui3-1",
       "description": "限制消息流正文的最大阅读宽度，将当前依赖百分比 padding 且随窗口变宽持续拉长的消息行，调整为固定最大阅读列加响应式边距的布局。阅读列默认使用 width: 100% + max-width: 720px 并居中；窄窗口下占满可用宽度，宽屏下不超过 720px。优先通过 CSS 约束 chat-message-row、普通消息、历史折叠 wrapper 等内部内容宽度，不改变 chat-history 作为全屏滚动容器的职责，也不改变消息数据结构和渲染逻辑。",
-      "status": "not_started",
+      "status": "passing",
       "verification": [
         "宽屏下消息正文不再随窗口无限拉长，阅读列最大宽度固定为 720px",
         "普通消息流和折叠历史视图使用一致的居中阅读轴，最大宽度均为 720px",
