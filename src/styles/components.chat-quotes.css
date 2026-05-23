@@ -22,10 +22,13 @@
 
 [data-theme="dark"] .chat-message.assistant .chat-bubble-content .quoted-text {
   background: transparent;
-  color: var(--md-on-surface);
+  color: #BFDBFE;
   border-radius: 0;
   padding: 0;
-  text-decoration-color: color-mix(in srgb, currentColor 42%, transparent);
+  font-weight: 600;
+  text-decoration-thickness: 0.08em;
+  text-decoration-color: color-mix(in srgb, var(--md-primary-light) 78%, transparent);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--md-primary) 24%, transparent);
 }
 
 [data-theme="dark"] .chat-message.user .chat-bubble-content .quoted-text {
@@ -33,5 +36,7 @@
   color: inherit;
   border-radius: 0;
   padding: 0;
-  text-decoration-color: color-mix(in srgb, currentColor 34%, transparent);
+  font-weight: 600;
+  text-decoration-thickness: 0.08em;
+  text-decoration-color: color-mix(in srgb, currentColor 54%, transparent);
 }
