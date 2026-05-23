@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-你正在一个AI聊天应用仓库中工作
+你正在一个AI Roleplay Game平台仓库中工作
 
 ## 技术栈
 

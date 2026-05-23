@@ -1,18 +1,17 @@
 # CLAUDE.md
 
-你正在一个AI聊天应用仓库中工作
+你正在一个AI Roleplay Game平台仓库中工作
 
 ## 技术栈
 
 Node.js + Electron + React
 
-## auto mode
+## Rules
 
-```
-if user types "start auto mode ${dir}" at the beginning of a session:
-    if ${dir} is provided:
-        read auto_mode_harness/${dir}/auto-mode.md
-    else :  // dir is empty
-        read auto_mode_harness/auto-mode.md
-enter the auto mode workflow
-```
+- Focus on your assigned task only; do no extra work and do not touch other features
+- Solve problems with the minimum amount of code; avoid speculative design
+- Do not delete or weaken tests to make things “look complete”
+- If you add new features, add corresponding tests
+- All files in the repository must not exceed 200 lines; split files if they do
+
+*Read docs/docs_roadmap.md for more context. Search and Read all the docs you need for the task first. Unless you need extra information, do not read the files directly.*

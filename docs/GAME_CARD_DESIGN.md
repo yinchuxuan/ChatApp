@@ -178,16 +178,41 @@ messages (含 system) → adaptToProtocol → API 请求体
 
 ### exec — 执行 JS 脚本
 
-兜底操作，自由操作 messages 数组。
+兜底操作，用于声明式操作无法覆盖的游戏逻辑。`exec` 不是通用插件能力，而是在受限上下文中执行的纯变换函数。
 
 ```json
 {
   "type": "exec",
-  "source": "(function(messages, config) {\n  return messages;\n})"
+  "source": "const damage = utils.roll('1d6'); state.player.hp = utils.clamp(state.player.hp - damage, 0, 100); return { messages, state };"
 }
 ```
 
-运行上下文暴露：`messages`（消息数组）、`config`（游戏卡配置字段）。
+脚本内容按函数体处理，由运行时包装为：
+
+```js
+function run(ctx) {
+  const { messages, state, config, event, utils } = ctx;
+  // source
+}
+```
+
+运行上下文：
+
+| 字段 | 说明 |
+|---|---|
+| `messages` | 当前消息数组 |
+| `state` | 当前游戏状态 |
+| `config` | 游戏卡配置字段，只读 |
+| `event` | 当前触发事件，如 `phase`、轮次、当前用户/助手消息 |
+| `utils` | 平台提供的安全工具，如 `randomInt`、`roll`、`clamp`、`uuid` |
+
+返回值固定为 `{ messages?, state?, effects? }`，运行时校验后再应用。`effects` 用于表达 UI 或系统侧效果，不允许脚本直接操作 UI。
+
+安全约束：
+
+- 不提供 `require` / `import` / `process` / `window` / `document` / `fetch` / `ipcRenderer` / Node.js / Electron API
+- 不允许直接读写文件、访问网络或操作持久化存储
+- 执行应有超时、错误捕获、返回值校验和 debug trace
 
 ## Predicate（搜索条件）
 
