@@ -40,7 +40,7 @@
 }
 
 .app-container.has-background-image .chat-message.assistant .chat-message-bubble {
-  background: rgba(250, 251, 252, 0.6);
+  background: transparent;
   color: var(--md-on-surface-variant);
 }
 
@@ -49,16 +49,16 @@
 }
 
 [data-theme="dark"] .app-container.has-background-image .chat-message.assistant .chat-message-bubble {
-  background: rgba(18, 26, 46, 0.6);
+  background: transparent;
 }
 
-/* msg history card - match assistant bubble transparency with background image */
+/* msg history card - transparent background with veil providing readability */
 .app-container.has-background-image .msg-history-card {
-  background: rgba(250, 251, 252, 0.6);
+  background: transparent;
 }
 
 [data-theme="dark"] .app-container.has-background-image .msg-history-card {
-  background: rgba(18, 26, 46, 0.6);
+  background: transparent;
 }
 
 .app-container.has-background-image .chat-message.error .chat-message-bubble {

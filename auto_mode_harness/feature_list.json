@@ -39,9 +39,9 @@
       "priority": 4,
       "task_type": "UI优化",
       "title": "assistant 消息去卡片化",
-      "agentId": "",
+      "agentId": "worker-ui4-1",
       "description": "将 assistant 消息从聊天气泡/卡片视觉改为更接近电子小说正文的透明剧情文本块。assistant 内容不再使用明显背景色、阴影或 hover 位移，以连续阅读体验为主；同时必须引入阅读列 veil 作为连续的可读性遮罩：在背景图之上、消息内容之下，为 720px 阅读列区域提供轻量半透明渐变或遮罩，而不是给每条 assistant 消息加独立卡片背景。保留 Markdown、thinking 展开/收起、error 独立样式和 retry 操作。user 消息仍可作为玩家行动块与 assistant 正文形成清晰层级。",
-      "status": "not_started",
+      "status": "passing",
       "verification": [
         "assistant 普通消息不再呈现明显卡片背景、阴影或聊天气泡边界",
         "assistant 正文在阅读列内保持连续小说段落感，段落间距和行高适合长文本阅读",

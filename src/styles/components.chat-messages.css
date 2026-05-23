@@ -13,6 +13,7 @@
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box;
+  z-index: 1;
 }
 
 .chat-message-row .chat-message {
@@ -60,14 +61,16 @@
 }
 
 .chat-message.assistant .chat-message-bubble {
-  background: var(--md-surface-container-low);
+  background: transparent;
   color: var(--md-on-surface-variant);
-  box-shadow: var(--md-elevation-level-0);
+  box-shadow: none;
   border-radius: 0;
+  padding: 8px 0;
 }
 
 .chat-message.assistant .chat-message-bubble:hover {
-  box-shadow: var(--md-elevation-level-1);
+  box-shadow: none;
+  transform: none;
 }
 
 .chat-message.error .chat-message-bubble {
@@ -164,6 +167,12 @@
 
 .chat-bubble-content p {
   margin: 0 0 0.75em 0;
+}
+
+/* Assistant messages: slightly tighter paragraph spacing for novel-like reading */
+.chat-message.assistant .chat-bubble-content p {
+  margin: 0 0 1em 0;
+  line-height: 1.8;
 }
 
 .chat-bubble-content p:last-child {

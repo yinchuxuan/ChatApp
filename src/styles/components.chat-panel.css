@@ -131,6 +131,53 @@
   gap: 16px;
   scrollbar-width: none;
   background: var(--md-surface-container-low, var(--md-surface));
+  position: relative;
+}
+
+/* ============================================
+   Reading Column Veil (ui4: de-cardification)
+   Semi-transparent overlay at 720px reading column
+   Positioned between background image and message content
+   pointer-events: none ensures it doesn't block interactions
+   ============================================ */
+.chat-history::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 720px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Veil active only when background image is present */
+.app-container.has-background-image .chat-history::before {
+  opacity: 1;
+}
+
+/* Light theme veil - warm white semi-transparent */
+.app-container.has-background-image .chat-history::before {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 251, 254, 0.75) 0%,
+    rgba(255, 251, 254, 0.65) 50%,
+    rgba(255, 251, 254, 0.75) 100%
+  );
+}
+
+/* Dark theme veil - cool dark semi-transparent */
+[data-theme="dark"] .app-container.has-background-image .chat-history::before {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.80) 0%,
+    rgba(15, 23, 42, 0.70) 50%,
+    rgba(15, 23, 42, 0.80) 100%
+  );
 }
 .chat-history::-webkit-scrollbar {
   display: none;
