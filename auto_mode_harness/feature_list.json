@@ -16,19 +16,22 @@
   },
   "features": [
     {
-      "id": "app1",
+      "id": "ui1",
       "priority": 1,
-      "task_type": "代码重构",
-      "title": "按照代码规范重构仓库代码",
-      "agentId": "af41d5488a573a15e",
-      "description": "按照代码规范重构仓库代码, 不改变应用的任何功能",
-      "status": "passing",
+      "task_type": "UI改造",
+      "title": "消息流 transcript 样式改造",
+      "agentId": "",
+      "description": "将当前聊天气泡式消息流改造为更接近电子小说和 GalGame 的同轴 transcript 阅读样式。不改变消息数据结构和发送逻辑，先根据现有 role 映射视觉：user 显示为“你”的玩家行动块，assistant 显示为剧情/旁白文本块，error 显示为系统错误条。保留沉浸式体验、顶部/底部 hover 交互、历史折叠、thinking 折叠和 retry hover 操作。",
+      "status": "not_started",
       "verification": [
-        "重构后代码符合代码规范",
-        "单元测试、功能测试、e2e测试通过",
+        "消息流不再呈现左右聊天气泡或整宽文档卡片，而是统一阅读轴的 transcript 样式",
+        "user 消息有清晰但低干扰的玩家行动标识",
+        "assistant 消息有适合长文本阅读的剧情/旁白排版",
+        "error、thinking、retry、历史折叠等现有交互保持可用",
+        "单元测试、集成测试、e2e 测试通过",
         "eslint 0 warnings, 0 errors"
       ],
-      "evidence": ["bash build.sh test: 100% tests passed (239 unit/integration tests passed, 32 integration tests passed, 61 e2e tests passed). eslint 0 errors, 0 warnings. Fix: replaced .hover() call on .chat-input-hover-trigger (line 150) with evaluate() + dispatchEvent('mouseover' + 'mouseenter') pattern to avoid pointer interception by .chat-input-area. React's synthetic onMouseEnter handler is driven by mouseover/mouseout events, so dispatching both mouseover and mouseenter events ensures reliable hover trigger."]
+      "evidence": []
     }
   ]
 }

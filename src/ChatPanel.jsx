@@ -136,8 +136,8 @@ function ChatPanel() {
   };
 
   return C('div', { className: 'chat-panel' },
-    C('div', { className: 'chat-header-hover-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
     C('div', { className: 'chat-main' },
+      C('div', { className: 'chat-header-hover-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
         C('span', { className: 'material-icons' }, showMsgHistory ? 'history' : 'chat'),
         C('span', { className: 'header-title' }, showMsgHistory ? 'msg历史记录' : '聊天'),
