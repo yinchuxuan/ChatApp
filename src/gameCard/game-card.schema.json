@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://chatapp.local/schemas/game-card.schema.json",
+  "title": "Game Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "name", "rules"],
+  "properties": {
+    "version": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "author": { "type": "string" },
+    "state": { "type": "object" },
+    "rules": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/rule" }
+    }
+  },
+  "definitions": {
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["when", "then"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "when": { "$ref": "#/definitions/when" },
+        "then": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/action" } }
+      }
+    },
+    "when": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phase"],
+      "properties": {
+        "phase": { "enum": ["pre_send", "after_response"] },
+        "length": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/definitions/comparison" }] },
+        "last": { "$ref": "#/definitions/predicate" },
+        "any": { "$ref": "#/definitions/predicate" },
+        "all": { "$ref": "#/definitions/predicate" }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "gt": { "type": "integer", "minimum": 0 },
+        "gte": { "type": "integer", "minimum": 0 },
+        "lt": { "type": "integer", "minimum": 0 },
+        "lte": { "type": "integer", "minimum": 0 },
+        "eq": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "action": {
+      "oneOf": [
+        { "$ref": "#/definitions/insertAction" },
+        { "$ref": "#/definitions/removeAction" },
+        { "$ref": "#/definitions/replaceAction" },
+        { "$ref": "#/definitions/execAction" }
+      ]
+    },
+    "insertAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "predicate", "role", "content"],
+      "properties": {
+        "type": { "const": "insert" },
+        "predicate": { "$ref": "#/definitions/predicate" },
+        "anchor": { "enum": ["before", "after"] },
+        "role": { "$ref": "#/definitions/messageRole" },
+        "content": { "$ref": "#/definitions/content" },
+        "ttl": { "$ref": "#/definitions/ttl" },
+        "_meta": { "$ref": "#/definitions/messageMeta" }
+      }
+    },
+    "removeAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "predicate"],
+      "properties": {
+        "type": { "const": "remove" },
+        "predicate": { "$ref": "#/definitions/predicate" }
+      }
+    },
+    "replaceAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "predicate"],
+      "anyOf": [{ "required": ["content"] }, { "required": ["ttl"] }],
+      "properties": {
+        "type": { "const": "replace" },
+        "predicate": { "$ref": "#/definitions/predicate" },
+        "content": { "$ref": "#/definitions/content" },
+        "ttl": { "$ref": "#/definitions/ttl" },
+        "_meta": { "$ref": "#/definitions/messageMeta" }
+      }
+    },
+    "execAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "source"],
+      "properties": {
+        "type": { "const": "exec" },
+        "source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "role": { "anyOf": [{ "$ref": "#/definitions/messageRole" }, { "$ref": "#/definitions/stringSetMatcher" }] },
+        "content": { "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/stringMatcher" }] },
+        "thinking": { "$ref": "#/definitions/stringMatcher" },
+        "_meta.source": { "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/stringMatcher" }] },
+        "index": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "const": "last" }] },
+        "all": { "const": true },
+        "exec": { "type": "string", "minLength": 1 },
+        "or": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/predicate" }
+        },
+        "not": { "$ref": "#/definitions/predicate" }
+      }
+    },
+    "stringMatcher": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "contains": { "type": "string" },
+        "regex": { "type": "string", "minLength": 1 },
+        "in": { "$ref": "#/definitions/stringList" },
+        "nin": { "$ref": "#/definitions/stringList" }
+      }
+    },
+    "stringSetMatcher": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "in": { "$ref": "#/definitions/stringList" },
+        "nin": { "$ref": "#/definitions/stringList" }
+      }
+    },
+    "stringList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "content": { "type": "string" },
+    "messageRole": { "enum": ["user", "assistant", "system"] },
+    "ttl": { "type": "integer", "minimum": -1 },
+    "messageMeta": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source": { "type": "string" },
+        "visibility": { "enum": ["llm_only", "user_visible", "debug_only"] }
+      }
+    },
+    "message": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "content"],
+      "properties": {
+        "role": { "$ref": "#/definitions/messageRole" },
+        "content": { "type": "string" },
+        "thinking": { "type": "string" },
+        "_meta": { "$ref": "#/definitions/messageMeta" },
+        "ttl": { "$ref": "#/definitions/ttl" }
+      }
+    }
+  }
+}
