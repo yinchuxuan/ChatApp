@@ -1,4 +1,4 @@
-// useRetry - Custom hook for retrying the last assistant response
+// useRetry - Custom hook for regenerating from the last user message
 
 function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw) {
   const handleRetry = R.useCallback(() => {

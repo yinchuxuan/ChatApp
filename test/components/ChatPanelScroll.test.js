@@ -41,7 +41,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
     expect(chatHistory.classList.contains('chat-history')).toBe(true);
   });
 
-  test('should auto-scroll chat-history to bottom when new messages are added', async () => {
+  test('should pin collapsed view to top when new user message is added', async () => {
     // Mock scrollTop setter
     const originalScrollTop = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollTop');
     Object.defineProperty(HTMLElement.prototype, 'scrollTop', {
@@ -71,14 +71,16 @@ describe('ChatPanel Component - Auto-scroll', () => {
     const form = document.querySelector('.chat-input-area');
     _fireEvent.submit(form);
 
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait for the message to be rendered
+    await _waitFor(() => {
+      expect(document.querySelector('.collapsed-message-view')).toBeTruthy();
     });
 
     const chatHistory = document.querySelector('.chat-history');
     expect(chatHistory).toBeTruthy();
-    // Verify scrollTop was set to scrollHeight (auto-scrolled to bottom)
-    expect(chatHistory._scrollTop).toBe(500);
+
+    // When a collapsed view is present, the scroll effect pins to top (scrollTop = 0)
+    expect(chatHistory._scrollTop).toBe(0);
 
     // Clean up
     Object.defineProperty(HTMLElement.prototype, 'scrollTop', originalScrollTop || {});

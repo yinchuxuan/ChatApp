@@ -74,7 +74,6 @@ const MessageCollapseRenderer = {
     }
 
     const lastUserIdx = this.findLastUserIndex(messages);
-    const lastAssistantIdx = this.findLastAssistantIndex(messages);
     const collapsedCount = lastUserIdx >= 0 ? lastUserIdx : 0;
     const isCollapsed = !isHistoryExpanded && messages.length > 1 && lastUserIdx >= 0;
 
@@ -98,14 +97,12 @@ const MessageCollapseRenderer = {
     } else if (lastUserIdx >= 0) {
       for (let i = 0; i < lastUserIdx; i++) {
         const msg = messages[i];
-        const isLast = i === lastAssistantIdx;
         if (msg.role === 'assistant') {
           elements.push(
             R.createElement('div', { key: 'hist-' + i, className: 'chat-message-row' },
               R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
                 msg._thinking ? renderAssistantMsg(msg, i, false) : renderMarkdown(msg.content)
-              ),
-              renderRetryBtn(isLast, isLoading)
+              )
             )
           );
         } else {
@@ -129,22 +126,22 @@ const MessageCollapseRenderer = {
     const startIdx = lastUserIdx >= 0 ? lastUserIdx : 0;
     for (let i = startIdx; i < messages.length; i++) {
       const msg = messages[i];
-      const isLast = i === lastAssistantIdx;
+      const isRetrySource = i === lastUserIdx;
       if (msg.role === 'assistant') {
         elements.push(
           R.createElement('div', { key: 'pinned-' + i, className: 'chat-message-row' },
             R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-              msg._thinking ? renderAssistantMsg(msg, i, false, isLast) : renderMarkdown(msg.content)
-            ),
-            renderRetryBtn(isLast, isLoading)
+              msg._thinking ? renderAssistantMsg(msg, i, false, false) : renderMarkdown(msg.content)
+            )
           )
         );
       } else {
         elements.push(
-          R.createElement('div', { key: 'pinned-' + i, className: 'chat-message-row' },
+          R.createElement('div', { key: 'pinned-' + i, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}` },
             R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
               renderMarkdown(msg.content)
-            )
+            ),
+            renderRetryBtn(isRetrySource, isLoading)
           )
         );
       }
@@ -152,7 +149,7 @@ const MessageCollapseRenderer = {
 
     if (isLoading) {
       elements.push(
-        R.createElement('div', { key: 'streaming', className: 'chat-message-row' },
+        R.createElement('div', { key: 'streaming', className: 'chat-message-row streaming-message-row' },
           R.createElement('div', { className: 'chat-message assistant', style: { flex: 1, minWidth: 0 } },
             renderAssistantMsg(tw.streamContent, messages.length, true)
           )

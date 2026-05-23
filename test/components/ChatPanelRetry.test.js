@@ -1,5 +1,5 @@
 /**
- * Tests for Retry Button on Last Assistant Message (app-001)
+ * Tests for Retry Button on Last User Message (app-001)
  */
 
 import React from 'react';
@@ -31,17 +31,17 @@ describe('Retry Button - Visibility', () => {
     expect(screen.queryByRole('button', { name: '重新生成回复' })).not.toBeInTheDocument();
   });
 
-  test('should NOT show retry button for user messages', async () => {
+  test('should show retry button for the last user message', async () => {
     electronAPI.getChatHistory.mockResolvedValue({
       success: true,
       messages: [{ role: 'user', content: 'Hello' }]
     });
     render(React.createElement(ChatPanel));
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
-    expect(screen.queryByRole('button', { name: '重新生成回复' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '重新生成回复' })).toBeInTheDocument();
   });
 
-  test('should show retry button on last assistant message only', async () => {
+  test('should show retry button on last user message only', async () => {
     const savedMessages = [
       { role: 'user', content: 'Question 1' },
       { role: 'assistant', content: 'Answer 1', _thinking: 'thinking 1' },
@@ -56,12 +56,13 @@ describe('Retry Button - Visibility', () => {
     const retryBtns = screen.queryAllByRole('button', { name: '重新生成回复' });
     expect(retryBtns.length).toBe(1);
 
-    // Should be inside a chat-message-row wrapper
     const btn = retryBtns[0];
-    expect(btn.closest('.chat-message-row')).toBeTruthy();
+    const row = btn.closest('.chat-message-row');
+    expect(row).toBeTruthy();
+    expect(row.querySelector('.chat-message.user')).toBeTruthy();
   });
 
-  test('should show retry button on last assistant message without _thinking', async () => {
+  test('should show retry button when the latest assistant message has no _thinking', async () => {
     const savedMessages = [
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi' }
@@ -71,12 +72,12 @@ describe('Retry Button - Visibility', () => {
     render(React.createElement(ChatPanel));
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
 
-    // Retry button should show even without _thinking
     const retryBtns = screen.queryAllByRole('button', { name: '重新生成回复' });
     expect(retryBtns.length).toBe(1);
+    expect(retryBtns[0].closest('.chat-message-row').querySelector('.chat-message.user')).toBeTruthy();
   });
 
-  test('should show retry button when assistant message has _thinking', async () => {
+  test('should show retry button when the latest assistant message has _thinking', async () => {
     const savedMessages = [
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi there', _thinking: 'How to respond' }

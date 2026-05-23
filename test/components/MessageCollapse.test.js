@@ -101,6 +101,10 @@ describe('MessageCollapseRenderer', () => {
 
     const container = _render(result);
     expect(container.container.querySelector('.streaming')).toBeInTheDocument();
+    expect(container.container.querySelector('.streaming-message-row')).toBeInTheDocument();
+    const rows = Array.from(container.container.querySelectorAll('.chat-message-row'));
+    expect(rows[0].textContent).toContain('test');
+    expect(rows[1].querySelector('.streaming')).toBeInTheDocument();
   });
 
   test('render returns null for empty messages and not loading', () => {

@@ -3,6 +3,15 @@
    ============================================ */
 
 /* Message Row - wrapper for message + side actions */
+.chat-messages-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
 .chat-message-row {
   display: flex;
   align-items: flex-start;
@@ -53,6 +62,7 @@
   color: var(--md-on-primary-container);
   box-shadow: var(--md-elevation-level-2);
   border-radius: 0;
+  padding: 18px 28px;
 }
 
 .chat-message.user .chat-message-bubble:hover {
@@ -277,57 +287,99 @@
   to { opacity: 1; max-height: 1000px; }
 }
 
-/* Retry Button - positioned on the right side of message, hidden until hover */
+/* Retry Button - transparent edge action on the retry source */
 .chat-message-row .retry-btn {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  width: 32px !important;
-  height: 32px !important;
-  min-height: 32px !important;
+  width: 44px !important;
+  height: auto !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
   padding: 0 !important;
-  margin-top: 12px;
   position: absolute;
-  bottom: 8px;
-  right: -44px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  transform: scaleX(1);
+  transform-origin: right center;
   flex-shrink: 0;
-  border: 1px solid transparent;
-  border-radius: var(--md-shape-corner-small);
+  border: none;
+  border-radius: 0;
   background: transparent;
-  color: var(--md-on-surface-variant);
+  color: var(--md-on-primary-container);
   cursor: pointer;
-  overflow: visible !important;
+  overflow: hidden !important;
   opacity: 0;
   pointer-events: none;
   box-shadow: none;
   transition:
+    transform var(--md-motion-duration-medium2) var(--md-motion-easing-emphasized),
     opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard),
-    background-color var(--md-motion-duration-short3) var(--md-motion-easing-standard),
-    border-color var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+    background var(--md-motion-duration-short2) var(--md-motion-easing-standard),
+    color var(--md-motion-duration-short2) var(--md-motion-easing-standard),
+    box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
   z-index: 2;
 }
 
-@media (max-width: 860px) {
-  .chat-message-row .retry-btn {
-    right: 8px;
-    background: color-mix(in srgb, var(--md-surface-container-high) 52%, transparent);
-  }
+.chat-message-row .retry-btn::before {
+  display: none;
 }
 
-.chat-message-row:has(.chat-message:hover) .retry-btn,
-.chat-message-row:has(.retry-btn:hover) .retry-btn {
-  opacity: 0.72 !important;
+.retry-source-row .chat-message.user .chat-message-bubble {
+  padding-left: 32px;
+  padding-right: 72px;
+}
+
+.retry-source-row:has(.chat-message.user:hover) .retry-btn {
+  opacity: 0.78;
+  pointer-events: auto;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.12) 42%,
+      rgba(255, 255, 255, 0.22) 100%
+    );
+  box-shadow: inset 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.retry-source-row:has(.retry-btn:hover) .retry-btn {
+  opacity: 1;
   pointer-events: auto;
 }
 
 .chat-message-row .retry-btn:hover {
   opacity: 1 !important;
-  color: var(--md-on-surface);
-  background: color-mix(in srgb, var(--md-surface-container-highest) 86%, transparent);
-  border-color: color-mix(in srgb, var(--md-primary) 36%, var(--md-outline-variant));
-  box-shadow: var(--md-elevation-level-1);
+  color: var(--md-on-primary);
+  background: var(--md-primary);
+  box-shadow:
+    var(--md-elevation-level-1),
+    inset 1px 0 rgba(255, 255, 255, 0.24);
+  transform: scaleX(1.06);
 }
 
 .retry-btn .material-icons {
-  font-size: 16px;
+  font-size: 18px;
+  transition: transform var(--md-motion-duration-medium2) var(--md-motion-easing-emphasized);
+}
+
+.retry-btn:hover .material-icons {
+  transform: rotate(-18deg) scale(1.06);
+}
+
+@media (max-width: 960px) {
+  .chat-message-row:has(.retry-btn) .chat-message {
+    padding-right: 0;
+  }
+
+  .chat-message-row .retry-btn {
+    width: 44px !important;
+    min-width: 44px !important;
+  }
+
+  .retry-source-row .chat-message.user .chat-message-bubble {
+    padding-left: 28px;
+    padding-right: 68px;
+  }
 }

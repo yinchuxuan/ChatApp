@@ -76,6 +76,21 @@ describe('ChatPanel Component - Renderers', () => {
     expect(document.querySelector('.chat-empty')).toBeTruthy();
   });
 
+  test('should render a stable reading veil layer inside chat history', async () => {
+    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+
+    _render(_React.createElement(ChatPanel, null));
+
+    await act(async () => { await Promise.resolve(); });
+
+    const chatHistory = document.querySelector('.chat-history');
+    const veil = document.querySelector('.chat-reading-veil');
+    expect(chatHistory).toBeTruthy();
+    expect(veil).toBeTruthy();
+    expect(veil.parentElement).toBe(chatHistory);
+    expect(veil.getAttribute('aria-hidden')).toBe('true');
+  });
+
   test('should poll for renderers and cleanup', async () => {
     jest.useFakeTimers();
 
@@ -168,5 +183,71 @@ describe('MsgHistoryDisplay Card', () => {
     expect(parsed.msgs).toHaveProperty('0');
     expect(typeof parsed.msgs['0'].role).toBe('string');
     expect(typeof parsed.msgs['0'].content).toBe('string');
+  });
+});
+
+describe('ChatPanelMessageRenderers streaming layout', () => {
+  const ChatPanelMessageRenderers = require('../../src/components/ChatPanelMessageRenderers');
+
+  test('wraps streaming assistant output in a chat-message-row', () => {
+    const renderMarkdown = jest.fn((content) =>
+      _React.createElement('div', { className: 'chat-message-bubble' }, content)
+    );
+    const renderAssistantMsg = jest.fn(() =>
+      _React.createElement('div', { className: 'chat-message-bubble' }, 'streaming response')
+    );
+    const renderRetryBtn = jest.fn(() => null);
+    const tw = { streamContent: 'streaming response', displayedCount: 18 };
+
+    const result = ChatPanelMessageRenderers.renderMessages(
+      _React,
+      [{ role: 'user', content: 'Question' }],
+      true,
+      tw,
+      null,
+      true,
+      renderMarkdown,
+      renderAssistantMsg,
+      renderRetryBtn,
+      null,
+      false,
+      jest.fn(),
+      { apiUrl: 'http://api.example.com' }
+    );
+
+    expect(result.props.className).toBe('chat-messages-layer');
+    const children = result.props.children;
+    const streamingRow = children[children.length - 1];
+    expect(streamingRow.props.className).toBe('chat-message-row streaming-message-row');
+    expect(streamingRow.props.children.props.className).toBe('chat-message assistant');
+    expect(streamingRow.props.children.props.style).toEqual({ flex: 1, minWidth: 0 });
+  });
+
+  test('uses collapse renderer while loading so the latest user message stays pinned', () => {
+    const ChatPanelMessageRenderers = require('../../src/components/ChatPanelMessageRenderers');
+    const collapseRenderer = { render: jest.fn(() => _React.createElement('div', { className: 'collapsed-message-view' })) };
+
+    const result = ChatPanelMessageRenderers.renderMessages(
+      _React,
+      [
+        { role: 'user', content: 'Earlier question' },
+        { role: 'assistant', content: 'Earlier answer' },
+        { role: 'user', content: 'Latest question' }
+      ],
+      true,
+      { streamContent: 'streaming response', displayedCount: 18 },
+      null,
+      true,
+      jest.fn(),
+      jest.fn(),
+      jest.fn(),
+      collapseRenderer,
+      false,
+      jest.fn(),
+      { apiUrl: 'http://api.example.com' }
+    );
+
+    expect(collapseRenderer.render).toHaveBeenCalled();
+    expect(result.props.className).toBe('collapsed-message-view');
   });
 });

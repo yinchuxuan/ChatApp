@@ -19,7 +19,7 @@ describe('Chat Reading Column - Integration', () => {
   test('reading column veil is wider than the text column', () => {
     const cssContent = fs.readFileSync(chatPanelCssPath, 'utf8');
     expect(cssContent).toMatch(/\.chat-history\s*\{[\s\S]*?--chat-veil-gutter:\s*56px/);
-    expect(cssContent).toMatch(/\.chat-history::before\s*\{[\s\S]*?width:\s*min\(100%,\s*calc\(var\(--chat-reading-width\)\s*\+\s*var\(--chat-veil-gutter\)\s*\*\s*2\)\)/);
+    expect(cssContent).toMatch(/\.chat-reading-veil\s*\{[\s\S]*?width:\s*min\(100%,\s*calc\(var\(--chat-reading-width\)\s*\+\s*var\(--chat-veil-gutter\)\s*\*\s*2\)\)/);
   });
 
   test('chat-message row and bubble fill the reading column', () => {

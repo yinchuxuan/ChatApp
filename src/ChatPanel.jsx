@@ -79,6 +79,8 @@ function ChatPanel() {
 
   const chatHistoryRef = R.useRef(null);
   const initialLoadDone = R.useRef(false);
+  const pinnedScrollAppliedRef = R.useRef(false);
+  const lastPinnedUserContentRef = R.useRef(null);
 
   R.useEffect(() => {
     async function loadHistory() {
@@ -105,6 +107,23 @@ function ChatPanel() {
 
   R.useEffect(() => {
     if (chatHistoryRef.current && !isHistoryExpanded) {
+      const collapsedView = chatHistoryRef.current.querySelector('.collapsed-message-view');
+      if (collapsedView) {
+        const pinnedUser = collapsedView.querySelector('.retry-source-row .chat-message.user');
+        const pinnedUserContent = pinnedUser ? pinnedUser.textContent : null;
+        const shouldPin =
+          pinnedUserContent &&
+          (!pinnedScrollAppliedRef.current || lastPinnedUserContentRef.current !== pinnedUserContent);
+        if (shouldPin) {
+          collapsedView.scrollTop = 0;
+          chatHistoryRef.current.scrollTop = 0;
+          pinnedScrollAppliedRef.current = true;
+          lastPinnedUserContentRef.current = pinnedUserContent;
+        }
+        return;
+      }
+      pinnedScrollAppliedRef.current = false;
+      lastPinnedUserContentRef.current = null;
       chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
     }
   }, [messages, isLoading, tw.displayedCount, showMsgHistory]);
@@ -148,6 +167,7 @@ function ChatPanel() {
         }, C('span', { className: 'material-icons' }, 'delete_sweep'))
       ),
       C('div', { className: 'chat-history', ref: chatHistoryRef },
+        C('div', { className: 'chat-reading-veil', 'aria-hidden': 'true' }),
         showMsgHistory ? renderMsgHistoryDisplay() : renderMessages()
       ),
       C('div', { className: 'chat-input-hover-trigger', onMouseEnter: () => setIsInputTriggerHovered(true), onMouseLeave: () => setIsInputTriggerHovered(false) })

@@ -33,7 +33,7 @@ const ChatPanelMessageRenderers = {
   renderRetryBtn(R, isLast, isLoading, handleRetry) {
     if (!isLast || isLoading) return null;
     return R.createElement('button', {
-      className: 'md-btn retry-btn', onClick: (e) => { e.stopPropagation(); handleRetry(); },
+      className: 'md-btn retry-btn retry-side-indicator', onClick: (e) => { e.stopPropagation(); handleRetry(); },
       title: '重新生成', 'aria-label': '重新生成回复'
     }, R.createElement('span', { className: 'material-icons' }, 'refresh'));
   },
@@ -52,29 +52,33 @@ const ChatPanelMessageRenderers = {
         R.createElement('div', null, '开始对话')
       );
     }
-    if (collapseRenderer && !isLoading) {
+    if (collapseRenderer) {
       return collapseRenderer.render(R, messages, isLoading, tw, renderMarkdown, renderAssistantMsg, renderRetryBtn, isHistoryExpanded, handleExpandHistory);
     }
 
-    const lastAssistantIdx = messages.map((m, i) => m.role === 'assistant' ? i : -1).filter(i => i >= 0).pop();
-    return R.createElement(R.Fragment, null,
+    const lastUserIdx = messages.map((m, i) => m.role === 'user' ? i : -1).filter(i => i >= 0).pop();
+    return R.createElement('div', { className: 'chat-messages-layer' },
       messages.map((msg, idx) => {
-        const isLast = idx === lastAssistantIdx;
+        const isRetrySource = idx === lastUserIdx;
         if (msg.role === 'assistant') {
           return R.createElement('div', { key: idx, className: 'chat-message-row' },
             R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
               msg._thinking ? renderAssistantMsg(msg, idx, false) : renderMarkdown(msg.content)
-            ),
-            renderRetryBtn(isLast, isLoading)
+            )
           );
         }
-        return R.createElement('div', { key: idx, className: 'chat-message-row' },
+        return R.createElement('div', { key: idx, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}` },
           R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
             renderMarkdown(msg.content)
-          )
+          ),
+          renderRetryBtn(isRetrySource, isLoading)
         );
       }),
-      isLoading && R.createElement('div', { className: 'chat-message assistant' }, renderAssistantMsg(tw.streamContent, messages.length, true))
+      isLoading && R.createElement('div', { className: 'chat-message-row streaming-message-row' },
+        R.createElement('div', { className: 'chat-message assistant', style: { flex: 1, minWidth: 0 } },
+          renderAssistantMsg(tw.streamContent, messages.length, true)
+        )
+      )
     );
   }
 };

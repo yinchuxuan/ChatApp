@@ -134,6 +134,7 @@
   scrollbar-width: none;
   background: var(--md-surface-container-low, var(--md-surface));
   position: relative;
+  isolation: isolate;
 }
 
 /* ============================================
@@ -143,7 +144,10 @@
    pointer-events: none ensures it doesn't block interactions
    ============================================ */
 .chat-history::before {
-  content: '';
+  display: none;
+}
+
+.chat-reading-veil {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -171,12 +175,13 @@
 }
 
 /* Veil active only when background image is present */
-.app-container.has-background-image .chat-history::before {
-  opacity: 1;
+.app-container.has-background-image .chat-reading-veil {
+  opacity: 1 !important;
 }
 
 /* Light theme veil - warm white semi-transparent */
-.app-container.has-background-image .chat-history::before {
+.app-container.has-background-image .chat-reading-veil {
+  opacity: 1 !important;
   background:
     linear-gradient(
       90deg,
@@ -195,7 +200,8 @@
 }
 
 /* Dark theme veil - cool dark semi-transparent */
-[data-theme="dark"] .app-container.has-background-image .chat-history::before {
+[data-theme="dark"] .app-container.has-background-image .chat-reading-veil {
+  opacity: 1 !important;
   background:
     linear-gradient(
       90deg,

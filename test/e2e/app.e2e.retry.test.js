@@ -33,14 +33,13 @@ test.describe.serial('Retry Button', () => {
     expect(count).toBe(0);
   });
 
-  test('should show retry button on last assistant message with _thinking', async () => {
+  test('should show retry button on last user message', async () => {
     await injectMessages([
       { role: 'user', content: 'What is JavaScript?' },
       { role: 'assistant', content: 'JavaScript is a programming language.', _thinking: 'Defining JavaScript...' }
     ]);
 
-    // Hover over the last message row to reveal the retry button
-    await appHelper.hover('.chat-message-row:last-of-type');
+    await appHelper.hover('.chat-message.user');
 
     const retryBtnVisible = await appHelper.isVisible('.retry-btn');
     expect(retryBtnVisible).toBe(true);
@@ -66,7 +65,7 @@ test.describe.serial('Retry Button', () => {
     expect(retryCount).toBe(1);
   });
 
-  test('should NOT show retry button on earlier assistant messages', async () => {
+  test('should NOT show retry button on earlier user messages', async () => {
     await injectMessages([
       { role: 'user', content: 'First question' },
       { role: 'assistant', content: 'First answer', _thinking: 'think 1' },
@@ -74,18 +73,17 @@ test.describe.serial('Retry Button', () => {
       { role: 'assistant', content: 'Second answer', _thinking: 'think 2' }
     ]);
 
-    // Find all chat-message-row divs and check which ones have retry buttons
     const result = await appHelper.evaluate(() => {
       const rows = Array.from(document.querySelectorAll('.chat-message-row'));
       return rows.map(r => ({
         hasRetry: r.querySelector('.retry-btn') !== null,
-        hasMsg: r.querySelector('.chat-message.assistant') !== null
+        hasUserMsg: r.querySelector('.chat-message.user') !== null
       }));
     });
 
-    // Only the last assistant message row should have a retry button
     const withRetry = result.filter(m => m.hasRetry);
     expect(withRetry.length).toBe(1);
+    expect(withRetry[0].hasUserMsg).toBe(true);
   });
 
   test('should have correct icon in retry button', async () => {
