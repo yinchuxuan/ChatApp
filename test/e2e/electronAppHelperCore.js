@@ -43,6 +43,10 @@ class ElectronAppHelperCore {
 
   async relaunch() {
     await this.close();
+    // Wait for the Electron process to fully terminate before launching a new one.
+    // Without this delay, the new process may fail to initialize properly due to
+    // lingering resources from the previous instance.
+    await new Promise(resolve => setTimeout(resolve, 1000));
     return await this.launch();
   }
 
