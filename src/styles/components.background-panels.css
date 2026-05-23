@@ -41,7 +41,7 @@
 
 .app-container.has-background-image .chat-message.assistant .chat-message-bubble {
   background: transparent;
-  color: var(--md-on-surface-variant);
+  color: var(--md-on-surface);
 }
 
 [data-theme="dark"] .app-container.has-background-image .chat-message.user .chat-message-bubble {

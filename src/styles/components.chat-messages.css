@@ -7,9 +7,8 @@
   display: flex;
   align-items: flex-start;
   position: relative;
-  padding-right: 40px;
   width: 100%;
-  max-width: 720px;
+  max-width: var(--chat-reading-width, 720px);
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box;
@@ -62,7 +61,7 @@
 
 .chat-message.assistant .chat-message-bubble {
   background: transparent;
-  color: var(--md-on-surface-variant);
+  color: var(--md-on-surface);
   box-shadow: none;
   border-radius: 0;
   padding: 8px 0;
@@ -145,19 +144,6 @@
 /* Clickable Bubble for Thinking Toggle */
 .chat-message.assistant .chat-message-bubble.bubble-clickable {
   cursor: pointer;
-}
-
-/* Quoted Text Highlighting - text wrapped in quotes ("", '', "", 「」, 『』) */
-.chat-bubble-content .quoted-text {
-  background: var(--md-secondary-container);
-  color: var(--md-on-secondary-container);
-  border-radius: var(--md-shape-corner-extra-small);
-  padding: 0.05em 0.25em;
-}
-
-[data-theme="dark"] .chat-bubble-content .quoted-text {
-  background: rgba(96, 165, 250, 0.15);
-  color: var(--md-on-surface);
 }
 
 /* Markdown Content inside Chat Bubbles */
@@ -303,9 +289,9 @@
   margin-top: 12px;
   position: absolute;
   bottom: 8px;
-  right: 8px;
+  right: -44px;
   flex-shrink: 0;
-  border: none;
+  border: 1px solid transparent;
   border-radius: var(--md-shape-corner-small);
   background: transparent;
   color: var(--md-on-surface-variant);
@@ -313,19 +299,33 @@
   overflow: visible !important;
   opacity: 0;
   pointer-events: none;
+  box-shadow: none;
   transition:
-    opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+    opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+    background-color var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+    border-color var(--md-motion-duration-short3) var(--md-motion-easing-standard);
   z-index: 2;
+}
+
+@media (max-width: 860px) {
+  .chat-message-row .retry-btn {
+    right: 8px;
+    background: color-mix(in srgb, var(--md-surface-container-high) 52%, transparent);
+  }
 }
 
 .chat-message-row:has(.chat-message:hover) .retry-btn,
 .chat-message-row:has(.retry-btn:hover) .retry-btn {
-  opacity: 1 !important;
+  opacity: 0.72 !important;
   pointer-events: auto;
 }
 
 .chat-message-row .retry-btn:hover {
-  background: transparent;
+  opacity: 1 !important;
+  color: var(--md-on-surface);
+  background: color-mix(in srgb, var(--md-surface-container-highest) 86%, transparent);
+  border-color: color-mix(in srgb, var(--md-primary) 36%, var(--md-outline-variant));
+  box-shadow: var(--md-elevation-level-1);
 }
 
 .retry-btn .material-icons {

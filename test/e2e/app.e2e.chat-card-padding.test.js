@@ -1,6 +1,7 @@
 /**
  * E2E Tests - Chat Card Side Padding
- * Verifies that all chat area cards have 10% left/right side padding
+ * Verifies that chat-history uses clamp(20px, 8vw, 96px) horizontal padding
+ * matching the reading column veil design.
  */
 
 const { test, expect } = require('@playwright/test');
@@ -18,8 +19,9 @@ test.afterAll(async () => {
 });
 
 test.describe('Chat Card Side Padding', () => {
-  test('chat-history should have 10% horizontal padding', async () => {
-    // Get the container width and padding to verify 10% ratio
+  test('chat-history should have clamp(20px, 8vw, 96px) horizontal padding', async () => {
+    // Verify the padding matches the CSS rule: clamp(20px, 8vw, 96px)
+    // At typical E2E window size (1280px), 8vw = 102.4px, clamped to 96px
     const paddingInfo = await appHelper.evaluate(() => {
       const el = document.querySelector('.chat-history');
       if (!el) return null;
@@ -27,14 +29,14 @@ test.describe('Chat Card Side Padding', () => {
       const width = el.clientWidth;
       const paddingLeft = parseFloat(styles.paddingLeft);
       const paddingRight = parseFloat(styles.paddingRight);
-      const expectedPadding = width * 0.10;
-      // Allow some tolerance for rounding
+      // clamp(20px, 8vw, 96px): at width W, expected = min(max(20, 0.08*W), 96)
+      const expectedClamped = Math.min(Math.max(20, 0.08 * width), 96);
       return {
         width,
         paddingLeft,
         paddingRight,
-        expectedPadding,
-        matches: Math.abs(paddingLeft - expectedPadding) < 5 && Math.abs(paddingRight - expectedPadding) < 5
+        expectedClamped,
+        matches: Math.abs(paddingLeft - expectedClamped) < 5 && Math.abs(paddingRight - expectedClamped) < 5
       };
     });
 
@@ -60,12 +62,12 @@ test.describe('Chat Card Side Padding', () => {
       const styles = window.getComputedStyle(el);
       const width = el.clientWidth;
       const paddingLeft = parseFloat(styles.paddingLeft);
-      const expectedPadding = width * 0.10;
+      const expectedClamped = Math.min(Math.max(20, 0.08 * width), 96);
       return {
         width,
         paddingLeft,
-        expectedPadding,
-        matches: Math.abs(paddingLeft - expectedPadding) < 5
+        expectedClamped,
+        matches: Math.abs(paddingLeft - expectedClamped) < 5
       };
     });
 
@@ -92,12 +94,12 @@ test.describe('Chat Card Side Padding', () => {
       const styles = window.getComputedStyle(el);
       const width = el.clientWidth;
       const paddingRight = parseFloat(styles.paddingRight);
-      const expectedPadding = width * 0.10;
+      const expectedClamped = Math.min(Math.max(20, 0.08 * width), 96);
       return {
         width,
         paddingRight,
-        expectedPadding,
-        matches: Math.abs(paddingRight - expectedPadding) < 5
+        expectedClamped,
+        matches: Math.abs(paddingRight - expectedClamped) < 5
       };
     });
 
