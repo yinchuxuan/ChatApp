@@ -163,6 +163,7 @@ filesToCompile.forEach((file) => {
   const outputFileName = file.endsWith('.jsx') ? file.replace('.jsx', '.js') : file;
   const outputPath = path.join(outputDir, outputFileName);
   const compiled = compileFile(file);
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, compiled, 'utf8');
   console.log(`  Compiled: ${file} -> dist/${outputFileName}`);
 });
