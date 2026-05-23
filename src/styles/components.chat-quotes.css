@@ -1,0 +1,37 @@
+/* Novel-style dialogue emphasis for quoted spans in message text. */
+.chat-bubble-content .quoted-text {
+  background: transparent;
+  color: inherit;
+  border-radius: 0;
+  padding: 0;
+  font-weight: 500;
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.06em;
+  text-decoration-color: color-mix(in srgb, currentColor 36%, transparent);
+  text-underline-offset: 0.18em;
+}
+
+.chat-message.assistant .chat-bubble-content .quoted-text {
+  color: var(--md-on-surface);
+}
+
+.chat-message.user .chat-bubble-content .quoted-text {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+[data-theme="dark"] .chat-message.assistant .chat-bubble-content .quoted-text {
+  background: transparent;
+  color: var(--md-on-surface);
+  border-radius: 0;
+  padding: 0;
+  text-decoration-color: color-mix(in srgb, currentColor 42%, transparent);
+}
+
+[data-theme="dark"] .chat-message.user .chat-bubble-content .quoted-text {
+  background: transparent;
+  color: inherit;
+  border-radius: 0;
+  padding: 0;
+  text-decoration-color: color-mix(in srgb, currentColor 34%, transparent);
+}

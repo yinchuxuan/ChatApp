@@ -1,6 +1,6 @@
 {
   "project": "",
-  "last_updated": "",
+  "last_updated": "2026-05-23T04:53:11.380Z",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -16,19 +16,42 @@
   },
   "features": [
     {
-      "id": "ui1",
-      "priority": 1,
-      "task_type": "UI改造",
-      "title": "消息流 transcript 样式改造",
+      "id": "ui3",
+      "priority": 3,
+      "task_type": "UI优化",
+      "title": "消息流阅读列宽优化",
       "agentId": "",
-      "description": "将当前聊天气泡式消息流改造为更接近电子小说和 GalGame 的同轴 transcript 阅读样式。不改变消息数据结构和发送逻辑，先根据现有 role 映射视觉：user 显示为“你”的玩家行动块，assistant 显示为剧情/旁白文本块，error 显示为系统错误条。保留沉浸式体验、顶部/底部 hover 交互、历史折叠、thinking 折叠和 retry hover 操作。",
+      "description": "限制消息流正文的最大阅读宽度，将当前依赖百分比 padding 且随窗口变宽持续拉长的消息行，调整为固定最大阅读列加响应式边距的布局。阅读列默认使用 width: 100% + max-width: 720px 并居中；窄窗口下占满可用宽度，宽屏下不超过 720px。优先通过 CSS 约束 chat-message-row、普通消息、历史折叠 wrapper 等内部内容宽度，不改变 chat-history 作为全屏滚动容器的职责，也不改变消息数据结构和渲染逻辑。",
       "status": "not_started",
       "verification": [
-        "消息流不再呈现左右聊天气泡或整宽文档卡片，而是统一阅读轴的 transcript 样式",
-        "user 消息有清晰但低干扰的玩家行动标识",
-        "assistant 消息有适合长文本阅读的剧情/旁白排版",
-        "error、thinking、retry、历史折叠等现有交互保持可用",
-        "单元测试、集成测试、e2e 测试通过",
+        "宽屏下消息正文不再随窗口无限拉长，阅读列最大宽度固定为 720px",
+        "普通消息流和折叠历史视图使用一致的居中阅读轴，最大宽度均为 720px",
+        "小屏和窄窗口下消息内容仍能占满可用宽度且无横向溢出",
+        "Markdown 段落、代码块、表格和图片在新阅读列宽下仍可正常显示",
+        "顶部 hover 区、底部输入栏、历史折叠和 retry 操作不受布局约束影响",
+        "所有单元测试、集成测试、e2e测试全部通过",
+        "eslint 0 warnings, 0 errors"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ui4",
+      "priority": 4,
+      "task_type": "UI优化",
+      "title": "assistant 消息去卡片化",
+      "agentId": "",
+      "description": "将 assistant 消息从聊天气泡/卡片视觉改为更接近电子小说正文的透明剧情文本块。assistant 内容不再使用明显背景色、阴影或 hover 位移，以连续阅读体验为主；同时必须引入阅读列 veil 作为连续的可读性遮罩：在背景图之上、消息内容之下，为 720px 阅读列区域提供轻量半透明渐变或遮罩，而不是给每条 assistant 消息加独立卡片背景。保留 Markdown、thinking 展开/收起、error 独立样式和 retry 操作。user 消息仍可作为玩家行动块与 assistant 正文形成清晰层级。",
+      "status": "not_started",
+      "verification": [
+        "assistant 普通消息不再呈现明显卡片背景、阴影或聊天气泡边界",
+        "assistant 正文在阅读列内保持连续小说段落感，段落间距和行高适合长文本阅读",
+        "有背景图时通过阅读列 veil 保证 assistant 正文可读，veil 是连续阅读区域遮罩而不是单条消息卡片",
+        "阅读列 veil 位于背景图和消息内容之间，不遮挡文字、按钮、thinking、retry 或输入区交互",
+        "浅色和深色主题下 veil 使用不同透明度或颜色策略，避免背景图过亮或过暗导致正文对比不足",
+        "user 消息与 assistant 正文仍有清晰但低干扰的视觉区分",
+        "thinking 内容、error 消息和 retry 按钮仍可正常使用且位置合理",
+        "浅色、深色和有背景图场景下 assistant 正文仍满足可读性要求",
+        "所有单元测试、集成测试、e2e测试全部通过",
         "eslint 0 warnings, 0 errors"
       ],
       "evidence": []
