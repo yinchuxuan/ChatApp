@@ -2,6 +2,13 @@
 // Extracts render functions to reduce ChatPanel.jsx below 200 lines
 
 const ChatPanelMessageRenderers = {
+  filterDialogueMessages(messages) {
+    return (Array.isArray(messages) ? messages : []).filter(msg =>
+      ['user', 'assistant'].includes(msg?.role) &&
+      msg?._meta?.visibility !== 'llm_only' &&
+      msg?._meta?.visibility !== 'debug_only'
+    );
+  },
 
   renderMarkdown(R, text, marked, DOMPurify, highlightQuotes) {
     const rawHtml = marked ? marked.parse(text) : text;
@@ -39,6 +46,7 @@ const ChatPanelMessageRenderers = {
   },
 
   renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig) {
+    messages = this.filterDialogueMessages(messages);
     if (messages.length === 0 && !isLoading) {
       if (!modelConfig?.apiUrl) {
         return R.createElement('div', { className: 'chat-empty' },

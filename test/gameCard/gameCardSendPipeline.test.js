@@ -68,6 +68,25 @@ describe('game card send pipeline', () => {
     ]);
   });
 
+  test('decays existing ttl messages before applying pre_send rules', async () => {
+    const messages = [
+      { role: 'system', content: 'expired', ttl: 1 },
+      { role: 'system', content: 'kept', ttl: 2 },
+      { role: 'user', content: 'start' }
+    ];
+    const result = await preparePreSendMessages({
+      messages,
+      card: cardWithInsert('system rules')
+    });
+
+    expect(result.messages).toEqual([
+      { role: 'system', content: 'system rules', _meta: { visibility: 'llm_only' } },
+      { role: 'system', content: 'kept', ttl: 1 },
+      { role: 'user', content: 'start' }
+    ]);
+    expect(result.ttlTrace.summary.messages).toMatchObject({ decayed: 1, removed: 1 });
+  });
+
   test('preloads file_content through electronAPI before applying rules', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: true,
@@ -109,7 +128,7 @@ describe('game card send pipeline', () => {
     expect(result.messages).toEqual([{ role: 'assistant', content: 'hello', ttl: 1 }]);
   });
 
-  test('applies after_response rules and decays ttl when a card is active', async () => {
+  test('applies after_response rules without decaying newly inserted ttl', async () => {
     const messages = [{ role: 'assistant', content: 'raw' }];
     const result = await prepareAfterResponseMessages({
       messages,
@@ -128,8 +147,11 @@ describe('game card send pipeline', () => {
     });
 
     expect(result.applied).toBe(true);
-    expect(result.messages).toEqual([{ role: 'assistant', content: 'clean' }]);
-    expect(result.ttlTrace.summary.messages.removed).toBe(1);
+    expect(result.messages).toEqual([
+      { role: 'assistant', content: 'clean' },
+      { role: 'system', content: 'next', ttl: 1 }
+    ]);
+    expect(result.ttlTrace).toBeNull();
   });
 
   test('maps runtime messages to API messages without runtime-only fields', () => {

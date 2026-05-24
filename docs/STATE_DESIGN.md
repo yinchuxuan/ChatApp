@@ -193,6 +193,6 @@ state 随聊天历史保存：
 ```
 保存时机：
 ```txt
-after_response rules -> decayTTL -> save messages + gameState
+pre_send decayTTL -> pre_send rules -> after_response rules -> save messages + gameState
 ```
 messages 和 gameState 必须一起保存，避免剧情记录与变量状态不一致。每次 state 读取失败、补丁失败或修改成功都记录 trace，至少包含 phase、rule/action 位置、变更 diff、校验错误和 LLM patch reason。

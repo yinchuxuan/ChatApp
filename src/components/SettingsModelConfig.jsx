@@ -12,7 +12,7 @@ function SettingsModelConfig({
 
   const startEdit = (field) => {
     setEditingField(field);
-    setTempValue(config[field] || '');
+    setTempValue(config[field] ?? '');
   };
 
   const finishEdit = () => {
@@ -30,7 +30,7 @@ function SettingsModelConfig({
 
   const renderField = (field, label, icon, type = 'text', placeholder = '') => {
     const isEditing = editingField === field;
-    const displayValue = field === 'apiKey' ? maskApiKey(config[field]) : (config[field] || '未设置');
+    const displayValue = field === 'apiKey' ? (maskApiKey(config[field]) || '未设置') : (config[field] || '未设置');
     const protocolLabel = field === 'protocol' ? (config.protocol === 'anthropic' ? 'Anthropic' : 'OpenAI') : '';
 
     return (
@@ -83,7 +83,7 @@ function SettingsModelConfig({
         <span className="model-label">模型配置</span>
         {isConfigured && <span className="config-status configured">已配置</span>}
       </div>
-      {!isConfigured ? (
+      {!isConfigured && !editingField ? (
         <div
           className="config-empty-state background-clickable-empty"
           onClick={() => startEdit('apiUrl')}

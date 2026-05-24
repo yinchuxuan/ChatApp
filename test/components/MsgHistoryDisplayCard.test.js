@@ -117,4 +117,41 @@ describe('Msg History Display Card - Integration', () => {
     const pre = card.querySelector('.msg-history-json');
     expect(pre).toBeTruthy();
   });
+
+  test('should show ttl and metadata fields in msg history JSON', async () => {
+    electronAPI.getChatHistory.mockResolvedValue({
+      success: true,
+      messages: [
+        {
+          role: 'system',
+          content: 'temporary rules',
+          ttl: 1,
+          _meta: { visibility: 'llm_only' }
+        }
+      ]
+    });
+
+    render(React.createElement(ChatPanel));
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
+    fireEvent.click(chatHeader);
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    const parsed = JSON.parse(document.querySelector('.msg-history-json').textContent);
+    expect(parsed.msgs[0]).toEqual({
+      role: 'system',
+      content: 'temporary rules',
+      _meta: { visibility: 'llm_only' },
+      ttl: 1
+    });
+  });
 });

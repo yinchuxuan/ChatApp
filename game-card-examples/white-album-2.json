@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "id": "white-album-2",
+  "name": "白色相簿2",
+  "rules": [
+    {
+      "id": "wa2-system-prompt",
+      "when": {
+        "phase": "pre_send",
+        "length": { "eq": 1 }
+      },
+      "then": [
+        {
+          "type": "insert",
+          "predicate": { "all": true },
+          "role": "system",
+          "content": "现在开始白色相簿2 roleplay，用户扮演北原春希",
+          "anchor": "before"
+        }
+      ]
+    },
+    {
+      "id": "wa2-tail-system-hint",
+      "when": {
+        "phase": "pre_send"
+      },
+      "then": [
+        {
+          "type": "insert",
+          "predicate": { "index": "last" },
+          "anchor": "after",
+          "role": "system",
+          "content": "roleplay规则:\n 1.剧情符合白色相簿2设定，用户扮演北原春希\n 2.剧情要体现青春爱情的美好以及三人关系纠缠的纠结\n 3.每段剧情不少于1000字 \n 4.在每段剧情的末尾给出ABCD四个选项给用户提供下一步行动的选择",
+          "ttl": 1
+        }
+      ]
+    }
+  ]
+}

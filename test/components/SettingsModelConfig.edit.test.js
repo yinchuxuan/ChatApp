@@ -102,4 +102,50 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
     const passwordInput = document.querySelector('input[type="password"]');
     expect(passwordInput).toBeInTheDocument();
   });
+
+  test('should allow entering api url from the empty state', async () => {
+    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+
+    const props = {
+      config: { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' },
+      onChange: jest.fn(),
+      maskApiKey: (key) => key ? '****' : '',
+      isConfigured: false
+    };
+
+    _render(React.createElement(SettingsModelConfig, props));
+
+    await act(async () => { await Promise.resolve(); });
+
+    _fireEvent.click(_screen.getByText('点击设置'));
+
+    const input = _screen.getByPlaceholderText('https://api.example.com/v1');
+    _fireEvent.change(input, { target: { value: 'https://api.example.com/v1' } });
+    _fireEvent.blur(input);
+
+    expect(props.onChange).toHaveBeenCalledWith('apiUrl', 'https://api.example.com/v1');
+  });
+
+  test('should allow editing an empty api key field', async () => {
+    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+
+    const props = {
+      config: { apiUrl: 'http://api.example.com', apiKey: '', modelName: 'gpt-4', protocol: 'openai' },
+      onChange: jest.fn(),
+      maskApiKey: (key) => key ? '****' : '',
+      isConfigured: true
+    };
+
+    _render(React.createElement(SettingsModelConfig, props));
+
+    await act(async () => { await Promise.resolve(); });
+
+    _fireEvent.click(_screen.getByText('未设置'));
+
+    const input = document.querySelector('input[type="password"]');
+    _fireEvent.change(input, { target: { value: 'new-key' } });
+    _fireEvent.blur(input);
+
+    expect(props.onChange).toHaveBeenCalledWith('apiKey', 'new-key');
+  });
 });

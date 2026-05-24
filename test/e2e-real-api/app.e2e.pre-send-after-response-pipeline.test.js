@@ -103,13 +103,13 @@ test.describe('Game card after_response with real LLM', () => {
     const saved1 = await getHistory();
     const hint1 = saved1.find(m => m.content === 'hint: the player just arrived');
     expect(hint1).toBeDefined();
-    expect(hint1.ttl).toBe(1);
+    expect(hint1.ttl).toBe(2);
 
     const history = await getHistory();
     const turn2 = await sendThroughPipeline(card, 'openai', [...history, { role: 'user', content: 'turn2' }]);
     expect(turn2.llmResponse.length).toBeGreaterThan(0);
     const saved2 = await getHistory();
     const hint2 = saved2.find(m => m.content === 'hint: the player just arrived');
-    expect(hint2).toBeUndefined();
+    expect(hint2.ttl).toBe(1);
   }, 180000);
 });

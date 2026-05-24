@@ -106,19 +106,19 @@ describe('legacy e2e game card coverage migrated to Jest', () => {
     ]);
   });
 
-  test('after_response decays ttl even when no rules apply', async () => {
-    const result = await prepareAfterResponseMessages({
-      card: card([]),
+  test('pre_send decays ttl before applying rules', async () => {
+    const result = await preparePreSendMessages({
+      card: card([{ when: { phase: 'pre_send' }, then: [] }]),
       messages: [
         { role: 'system', content: 'drop', ttl: 1 },
         { role: 'system', content: 'keep', ttl: 2 },
-        { role: 'assistant', content: 'ok' }
+        { role: 'user', content: 'ok' }
       ]
     });
 
     expect(result.messages).toEqual([
       { role: 'system', content: 'keep', ttl: 1 },
-      { role: 'assistant', content: 'ok' }
+      { role: 'user', content: 'ok' }
     ]);
     expect(result.ttlTrace.summary.messages).toMatchObject({ decayed: 1, removed: 1 });
   });

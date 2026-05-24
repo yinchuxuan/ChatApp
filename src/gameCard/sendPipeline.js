@@ -44,17 +44,19 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
     : card;
 
   if (!activeCard) {
-    return { messages, state, trace: null, applied: false, card: null };
+    return { messages, state, trace: null, ttlTrace: null, applied: false, card: null };
   }
 
+  const ttl = decayTTL(messages);
   let fileContents;
   try {
     fileContents = await loadFileContents(activeCard, api);
   } catch (error) {
-    return { messages, state, trace: null, applied: false, card: null, error: error.message };
+    return { messages, state, trace: null, ttlTrace: ttl.trace, applied: false, card: null, error: error.message };
   }
   return {
-    ...applyGameCard({ card: activeCard, phase: 'pre_send', messages, state, event, fileContents }),
+    ...applyGameCard({ card: activeCard, phase: 'pre_send', messages: ttl.messages, state, event, fileContents }),
+    ttlTrace: ttl.trace,
     applied: true,
     card: activeCard,
     protocol
@@ -77,13 +79,9 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
   } catch (error) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null, error: error.message };
   }
-  const result = applyGameCard({ card: activeCard, phase: 'after_response', messages, state, event, fileContents });
-  const ttl = decayTTL(result.messages);
   return {
-    messages: ttl.messages,
-    state: result.state,
-    trace: result.trace,
-    ttlTrace: ttl.trace,
+    ...applyGameCard({ card: activeCard, phase: 'after_response', messages, state, event, fileContents }),
+    ttlTrace: null,
     applied: true,
     card: activeCard
   };

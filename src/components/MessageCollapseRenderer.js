@@ -44,6 +44,10 @@ function resetPull() {
   clearTimeout(pullTimer);
 }
 
+function filterDialogueMessages(messages) {
+  return (Array.isArray(messages) ? messages : []).filter(msg => ['user', 'assistant'].includes(msg?.role));
+}
+
 const MessageCollapseRenderer = {
   findLastAssistantIndex(messages) {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -63,6 +67,7 @@ const MessageCollapseRenderer = {
 
   render(R, messages, isLoading, tw, renderMarkdown, renderAssistantMsg, renderRetryBtn,
          isHistoryExpanded, onExpand) {
+    messages = filterDialogueMessages(messages);
     if (messages.length === 0 && !isLoading) {
       return null;
     }

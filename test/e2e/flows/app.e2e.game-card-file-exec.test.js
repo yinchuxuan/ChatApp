@@ -131,5 +131,5 @@ test('runs exec in the real chat pipeline and persists transformed messages', as
   await expect.poll(async () => (await appHelper.getChatHistory()).messages.length).toBe(3);
   const saved = (await appHelper.getChatHistory()).messages;
   expect(saved.map(msg => msg.content)).toEqual(['[exec] move', 'done', 'exec after']);
-  expect(saved[2].ttl).toBe(1);
+  expect(saved[2].ttl).toBe(2);
 });

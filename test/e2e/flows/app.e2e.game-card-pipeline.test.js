@@ -112,7 +112,7 @@ test('applies pre_send and after_response rules in the real chat UI flow', async
     'model says ok',
     'temporary hint'
   ]);
-  expect(saved[3].ttl).toBe(1);
+  expect(saved[3].ttl).toBe(2);
 });
 
 test('adapts active game card system messages to Anthropic top-level system', async () => {

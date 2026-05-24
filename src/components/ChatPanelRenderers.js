@@ -12,9 +12,10 @@ const ChatPanelRenderers = {
     }
     const msgsArray = msgHistoryMessages.map(msg => {
       const result = { role: msg.role, content: msg.content };
-      if (msg._thinking) {
-        result.thinking = msg._thinking;
-      }
+      const thinking = msg.thinking || msg._thinking;
+      if (thinking) result.thinking = thinking;
+      if (msg._meta) result._meta = msg._meta;
+      if (msg.ttl !== undefined) result.ttl = msg.ttl;
       return result;
     });
     const jsonStr = JSON.stringify({ msgs: msgsArray }, null, 2);

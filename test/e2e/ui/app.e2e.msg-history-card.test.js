@@ -61,4 +61,26 @@ test.describe('Msg History Display Card', () => {
     const emptyText = await appHelper.textContent('.chat-history');
     expect(emptyText).toContain('暂无消息历史记录');
   });
+
+  test('should show ttl system messages in msg history JSON', async () => {
+    await appHelper.saveChatHistory([
+      { role: 'system', content: 'temporary rules', ttl: 1 },
+      { role: 'user', content: 'Hello E2E' }
+    ]);
+
+    await appHelper.relaunch();
+    await appHelper.waitForSelector('.app-container', { timeout: 15000 });
+    await appHelper.waitForTimeout(500);
+
+    await clickChatHeader(appHelper);
+    await appHelper.waitForTimeout(200);
+
+    const jsonText = await appHelper.textContent('.msg-history-json');
+    const parsed = JSON.parse(jsonText);
+    expect(parsed.msgs[0]).toEqual({
+      role: 'system',
+      content: 'temporary rules',
+      ttl: 1
+    });
+  });
 });

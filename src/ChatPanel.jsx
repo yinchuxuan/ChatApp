@@ -148,7 +148,11 @@ function ChatPanel() {
   const currentThinking = hasThinking ? streamThinking : null;
 
   const renderMessages = () => {
-    const visibleMessages = messages.filter(msg => msg?._meta?.visibility !== 'llm_only' && msg?._meta?.visibility !== 'debug_only');
+    const visibleMessages = messages.filter(msg =>
+      ['user', 'assistant'].includes(msg?.role) &&
+      msg?._meta?.visibility !== 'llm_only' &&
+      msg?._meta?.visibility !== 'debug_only'
+    );
     if (msgRenderers && renderMarkdown && renderAssistantMsg && renderRetryBtn) {
       return msgRenderers.renderMessages(R, visibleMessages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
     }

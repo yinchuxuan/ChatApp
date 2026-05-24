@@ -110,7 +110,7 @@ test.describe('Multi-turn round trip', () => {
     await send('t1');
     await expect.poll(async () => (await getAppHelper().getChatHistory()).messages.length).toBeGreaterThanOrEqual(3);
     let saved = (await getAppHelper().getChatHistory()).messages;
-    expect(saved.find(m => m.content === 'temp').ttl).toBe(2);
+    expect(saved.find(m => m.content === 'temp').ttl).toBe(3);
 
     await getAppHelper().window.route('https://game-card.local/**', async route => {
       await route.fulfill({ status: 200, contentType: 'text/event-stream', body: openAiStream('ok') });
@@ -118,13 +118,21 @@ test.describe('Multi-turn round trip', () => {
     await send('t2');
     await expect.poll(async () => (await getAppHelper().getChatHistory()).messages.length).toBeGreaterThanOrEqual(4);
     saved = (await getAppHelper().getChatHistory()).messages;
-    expect(saved.find(m => m.content === 'temp').ttl).toBe(1);
+    expect(saved.find(m => m.content === 'temp').ttl).toBe(2);
 
     await getAppHelper().window.route('https://game-card.local/**', async route => {
       await route.fulfill({ status: 200, contentType: 'text/event-stream', body: openAiStream('ok') });
     });
     await send('t3');
     await expect.poll(async () => (await getAppHelper().getChatHistory()).messages.length).toBeGreaterThanOrEqual(5);
+    saved = (await getAppHelper().getChatHistory()).messages;
+    expect(saved.find(m => m.content === 'temp').ttl).toBe(1);
+
+    await getAppHelper().window.route('https://game-card.local/**', async route => {
+      await route.fulfill({ status: 200, contentType: 'text/event-stream', body: openAiStream('ok') });
+    });
+    await send('t4');
+    await expect.poll(async () => (await getAppHelper().getChatHistory()).messages.length).toBeGreaterThanOrEqual(6);
     saved = (await getAppHelper().getChatHistory()).messages;
     expect(saved.find(m => m.content === 'temp')).toBeUndefined();
   });

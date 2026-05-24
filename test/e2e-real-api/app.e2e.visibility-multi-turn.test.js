@@ -29,15 +29,15 @@ test.describe('Multi-turn full pipeline with real LLM', () => {
     const turn1 = await sendThroughPipeline(card, 'openai', [{ role: 'user', content: 't1' }]);
     expect(turn1.llmResponse.length).toBeGreaterThan(0);
     const saved1 = await getHistory();
-    expect(saved1.find(m => m.content === 'temp hint').ttl).toBe(1);
+    expect(saved1.find(m => m.content === 'temp hint').ttl).toBe(2);
 
     const history = await getHistory();
     const turn2 = await sendThroughPipeline(card, 'openai', [...history, { role: 'user', content: 't2' }]);
     expect(turn2.llmResponse.length).toBeGreaterThan(0);
     const saved2 = await getHistory();
     const hints = saved2.filter(m => m.content === 'temp hint');
-    expect(hints).toHaveLength(1);
-    expect(hints[0].ttl).toBe(1);
+    expect(hints).toHaveLength(2);
+    expect(hints.map(m => m.ttl).sort()).toEqual([1, 2]);
     expect(turn2.afterResponseMessages).not.toBeNull();
   }, 180000);
 });
