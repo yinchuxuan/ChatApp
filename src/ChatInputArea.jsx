@@ -36,6 +36,11 @@ function ChatInputArea({
       const preparePreSend = window.preparePreSendMessages || (async ({ messages }) => ({ messages }));
       const toApiMessages = window.toGameCardApiMessages || ((msgs) => msgs.map(msg => ({ role: msg.role, content: msg.content })));
       const preSend = await preparePreSend({ messages: newMessages });
+      if (preSend.error) {
+        setIsLoading(false); tw.reset();
+        setMessages(prev => [...prev, { role: 'assistant', content: `游戏卡错误: ${preSend.error}`, isError: true }]);
+        return;
+      }
       await window.sendChatRequest(
         {
           apiUrl: modelConfig.apiUrl,

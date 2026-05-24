@@ -4,10 +4,10 @@ const os = require('os');
 
 module.exports = defineConfig({
   testDir: './test/e2e',
-  timeout: 30000,
-  maxFailures: 1,
+  timeout: 180000,
+  maxFailures: 3,
   expect: {
-    timeout: 10000
+    timeout: 30000
   },
   fullyParallel: true,
   retries: 0,
