@@ -50,6 +50,10 @@ global.window.electronAPI = {
   readBackgroundImage: jest.fn(),
   getChatHistory: jest.fn().mockResolvedValue({ success: true, messages: [] }),
   saveChatHistory: jest.fn().mockResolvedValue({ success: true }),
+  getGameCards: jest.fn().mockResolvedValue({ success: true, cards: [] }),
+  getGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
+  saveGameCard: jest.fn().mockResolvedValue({ success: true }),
+  setActiveGameCard: jest.fn().mockResolvedValue({ success: true }),
   getActiveGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
   onBackgroundConfigChanged: jest.fn()
 };

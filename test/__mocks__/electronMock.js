@@ -46,7 +46,12 @@ const mockElectronAPI = {
   saveBackgroundConfig: jest.fn().mockResolvedValue({ success: true }),
   selectBackgroundImage: jest.fn().mockResolvedValue({ success: false, canceled: true }),
   getChatHistory: jest.fn().mockResolvedValue({ success: true, messages: [] }),
-  saveChatHistory: jest.fn().mockResolvedValue({ success: true })
+  saveChatHistory: jest.fn().mockResolvedValue({ success: true }),
+  getGameCards: jest.fn().mockResolvedValue({ success: true, cards: [] }),
+  getGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
+  saveGameCard: jest.fn().mockResolvedValue({ success: true }),
+  setActiveGameCard: jest.fn().mockResolvedValue({ success: true }),
+  getActiveGameCard: jest.fn().mockResolvedValue({ success: true, card: null })
 };
 
 module.exports = {

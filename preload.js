@@ -9,5 +9,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readBackgroundImage: (filePath) => ipcRenderer.invoke('read-background-image', filePath),
   getChatHistory: () => ipcRenderer.invoke('get-chat-history'),
   saveChatHistory: (messages) => ipcRenderer.invoke('save-chat-history', messages),
+  getGameCards: () => ipcRenderer.invoke('get-game-cards'),
+  getGameCard: (id) => ipcRenderer.invoke('get-game-card', id),
+  saveGameCard: (card) => ipcRenderer.invoke('save-game-card', card),
+  setActiveGameCard: (id) => ipcRenderer.invoke('set-active-game-card', id),
+  getActiveGameCard: () => ipcRenderer.invoke('get-active-game-card'),
   onBackgroundConfigChanged: (callback) => ipcRenderer.on('background-config-changed', (event, config) => callback(config))
 });

@@ -6,11 +6,13 @@ const fs = require('fs');
 const { registerConfigHandlers } = require('./ipc/configHandlers');
 const { registerBackgroundHandlers } = require('./ipc/backgroundHandlers');
 const { registerChatHistoryHandlers } = require('./ipc/chatHistoryHandlers');
+const { registerGameCardHandlers } = require('./ipc/gameCardHandlers');
 
 // Data directory path
 let configPath;
 let backgroundConfigPath;
 let chatHistoryPath;
+let gameCardsDir;
 
 // Set custom userData directory for E2E tests if specified
 const customUserDataDir = process.env.E2E_USER_DATA_DIR;
@@ -37,12 +39,14 @@ function registerAllHandlers() {
   registerConfigHandlers(ipcMain, configPath, fs);
   registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dialog);
   registerChatHistoryHandlers(ipcMain, chatHistoryPath, fs);
+  registerGameCardHandlers(ipcMain, gameCardsDir, fs);
 }
 
 app.whenReady().then(() => {
   configPath = path.join(app.getPath('userData'), 'model-config.json');
   backgroundConfigPath = path.join(app.getPath('userData'), 'background-config.json');
   chatHistoryPath = path.join(app.getPath('userData'), 'chat-histories', 'chat-history.json');
+  gameCardsDir = path.join(app.getPath('userData'), 'game-cards');
 
   // Register local:// protocol for serving local files
   protocol.registerFileProtocol('local', (request, callback) => {
