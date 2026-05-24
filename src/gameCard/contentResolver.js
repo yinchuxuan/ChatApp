@@ -35,6 +35,9 @@ function resolveFilePath(requestedPath, options) {
 }
 
 function readFileContent(requestedPath, options) {
+  if (options.fileContents && Object.prototype.hasOwnProperty.call(options.fileContents, requestedPath)) {
+    return options.fileContents[requestedPath];
+  }
   const nodeFs = options.fs || (typeof require === 'function' ? require('fs') : null);
   if (!nodeFs || typeof nodeFs.readFileSync !== 'function') {
     throw new Error('file_content requires fs.readFileSync');

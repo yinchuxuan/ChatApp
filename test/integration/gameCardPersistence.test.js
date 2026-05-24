@@ -16,11 +16,13 @@ function createIpcMain() {
 describe('Game Card Persistence IPC', () => {
   let tempDir;
   let ipcMain;
+  let dialog;
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chatapp-game-cards-'));
     ipcMain = createIpcMain();
-    registerGameCardHandlers(ipcMain, path.join(tempDir, 'game-cards'), fs);
+    dialog = { showOpenDialog: jest.fn() };
+    registerGameCardHandlers(ipcMain, path.join(tempDir, 'game-cards'), fs, dialog);
   });
 
   afterEach(() => {
@@ -57,12 +59,52 @@ describe('Game Card Persistence IPC', () => {
     expect(getResult).toEqual({ success: true, card });
   });
 
+  test('imports a game card file and sets it active', async () => {
+    const card = { id: 'imported_quest', name: 'Imported Quest', rules: [] };
+    const cardPath = path.join(tempDir, 'imported.json');
+    fs.writeFileSync(cardPath, JSON.stringify(card), 'utf-8');
+    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [cardPath] });
+
+    const importResult = await ipcMain.handlers['import-game-card-from-file']();
+    const activeResult = await ipcMain.handlers['get-active-game-card']();
+
+    expect(importResult).toEqual({ success: true, card });
+    expect(activeResult).toEqual({ success: true, card });
+  });
+
+  test('cancels game card import without changing active card', async () => {
+    dialog.showOpenDialog.mockResolvedValue({ canceled: true, filePaths: [] });
+
+    const result = await ipcMain.handlers['import-game-card-from-file']();
+
+    expect(result).toEqual({ success: false, canceled: true, card: null });
+  });
+
   test('clears active game card', async () => {
     const result = await ipcMain.handlers['set-active-game-card']({}, null);
     const active = await ipcMain.handlers['get-active-game-card']();
 
     expect(result.success).toBe(true);
     expect(active).toEqual({ success: true, card: null });
+  });
+
+  test('reads game card asset files from the card directory', async () => {
+    const filePath = path.join(tempDir, 'game-cards', 'cards', 'quest', 'worldbook', 'rules.md');
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, 'rules', 'utf-8');
+
+    const result = await ipcMain.handlers['read-game-card-file']({}, 'quest', 'worldbook/rules.md');
+
+    expect(result).toEqual({ success: true, content: 'rules' });
+  });
+
+  test('rejects game card asset paths outside the card directory', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const result = await ipcMain.handlers['read-game-card-file']({}, 'quest', '../secret.md');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('file_content path must stay inside game card directory');
+    errorSpy.mockRestore();
   });
 
   test('rejects unsafe ids', async () => {

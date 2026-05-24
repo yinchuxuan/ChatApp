@@ -32,7 +32,7 @@ describe('ChatPanel Header Hide/Show on Hover', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     expect(chatHeader).toBeTruthy();
     expect(chatHeader.classList.contains('chat-header-visible')).toBe(false);
   });
@@ -45,7 +45,7 @@ describe('ChatPanel Header Hide/Show on Hover', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.mouseEnter(chatHeader);
 
     expect(chatHeader.classList.contains('chat-header-visible')).toBe(true);
@@ -59,7 +59,7 @@ describe('ChatPanel Header Hide/Show on Hover', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.mouseEnter(chatHeader);
     expect(chatHeader.classList.contains('chat-header-visible')).toBe(true);
 
@@ -80,7 +80,7 @@ describe('ChatPanel Header Hide/Show on Hover', () => {
 
     fireEvent.mouseEnter(triggerZone);
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     expect(chatHeader.classList.contains('chat-header-visible')).toBe(true);
   });
 
@@ -92,7 +92,7 @@ describe('ChatPanel Header Hide/Show on Hover', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {

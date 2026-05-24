@@ -39,7 +39,7 @@ function registerAllHandlers() {
   registerConfigHandlers(ipcMain, configPath, fs);
   registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dialog);
   registerChatHistoryHandlers(ipcMain, chatHistoryPath, fs);
-  registerGameCardHandlers(ipcMain, gameCardsDir, fs);
+  registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog);
 }
 
 app.whenReady().then(() => {

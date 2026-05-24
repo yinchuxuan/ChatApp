@@ -83,7 +83,7 @@ test.describe('Chat Panel Msg History Toggle', () => {
 
   test('should toggle back to Chat panel when clicking chat-header again', async () => {
     const currentTitle = await getChatHeaderTitle(appHelper);
-    if (currentTitle === '聊天') {
+    if (currentTitle === '未加载游戏卡') {
       await clickChatHeader(appHelper);
       await appHelper.waitForTimeout(200);
     }
@@ -92,7 +92,7 @@ test.describe('Chat Panel Msg History Toggle', () => {
     await appHelper.waitForTimeout(200);
 
     const chatTitle = await getChatHeaderTitle(appHelper);
-    expect(chatTitle).toBe('聊天');
+    expect(chatTitle).toBe('未加载游戏卡');
   });
 
   test('should have chat-history with overflow scrolling enabled', async () => {

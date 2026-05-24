@@ -32,7 +32,7 @@ describe('ChatPanel Component - UI', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.getByText('聊天')).toBeInTheDocument();
+    expect(_screen.getByText('未加载游戏卡')).toBeInTheDocument();
 
     const header = document.querySelector('.chat-header');
     _fireEvent.click(header);
@@ -127,7 +127,7 @@ describe('ChatPanel Component - UI', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.getByText('聊天')).toBeInTheDocument();
+    expect(_screen.getByText('未加载游戏卡')).toBeInTheDocument();
 
     window.electronAPI = originalElectronAPI;
   });

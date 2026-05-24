@@ -1,0 +1,64 @@
+.game-card-title-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  color: var(--md-on-surface);
+}
+
+.game-card-title-control.loaded {
+  color: var(--md-on-surface);
+}
+
+.game-card-title-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: min(46vw, 520px);
+}
+
+.game-card-title-icon {
+  flex: 0 0 auto;
+  font-size: 28px;
+  color: var(--md-primary);
+  animation: subtle-pulse 3s ease-in-out infinite;
+}
+
+.game-card-title-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 22px;
+  font-weight: 600;
+  color: currentColor;
+  font-family: 'Google Sans Display', 'Google Sans', sans-serif;
+}
+
+.game-card-import-btn {
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: var(--md-shape-corner-full);
+  color: var(--md-primary);
+  flex: 0 0 auto;
+}
+
+.game-card-model-status {
+  flex: 0 0 auto;
+}
+
+.game-card-import-btn .material-icons,
+.game-card-title-error .material-icons {
+  font-size: 20px;
+  color: currentColor;
+  animation: none;
+}
+
+.game-card-title-error {
+  display: inline-flex;
+  color: var(--md-error);
+}

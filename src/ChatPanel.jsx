@@ -1,4 +1,5 @@
 import './ChatInputArea.jsx';
+import './components/GameCardTitleControl.jsx';
 import './components/ChatPanelMessageRenderers.js';
 // highlightQuotes exposes itself on window.highlightQuotes
 
@@ -76,6 +77,7 @@ function ChatPanel() {
   const renderMarkdown = msgRenderers ? (text) => msgRenderers.renderMarkdown(R, text, window.marked, window.DOMPurify, window.highlightQuotes) : null;
   const renderAssistantMsg = msgRenderers ? (msg, idx, isStreaming) => msgRenderers.renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, window.marked, window.DOMPurify, window.highlightQuotes) : null;
   const renderRetryBtn = msgRenderers ? (isLast, isLoading) => msgRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry) : null;
+  const GameCardControl = window.GameCardTitleControl;
 
   const chatHistoryRef = R.useRef(null);
   const initialLoadDone = R.useRef(false);
@@ -146,21 +148,23 @@ function ChatPanel() {
   const currentThinking = hasThinking ? streamThinking : null;
 
   const renderMessages = () => {
+    const visibleMessages = messages.filter(msg => msg?._meta?.visibility !== 'llm_only' && msg?._meta?.visibility !== 'debug_only');
     if (msgRenderers && renderMarkdown && renderAssistantMsg && renderRetryBtn) {
-      return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
+      return msgRenderers.renderMessages(R, visibleMessages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
     }
     // Fallback: renderers not loaded
-    if (messages.length === 0) return C('div', { className: 'chat-empty' }, C('div', null, '加载中...'));
-    return C('div', null, messages.map((msg, idx) => C('div', { key: idx }, msg.content)));
+    if (visibleMessages.length === 0) return C('div', { className: 'chat-empty' }, C('div', null, '加载中...'));
+    return C('div', null, visibleMessages.map((msg, idx) => C('div', { key: idx }, msg.content)));
   };
 
   return C('div', { className: 'chat-panel' },
     C('div', { className: 'chat-main' },
       C('div', { className: 'chat-header-hover-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
-        C('span', { className: 'material-icons' }, showMsgHistory ? 'history' : 'chat'),
-        C('span', { className: 'header-title' }, showMsgHistory ? 'msg历史记录' : '聊天'),
-        modelConfig && modelConfig.apiUrl && C('span', { className: 'config-status configured' }, modelConfig.modelName || '已连接'),
+        showMsgHistory ? C('span', { className: 'material-icons' }, 'history') : null,
+        showMsgHistory ? C('span', { className: 'header-title' }, 'msg历史记录') : (GameCardControl ? C(GameCardControl, {
+          modelName: modelConfig && modelConfig.apiUrl ? (modelConfig.modelName || '已连接') : ''
+        }) : C('span', { className: 'header-title' }, '未加载游戏卡')),
         messages.length > 0 && C('button', {
           className: 'chat-header-clear-btn md-btn md-btn-icon',
           onClick: handleClearHistory, title: '清空聊天历史', 'aria-label': '清空聊天历史'

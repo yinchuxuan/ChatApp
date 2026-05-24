@@ -17,7 +17,9 @@ async function clickChatHeader(appHelper) {
 async function getChatHeaderTitle(appHelper) {
   return await appHelper.evaluate(() => {
     const title = document.querySelector('.chat-header .header-title');
-    return title ? title.textContent : '';
+    if (title) return title.textContent;
+    const gameCardTitle = document.querySelector('.chat-header .game-card-title-name');
+    return gameCardTitle ? gameCardTitle.textContent : '';
   });
 }
 

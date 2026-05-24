@@ -27,7 +27,7 @@ test.describe('Application Startup', () => {
     const chatPanel = await appHelper.waitForSelector('.chat-panel');
     expect(chatPanel).toBeTruthy();
 
-    const chatHeaderText = await appHelper.textContent('.chat-header .header-title');
-    expect(chatHeaderText).toContain('聊天');
+    const chatHeaderText = await appHelper.textContent('.chat-header .game-card-title-name');
+    expect(chatHeaderText).toContain('未加载游戏卡');
   });
 });

@@ -39,7 +39,7 @@ describe('ChatPanel Msg History Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -72,7 +72,7 @@ describe('ChatPanel Msg History Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -91,7 +91,7 @@ describe('ChatPanel Msg History Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('聊天')).toBeInTheDocument();
+    expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
   });
 
   test('should display full msg JSON structure from history file', async () => {
@@ -108,7 +108,7 @@ describe('ChatPanel Msg History Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -136,7 +136,7 @@ describe('ChatPanel Msg History Display', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -172,7 +172,7 @@ describe('ChatPanel Msg History Display', () => {
       expect(responses.length).toBeGreaterThan(0);
     });
     electronAPI.getChatHistory.mockClear();
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
     expect(electronAPI.getChatHistory).toHaveBeenCalled();

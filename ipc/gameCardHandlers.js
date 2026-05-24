@@ -17,7 +17,19 @@ function readCard(fs, cardsDir, id) {
   return readJsonFile(fs, cardPath, null);
 }
 
-function registerGameCardHandlers(ipcMain, gameCardsDir, fs) {
+function getCardAssetPath(fs, cardsDir, id, relativePath) {
+  if (!isSafeGameCardId(id)) throw new Error('Invalid game card id');
+  if (path.isAbsolute(relativePath)) throw new Error('file_content path must be relative');
+  const baseDir = path.resolve(cardsDir, id);
+  const filePath = path.resolve(baseDir, relativePath);
+  if (filePath !== baseDir && !filePath.startsWith(baseDir + path.sep)) {
+    throw new Error('file_content path must stay inside game card directory');
+  }
+  if (!fs.existsSync(filePath)) throw new Error('file_content file not found');
+  return filePath;
+}
+
+function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog) {
   const cardsDir = ensureGameCardDirs(fs, gameCardsDir);
   const activePath = path.join(gameCardsDir, 'active.json');
 
@@ -53,6 +65,30 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs) {
     }
   });
 
+  ipcMain.handle('import-game-card-from-file', async () => {
+    try {
+      if (!dialog || typeof dialog.showOpenDialog !== 'function') {
+        throw new Error('File dialog is not available');
+      }
+      const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [{ name: 'Game Card JSON', extensions: ['json'] }]
+      });
+      if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+        return { success: false, canceled: true, card: null };
+      }
+      const card = JSON.parse(fs.readFileSync(result.filePaths[0], 'utf-8'));
+      if (!card || !isSafeGameCardId(card.id)) {
+        throw new Error('Game card must have a safe id');
+      }
+      writeJsonFile(fs, getCardPath(cardsDir, card.id), card);
+      writeJsonFile(fs, activePath, { id: card.id });
+      return { success: true, card };
+    } catch (err) {
+      return asErrorResult(err, { card: null });
+    }
+  });
+
   ipcMain.handle('set-active-game-card', (event, id) => {
     try {
       if (id === null || id === '') {
@@ -76,6 +112,15 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs) {
       return { success: true, card };
     } catch (err) {
       return asErrorResult(err, { card: null });
+    }
+  });
+
+  ipcMain.handle('read-game-card-file', (event, id, relativePath) => {
+    try {
+      const filePath = getCardAssetPath(fs, cardsDir, id, relativePath);
+      return { success: true, content: fs.readFileSync(filePath, 'utf-8') };
+    } catch (err) {
+      return asErrorResult(err, { content: '' });
     }
   });
 }

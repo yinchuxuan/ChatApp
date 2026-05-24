@@ -23,6 +23,10 @@ function cardWithInsert(content) {
 }
 
 describe('game card send pipeline', () => {
+  beforeEach(() => {
+    window.electronAPI.readGameCardFile.mockClear();
+  });
+
   test('extracts supported active card response shapes', () => {
     const card = cardWithInsert('rules');
 
@@ -60,6 +64,34 @@ describe('game card send pipeline', () => {
       { role: 'system', content: 'system rules', _meta: { visibility: 'llm_only' } },
       { role: 'user', content: 'start' }
     ]);
+  });
+
+  test('preloads file_content through electronAPI before applying rules', async () => {
+    window.electronAPI.readGameCardFile.mockResolvedValue({
+      success: true,
+      content: 'loaded rules'
+    });
+    const messages = [{ role: 'user', content: 'start' }];
+    const result = await preparePreSendMessages({
+      messages,
+      card: cardWithInsert('{{file_content:worldbook/rules.md}}')
+    });
+
+    expect(window.electronAPI.readGameCardFile)
+      .toHaveBeenCalledWith('send-card', 'worldbook/rules.md');
+    expect(result.messages[0].content).toBe('loaded rules');
+  });
+
+  test('fails before applying rules when file_content preload fails', async () => {
+    window.electronAPI.readGameCardFile.mockResolvedValue({
+      success: false,
+      error: 'blocked path'
+    });
+
+    await expect(preparePreSendMessages({
+      messages: [{ role: 'user', content: 'start' }],
+      card: cardWithInsert('{{file_content:../secret.md}}')
+    })).rejects.toThrow('blocked path');
   });
 
   test('returns the original messages object after response when no card is active', async () => {

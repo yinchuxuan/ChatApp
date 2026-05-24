@@ -85,6 +85,15 @@ function buildSource(source) {
   `;
 }
 
+function buildBrowserSource(source) {
+  return `
+    'use strict';
+    const ctx = __ctx;
+    const { messages, state, config, event, utils } = ctx;
+    ${source}
+  `;
+}
+
 function runInNodeVm(source, context, timeoutMs) {
   const globalRequire = require;
   const vmModule = globalRequire('vm');
@@ -96,11 +105,20 @@ function runInNodeVm(source, context, timeoutMs) {
 }
 
 function runInBrowser(source, context) {
-  const blocked = /\b(for|while|do|import|require|process|window|document|fetch|ipcRenderer)\b/;
+  const blocked = /\b(for|while|do|import|require|process|window|document|fetch|ipcRenderer|Function|eval)\b/;
   if (blocked.test(source)) {
     throw new Error('exec source contains blocked browser runtime token');
   }
-  return Function('__ctx', `return ${buildSource(source)}`)(context);
+  return Function(
+    '__ctx',
+    'require',
+    'process',
+    'window',
+    'document',
+    'fetch',
+    'ipcRenderer',
+    buildBrowserSource(source)
+  )(context, undefined, undefined, undefined, undefined, undefined, undefined);
 }
 
 function summarizeState(before, after) {

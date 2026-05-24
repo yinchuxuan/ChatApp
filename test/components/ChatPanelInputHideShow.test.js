@@ -182,7 +182,7 @@ describe('ChatPanel Input Area Hide/Show on Hover', () => {
     const bottomTrigger = document.querySelector('.chat-input-hover-trigger');
     fireEvent.mouseEnter(bottomTrigger);
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     expect(chatHeader.classList.contains('chat-header-visible')).toBe(false);
 
     const inputArea = document.querySelector('.chat-input-area');

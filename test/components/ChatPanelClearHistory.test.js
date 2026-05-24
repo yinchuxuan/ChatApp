@@ -137,7 +137,7 @@ describe('ChatPanel Clear Chat History', () => {
     });
 
     // Should still be in chat view (not msg history view)
-    expect(screen.getByText('聊天')).toBeInTheDocument();
+    expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
     expect(screen.queryByText('msg历史记录')).not.toBeInTheDocument();
   });
 

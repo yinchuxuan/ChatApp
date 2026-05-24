@@ -60,7 +60,7 @@ function formatRuleError(index, stage, error) {
   return `rule[${index}] ${stage}: ${error.message}`;
 }
 
-function applyGameCard({ card, phase, messages = [], state = {}, event = {}, contentBaseDir, fs, path } = {}) {
+function applyGameCard({ card, phase, messages = [], state = {}, event = {}, contentBaseDir, fileContents, fs, path } = {}) {
   const validation = validateGameCard(card);
   const initialMessages = cloneMessages(messages);
   const initialState = cloneState(state);
@@ -93,6 +93,7 @@ function applyGameCard({ card, phase, messages = [], state = {}, event = {}, con
         card,
         event: { ...event, phase },
         baseDir: contentBaseDir,
+        fileContents,
         fs,
         path
       });

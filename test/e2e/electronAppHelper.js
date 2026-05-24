@@ -35,6 +35,12 @@ class ElectronAppHelper extends ElectronAppHelperCore {
   readBackgroundImage(filePath) { return this._ipcHelper.readBackgroundImage(filePath); }
   saveChatHistory(messages) { return this._ipcHelper.saveChatHistory(messages); }
   getChatHistory() { return this._ipcHelper.getChatHistory(); }
+  getGameCards() { return this._ipcHelper.getGameCards(); }
+  getGameCard(id) { return this._ipcHelper.getGameCard(id); }
+  saveGameCard(card) { return this._ipcHelper.saveGameCard(card); }
+  setActiveGameCard(id) { return this._ipcHelper.setActiveGameCard(id); }
+  getActiveGameCard() { return this._ipcHelper.getActiveGameCard(); }
+  readGameCardFile(id, relativePath) { return this._ipcHelper.readGameCardFile(id, relativePath); }
 
   // Style methods
   getElementBoundingBox(selector) { return this._styleHelper.getElementBoundingBox(selector); }

@@ -43,7 +43,7 @@ describe('Msg History Display Card - Integration', () => {
     });
 
     // Toggle to msg history view
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -77,7 +77,7 @@ describe('Msg History Display Card - Integration', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -101,7 +101,7 @@ describe('Msg History Display Card - Integration', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {

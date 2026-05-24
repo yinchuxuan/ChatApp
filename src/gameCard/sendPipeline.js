@@ -17,32 +17,56 @@ async function loadActiveGameCard(api) {
   }
 }
 
+function collectFileContentPaths(card) {
+  const paths = new Set();
+  const pattern = /\{\{file_content:((?:\\.|[^}])*)\}\}/g;
+  JSON.stringify(card?.rules || []).replace(pattern, (_, filePath) => {
+    paths.add(filePath.replaceAll('\\}}', '}}').replaceAll('\\\\', '\\'));
+    return '';
+  });
+  return [...paths];
+}
+
+async function loadFileContents(card, api) {
+  if (!card?.id || !api || typeof api.readGameCardFile !== 'function') return {};
+  const entries = await Promise.all(collectFileContentPaths(card).map(async (filePath) => {
+    const result = await api.readGameCardFile(card.id, filePath);
+    if (!result?.success) throw new Error(result?.error || 'failed to read game card file');
+    return [filePath, result.content || ''];
+  }));
+  return Object.fromEntries(entries);
+}
+
 async function preparePreSendMessages({ messages = [], state = {}, event = {}, card } = {}) {
+  const api = typeof window !== 'undefined' ? window.electronAPI : null;
   const activeCard = card === undefined
-    ? await loadActiveGameCard(typeof window !== 'undefined' ? window.electronAPI : null)
+    ? await loadActiveGameCard(api)
     : card;
 
   if (!activeCard) {
     return { messages, state, trace: null, applied: false, card: null };
   }
 
+  const fileContents = await loadFileContents(activeCard, api);
   return {
-    ...applyGameCard({ card: activeCard, phase: 'pre_send', messages, state, event }),
+    ...applyGameCard({ card: activeCard, phase: 'pre_send', messages, state, event, fileContents }),
     applied: true,
     card: activeCard
   };
 }
 
 async function prepareAfterResponseMessages({ messages = [], state = {}, event = {}, card } = {}) {
+  const api = typeof window !== 'undefined' ? window.electronAPI : null;
   const activeCard = card === undefined
-    ? await loadActiveGameCard(typeof window !== 'undefined' ? window.electronAPI : null)
+    ? await loadActiveGameCard(api)
     : card;
 
   if (!activeCard) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null };
   }
 
-  const result = applyGameCard({ card: activeCard, phase: 'after_response', messages, state, event });
+  const fileContents = await loadFileContents(activeCard, api);
+  const result = applyGameCard({ card: activeCard, phase: 'after_response', messages, state, event, fileContents });
   const ttl = decayTTL(result.messages);
   return {
     messages: ttl.messages,

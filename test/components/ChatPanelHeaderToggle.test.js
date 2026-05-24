@@ -32,7 +32,7 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     expect(chatHeader).toBeTruthy();
     expect(chatHeader.classList.contains('chat-header-clickable')).toBe(true);
   });
@@ -45,9 +45,9 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('聊天')).toBeInTheDocument();
+    expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -67,7 +67,7 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('聊天').closest('.chat-header');
+    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -85,7 +85,7 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('聊天')).toBeInTheDocument();
+    expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
     expect(screen.getByText('开始对话')).toBeInTheDocument();
   });
 
