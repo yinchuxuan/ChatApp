@@ -12,7 +12,8 @@
     "test": "jest --forceExit && npm run test:integration && npm run test:e2e",
     "test:coverage": "jest --coverage --forceExit",
     "test:integration": "jest --config jest.integration.config.js",
-    "test:e2e": "[ -f .env ] && export $(grep -v '^#' .env | xargs); playwright test --config playwright.config.js",
+    "test:e2e": "playwright test --config playwright.config.js",
+    "test:e2e-real-api": "[ -f .env ] && export $(grep -v '^#' .env | xargs); playwright test --config playwright.config.js",
     "prepare": "husky"
   },
   "lint-staged": {
