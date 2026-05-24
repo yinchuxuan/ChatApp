@@ -33,23 +33,23 @@ function buildTrace(action, matches, applied, before, after) {
   };
 }
 
-function insertMessage(action) {
+function insertMessage(action, options) {
   return {
     role: action.role,
-    content: resolveContent(action.content),
+    content: resolveContent(action.content, {}, options),
     ...(action.ttl !== undefined ? { ttl: action.ttl } : {}),
     ...(action._meta ? { _meta: { ...action._meta } } : {})
   };
 }
 
-function applyInsert(messages, action) {
+function applyInsert(messages, action, options) {
   const matches = findMatchingIndexes(messages, action.predicate);
   if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false, messages, messages) };
 
   const anchorIndex = matches[0] + (action.anchor === 'after' ? 1 : 0);
   const nextMessages = [
     ...messages.slice(0, anchorIndex),
-    insertMessage(action),
+    insertMessage(action, options),
     ...messages.slice(anchorIndex)
   ];
   return { messages: nextMessages, trace: buildTrace(action, matches, true, messages, nextMessages) };
@@ -63,7 +63,7 @@ function applyRemove(messages, action) {
   return { messages: nextMessages, trace: buildTrace(action, matches, true, messages, nextMessages) };
 }
 
-function applyReplace(messages, action) {
+function applyReplace(messages, action, options) {
   const matches = findMatchingIndexes(messages, action.predicate);
   if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false, messages, messages) };
 
@@ -71,7 +71,7 @@ function applyReplace(messages, action) {
     if (!matches.includes(index)) return message;
     return {
       ...message,
-      ...(action.content !== undefined ? { content: resolveContent(action.content, message) } : {}),
+      ...(action.content !== undefined ? { content: resolveContent(action.content, message, options) } : {}),
       ...(action.ttl !== undefined ? { ttl: action.ttl } : {}),
       ...(action._meta ? { _meta: { ...message._meta, ...action._meta } } : {})
     };
@@ -79,10 +79,10 @@ function applyReplace(messages, action) {
   return { messages: nextMessages, trace: buildTrace(action, matches, true, messages, nextMessages) };
 }
 
-function applyAction(messages, action) {
-  if (action?.type === 'insert') return applyInsert(messages, action);
+function applyAction(messages, action, options = {}) {
+  if (action?.type === 'insert') return applyInsert(messages, action, options);
   if (action?.type === 'remove') return applyRemove(messages, action);
-  if (action?.type === 'replace') return applyReplace(messages, action);
+  if (action?.type === 'replace') return applyReplace(messages, action, options);
 
   return {
     messages,
@@ -98,9 +98,9 @@ function applyAction(messages, action) {
   };
 }
 
-function applyActions(messages, actions = []) {
+function applyActions(messages, actions = [], options = {}) {
   return actions.reduce((result, action) => {
-    const next = applyAction(result.messages, action);
+    const next = applyAction(result.messages, action, options);
     return {
       messages: next.messages,
       trace: [...result.trace, next.trace]
