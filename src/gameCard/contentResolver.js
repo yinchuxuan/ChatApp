@@ -1,3 +1,6 @@
+const { matchesPredicate } = require('./predicate');
+const { applyTransform, renderValue } = require('./contentTransforms');
+
 function parseSource(expression, index) {
   if (!expression.startsWith('{{', index)) throw new Error('content source expected');
 
@@ -51,7 +54,17 @@ function resolveSource(body, originalMessage, options) {
   if (body.startsWith('file_content:')) {
     return readFileContent(body.slice('file_content:'.length), options);
   }
+  if (body.startsWith('find:')) return resolveFind(body.slice('find:'.length), options);
   throw new Error(`unsupported content source: ${body}`);
+}
+
+function resolveFind(name, options) {
+  const spec = options.find?.[name];
+  if (!spec) throw new Error(`unknown find source: ${name}`);
+  const messages = Array.isArray(options.messages) ? options.messages : [];
+  return messages
+    .filter((message, index) => matchesPredicate(spec.predicate, message, index, messages))
+    .map((message) => message.content || '');
 }
 
 function parseTransform(expression, index) {
@@ -86,28 +99,22 @@ function parseTransform(expression, index) {
 
 function parseArgs(argsText) {
   const args = {};
+  const positional = argsText.trim().match(/^'((?:\\.|[^'])*)'$|^"((?:\\.|[^"])*)"$/);
+  if (positional) {
+    args.value = decodeArg(positional[1] !== undefined ? positional[1] : positional[2]);
+    return args;
+  }
   const pattern = /([A-Za-z_][A-Za-z0-9_]*)\s*:\s*('((?:\\.|[^'])*)'|"((?:\\.|[^"])*)"|[0-9]+)/g;
   let match;
   while ((match = pattern.exec(argsText))) {
     const rawValue = match[3] !== undefined ? match[3] : match[4];
-    args[match[1]] = rawValue !== undefined ? rawValue.replace(/\\(['"\\])/g, '$1') : Number(match[2]);
+    args[match[1]] = rawValue !== undefined ? decodeArg(rawValue) : Number(match[2]);
   }
   return args;
 }
 
-function applyTransform(value, transform) {
-  if (transform.name === 'regex_replace') {
-    return value.replace(
-      new RegExp(transform.args.pattern || '', transform.args.flags || ''),
-      transform.args.with || ''
-    );
-  }
-  if (transform.name === 'regex_extract') {
-    const match = value.match(new RegExp(transform.args.pattern || ''));
-    const group = transform.args.group || 0;
-    return match && match[group] !== undefined ? match[group] : '';
-  }
-  throw new Error(`unsupported content transform: ${transform.name}`);
+function decodeArg(value) {
+  return value.replace(/\\(['"\\])/g, '$1').replace(/\\n/g, '\n');
 }
 
 function skipSpaces(expression, index) {
@@ -127,7 +134,8 @@ function parseChain(expression, index, originalMessage, options) {
     cursor = skipSpaces(expression, transform.next);
     transform = parseTransform(expression, cursor);
   }
-  return { value, next: cursor };
+  const findName = source.body.startsWith('find:') ? source.body.slice('find:'.length) : null;
+  return { value, findName, next: cursor };
 }
 
 function resolveContent(content, originalMessage = {}, options = {}) {
@@ -141,7 +149,8 @@ function resolveContent(content, originalMessage = {}, options = {}) {
   let resolved = '';
   while (cursor < content.length) {
     const chain = parseChain(content, cursor, originalMessage, options);
-    resolved += chain.value;
+    const joiner = chain.findName ? options.find?.[chain.findName]?.join : undefined;
+    resolved += renderValue(chain.value, joiner || '\n');
     cursor = skipSpaces(content, chain.next);
     if (cursor < content.length) {
       if (content[cursor] !== '+') throw new Error('content chains must be joined with +');

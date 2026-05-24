@@ -70,6 +70,7 @@
         "anchor": { "enum": ["before", "after"] },
         "role": { "$ref": "#/definitions/messageRole" },
         "content": { "$ref": "#/definitions/content" },
+        "find": { "$ref": "#/definitions/findMap" },
         "ttl": { "$ref": "#/definitions/ttl" },
         "_meta": { "$ref": "#/definitions/messageMeta" }
       }
@@ -92,6 +93,7 @@
         "type": { "const": "replace" },
         "predicate": { "$ref": "#/definitions/predicate" },
         "content": { "$ref": "#/definitions/content" },
+        "find": { "$ref": "#/definitions/findMap" },
         "ttl": { "$ref": "#/definitions/ttl" },
         "_meta": { "$ref": "#/definitions/messageMeta" }
       }
@@ -103,6 +105,20 @@
       "properties": {
         "type": { "const": "exec" },
         "source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "findMap": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/findSpec" },
+      "minProperties": 1
+    },
+    "findSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predicate"],
+      "properties": {
+        "predicate": { "$ref": "#/definitions/predicate" },
+        "join": { "type": "string" }
       }
     },
     "predicate": {

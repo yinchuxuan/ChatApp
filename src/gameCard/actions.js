@@ -37,7 +37,7 @@ function buildTrace(action, matches, applied, before, after, stateSummary) {
 function insertMessage(action, options) {
   return {
     role: action.role,
-    content: resolveContent(action.content, {}, options),
+    content: resolveContent(action.content, {}, { ...options, find: action.find }),
     ...(action.ttl !== undefined ? { ttl: action.ttl } : {}),
     ...(action._meta ? { _meta: { ...action._meta } } : {})
   };
@@ -72,7 +72,7 @@ function applyReplace(messages, action, options) {
     if (!matches.includes(index)) return message;
     return {
       ...message,
-      ...(action.content !== undefined ? { content: resolveContent(action.content, message, options) } : {}),
+      ...(action.content !== undefined ? { content: resolveContent(action.content, message, { ...options, messages, find: action.find }) } : {}),
       ...(action.ttl !== undefined ? { ttl: action.ttl } : {}),
       ...(action._meta ? { _meta: { ...message._meta, ...action._meta } } : {})
     };
@@ -81,7 +81,7 @@ function applyReplace(messages, action, options) {
 }
 
 function applyAction(messages, action, options = {}) {
-  if (action?.type === 'insert') return applyInsert(messages, action, options);
+  if (action?.type === 'insert') return applyInsert(messages, action, { ...options, messages });
   if (action?.type === 'remove') return applyRemove(messages, action);
   if (action?.type === 'replace') return applyReplace(messages, action, options);
   if (action?.type === 'exec') {

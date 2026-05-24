@@ -17,7 +17,6 @@ function isObject(v) { return v && typeof v === 'object' && !Array.isArray(v); }
 function validateTTL(value, path, errors) {
   if (!isInteger(value) || value < -1) addError(errors, path, 'ttl must be an integer >= -1');
 }
-
 function validateMessageMeta(meta, path, errors) {
   if (!isObject(meta)) return;
   if (meta.source !== undefined && !isString(meta.source)) addError(errors, path + '.source', 'must be a string');
@@ -27,7 +26,6 @@ function validateMessageMeta(meta, path, errors) {
 function validateMessageRole(role, path, errors) {
   if (!VALID_ROLES.includes(role)) addError(errors, path, 'must be one of ' + VALID_ROLES.join(', '));
 }
-
 function validateComparison(value, path, errors) {
   if (!isObject(value)) return;
   for (const [op, v] of Object.entries(value)) {
@@ -51,7 +49,6 @@ function validateStringMatcher(value, path, errors) {
     }
   }
 }
-
 function validateStringSetMatcher(value, path, errors) {
   if (!isObject(value)) return;
   for (const [op, v] of Object.entries(value)) {
@@ -62,7 +59,6 @@ function validateStringSetMatcher(value, path, errors) {
     }
   }
 }
-
 function validatePredicate(predicate, path, errors) {
   if (!predicate || !isObject(predicate)) {
     addError(errors, path, 'must be an object');
@@ -155,56 +151,48 @@ function validateWhen(when, path, errors) {
   if (when.all !== undefined) validatePredicate(when.all, path + '.all', errors);
 }
 
+function validateFindMap(find, path, errors) {
+  if (find === undefined) return;
+  if (!isObject(find) || Object.keys(find).length === 0) return addError(errors, path, 'must be a non-empty object');
+  Object.entries(find).forEach(([name, spec]) => {
+    const specPath = `${path}.${name}`;
+    if (!isObject(spec)) return addError(errors, specPath, 'must be an object');
+    if (!spec.predicate) addError(errors, specPath, 'requires predicate');
+    else validatePredicate(spec.predicate, specPath + '.predicate', errors);
+    if (spec.join !== undefined && !isString(spec.join)) addError(errors, specPath + '.join', 'must be a string');
+    Object.keys(spec).forEach((key) => {
+      if (!['predicate', 'join'].includes(key)) addError(errors, specPath, 'unknown find key: ' + key);
+    });
+  });
+}
+
+function validateRequiredPredicate(action, path, errors) {
+  if (!action.predicate) addError(errors, path, 'requires predicate');
+  else validatePredicate(action.predicate, path + '.predicate', errors);
+}
+
 function validateAction(action, path, errors) {
-  if (!action || !isObject(action)) {
-    addError(errors, path, 'must be an object');
-    return;
-  }
-
+  if (!action || !isObject(action)) return addError(errors, path, 'must be an object');
   if (!VALID_ACTION_TYPES.includes(action.type)) {
-    addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));
+    return addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));
+  }
+  if (action.type === 'exec') {
+    if (!isString(action.source) || action.source.length === 0) addError(errors, path + '.source', 'must be a non-empty string');
     return;
   }
-
-  switch (action.type) {
-    case 'insert': {
-      if (!action.predicate) addError(errors, path, 'requires predicate');
-      else validatePredicate(action.predicate, path + '.predicate', errors);
-      if (!action.role) addError(errors, path, 'requires role');
-      else validateMessageRole(action.role, path + '.role', errors);
-      if (!isString(action.content)) addError(errors, path + '.content', 'must be a string');
-      if (action.anchor !== undefined && !VALID_ANCHORS.includes(action.anchor)) {
-        addError(errors, path + '.anchor', 'must be one of ' + VALID_ANCHORS.join(', '));
-      }
-      if (action.ttl !== undefined) validateTTL(action.ttl, path + '.ttl', errors);
-      if (action._meta !== undefined) validateMessageMeta(action._meta, path + '._meta', errors);
-      break;
-    }
-    case 'remove': {
-      if (!action.predicate) addError(errors, path, 'requires predicate');
-      else validatePredicate(action.predicate, path + '.predicate', errors);
-      break;
-    }
-    case 'replace': {
-      if (!action.predicate) addError(errors, path, 'requires predicate');
-      else validatePredicate(action.predicate, path + '.predicate', errors);
-      if (action.content === undefined && action.ttl === undefined) {
-        addError(errors, path, 'requires content or ttl');
-      }
-      if (action.content !== undefined && !isString(action.content)) {
-        addError(errors, path + '.content', 'must be a string');
-      }
-      if (action.ttl !== undefined) validateTTL(action.ttl, path + '.ttl', errors);
-      if (action._meta !== undefined) validateMessageMeta(action._meta, path + '._meta', errors);
-      break;
-    }
-    case 'exec': {
-      if (!isString(action.source) || action.source.length === 0) {
-        addError(errors, path + '.source', 'must be a non-empty string');
-      }
-      break;
-    }
+  validateRequiredPredicate(action, path, errors);
+  if (action.type === 'remove') return;
+  if (action.type === 'insert') {
+    if (!action.role) addError(errors, path, 'requires role');
+    else validateMessageRole(action.role, path + '.role', errors);
+    if (!isString(action.content)) addError(errors, path + '.content', 'must be a string');
+    if (action.anchor !== undefined && !VALID_ANCHORS.includes(action.anchor)) addError(errors, path + '.anchor', 'must be one of ' + VALID_ANCHORS.join(', '));
   }
+  if (action.type === 'replace' && action.content === undefined && action.ttl === undefined) addError(errors, path, 'requires content or ttl');
+  if (action.type === 'replace' && action.content !== undefined && !isString(action.content)) addError(errors, path + '.content', 'must be a string');
+  if (action.ttl !== undefined) validateTTL(action.ttl, path + '.ttl', errors);
+  if (action._meta !== undefined) validateMessageMeta(action._meta, path + '._meta', errors);
+  validateFindMap(action.find, path + '.find', errors);
 }
 
 if (typeof module !== 'undefined' && module.exports) {
