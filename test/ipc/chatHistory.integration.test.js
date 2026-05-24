@@ -54,6 +54,22 @@ describe('IPC Chat History Operations', () => {
     ]);
   });
 
+  test('should save and retrieve game card runtime fields', async () => {
+    const messages = [{
+      role: 'system',
+      content: 'rules',
+      _meta: { source: 'game_card', visibility: 'llm_only' },
+      ttl: 2
+    }];
+
+    await handlers['save-chat-history']({}, messages);
+
+    const raw = JSON.parse(fs.readFileSync(chatHistoryPath, 'utf-8'));
+    const result = await handlers['get-chat-history']();
+    expect(raw).toEqual(messages);
+    expect(result.messages).toEqual(messages);
+  });
+
   test('should overwrite existing chat history', async () => {
     const firstMessages = [{ role: 'user', content: 'First' }];
     await handlers['save-chat-history']({}, firstMessages);

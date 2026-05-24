@@ -36,10 +36,12 @@ function registerChatHistoryHandlers(ipcMain, chatHistoryPath, fs) {
       if (!fs.existsSync(chatHistoryDir)) {
         fs.mkdirSync(chatHistoryDir, { recursive: true });
       }
-      // Only keep role, content, thinking fields
+      // Persist runtime fields needed by game card rules after restart.
       const cleanedMessages = messages.map(msg => {
         const cleaned = { role: msg.role, content: msg.content };
         if (msg.thinking) cleaned.thinking = msg.thinking;
+        if (msg._meta) cleaned._meta = msg._meta;
+        if (msg.ttl !== undefined) cleaned.ttl = msg.ttl;
         return cleaned;
       });
       fs.writeFileSync(chatHistoryPath, JSON.stringify(cleanedMessages, null, 2), 'utf-8');

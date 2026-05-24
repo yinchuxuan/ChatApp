@@ -91,6 +91,29 @@ describe('Chat History IPC Handlers', () => {
       );
     });
 
+    test('should preserve game card runtime fields when saving', async () => {
+      const handlers = electronMock._registeredHandlers;
+      const handler = handlers['save-chat-history'];
+      const messages = [{
+        role: 'system',
+        content: 'rules',
+        _thinking: 'ui only',
+        _meta: { source: 'game_card', visibility: 'llm_only' },
+        ttl: 2
+      }];
+
+      const result = await handler({}, messages);
+      const saved = JSON.parse(mockFs.writeFileSync.mock.calls[0][1]);
+
+      expect(result.success).toBe(true);
+      expect(saved).toEqual([{
+        role: 'system',
+        content: 'rules',
+        _meta: { source: 'game_card', visibility: 'llm_only' },
+        ttl: 2
+      }]);
+    });
+
     test('should save empty messages array', async () => {
       const handlers = electronMock._registeredHandlers;
       const handler = handlers['save-chat-history'];
