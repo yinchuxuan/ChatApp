@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 
-process.env.INTEGRATION_TEST_DIR = path.join(require('os').tmpdir(), 'harness_lab_ipc_config_' + Date.now());
+process.env.INTEGRATION_TEST_DIR = path.join(require('os').tmpdir(), 'chatapp_ipc_config_' + Date.now());
 jest.mock('electron', () => require('../__mocks__/electronMock.integration.js'));
 require('../../main');
 
@@ -20,6 +20,7 @@ describe('IPC Config Operations', () => {
   beforeEach(() => {
     electronMock.dialog.showOpenDialog.mockReset();
     electronMock.dialog.showOpenDialog.mockResolvedValue({ canceled: true, filePaths: [] });
+    fs.mkdirSync(path.dirname(configPath), { recursive: true });
     if (fs.existsSync(configPath)) fs.unlinkSync(configPath);
     if (fs.existsSync(backgroundConfigPath)) fs.unlinkSync(backgroundConfigPath);
   });
@@ -70,13 +71,11 @@ describe('IPC Background Config Operations', () => {
   afterAll(() => { electronMock._cleanup(); });
 
   beforeAll(() => {
-    const testDir = electronMock._testDir;
-    if (!fs.existsSync(testDir)) {
-      fs.mkdirSync(testDir, { recursive: true });
-    }
+    fs.mkdirSync(path.dirname(backgroundConfigPath), { recursive: true });
   });
 
   beforeEach(() => {
+    fs.mkdirSync(path.dirname(backgroundConfigPath), { recursive: true });
     if (fs.existsSync(backgroundConfigPath)) fs.unlinkSync(backgroundConfigPath);
   });
 

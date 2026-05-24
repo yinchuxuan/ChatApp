@@ -7,7 +7,7 @@ const os = require('os');
 // Simulate the data directory logic from main.js
 function getExpectedDataDir() {
   // On macOS, userData is in ~/Library/Application Support/<appName>
-  const appName = 'harness_lab';
+  const appName = 'ChatApp';
   const platform = os.platform();
 
   let userDataPath;
@@ -19,7 +19,7 @@ function getExpectedDataDir() {
     userDataPath = path.join(os.homedir(), '.config', appName);
   }
 
-  return path.join(userDataPath, 'knowledge-base-data');
+  return userDataPath;
 }
 
 const expectedDir = getExpectedDataDir();

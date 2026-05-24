@@ -10,6 +10,7 @@ const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { getUserDataPaths } = require('../../ipc/userDataPaths');
 
 function buildConfig(prefix, protocol) {
   const url = process.env[prefix + '_URL'];
@@ -34,9 +35,10 @@ function skipReason(prefix) {
 
 async function setupApp(config) {
   const userDataDir = path.join(os.tmpdir(), 'chatapp-e2e-' + Date.now());
-  fs.mkdirSync(userDataDir, { recursive: true });
+  const configPath = getUserDataPaths(userDataDir, null).modelConfigPath;
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
   fs.writeFileSync(
-    path.join(userDataDir, 'model-config.json'),
+    configPath,
     JSON.stringify(config, null, 2),
     'utf-8'
   );

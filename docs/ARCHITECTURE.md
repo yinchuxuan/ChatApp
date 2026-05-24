@@ -5,7 +5,7 @@
 - **主进程 (`main.js`)**：Electron 主进程，创建 `BrowserWindow`，管理应用生命周期，注册 IPC 处理器处理文件 I/O（模型配置、背景配置、聊天历史）。
 - **预加载脚本 (`preload.js`)**：通过 `contextBridge` 桥接主进程与渲染进程，暴露 `window.electronAPI` 供渲染进程调用。
 - **渲染进程 (`src/`)**：React 单页应用。`App.jsx` 为根组件；`ChatPanel.jsx`、`ChatInputArea.jsx` 处理聊天 UI；`components/` 包含设置面板、消息渲染器和自定义 hooks。
-- **IPC 处理器 (`ipc/`)**：三个处理器模块 — `configHandlers`、`backgroundHandlers`、`chatHistoryHandlers` — 读写 `userData` 目录下的 JSON 文件。
+- **IPC 处理器 (`ipc/`)**：处理器模块读写 `userData` 目录下按领域分组的 JSON 文件：`config/`、`game-cards/`。
 
 ## 交互流程
 
@@ -22,6 +22,33 @@
     v
 文件系统 (JSON)
 ```
+
+## userData 结构
+
+默认应用名为 `ChatApp`，因此 Electron 默认数据目录会使用该名称。业务数据结构如下：
+
+```
+userData/
+  config/
+    model.json
+    background.json
+  game-cards/
+    active.json
+    no-card/
+      sessions/
+        active.json
+        <session-id>/
+          messages.json
+    cards/
+      <card-id>/
+        card.json
+        sessions/
+          active.json
+          <session-id>/
+            messages.json
+```
+
+旧版本根目录下的 `model-config.json`、`background-config.json`、`chat/history.json`、`chat-histories/chat-history.json` 会在读取时迁移到当前卡或 `no-card` session；旧 `cards/<id>.json` 会迁移为 `cards/<id>/card.json`。
 
 - **同步调用**：渲染进程调用 `ipcRenderer.invoke()` → 主进程通过 `ipcMain.handle()` 处理 → 返回结果。
 - **异步事件**：主进程通过 `ipcRenderer.on('background-config-changed')` 向渲染进程推送配置变更通知。

@@ -7,12 +7,18 @@ const { registerConfigHandlers } = require('./ipc/configHandlers');
 const { registerBackgroundHandlers } = require('./ipc/backgroundHandlers');
 const { registerChatHistoryHandlers } = require('./ipc/chatHistoryHandlers');
 const { registerGameCardHandlers } = require('./ipc/gameCardHandlers');
+const { getUserDataPaths } = require('./ipc/userDataPaths');
 
 // Data directory path
 let configPath;
+let legacyConfigPath;
 let backgroundConfigPath;
-let chatHistoryPath;
+let legacyBackgroundConfigPath;
+let legacyChatHistoryPath;
 let gameCardsDir;
+let legacyGameCardsDir;
+
+app.setName('ChatApp');
 
 // Set custom userData directory for E2E tests if specified
 const customUserDataDir = process.env.E2E_USER_DATA_DIR;
@@ -36,17 +42,22 @@ function createWindow() {
 
 // Register all IPC handlers
 function registerAllHandlers() {
-  registerConfigHandlers(ipcMain, configPath, fs);
-  registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dialog);
-  registerChatHistoryHandlers(ipcMain, chatHistoryPath, fs);
-  registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog);
+  registerConfigHandlers(ipcMain, configPath, fs, legacyConfigPath);
+  registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dialog, legacyBackgroundConfigPath);
+  registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameCardsDir);
+  registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, legacyChatHistoryPath);
 }
 
 app.whenReady().then(() => {
-  configPath = path.join(app.getPath('userData'), 'model-config.json');
-  backgroundConfigPath = path.join(app.getPath('userData'), 'background-config.json');
-  chatHistoryPath = path.join(app.getPath('userData'), 'chat-histories', 'chat-history.json');
-  gameCardsDir = path.join(app.getPath('userData'), 'game-cards');
+  const userDataDir = app.getPath('userData');
+  const paths = getUserDataPaths(userDataDir, customUserDataDir ? null : undefined);
+  configPath = paths.modelConfigPath;
+  legacyConfigPath = paths.legacy.modelConfigPaths;
+  backgroundConfigPath = paths.backgroundConfigPath;
+  legacyBackgroundConfigPath = paths.legacy.backgroundConfigPaths;
+  legacyChatHistoryPath = paths.legacy.chatHistoryPaths;
+  gameCardsDir = paths.gameCardsDir;
+  legacyGameCardsDir = paths.legacyGameCardsDir;
 
   // Register local:// protocol for serving local files
   protocol.registerFileProtocol('local', (request, callback) => {

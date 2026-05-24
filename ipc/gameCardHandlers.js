@@ -17,6 +17,13 @@ function readCard(fs, cardsDir, id) {
   return readJsonFile(fs, cardPath, null);
 }
 
+function listCardIds(fs, cardsDir) {
+  if (!fs.existsSync(cardsDir)) return [];
+  return fs.readdirSync(cardsDir)
+    .filter(name => isSafeGameCardId(name) && fs.existsSync(getCardPath(cardsDir, name)))
+    .sort();
+}
+
 function getCardAssetPath(fs, cardsDir, id, relativePath) {
   if (!isSafeGameCardId(id)) throw new Error('Invalid game card id');
   if (path.isAbsolute(relativePath)) throw new Error('file_content path must be relative');
@@ -37,16 +44,45 @@ function getCardAssetPath(fs, cardsDir, id, relativePath) {
   return filePath;
 }
 
-function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog) {
+function migrateLegacyCards(fs, gameCardsDir, legacyGameCardsDir) {
+  if (!legacyGameCardsDir || !fs.existsSync(legacyGameCardsDir)) {
+    return;
+  }
+  if (!fs.existsSync(gameCardsDir)) {
+    fs.mkdirSync(gameCardsDir, { recursive: true });
+  }
+  ['active.json', 'cards'].forEach(name => {
+    const sourcePath = path.join(legacyGameCardsDir, name);
+    const targetPath = path.join(gameCardsDir, name);
+    if (fs.existsSync(sourcePath) && !fs.existsSync(targetPath)) {
+      fs.cpSync(sourcePath, targetPath, { recursive: true });
+    }
+  });
+}
+
+function migrateFlatCardFiles(fs, cardsDir) {
+  if (!fs.existsSync(cardsDir)) return;
+  fs.readdirSync(cardsDir).forEach(name => {
+    if (!name.endsWith('.json')) return;
+    const id = path.basename(name, '.json');
+    if (!isSafeGameCardId(id)) return;
+    const legacyPath = path.join(cardsDir, name);
+    const cardPath = getCardPath(cardsDir, id);
+    if (!fs.existsSync(cardPath)) {
+      writeJsonFile(fs, cardPath, readJsonFile(fs, legacyPath, null));
+    }
+  });
+}
+
+function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameCardsDir) {
+  migrateLegacyCards(fs, gameCardsDir, legacyGameCardsDir);
   const cardsDir = ensureGameCardDirs(fs, gameCardsDir);
+  migrateFlatCardFiles(fs, cardsDir);
   const activePath = path.join(gameCardsDir, 'active.json');
 
   ipcMain.handle('get-game-cards', () => {
     try {
-      const names = fs.existsSync(cardsDir) ? fs.readdirSync(cardsDir).sort() : [];
-      const cards = names.filter(name => name.endsWith('.json')).map(name => {
-        return readCard(fs, cardsDir, path.basename(name, '.json'));
-      }).filter(Boolean);
+      const cards = listCardIds(fs, cardsDir).map(id => readCard(fs, cardsDir, id)).filter(Boolean);
       return { success: true, cards };
     } catch (err) {
       return asErrorResult(err, { cards: [] });

@@ -18,6 +18,7 @@ const mockDialog = {
 };
 
 const mockApp = {
+  setName: jest.fn(),
   getPath: jest.fn(() => '/mock-user-data'),
   whenReady: jest.fn().mockResolvedValue(undefined),
   on: jest.fn(),

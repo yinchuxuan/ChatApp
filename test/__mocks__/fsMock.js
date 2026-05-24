@@ -11,6 +11,7 @@ const mockFs = {
   writeFileSync: jest.fn(),
   unlinkSync: jest.fn(),
   copyFileSync: jest.fn(),
+  cpSync: jest.fn(),
   existsSync: jest.fn().mockReturnValue(true),
   readFileSync: jest.fn().mockReturnValue(''),
   mkdirSync: jest.fn()

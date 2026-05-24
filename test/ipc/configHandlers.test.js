@@ -75,7 +75,7 @@ describe('Model Config IPC Handlers', () => {
       const result = await handler({}, config);
       expect(result.success).toBe(true);
       expect(mockFs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('model-config.json'),
+        expect.stringContaining('model.json'),
         expect.stringContaining('apiUrl'),
         'utf-8'
       );

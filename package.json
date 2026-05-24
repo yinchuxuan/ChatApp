@@ -1,5 +1,6 @@
 {
-  "name": "harness_lab",
+  "name": "chatapp",
+  "productName": "ChatApp",
   "version": "1.0.0",
   "description": "Electron knowledge base application",
   "main": "main.js",

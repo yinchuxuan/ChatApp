@@ -5,12 +5,13 @@
 const fs = require('fs');
 const path = require('path');
 
-process.env.INTEGRATION_TEST_DIR = path.join(require('os').tmpdir(), 'harness_lab_ipc_chat_' + Date.now());
+process.env.INTEGRATION_TEST_DIR = path.join(require('os').tmpdir(), 'chatapp_ipc_chat_' + Date.now());
 jest.mock('electron', () => require('../__mocks__/electronMock.integration.js'));
 require('../../main');
 
 const electronMock = require('electron');
 const handlers = electronMock._registeredHandlers;
+const gameCardsDir = electronMock._gameCardsDir;
 const chatHistoryPath = electronMock._chatHistoryPath;
 const chatHistoryDir = electronMock._chatHistoryDir;
 
@@ -18,16 +19,7 @@ describe('IPC Chat History Operations', () => {
   afterAll(() => { electronMock._cleanup(); });
 
   beforeEach(() => {
-    if (fs.existsSync(chatHistoryDir)) {
-      const files = fs.readdirSync(chatHistoryDir);
-      files.forEach(f => fs.unlinkSync(path.join(chatHistoryDir, f)));
-    }
-    if (!fs.existsSync(chatHistoryDir)) {
-      fs.mkdirSync(chatHistoryDir, { recursive: true });
-    }
-    if (fs.existsSync(chatHistoryPath)) {
-      fs.unlinkSync(chatHistoryPath);
-    }
+    if (fs.existsSync(gameCardsDir)) fs.rmSync(gameCardsDir, { recursive: true, force: true });
   });
 
   test('should return empty messages when no history file', async () => {
@@ -105,5 +97,19 @@ describe('IPC Chat History Operations', () => {
     expect(fs.existsSync(chatHistoryDir)).toBe(true);
     expect(fs.statSync(chatHistoryDir).isDirectory()).toBe(true);
     expect(fs.existsSync(chatHistoryPath)).toBe(true);
+  });
+
+  test('chat history follows active game card session', async () => {
+    const card = { id: 'quest', name: 'Quest', rules: [] };
+    const expectedPath = path.join(gameCardsDir, 'cards', 'quest', 'sessions', 'default', 'messages.json');
+
+    await handlers['save-game-card']({}, card);
+    await handlers['set-active-game-card']({}, 'quest');
+    await handlers['save-chat-history']({}, [{ role: 'user', content: 'Quest session' }]);
+
+    expect(fs.existsSync(expectedPath)).toBe(true);
+    expect(JSON.parse(fs.readFileSync(expectedPath, 'utf-8'))).toEqual([
+      { role: 'user', content: 'Quest session' }
+    ]);
   });
 });

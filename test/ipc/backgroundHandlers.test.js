@@ -73,7 +73,7 @@ describe('Background IPC Handlers', () => {
       const result = await handler({}, config);
       expect(result.success).toBe(true);
       expect(mockFs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('background-config.json'),
+        expect.stringContaining('background.json'),
         expect.stringContaining('backgroundImageUrl'),
         'utf-8'
       );

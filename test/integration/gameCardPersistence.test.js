@@ -36,6 +36,7 @@ describe('Game Card Persistence IPC', () => {
     const listResult = await ipcMain.handlers['get-game-cards']();
 
     expect(saveResult.success).toBe(true);
+    expect(fs.existsSync(path.join(tempDir, 'game-cards', 'cards', 'quest_1', 'card.json'))).toBe(true);
     expect(listResult).toEqual({ success: true, cards: [card] });
   });
 
@@ -46,6 +47,21 @@ describe('Game Card Persistence IPC', () => {
     const result = await ipcMain.handlers['get-game-card']({}, 'quest');
 
     expect(result).toEqual({ success: true, card });
+  });
+
+  test('migrates legacy flat card files into card directories', async () => {
+    const card = { id: 'legacy_quest', name: 'Legacy Quest', rules: [] };
+    const legacyPath = path.join(tempDir, 'game-cards', 'cards', 'legacy_quest.json');
+    fs.mkdirSync(path.dirname(legacyPath), { recursive: true });
+    fs.writeFileSync(legacyPath, JSON.stringify(card), 'utf-8');
+
+    const freshIpcMain = createIpcMain();
+    registerGameCardHandlers(freshIpcMain, path.join(tempDir, 'game-cards'), fs, dialog);
+
+    const result = await freshIpcMain.handlers['get-game-card']({}, 'legacy_quest');
+
+    expect(result).toEqual({ success: true, card });
+    expect(fs.existsSync(path.join(tempDir, 'game-cards', 'cards', 'legacy_quest', 'card.json'))).toBe(true);
   });
 
   test('sets and gets active game card', async () => {

@@ -7,20 +7,21 @@ const path = require('path');
 const os = require('os');
 
 // Get the test directory from environment or create one
-const testDir = process.env.INTEGRATION_TEST_DIR || path.join(os.tmpdir(), 'harness_lab_ipc_test_' + Date.now());
-const dataDir = path.join(testDir, 'knowledge-base-data');
-const chatHistoryDir = path.join(testDir, 'chat-histories');
-const configPath = path.join(testDir, 'model-config.json');
-const backgroundConfigPath = path.join(testDir, 'background-config.json');
-const chatHistoryPath = path.join(chatHistoryDir, 'chat-history.json');
+const { getUserDataPaths } = require('../../ipc/userDataPaths');
+const testDir = process.env.INTEGRATION_TEST_DIR || path.join(os.tmpdir(), 'chatapp_ipc_test_' + Date.now());
+const paths = getUserDataPaths(testDir, null);
+const configPath = paths.modelConfigPath;
+const backgroundConfigPath = paths.backgroundConfigPath;
+const chatHistoryPath = path.join(paths.gameCardsDir, 'no-card', 'sessions', 'default', 'messages.json');
+const chatHistoryDir = path.dirname(chatHistoryPath);
 
 // Ensure directories exist
 const fs = require('fs');
 if (!fs.existsSync(testDir)) {
   fs.mkdirSync(testDir, { recursive: true });
 }
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+if (!fs.existsSync(path.dirname(configPath))) {
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
 }
 if (!fs.existsSync(chatHistoryDir)) {
   fs.mkdirSync(chatHistoryDir, { recursive: true });
@@ -41,6 +42,7 @@ const mockDialog = {
 };
 
 const mockApp = {
+  setName: jest.fn(),
   getPath: (name) => {
     if (name === 'userData') return testDir;
     return testDir;
@@ -74,9 +76,9 @@ module.exports = {
 // Export handlers for test access
 module.exports._registeredHandlers = registeredHandlers;
 module.exports._testDir = testDir;
-module.exports._dataDir = dataDir;
 module.exports._configPath = configPath;
 module.exports._backgroundConfigPath = backgroundConfigPath;
+module.exports._gameCardsDir = paths.gameCardsDir;
 module.exports._chatHistoryPath = chatHistoryPath;
 module.exports._chatHistoryDir = chatHistoryDir;
 

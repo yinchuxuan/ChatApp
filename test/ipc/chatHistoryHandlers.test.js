@@ -85,7 +85,7 @@ describe('Chat History IPC Handlers', () => {
       const result = await handler({}, messages);
       expect(result.success).toBe(true);
       expect(mockFs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('chat-history.json'),
+        expect.stringContaining('history.json'),
         expect.stringContaining('Test message'),
         'utf-8'
       );

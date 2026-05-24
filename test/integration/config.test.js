@@ -5,15 +5,16 @@
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { getUserDataPaths } = require('../../ipc/userDataPaths');
 
 describe('Integration - Config Operations', () => {
   let testDir;
   let configPath;
 
   beforeAll(() => {
-    testDir = path.join(os.tmpdir(), 'harness_lab_integration_config_' + Date.now());
-    configPath = path.join(testDir, 'model-config.json');
-    fs.mkdirSync(testDir, { recursive: true });
+    testDir = path.join(os.tmpdir(), 'chatapp_integration_config_' + Date.now());
+    configPath = getUserDataPaths(testDir, null).modelConfigPath;
+    fs.mkdirSync(path.dirname(configPath), { recursive: true });
   });
 
   afterAll(() => {
@@ -83,7 +84,7 @@ describe('Integration - Directory and Path Operations', () => {
   let testDir;
 
   beforeAll(() => {
-    testDir = path.join(os.tmpdir(), 'harness_lab_integration_paths_' + Date.now());
+    testDir = path.join(os.tmpdir(), 'chatapp_integration_paths_' + Date.now());
     fs.mkdirSync(testDir, { recursive: true });
   });
 
@@ -108,10 +109,9 @@ describe('Integration - Directory and Path Operations', () => {
   });
 
   test('should correctly join paths', () => {
-    const dataDir = path.join(testDir, 'knowledge-base-data');
-    const joined = path.join(dataDir, 'test.txt');
-    expect(joined).toContain('knowledge-base-data');
-    expect(joined).toContain('test.txt');
+    const paths = getUserDataPaths(testDir, null);
+    expect(paths.modelConfigPath).toContain(path.join('config', 'model.json'));
+    expect(paths.gameCardsDir).toContain('game-cards');
   });
 
   test('should extract filename from path', () => {

@@ -16,7 +16,7 @@ function getCardPath(cardsDir, id) {
   if (!isSafeGameCardId(id)) {
     throw new Error('Invalid game card id');
   }
-  return path.join(cardsDir, id + '.json');
+  return path.join(cardsDir, id, 'card.json');
 }
 
 function readJsonFile(fs, filePath, fallback) {
@@ -27,6 +27,10 @@ function readJsonFile(fs, filePath, fallback) {
 }
 
 function writeJsonFile(fs, filePath, value) {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2), 'utf-8');
 }
 

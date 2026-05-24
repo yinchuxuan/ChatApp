@@ -25,6 +25,10 @@ async function getChatHeaderTitle(appHelper) {
 
 async function revealChatInput(appHelper) {
   await appHelper.evaluate(() => {
+    const settingsTrigger = document.querySelector('.settings-trigger-zone');
+    if (settingsTrigger) {
+      settingsTrigger.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    }
     const trigger = document.querySelector('.chat-input-hover-trigger');
     if (trigger) {
       trigger.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
@@ -35,6 +39,7 @@ async function revealChatInput(appHelper) {
     state: 'visible',
     timeout: 5000
   });
+  await appHelper.window.locator('.settings-panel.visible').waitFor({ state: 'detached', timeout: 1000 });
 }
 
 module.exports = {
