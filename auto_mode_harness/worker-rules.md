@@ -10,5 +10,3 @@
 - Workers are strictly prohibited from modifying the `status` of any feature
 - Workers are strictly prohibited from performing git commits
 - All files in the repository must not exceed 200 lines; split files if they do
-
-*Read docs/docs_roadmap.md for more context. Search and Read all the docs you need for the task first. Unless you need extra information, do not read the files directly.*

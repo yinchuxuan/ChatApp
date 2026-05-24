@@ -148,7 +148,7 @@
 }
 
 .chat-reading-veil {
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   left: 50%;
@@ -228,7 +228,9 @@
   background: var(--md-surface-container-low);
   color: var(--md-on-surface-variant);
   box-shadow: var(--md-elevation-level-0);
-  width: 100%;
+  width: var(--chat-reading-width);
+  max-width: 100%;
+  margin: 0 auto;
   transition:
     box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard),
     transform var(--md-motion-duration-medium1) var(--md-motion-easing-emphasized);

@@ -6,6 +6,10 @@
 
 Node.js + Electron + React
 
+## Docs
+
+*Read docs/docs_roadmap.md for more context. Search and Read all the docs you need for the task first. Unless you need extra information, do not read the files directly.*
+
 ## auto mode
 
 ```
