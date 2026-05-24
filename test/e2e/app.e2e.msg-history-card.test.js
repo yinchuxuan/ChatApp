@@ -5,8 +5,11 @@
 
 const { test, expect } = require('@playwright/test');
 const { ElectronAppHelper } = require('./electronAppHelper');
+const { clickChatHeader } = require('./chatHeaderActions');
 
 let appHelper;
+
+test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
   appHelper = new ElectronAppHelper();
@@ -30,13 +33,7 @@ test.describe('Msg History Display Card', () => {
     await appHelper.waitForSelector('.app-container', { timeout: 15000 });
     await appHelper.waitForTimeout(500);
 
-    // Hover near top edge to reveal the header
-    const chatPanel = await appHelper.waitForSelector('.chat-panel');
-    await chatPanel.hover({ position: { x: 200, y: 20 } });
-    await appHelper.waitForTimeout(200);
-
-    // Click header to toggle to msg history
-    await appHelper.click('.chat-header-clickable');
+    await clickChatHeader(appHelper);
     await appHelper.waitForTimeout(200);
 
     // Verify the card is rendered
@@ -57,13 +54,7 @@ test.describe('Msg History Display Card', () => {
     await appHelper.waitForSelector('.app-container', { timeout: 15000 });
     await appHelper.waitForTimeout(500);
 
-    // Hover near top edge to reveal the header
-    const chatPanel = await appHelper.waitForSelector('.chat-panel');
-    await chatPanel.hover({ position: { x: 200, y: 20 } });
-    await appHelper.waitForTimeout(200);
-
-    // Click header to toggle
-    await appHelper.click('.chat-header-clickable');
+    await clickChatHeader(appHelper);
     await appHelper.waitForTimeout(200);
 
     // Should show empty state text

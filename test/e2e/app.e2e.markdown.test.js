@@ -5,8 +5,11 @@
 
 const { test, expect } = require('@playwright/test');
 const { ElectronAppHelper } = require('./electronAppHelper');
+const { revealChatInput } = require('./chatHeaderActions');
 
 let appHelper;
+
+test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
   appHelper = new ElectronAppHelper();
@@ -19,10 +22,7 @@ test.afterAll(async () => {
 
 test.describe('Markdown Rendering', () => {
   async function typeAndSend(text) {
-    // Hover trigger zone with force to bypass any overlapping elements
-    const trigger = await appHelper.waitForSelector('.chat-input-hover-trigger', { state: 'attached' });
-    await trigger.hover({ force: true });
-    await appHelper.waitForTimeout(200);
+    await revealChatInput(appHelper);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill(text);
     await appHelper.waitForTimeout(100);

@@ -5,8 +5,11 @@
 
 const { test, expect } = require('@playwright/test');
 const { ElectronAppHelper } = require('./electronAppHelper');
+const { revealChatHeader, clickChatHeader, getChatHeaderTitle, revealChatInput } = require('./chatHeaderActions');
 
 let appHelper;
+
+test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
   appHelper = new ElectronAppHelper();
@@ -60,28 +63,17 @@ test.describe('Chat Panel Msg History Toggle', () => {
   });
 
   test('should toggle to msg history display when clicking chat-header', async () => {
-    // Hover near top edge to reveal the header
-    const chatPanel = await appHelper.waitForSelector('.chat-panel');
-    await chatPanel.hover({ position: { x: 200, y: 20 } });
-    await appHelper.waitForTimeout(100);
-
-    const currentTitle = await appHelper.evaluate(() => {
-      const title = document.querySelector('.chat-header .header-title');
-      return title ? title.textContent : '';
-    });
+    const currentTitle = await getChatHeaderTitle(appHelper);
 
     if (currentTitle === 'msg历史记录') {
-      await appHelper.click('.chat-header-clickable');
+      await clickChatHeader(appHelper);
       await appHelper.waitForTimeout(200);
     }
 
-    await appHelper.click('.chat-header-clickable');
+    await clickChatHeader(appHelper);
     await appHelper.waitForTimeout(200);
 
-    const titleText = await appHelper.evaluate(() => {
-      const title = document.querySelector('.chat-header .header-title');
-      return title ? title.textContent : '';
-    });
+    const titleText = await getChatHeaderTitle(appHelper);
     expect(titleText).toBe('msg历史记录');
 
     const historyDiv = await appHelper.waitForSelector('.chat-history', { state: 'visible' });
@@ -90,27 +82,16 @@ test.describe('Chat Panel Msg History Toggle', () => {
   });
 
   test('should toggle back to Chat panel when clicking chat-header again', async () => {
-    // Hover near top edge to reveal the header
-    const chatPanel = await appHelper.waitForSelector('.chat-panel');
-    await chatPanel.hover({ position: { x: 200, y: 20 } });
-    await appHelper.waitForTimeout(100);
-
-    const currentTitle = await appHelper.evaluate(() => {
-      const title = document.querySelector('.chat-header .header-title');
-      return title ? title.textContent : '';
-    });
+    const currentTitle = await getChatHeaderTitle(appHelper);
     if (currentTitle === '聊天') {
-      await appHelper.click('.chat-header-clickable');
+      await clickChatHeader(appHelper);
       await appHelper.waitForTimeout(200);
     }
 
-    await appHelper.click('.chat-header-clickable');
+    await clickChatHeader(appHelper);
     await appHelper.waitForTimeout(200);
 
-    const chatTitle = await appHelper.evaluate(() => {
-      const title = document.querySelector('.chat-header .header-title');
-      return title ? title.textContent : '';
-    });
+    const chatTitle = await getChatHeaderTitle(appHelper);
     expect(chatTitle).toBe('聊天');
   });
 
@@ -149,15 +130,7 @@ test.describe('Chat Panel Msg History Toggle', () => {
 test.describe('Chat Panel Clear History', () => {
   test('should not have clear button when no messages, appear after sending message', async () => {
     expect(await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length)).toBe(0);
-    // Trigger hover via JS to avoid pointer interception by .chat-input-area
-    await appHelper.evaluate(() => {
-      const el = document.querySelector('.chat-input-hover-trigger');
-      if (el) {
-        el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
-        el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
-      }
-    });
-    await appHelper.waitForTimeout(200);
+    await revealChatInput(appHelper);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
     await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
@@ -166,23 +139,12 @@ test.describe('Chat Panel Clear History', () => {
     expect(clearBtn).toBeTruthy();
   });
   test('should clear messages when clicking the clear button and show empty state', async () => {
-    // Trigger hover via JS to avoid pointer interception by .chat-input-area
-    await appHelper.evaluate(() => {
-      const el = document.querySelector('.chat-input-hover-trigger');
-      if (el) {
-        el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
-        el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
-      }
-    });
-    await appHelper.waitForTimeout(200);
+    await revealChatInput(appHelper);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
     await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
     await appHelper.waitForTimeout(300);
-    // Hover top edge to reveal header
-    const chatPanel = await appHelper.waitForSelector('.chat-panel');
-    await chatPanel.hover({ position: { x: 200, y: 20 } });
-    await appHelper.waitForTimeout(200);
+    await revealChatHeader(appHelper);
     await appHelper.waitForSelector('.chat-header-clear-btn', { state: 'visible', timeout: 5000 });
     await appHelper.evaluate(() => { document.querySelector('.chat-header-clear-btn')?.click(); });
     await appHelper.waitForTimeout(300);
@@ -192,9 +154,7 @@ test.describe('Chat Panel Clear History', () => {
     expect(chatEmpty).toBeTruthy();
   });
   test('clear button should have correct attributes and icon', async () => {
-    // Hover bottom edge to reveal input area
-    await (await appHelper.waitForSelector('.chat-input-hover-trigger', { state: 'attached' })).hover();
-    await appHelper.waitForTimeout(200);
+    await revealChatInput(appHelper);
     const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
     await inputField.fill('e2e attr test'); await appHelper.waitForTimeout(100);
     await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();

@@ -8,6 +8,8 @@ const { ElectronAppHelper } = require('./electronAppHelper');
 
 let appHelper;
 
+test.describe.configure({ mode: 'serial' });
+
 test.beforeAll(async () => {
   appHelper = new ElectronAppHelper();
   await appHelper.launch();

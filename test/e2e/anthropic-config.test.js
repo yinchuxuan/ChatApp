@@ -22,6 +22,8 @@ function buildConfig(prefix, protocol) {
 const ANTHROPIC_CONFIG = buildConfig('E2E_ANTHROPIC', 'anthropic');
 const OPENAI_CONFIG = buildConfig('E2E_OPENAI', 'openai');
 
+test.describe.configure({ mode: 'serial' });
+
 function skipReason(prefix) {
   const missing = [];
   if (!process.env[prefix + '_URL']) missing.push(prefix + '_URL');
