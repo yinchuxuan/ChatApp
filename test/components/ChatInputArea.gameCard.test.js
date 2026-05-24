@@ -77,7 +77,9 @@ describe('ChatInputArea game card pre_send integration', () => {
     window.electronAPI.getActiveGameCard.mockResolvedValue({
       success: true,
       card: {
+        version: '1',
         id: 'active',
+        name: 'Active Card',
         rules: [{
           when: { phase: 'pre_send' },
           then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'rules' }]
@@ -104,7 +106,9 @@ describe('ChatInputArea game card pre_send integration', () => {
     window.electronAPI.getActiveGameCard.mockResolvedValue({
       success: true,
       card: {
+        version: '1',
         id: 'active',
+        name: 'Active Card',
         rules: [{
           when: { phase: 'after_response' },
           then: [{ type: 'replace', predicate: { index: 'last' }, content: 'cleaned' }]

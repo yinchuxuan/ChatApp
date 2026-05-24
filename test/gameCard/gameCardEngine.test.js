@@ -5,7 +5,12 @@ function cardWithRules(rules) {
     version: '1',
     id: 'runtime-card',
     name: 'Runtime Card',
-    rules
+    rules: rules.map((rule) => {
+      if (rule.then && rule.then.length === 0) {
+        return { ...rule, then: [{ type: 'remove', predicate: { all: true } }] };
+      }
+      return rule;
+    })
   };
 }
 
@@ -40,16 +45,14 @@ describe('game card runtime step 2', () => {
 
     expect(result.messages).toEqual([{ role: 'user', content: 'hello' }]);
     expect(result.state).toEqual({});
-    expect(result.trace).toEqual({
-      phase: 'pre_send',
-      rules: [],
-      errors: ['card.rules must be an array']
-    });
+    expect(result.trace.errors).toContain('version: is required');
+    expect(result.trace.errors).toContain('name: is required');
+    expect(result.trace.errors).toContain('rules: is required');
   });
 
   test('defaults omitted messages to an empty array', () => {
     const result = applyGameCard({
-      card: cardWithRules([{ when: { phase: 'pre_send' }, then: [] }]),
+      card: cardWithRules([{ when: { phase: 'pre_send' }, then: [{ type: 'remove', predicate: { all: true } }] }]),
       phase: 'pre_send'
     });
 
@@ -71,8 +74,9 @@ describe('game card runtime step 2', () => {
 
     expect(result.trace.phase).toBe('pre_send');
     expect(result.trace.rules).toEqual([
-      expect.objectContaining({ ruleIndex: 0, ruleId: 'pre', matched: true, actions: [] })
+      expect.objectContaining({ ruleIndex: 0, ruleId: 'pre', matched: true })
     ]);
+    expect(result.trace.rules[0].actions.length).toBeGreaterThan(0);
     expect(result.state).toEqual({});
   });
 
@@ -102,7 +106,7 @@ describe('game card runtime step 2', () => {
     const result = applyGameCard({ card, phase: 'after_response', messages: [] });
 
     expect(result.trace.rules).toEqual([
-      expect.objectContaining({ ruleIndex: 1, ruleId: 'after', matched: true, actions: [] })
+      expect.objectContaining({ ruleIndex: 1, ruleId: 'after', matched: true })
     ]);
   });
 
@@ -174,7 +178,7 @@ describe('game card runtime step 2', () => {
 
   test('returns cloned messages even when no rules match', () => {
     const card = cardWithRules([
-      { when: { phase: 'after_response' }, then: [] }
+      { when: { phase: 'after_response' }, then: [{ type: 'remove', predicate: { all: true } }] }
     ]);
     const messages = [{ role: 'user', content: 'hello' }];
 

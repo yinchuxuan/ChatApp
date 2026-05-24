@@ -37,7 +37,7 @@ async function loadFileContents(card, api) {
   return Object.fromEntries(entries);
 }
 
-async function preparePreSendMessages({ messages = [], state = {}, event = {}, card } = {}) {
+async function preparePreSendMessages({ messages = [], state = {}, event = {}, card, protocol = 'openai' } = {}) {
   const api = typeof window !== 'undefined' ? window.electronAPI : null;
   const activeCard = card === undefined
     ? await loadActiveGameCard(api)
@@ -47,11 +47,17 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
     return { messages, state, trace: null, applied: false, card: null };
   }
 
-  const fileContents = await loadFileContents(activeCard, api);
+  let fileContents;
+  try {
+    fileContents = await loadFileContents(activeCard, api);
+  } catch (error) {
+    return { messages, state, trace: null, applied: false, card: null, error: error.message };
+  }
   return {
     ...applyGameCard({ card: activeCard, phase: 'pre_send', messages, state, event, fileContents }),
     applied: true,
-    card: activeCard
+    card: activeCard,
+    protocol
   };
 }
 
@@ -65,7 +71,12 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null };
   }
 
-  const fileContents = await loadFileContents(activeCard, api);
+  let fileContents;
+  try {
+    fileContents = await loadFileContents(activeCard, api);
+  } catch (error) {
+    return { messages, state, trace: null, ttlTrace: null, applied: false, card: null, error: error.message };
+  }
   const result = applyGameCard({ card: activeCard, phase: 'after_response', messages, state, event, fileContents });
   const ttl = decayTTL(result.messages);
   return {
@@ -78,8 +89,8 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
   };
 }
 
-function toApiMessages(messages) {
-  return adaptMessagesToProtocol(messages, 'openai').messages;
+function toApiMessages(messages, protocol = 'openai') {
+  return adaptMessagesToProtocol(messages, protocol).messages;
 }
 
 if (typeof window !== 'undefined') {

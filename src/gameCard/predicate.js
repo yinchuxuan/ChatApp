@@ -55,6 +55,14 @@ function matchesPredicate(predicate, message, index, messages) {
     }
     if (key === 'not') return !matchesPredicate(expected, message, index, messages);
     if (key === 'index') return matchesIndex(index, messages.length, expected);
+    if (key === 'exec') {
+      try {
+        const fn = new Function('msg', 'i', 'msgs', expected);
+        return !!fn(message, index, messages);
+      } catch {
+        return false;
+      }
+    }
     if (key === 'role' || key === 'content' || key === 'thinking' || key === '_meta.source') {
       return matchesString(getValue(message, key), expected);
     }

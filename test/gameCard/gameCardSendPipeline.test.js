@@ -8,7 +8,9 @@ const {
 
 function cardWithInsert(content) {
   return {
+    version: '1',
     id: 'send-card',
+    name: 'Send Card',
     rules: [{
       when: { phase: 'pre_send' },
       then: [{
@@ -82,16 +84,20 @@ describe('game card send pipeline', () => {
     expect(result.messages[0].content).toBe('loaded rules');
   });
 
-  test('fails before applying rules when file_content preload fails', async () => {
+  test('gracefully returns applied=false when file_content preload fails', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,
       error: 'blocked path'
     });
 
-    await expect(preparePreSendMessages({
+    const result = await preparePreSendMessages({
       messages: [{ role: 'user', content: 'start' }],
       card: cardWithInsert('{{file_content:../secret.md}}')
-    })).rejects.toThrow('blocked path');
+    });
+
+    expect(result.applied).toBe(false);
+    expect(result.error).toBe('blocked path');
+    expect(result.messages).toEqual([{ role: 'user', content: 'start' }]);
   });
 
   test('returns the original messages object after response when no card is active', async () => {
@@ -108,7 +114,9 @@ describe('game card send pipeline', () => {
     const result = await prepareAfterResponseMessages({
       messages,
       card: {
+        version: '1',
         id: 'after-card',
+        name: 'After Card',
         rules: [{
           when: { phase: 'after_response', last: { role: 'assistant' } },
           then: [

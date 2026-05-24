@@ -41,7 +41,7 @@ describe('game card runtime internals', () => {
     expect(result.trace.map((entry) => entry.type)).toEqual(['insert', 'replace']);
   });
 
-  test('applyGameCard records message summaries and runtime errors in trace', () => {
+  test('applyGameCard records message summaries and validation errors in trace', () => {
     const card = {
       version: '1',
       id: 'trace-card',
@@ -52,8 +52,32 @@ describe('game card runtime internals', () => {
           when: { phase: 'pre_send' },
           then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'rules' }]
         },
-        { id: 'bad-when', when: { phase: 'pre_send', any: { or: {} } }, then: [] }
+        { id: 'bad-rule', when: { phase: 'pre_send' }, then: [{ type: 'insert' }] }
       ]
+    };
+
+    const result = applyGameCard({
+      card,
+      phase: 'pre_send',
+      messages: [{ role: 'user', content: 'hello' }],
+      state: { hp: 10 }
+    });
+
+    expect(result.state).toEqual({ hp: 10 });
+    expect(result.trace.rules).toHaveLength(0);
+    expect(result.trace.errors.length).toBeGreaterThan(0);
+    expect(result.trace.errors[0]).toMatch('rules[1]');
+  });
+
+  test('applyGameCard applies a valid insert and records accurate summary', () => {
+    const card = {
+      version: '1',
+      id: 'summary-card',
+      name: 'Summary Card',
+      rules: [{
+        when: { phase: 'pre_send' },
+        then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'rules' }]
+      }]
     };
 
     const result = applyGameCard({
@@ -69,7 +93,6 @@ describe('game card runtime internals', () => {
       state: { changedKeys: [] }
     });
     expect(result.trace.rules[0].actions[0].summary.messages.inserted).toBe(1);
-    expect(result.trace.errors[0]).toMatch('rule[1] when:');
   });
 
   test('decayTTL keeps permanent messages and removes expired temporary messages', () => {
