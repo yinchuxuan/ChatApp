@@ -16,7 +16,7 @@ function decayTTL(messages) {
 
   const decayed = input.reduce((kept, message) => {
     if (message?.ttl === undefined || message.ttl === -1) return [...kept, cloneMessage(message)];
-    if (typeof message.ttl !== 'number') {
+    if (typeof message.ttl !== 'number' || !Number.isInteger(message.ttl)) {
       trace.errors.push('message ttl must be a number');
       return [...kept, cloneMessage(message)];
     }
@@ -24,12 +24,12 @@ function decayTTL(messages) {
       trace.summary.messages.removed += 1;
       return kept;
     }
-
-    trace.summary.messages.decayed += 1;
     if (message.ttl === 1) {
       trace.summary.messages.removed += 1;
       return kept;
     }
+
+    trace.summary.messages.decayed += 1;
     return [...kept, { ...cloneMessage(message), ttl: message.ttl - 1 }];
   }, []);
 

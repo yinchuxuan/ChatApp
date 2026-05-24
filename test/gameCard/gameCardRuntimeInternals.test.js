@@ -115,7 +115,7 @@ describe('game card runtime internals', () => {
     expect(result.trace).toEqual({
       phase: 'ttl_decay',
       summary: {
-        messages: { before: 4, after: 3, decayed: 2, removed: 1 },
+        messages: { before: 4, after: 3, decayed: 1, removed: 1 },
         state: { changedKeys: [] }
       },
       errors: []

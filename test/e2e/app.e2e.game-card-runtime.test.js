@@ -92,7 +92,7 @@ test.describe('Game Card browser runtime', () => {
       { role: 'system', content: 'keep', ttl: 1 },
       { role: 'assistant', content: 'ok' }
     ]);
-    expect(result.ttlTrace.summary.messages.decayed).toBe(2);
+    expect(result.ttlTrace.summary.messages.decayed).toBe(1);
     expect(result.ttlTrace.summary.messages.removed).toBe(1);
   });
 

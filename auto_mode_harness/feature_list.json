@@ -22,7 +22,7 @@
       "title": "增强游戏卡机制的单元测试",
       "agentId": "",
       "description": "按GAME_CARD_TEST_PLAN.md增强游戏卡单元测试，如果测出bug请自行修复",
-      "status": "not_started",
+      "status": "passing",
       "verification": [
         "先阅读GAME_CARD_DESIGN.md文档，了解角色卡设计",
         "按GAME_CARD_TEST_PLAN.md增强游戏卡单元测试",

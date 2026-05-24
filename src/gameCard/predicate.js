@@ -14,6 +14,7 @@ function compareNumber(actual, expected) {
 
 function getValue(message, key) {
   if (key === '_meta.source') return message?._meta?.source;
+  if (key === '_meta.visibility') return message?._meta?.visibility;
   return message?.[key];
 }
 
@@ -63,7 +64,7 @@ function matchesPredicate(predicate, message, index, messages) {
         return false;
       }
     }
-    if (key === 'role' || key === 'content' || key === 'thinking' || key === '_meta.source') {
+    if (key === 'role' || key === 'content' || key === 'thinking' || key === '_meta.source' || key === '_meta.visibility') {
       return matchesString(getValue(message, key), expected);
     }
     return false;

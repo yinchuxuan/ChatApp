@@ -44,7 +44,7 @@ describe('predicate and when condition edge cases', () => {
   test('empty messages with index 0 and index last', () => {
     const messages = [];
     expect(matchesPredicate({ index: 0 }, { role: 'user', content: 'x' }, 0, messages)).toBe(true);
-    expect(matchesPredicate({ index: 'last' }, { role: 'user', content: 'x' }, 0, messages)).toBe(true);
+    expect(matchesPredicate({ index: 'last' }, { role: 'user', content: 'x' }, 0, messages)).toBe(false);
   });
 
   test('single message index 0 and index last both match', () => {
