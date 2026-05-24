@@ -16,17 +16,17 @@
   },
   "features": [
     {
-      "id": "test1",
+      "id": "test2",
       "priority": 1,
       "task_type": "test",
-      "title": "增强游戏卡机制的单元测试",
+      "title": "增强游戏卡机制的集成测试",
       "agentId": "",
-      "description": "按GAME_CARD_TEST_PLAN.md增强游戏卡单元测试，如果测出bug请自行修复",
-      "status": "passing",
+      "description": "按GAME_CARD_TEST_PLAN.md增强游戏卡集成测试，如果测出bug请自行修复",
+      "status": "not_started",
       "verification": [
         "先阅读GAME_CARD_DESIGN.md文档，了解角色卡设计",
-        "按GAME_CARD_TEST_PLAN.md增强游戏卡单元测试",
-        "只改动单元测试，不动集成测试和e2e测试",
+        "按GAME_CARD_TEST_PLAN.md增强游戏卡集成测试",
+        "只改动集成测试，不动单元测试和e2e测试",
         "测出bug请自行修复",
         "所有单元测试、集成测试、e2e测试全部通过",
         "eslint 0 warnings, 0 errors"

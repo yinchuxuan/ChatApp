@@ -25,6 +25,14 @@ function getCardAssetPath(fs, cardsDir, id, relativePath) {
   if (filePath !== baseDir && !filePath.startsWith(baseDir + path.sep)) {
     throw new Error('file_content path must stay inside game card directory');
   }
+  // Resolve symlinks to prevent path traversal via symbolic links
+  if (fs.existsSync(filePath)) {
+    const realPath = fs.realpathSync(filePath);
+    const realBaseDir = fs.existsSync(baseDir) ? fs.realpathSync(baseDir) : baseDir;
+    if (realPath !== realBaseDir && !realPath.startsWith(realBaseDir + path.sep)) {
+      throw new Error('file_content path must stay inside game card directory');
+    }
+  }
   if (!fs.existsSync(filePath)) throw new Error('file_content file not found');
   return filePath;
 }
