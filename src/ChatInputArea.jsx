@@ -41,6 +41,9 @@ function ChatInputArea({
         setMessages(prev => [...prev, { role: 'assistant', content: `游戏卡错误: ${preSend.error}`, isError: true }]);
         return;
       }
+      if (preSend.applied) {
+        setMessages(preSend.messages);
+      }
       await window.sendChatRequest(
         {
           apiUrl: modelConfig.apiUrl,

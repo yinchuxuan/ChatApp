@@ -74,6 +74,7 @@ describe('ChatInputArea game card pre_send integration', () => {
   });
 
   test('sends pre_send transformed messages when a game card is active', async () => {
+    const setMessages = jest.fn();
     window.electronAPI.getActiveGameCard.mockResolvedValue({
       success: true,
       card: {
@@ -86,7 +87,7 @@ describe('ChatInputArea game card pre_send integration', () => {
         }]
       }
     });
-    renderInputArea();
+    renderInputArea({ setMessages });
 
     await act(async () => {
       fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
@@ -96,6 +97,10 @@ describe('ChatInputArea game card pre_send integration', () => {
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
     expect(body.messages).toEqual([
+      { role: 'system', content: 'rules' },
+      { role: 'user', content: 'hello' }
+    ]);
+    expect(setMessages).toHaveBeenCalledWith([
       { role: 'system', content: 'rules' },
       { role: 'user', content: 'hello' }
     ]);
