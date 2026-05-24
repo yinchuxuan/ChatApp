@@ -1,4 +1,5 @@
 const { resolveContent } = require('./contentResolver');
+const { runExecAction } = require('./execRunner');
 const { matchesPredicate } = require('./predicate');
 
 function findMatchingIndexes(messages, predicate) {
@@ -20,7 +21,7 @@ function summarizeMessages(before, after, type, matched) {
   };
 }
 
-function buildTrace(action, matches, applied, before, after) {
+function buildTrace(action, matches, applied, before, after, stateSummary) {
   const type = action?.type || 'unknown';
   return {
     type,
@@ -28,7 +29,7 @@ function buildTrace(action, matches, applied, before, after) {
     matched: matches.length,
     summary: {
       messages: summarizeMessages(before, after, type, matches.length),
-      state: { changedKeys: [] }
+      state: stateSummary || { changedKeys: [] }
     }
   };
 }
@@ -83,9 +84,13 @@ function applyAction(messages, action, options = {}) {
   if (action?.type === 'insert') return applyInsert(messages, action, options);
   if (action?.type === 'remove') return applyRemove(messages, action);
   if (action?.type === 'replace') return applyReplace(messages, action, options);
+  if (action?.type === 'exec') {
+    return runExecAction(messages, options.state || {}, action, options);
+  }
 
   return {
     messages,
+    state: options.state || {},
     trace: {
       type: action?.type || 'unknown',
       applied: false,
@@ -100,12 +105,13 @@ function applyAction(messages, action, options = {}) {
 
 function applyActions(messages, actions = [], options = {}) {
   return actions.reduce((result, action) => {
-    const next = applyAction(result.messages, action, options);
+    const next = applyAction(result.messages, action, { ...options, state: result.state });
     return {
       messages: next.messages,
+      state: next.state || result.state,
       trace: [...result.trace, next.trace]
     };
-  }, { messages, trace: [] });
+  }, { messages, state: options.state || {}, trace: [] });
 }
 
 if (typeof module !== 'undefined' && module.exports) {

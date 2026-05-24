@@ -39,10 +39,10 @@ function summarizeState(before, after) {
 }
 
 function applyMatchingRule(messages, state, rule, index, options) {
-  const applied = applyActions(messages, rule.then || [], options);
+  const applied = applyActions(messages, rule.then || [], { ...options, state });
   return {
     messages: applied.messages,
-    state,
+    state: applied.state,
     trace: {
       ruleIndex: index,
       ruleId: rule.id,
@@ -50,7 +50,7 @@ function applyMatchingRule(messages, state, rule, index, options) {
       actions: applied.trace,
       summary: {
         messages: summarizeActionMessages(applied.trace, messages, applied.messages),
-        state: summarizeState(state, state)
+        state: summarizeState(state, applied.state)
       }
     }
   };
@@ -60,7 +60,7 @@ function formatRuleError(index, stage, error) {
   return `rule[${index}] ${stage}: ${error.message}`;
 }
 
-function applyGameCard({ card, phase, messages = [], state = {}, contentBaseDir, fs, path } = {}) {
+function applyGameCard({ card, phase, messages = [], state = {}, event = {}, contentBaseDir, fs, path } = {}) {
   const validation = validateGameCard(card);
   const initialMessages = cloneMessages(messages);
   const initialState = cloneState(state);
@@ -90,6 +90,8 @@ function applyGameCard({ card, phase, messages = [], state = {}, contentBaseDir,
     let applied;
     try {
       applied = applyMatchingRule(current.messages, current.state, rule, index, {
+        card,
+        event: { ...event, phase },
         baseDir: contentBaseDir,
         fs,
         path
