@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
-const { ElectronAppHelper } = require('./electronAppHelper');
-const { revealChatHeader } = require('./chatHeaderActions');
+const { ElectronAppHelper } = require('../electronAppHelper');
+const { revealChatHeader } = require('../chatHeaderActions');
 
 let appHelper;
 

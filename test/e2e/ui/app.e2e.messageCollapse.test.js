@@ -5,7 +5,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { ElectronAppHelper } = require('./electronAppHelper');
+const { ElectronAppHelper } = require('../electronAppHelper');
 
 let appHelper;
 

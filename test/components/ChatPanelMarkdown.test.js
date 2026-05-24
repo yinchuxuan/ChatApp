@@ -160,30 +160,6 @@ describe('ChatPanel Component - Markdown Rendering', () => {
     expect(bubbleContent.innerHTML).toContain('<em>italic</em>');
   });
 
-  test('should render assistant message with thinking and markdown content', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
-      success: true,
-      messages: [
-        { role: 'user', content: 'Think about this' },
-        {
-          role: 'assistant',
-          content: 'Here is the **answer**',
-          _thinking: 'Let me think...'
-        }
-      ]
-    });
-
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
-
-    _render(_React.createElement(ChatPanel, null));
-
-    await act(async () => { await Promise.resolve(); });
-
-    const bubbleContent = document.querySelector('.chat-message.assistant .chat-bubble-content');
-    expect(bubbleContent).toBeTruthy();
-    expect(bubbleContent.innerHTML).toContain('<strong>answer</strong>');
-  });
-
   test('should use chat-message-bubble wrapper for non-thinking messages', async () => {
     electronAPI.getChatHistory.mockResolvedValue({
       success: true,

@@ -7,7 +7,12 @@ module.exports = {
     '^fs$': '<rootDir>/test/__mocks__/fsMock.js'
   },
   testMatch: ['<rootDir>/test/**/*.test.js'],
-  testPathIgnorePatterns: ['<rootDir>/test/integration/', '<rootDir>/test/ipc/', '<rootDir>/test/e2e/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/test/integration/',
+    '<rootDir>/test/ipc/',
+    '<rootDir>/test/e2e/',
+    '<rootDir>/test/e2e-real-api/'
+  ],
   collectCoverage: true,
   coverageDirectory: 'coverage',
   collectCoverageFrom: [

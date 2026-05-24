@@ -26,9 +26,15 @@ The test suite has three layers, run in order by `npm test`:
 
 ### E2E Tests (`test/e2e/**`)
 - **Framework**: Playwright for Electron
-- **Config**: `playwright.config.js` — 30s timeout, max 1 failure, parallel workers
-- **Env**: Reads `.env` file for `E2E_USER_DATA_DIR` and other test variables
+- **Config**: `playwright.config.js` — 180s timeout, max 3 failures, parallel workers
+- **Scope**: deterministic Electron startup, UI, IPC, and mocked-API user flows
 - **Run**: `npm run test:e2e`
+
+### Real API E2E Tests (`test/e2e-real-api/**`)
+- **Framework**: Playwright for Electron with real OpenAI/Anthropic-compatible endpoints
+- **Config**: `playwright.real-api.config.js` — serial workers, one retry, longer timeout
+- **Env**: Loads `.env` when present; uses `E2E_OPENAI_*` and `E2E_ANTHROPIC_*`
+- **Run**: `npm run test:e2e-real-api`
 
 ## Pre-test Hook
 

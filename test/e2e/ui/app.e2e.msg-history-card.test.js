@@ -4,8 +4,8 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { ElectronAppHelper } = require('./electronAppHelper');
-const { clickChatHeader } = require('./chatHeaderActions');
+const { ElectronAppHelper } = require('../electronAppHelper');
+const { clickChatHeader } = require('../chatHeaderActions');
 
 let appHelper;
 

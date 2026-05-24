@@ -2,7 +2,7 @@
  * E2E Tests: Multi-turn round trip with mocked API
  */
 const { test, expect } = require('@playwright/test');
-const { setupHooks } = require('./mockApiTestHelpers');
+const { setupHooks } = require('../mockApiTestHelpers');
 
 test.describe.configure({ mode: 'serial' });
 

@@ -2,8 +2,8 @@
  * E2E Tests: Visibility and history with mocked API
  */
 const { test, expect } = require('@playwright/test');
-const { revealChatHeader, getChatHeaderTitle } = require('./chatHeaderActions');
-const { setupHooks } = require('./mockApiTestHelpers');
+const { revealChatHeader, getChatHeaderTitle } = require('../chatHeaderActions');
+const { setupHooks } = require('../mockApiTestHelpers');
 
 test.describe.configure({ mode: 'serial' });
 

@@ -2,7 +2,7 @@
  * E2E Tests: Game card pre-send and after-response pipelines with real API keys
  */
 const { test, expect } = require('@playwright/test');
-const { OPENAI_CONFIG, skipReason, setupHooks } = require('./realApiTestHelpers');
+const { OPENAI_CONFIG, skipReason, setupHooks } = require('../e2e/realApiTestHelpers');
 
 test.describe.configure({ mode: 'serial' });
 

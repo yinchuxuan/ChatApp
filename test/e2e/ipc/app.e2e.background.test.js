@@ -4,11 +4,11 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { ElectronAppHelper } = require('./electronAppHelper');
+const { ElectronAppHelper } = require('../electronAppHelper');
 const path = require('path');
 
 let appHelper;
-const REAL_IMAGE_PATH = path.join(__dirname, '../fixtures/lisa1.jpg');
+const REAL_IMAGE_PATH = path.join(__dirname, '../../fixtures/lisa1.jpg');
 
 test.beforeAll(async () => {
   appHelper = new ElectronAppHelper();
