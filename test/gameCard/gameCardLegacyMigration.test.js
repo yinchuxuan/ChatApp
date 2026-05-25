@@ -1,6 +1,5 @@
 const { applyGameCard } = require('../../src/gameCard/engine');
 const {
-  prepareAfterResponseMessages,
   preparePreSendMessages,
   toApiMessages
 } = require('../../src/gameCard/sendPipeline');

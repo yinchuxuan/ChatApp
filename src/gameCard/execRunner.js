@@ -35,8 +35,10 @@ function createUtils() {
 }
 
 function createConfig(card = {}) {
-  const { rules, state, ...config } = card;
-  return deepFreeze(deepClone(config));
+  const config = deepClone(card);
+  delete config.rules;
+  delete config.state;
+  return deepFreeze(config);
 }
 
 function validateMessage(message) {

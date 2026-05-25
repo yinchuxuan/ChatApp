@@ -1,4 +1,4 @@
-const { applyAction, applyActions } = require('../../src/gameCard/actions');
+const { applyAction } = require('../../src/gameCard/actions');
 const { applyGameCard } = require('../../src/gameCard/engine');
 
 describe('game card action execution edge cases', () => {
