@@ -65,11 +65,15 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 }
 ```
 
-运行时过滤出 `when` 条件满足的规则，按顺序执行其 `then` 中的操作。上一步输出是下一步输入。
+规则按声明顺序组成流水线。运行时逐条规则判断 `when`，匹配后立即执行该规则的 `then`；规则输出的 `messages` 和 `state` 会作为下一条规则的输入。
+
+这意味着前序规则的 `insert` / `remove` / `replace` / `exec` 会影响后续规则的触发条件。比如两条连续规则都写 `length: { "eq": 1 }`，如果第一条规则插入了消息使总数变为 2，第二条规则就不会再匹配。
+
+同一条规则内的 `then` 操作也按顺序执行，前一个操作输出会作为后一个操作输入。因此后续操作的 `find` 可以查到前序操作插入或修改后的消息；单个操作不能 `find` 到自己尚未插入的消息。
 
 ## When（触发条件）
 
-`when` 的本质是判断当前阶段的消息数组是否满足触发条件。
+`when` 的本质是判断当前流水线位置的消息数组是否满足触发条件。
 
 ```json
 { "when": { "phase": "pre_send" } }
@@ -94,13 +98,13 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 ```txt
 用户发送
   -> decayTTL
-  -> 过滤 phase=pre_send 且 when 条件满足的规则
-  -> 按顺序执行 then 中的操作
+  -> 按顺序逐条判断 pre_send 规则的 when
+  -> 匹配则立即执行该规则的 then
   -> adaptToProtocol
   -> sendChatRequest
   -> LLM 返回
-  -> 过滤 phase=after_response 且 when 条件满足的规则
-  -> 按顺序执行 then 中的操作
+  -> 按顺序逐条判断 after_response 规则的 when
+  -> 匹配则立即执行该规则的 then
   -> 显示 + 保存
 ```
 
@@ -129,3 +133,8 @@ messages (含 system) -> adaptToProtocol -> API 请求体
   ]
 }
 ```
+
+## Docs Reference
+
+actions: docs/game_card/game_card_actions.md
+content: docs/game_card/game_card_content.md
