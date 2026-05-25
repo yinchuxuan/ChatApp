@@ -104,3 +104,22 @@ Predicate 是声明式匹配条件，用于 `insert` 定位锚点、`replace` / 
 ```
 
 多 key 隐式 AND：`{ "role": "user", "_meta.source": "game_card" }` 表示 role 为 user 且 `_meta.source` 为 game_card。
+
+## `when.last.num`
+
+`when.last` 可额外声明 `num`，表示在最近 N 条消息里查找任意匹配项：
+
+```json
+{
+  "when": {
+    "phase": "pre_send",
+    "last": {
+      "num": 3,
+      "role": { "in": ["user", "assistant"] },
+      "content": { "contains": "陌生感" }
+    }
+  }
+}
+```
+
+`num` 只在 `when.last` 中有效，不属于 action `predicate` 或 `when.any/all` 的通用 Predicate 字段。

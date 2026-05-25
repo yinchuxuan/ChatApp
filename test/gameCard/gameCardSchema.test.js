@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('path');
 const Ajv = require('ajv');
+const { validateGameCard } = require('../../src/gameCard/validateGameCard');
 
 const schemaPath = path.join(__dirname, '../../src/gameCard/game-card.schema.json');
 const schemaText = fs.readFileSync(schemaPath, 'utf8');
@@ -144,6 +145,12 @@ describe('game card schema', () => {
 
     expect(validateWhen({ phase: 'pre_send', length: 0 })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', length: { gte: 1, lte: 5 } })).toBe(true);
+    expect(validateWhen({ phase: 'pre_send', last: { num: 3, role: 'user' } })).toBe(true);
+    expect(validateWhen({ phase: 'pre_send', last: { num: 0, role: 'user' } })).toBe(false);
+    expect(validateWhen({ phase: 'pre_send', last: { num: 3 } })).toBe(false);
+    expect(validateGameCard(minimalCard({
+      rules: [{ when: { phase: 'pre_send', last: { num: 2, role: 'user' } }, then: [{ type: 'remove', predicate: { all: true } }] }]
+    }))).toEqual({ valid: true, errors: [] });
     expect(validateWhen({ phase: 'pre_send', length: { between: [1, 5] } })).toBe(false);
     expect(validateWhen({ length: 1 })).toBe(false);
 

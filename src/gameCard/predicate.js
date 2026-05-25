@@ -71,14 +71,36 @@ function matchesPredicate(predicate, message, index, messages) {
   });
 }
 
+function withoutNum(predicate) {
+  const rest = { ...(predicate || {}) };
+  delete rest.num;
+  return rest;
+}
+
+function matchesLast(last, messages) {
+  if (!last || typeof last !== 'object') return false;
+  if (last.num === undefined) {
+    const index = messages.length - 1;
+    return index >= 0 && matchesPredicate(last, messages[index], index, messages);
+  }
+
+  if (!Number.isInteger(last.num) || last.num < 1) return false;
+  const predicate = withoutNum(last);
+  if (Object.keys(predicate).length === 0) return false;
+  const start = Math.max(messages.length - last.num, 0);
+  return messages.slice(start).some((msg, offset) => {
+    const index = start + offset;
+    return matchesPredicate(predicate, msg, index, messages);
+  });
+}
+
 function matchesWhen(when, phase, messages) {
   if (!when || when.phase !== phase) return false;
   if (when.length !== undefined) {
     if (!compareNumber(messages.length, when.length)) return false;
   }
   if (when.last !== undefined) {
-    const index = messages.length - 1;
-    if (index < 0 || !matchesPredicate(when.last, messages[index], index, messages)) return false;
+    if (!matchesLast(when.last, messages)) return false;
   }
   if (when.any !== undefined) {
     if (!messages.some((msg, index) => matchesPredicate(when.any, msg, index, messages))) return false;
@@ -90,5 +112,5 @@ function matchesWhen(when, phase, messages) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { compareNumber, matchesPredicate, matchesWhen };
+  module.exports = { compareNumber, matchesPredicate, matchesWhen, matchesLast };
 }

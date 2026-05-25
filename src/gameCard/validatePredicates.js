@@ -5,15 +5,12 @@ const VALID_ACTION_TYPES = ['insert', 'remove', 'replace', 'exec'];
 const VALID_VISIBILITIES = ['llm_only', 'user_visible', 'debug_only'];
 const VALID_COMPARISON_OPS = ['gt', 'gte', 'lt', 'lte', 'eq'];
 const VALID_STRING_OPS = ['contains', 'regex', 'in', 'nin'];
-
 function addError(errors, path, message) {
   errors.push(`${path}: ${message}`);
 }
-
 function isString(v) { return typeof v === 'string'; }
 function isInteger(v) { return typeof v === 'number' && Number.isInteger(v); }
 function isObject(v) { return v && typeof v === 'object' && !Array.isArray(v); }
-
 function validateTTL(value, path, errors) {
   if (!isInteger(value) || value < -1) addError(errors, path, 'ttl must be an integer >= -1');
 }
@@ -64,12 +61,10 @@ function validatePredicate(predicate, path, errors) {
     addError(errors, path, 'must be an object');
     return;
   }
-
   if (Object.keys(predicate).length === 0) {
     addError(errors, path, 'must have at least one key');
     return;
   }
-
   for (const [key, value] of Object.entries(predicate)) {
     switch (key) {
       case 'role': {
@@ -126,18 +121,24 @@ function validatePredicate(predicate, path, errors) {
   }
 }
 
+function validateLastPredicate(predicate, path, errors) {
+  if (predicate?.num === undefined) return validatePredicate(predicate, path, errors);
+  if (!isInteger(predicate.num) || predicate.num < 1) addError(errors, path + '.num', 'must be a positive integer');
+  const rest = { ...predicate };
+  delete rest.num;
+  if (Object.keys(rest).length === 0) addError(errors, path, 'requires predicate keys besides num');
+  else validatePredicate(rest, path, errors);
+}
 function validateWhen(when, path, errors) {
   if (!when || !isObject(when)) {
     addError(errors, path, 'must be an object');
     return;
   }
-
   if (when.phase === undefined) {
     addError(errors, path + '.phase', 'is required');
   } else if (!VALID_PHASES.includes(when.phase)) {
     addError(errors, path + '.phase', 'must be one of ' + VALID_PHASES.join(', '));
   }
-
   if (when.length !== undefined) {
     if (isInteger(when.length) && when.length < 0) {
       addError(errors, path + '.length', 'must be non-negative');
@@ -145,8 +146,7 @@ function validateWhen(when, path, errors) {
       validateComparison(when.length, path + '.length', errors);
     }
   }
-
-  if (when.last !== undefined) validatePredicate(when.last, path + '.last', errors);
+  if (when.last !== undefined) validateLastPredicate(when.last, path + '.last', errors);
   if (when.any !== undefined) validatePredicate(when.any, path + '.any', errors);
   if (when.all !== undefined) validatePredicate(when.all, path + '.all', errors);
 }
@@ -165,12 +165,10 @@ function validateFindMap(find, path, errors) {
     });
   });
 }
-
 function validateRequiredPredicate(action, path, errors) {
   if (!action.predicate) addError(errors, path, 'requires predicate');
   else validatePredicate(action.predicate, path + '.predicate', errors);
 }
-
 function validateAction(action, path, errors) {
   if (!action || !isObject(action)) return addError(errors, path, 'must be an object');
   if (!VALID_ACTION_TYPES.includes(action.type)) {
@@ -194,7 +192,4 @@ function validateAction(action, path, errors) {
   if (action._meta !== undefined) validateMessageMeta(action._meta, path + '._meta', errors);
   validateFindMap(action.find, path + '.find', errors);
 }
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { validatePredicate, validateWhen, validateAction, validateTTL, validateMessageMeta, validateMessageRole };
-}
+if (typeof module !== 'undefined' && module.exports) module.exports = { validatePredicate, validateWhen, validateAction, validateTTL, validateMessageMeta, validateMessageRole };

@@ -80,6 +80,7 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 { "when": { "phase": "pre_send", "length": 1 } }
 { "when": { "phase": "pre_send", "length": { "lte": 1 } } }
 { "when": { "phase": "after_response", "last": { "role": "assistant" } } }
+{ "when": { "phase": "pre_send", "last": { "num": 3, "role": "user", "content": { "contains": "陌生感" } } } }
 { "when": { "phase": "pre_send", "any": { "content": { "regex": "start_quest" } } } }
 ```
 
@@ -92,6 +93,23 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 | `all` | predicate | 是否所有消息都匹配 |
 
 不加 `length`/`last`/`any`/`all` 表示该阶段每次都执行。
+
+`last` 也支持 `num`，用于在最近 N 条消息中查找任意匹配项：
+
+```json
+{
+  "when": {
+    "phase": "pre_send",
+    "last": {
+      "num": 3,
+      "role": { "in": ["user", "assistant"] },
+      "content": { "contains": "陌生感" }
+    }
+  }
+}
+```
+
+语义等价于 `messages.slice(-3).some(msg => predicate(msg))`。`num` 必须为正整数；除 `num` 外的字段仍按 Predicate 的隐式 AND 规则匹配。
 
 ## Pipeline 执行流程
 
@@ -135,6 +153,8 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 ```
 
 ## Docs Reference
+
+*Only Read the docs you need depends on your task type*
 
 actions: docs/game_card/game_card_actions.md
 content: docs/game_card/game_card_content.md

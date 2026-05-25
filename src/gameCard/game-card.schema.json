@@ -35,7 +35,7 @@
       "properties": {
         "phase": { "enum": ["pre_send", "after_response"] },
         "length": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/definitions/comparison" }] },
-        "last": { "$ref": "#/definitions/predicate" },
+        "last": { "$ref": "#/definitions/lastPredicate" },
         "any": { "$ref": "#/definitions/predicate" },
         "all": { "$ref": "#/definitions/predicate" }
       }
@@ -140,6 +140,12 @@
         },
         "not": { "$ref": "#/definitions/predicate" }
       }
+    },
+    "lastPredicate": {
+      "anyOf": [
+        { "$ref": "#/definitions/predicate" },
+        { "type": "object", "additionalProperties": false, "minProperties": 2, "required": ["num"], "properties": { "num": { "type": "integer", "minimum": 1 }, "role": { "anyOf": [{ "$ref": "#/definitions/messageRole" }, { "$ref": "#/definitions/stringSetMatcher" }] }, "content": { "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/stringMatcher" }] }, "thinking": { "$ref": "#/definitions/stringMatcher" }, "_meta.source": { "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/stringMatcher" }] }, "index": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "const": "last" }] }, "all": { "const": true }, "exec": { "type": "string", "minLength": 1 }, "or": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/predicate" } }, "not": { "$ref": "#/definitions/predicate" } } }
+      ]
     },
     "stringMatcher": {
       "type": "object",

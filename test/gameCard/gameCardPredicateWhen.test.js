@@ -41,6 +41,33 @@ describe('predicate and when condition edge cases', () => {
     }, 'after_response', messages)).toBe(true);
   });
 
+  test('when last.num matches any message in recent range', () => {
+    const messages = [
+      { role: 'user', content: 'old stranger feeling' },
+      { role: 'assistant', content: 'reply' },
+      { role: 'system', content: 'hint' },
+      { role: 'user', content: 'plain' }
+    ];
+    expect(matchesWhen({
+      phase: 'pre_send',
+      last: {
+        num: 3,
+        role: { in: ['user', 'assistant'] },
+        content: { contains: 'reply' }
+      }
+    }, 'pre_send', messages)).toBe(true);
+    expect(matchesWhen({
+      phase: 'pre_send',
+      last: { num: 3, content: { contains: 'old stranger' } }
+    }, 'pre_send', messages)).toBe(false);
+  });
+
+  test('when last.num requires positive num and a predicate', () => {
+    const messages = [{ role: 'user', content: 'hello' }];
+    expect(matchesWhen({ phase: 'pre_send', last: { num: 1 } }, 'pre_send', messages)).toBe(false);
+    expect(matchesWhen({ phase: 'pre_send', last: { num: 0, role: 'user' } }, 'pre_send', messages)).toBe(false);
+  });
+
   test('empty messages with index 0 and index last', () => {
     const messages = [];
     expect(matchesPredicate({ index: 0 }, { role: 'user', content: 'x' }, 0, messages)).toBe(true);
