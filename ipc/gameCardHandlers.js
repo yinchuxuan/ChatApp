@@ -6,6 +6,7 @@ const {
   readJsonFile,
   writeJsonFile
 } = require('./gameCardStorage');
+const { validateGameCard } = require('../src/gameCard/validateGameCard');
 
 function asErrorResult(err, fallback = {}) {
   console.error('Error handling game card IPC:', err);
@@ -74,6 +75,29 @@ function migrateFlatCardFiles(fs, cardsDir) {
   });
 }
 
+function readImportCard(fs, selectedDir) {
+  const cardPath = path.join(selectedDir, 'card.json');
+  if (!fs.existsSync(cardPath)) throw new Error('Selected folder must contain card.json');
+
+  const card = JSON.parse(fs.readFileSync(cardPath, 'utf-8'));
+  if (!card || !isSafeGameCardId(card.id)) {
+    throw new Error('Game card must have a safe id');
+  }
+  const validation = validateGameCard(card);
+  if (!validation.valid) {
+    throw new Error('card.json does not match game card schema: ' + validation.errors.join('; '));
+  }
+  return card;
+}
+
+function copyCardDirectory(fs, sourceDir, targetDir) {
+  const sourceReal = fs.realpathSync(sourceDir);
+  const targetReal = fs.existsSync(targetDir) ? fs.realpathSync(targetDir) : null;
+  if (targetReal && sourceReal === targetReal) return;
+  if (fs.existsSync(targetDir)) fs.rmSync(targetDir, { recursive: true, force: true });
+  fs.cpSync(sourceDir, targetDir, { recursive: true });
+}
+
 function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameCardsDir) {
   migrateLegacyCards(fs, gameCardsDir, legacyGameCardsDir);
   const cardsDir = ensureGameCardDirs(fs, gameCardsDir);
@@ -109,23 +133,20 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameC
     }
   });
 
-  ipcMain.handle('import-game-card-from-file', async () => {
+  ipcMain.handle('import-game-card-from-directory', async () => {
     try {
       if (!dialog || typeof dialog.showOpenDialog !== 'function') {
         throw new Error('File dialog is not available');
       }
       const result = await dialog.showOpenDialog({
-        properties: ['openFile'],
-        filters: [{ name: 'Game Card JSON', extensions: ['json'] }]
+        properties: ['openDirectory']
       });
       if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
         return { success: false, canceled: true, card: null };
       }
-      const card = JSON.parse(fs.readFileSync(result.filePaths[0], 'utf-8'));
-      if (!card || !isSafeGameCardId(card.id)) {
-        throw new Error('Game card must have a safe id');
-      }
-      writeJsonFile(fs, getCardPath(cardsDir, card.id), card);
+      const selectedDir = result.filePaths[0];
+      const card = readImportCard(fs, selectedDir);
+      copyCardDirectory(fs, selectedDir, path.join(cardsDir, card.id));
       writeJsonFile(fs, activePath, { id: card.id });
       return { success: true, card };
     } catch (err) {

@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getGameCards: () => ipcRenderer.invoke('get-game-cards'),
   getGameCard: (id) => ipcRenderer.invoke('get-game-card', id),
   saveGameCard: (card) => ipcRenderer.invoke('save-game-card', card),
-  importGameCardFromFile: () => ipcRenderer.invoke('import-game-card-from-file'),
+  importGameCardFromDirectory: () => ipcRenderer.invoke('import-game-card-from-directory'),
   setActiveGameCard: (id) => ipcRenderer.invoke('set-active-game-card', id),
   getActiveGameCard: () => ipcRenderer.invoke('get-active-game-card'),
   readGameCardFile: (id, relativePath) => ipcRenderer.invoke('read-game-card-file', id, relativePath),

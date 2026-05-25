@@ -53,7 +53,7 @@ global.window.electronAPI = {
   getGameCards: jest.fn().mockResolvedValue({ success: true, cards: [] }),
   getGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
   saveGameCard: jest.fn().mockResolvedValue({ success: true }),
-  importGameCardFromFile: jest.fn().mockResolvedValue({ success: false, canceled: true, card: null }),
+  importGameCardFromDirectory: jest.fn().mockResolvedValue({ success: false, canceled: true, card: null }),
   setActiveGameCard: jest.fn().mockResolvedValue({ success: true }),
   getActiveGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
   readGameCardFile: jest.fn().mockResolvedValue({ success: true, content: '' }),

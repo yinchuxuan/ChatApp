@@ -75,23 +75,27 @@ describe('Game Card Persistence IPC', () => {
     expect(getResult).toEqual({ success: true, card });
   });
 
-  test('imports a game card file and sets it active', async () => {
-    const card = { id: 'imported_quest', name: 'Imported Quest', rules: [] };
-    const cardPath = path.join(tempDir, 'imported.json');
-    fs.writeFileSync(cardPath, JSON.stringify(card), 'utf-8');
-    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [cardPath] });
+  test('imports a game card folder and sets it active', async () => {
+    const card = { version: '1.0', id: 'imported_quest', name: 'Imported Quest', rules: [] };
+    const cardDir = path.join(tempDir, 'imported-card');
+    fs.mkdirSync(path.join(cardDir, 'worldbook'), { recursive: true });
+    fs.writeFileSync(path.join(cardDir, 'card.json'), JSON.stringify(card), 'utf-8');
+    fs.writeFileSync(path.join(cardDir, 'worldbook', 'rules.md'), 'rules', 'utf-8');
+    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [cardDir] });
 
-    const importResult = await ipcMain.handlers['import-game-card-from-file']();
+    const importResult = await ipcMain.handlers['import-game-card-from-directory']();
     const activeResult = await ipcMain.handlers['get-active-game-card']();
+    const assetResult = await ipcMain.handlers['read-game-card-file']({}, card.id, 'worldbook/rules.md');
 
     expect(importResult).toEqual({ success: true, card });
     expect(activeResult).toEqual({ success: true, card });
+    expect(assetResult).toEqual({ success: true, content: 'rules' });
   });
 
   test('cancels game card import without changing active card', async () => {
     dialog.showOpenDialog.mockResolvedValue({ canceled: true, filePaths: [] });
 
-    const result = await ipcMain.handlers['import-game-card-from-file']();
+    const result = await ipcMain.handlers['import-game-card-from-directory']();
 
     expect(result).toEqual({ success: false, canceled: true, card: null });
   });

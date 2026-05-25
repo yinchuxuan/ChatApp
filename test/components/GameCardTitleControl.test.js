@@ -9,7 +9,7 @@ describe('GameCardTitleControl', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });
-    electronAPI.importGameCardFromFile.mockResolvedValue({ success: false, canceled: true, card: null });
+    electronAPI.importGameCardFromDirectory.mockResolvedValue({ success: false, canceled: true, card: null });
   });
 
   test('shows current active game card', async () => {
@@ -31,7 +31,7 @@ describe('GameCardTitleControl', () => {
 
   test('imports a game card and stops header click propagation', async () => {
     const headerClick = jest.fn();
-    electronAPI.importGameCardFromFile.mockResolvedValue({
+    electronAPI.importGameCardFromDirectory.mockResolvedValue({
       success: true,
       card: { id: 'new_quest', name: 'New Quest', rules: [] }
     });
@@ -44,10 +44,10 @@ describe('GameCardTitleControl', () => {
 
     await screen.findByText('未加载游戏卡');
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡 JSON' }));
+      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
     });
 
-    expect(electronAPI.importGameCardFromFile).toHaveBeenCalled();
+    expect(electronAPI.importGameCardFromDirectory).toHaveBeenCalled();
     expect(headerClick).not.toHaveBeenCalled();
     expect(screen.getByText('New Quest')).toBeInTheDocument();
   });

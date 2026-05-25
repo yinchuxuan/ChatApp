@@ -33,11 +33,12 @@ describe('Game Card Persistence - Error Handling and Security', () => {
   });
 
   test('imports invalid JSON returns stable error', async () => {
-    const badPath = path.join(tempDir, 'bad.json');
-    fs.writeFileSync(badPath, '{not valid json}', 'utf-8');
-    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [badPath] });
+    const badDir = path.join(tempDir, 'bad-card');
+    fs.mkdirSync(badDir, { recursive: true });
+    fs.writeFileSync(path.join(badDir, 'card.json'), '{not valid json}', 'utf-8');
+    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [badDir] });
 
-    const result = await ipcMain.handlers['import-game-card-from-file']();
+    const result = await ipcMain.handlers['import-game-card-from-directory']();
 
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
@@ -45,12 +46,13 @@ describe('Game Card Persistence - Error Handling and Security', () => {
   });
 
   test('imports card with unsafe id returns stable error', async () => {
-    const card = { id: 'bad/../quest', name: 'Bad Quest', rules: [] };
-    const badPath = path.join(tempDir, 'unsafe.json');
-    fs.writeFileSync(badPath, JSON.stringify(card), 'utf-8');
-    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [badPath] });
+    const card = { version: '1.0', id: 'bad/../quest', name: 'Bad Quest', rules: [] };
+    const badDir = path.join(tempDir, 'unsafe-card');
+    fs.mkdirSync(badDir, { recursive: true });
+    fs.writeFileSync(path.join(badDir, 'card.json'), JSON.stringify(card), 'utf-8');
+    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [badDir] });
 
-    const result = await ipcMain.handlers['import-game-card-from-file']();
+    const result = await ipcMain.handlers['import-game-card-from-directory']();
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('safe id');

@@ -15,10 +15,10 @@ function GameCardTitleControl({ modelName }) {
 
   const handleImport = async (event) => {
     event.stopPropagation();
-    if (!window.electronAPI?.importGameCardFromFile) return;
+    if (!window.electronAPI?.importGameCardFromDirectory) return;
     setIsImporting(true);
     setError('');
-    const result = await window.electronAPI.importGameCardFromFile();
+    const result = await window.electronAPI.importGameCardFromDirectory();
     if (result.success) {
       setCard(result.card || null);
     } else if (!result.canceled) {
@@ -40,8 +40,8 @@ function GameCardTitleControl({ modelName }) {
         className="game-card-import-btn md-btn md-btn-icon"
         onClick={handleImport}
         disabled={isImporting}
-        title="导入游戏卡 JSON"
-        aria-label="导入游戏卡 JSON"
+        title="导入游戏卡文件夹"
+        aria-label="导入游戏卡文件夹"
       >
         <span className="material-icons">{isImporting ? 'hourglass_empty' : 'drive_folder_upload'}</span>
       </button>
