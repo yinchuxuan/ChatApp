@@ -54,6 +54,7 @@ test('resolves file_content through safe IPC in the chat send pipeline', async (
       then: [{
         type: 'insert',
         predicate: { index: 0 },
+        anchor: 'before',
         role: 'system',
         content: '{{file_content:worldbook/rules.md}}',
         _meta: { visibility: 'llm_only' }

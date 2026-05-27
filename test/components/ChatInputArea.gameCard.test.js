@@ -110,7 +110,7 @@ describe('ChatInputArea game card pre_send integration', () => {
         name: 'Active Card',
         rules: [{
           when: { phase: 'pre_send' },
-          then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'rules' }]
+          then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'rules' }]
         }]
       }
     });

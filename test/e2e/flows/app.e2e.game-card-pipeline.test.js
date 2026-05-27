@@ -31,6 +31,7 @@ function pipelineCard() {
           {
             type: 'insert',
             predicate: { index: 0 },
+            anchor: 'before',
             role: 'system',
             content: 'SYSTEM RULES',
             ttl: -1,

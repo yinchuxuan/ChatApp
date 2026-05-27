@@ -14,7 +14,7 @@ test.describe('Multi-turn round trip', () => {
       version: '1.0', id: 'multi_turn', name: 'Multi Turn',
       rules: [
         { when: { phase: 'pre_send' }, then: [
-          { type: 'insert', predicate: { index: 0 }, role: 'system', content: 'Game rules apply', _meta: { visibility: 'llm_only' } },
+          { type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'Game rules apply', _meta: { visibility: 'llm_only' } },
           { type: 'replace', predicate: { role: 'user' }, content: '{{raw_string:[Player] }} + {{original_content}}' }
         ]},
         { when: { phase: 'after_response', last: { role: 'assistant' } }, then: [
@@ -53,7 +53,7 @@ test.describe('Multi-turn round trip', () => {
   test('Anthropic multi-turn with system extraction', async () => {
     const card = {
       version: '1.0', id: 'ant_multi_turn', name: 'Anthropic Multi',
-      rules: [{ when: { phase: 'pre_send' }, then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'SYS', _meta: { visibility: 'llm_only' } }] }]
+      rules: [{ when: { phase: 'pre_send' }, then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'SYS', _meta: { visibility: 'llm_only' } }] }]
     };
     await configureApp(card, 'anthropic');
     const requests = [];
