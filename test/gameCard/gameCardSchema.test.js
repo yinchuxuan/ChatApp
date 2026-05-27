@@ -147,6 +147,8 @@ describe('game card schema', () => {
     expect(validateWhen({ phase: 'pre_send', length: 0 })).toBe(true);
     expect(validateWhen({ phase: 'init', length: 0 })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', length: { gte: 1, lte: 5 } })).toBe(true);
+    expect(validateWhen({ phase: 'pre_send', state: { route: 'alice', hp: { lte: 20 } } })).toBe(true);
+    expect(validateWhen({ phase: 'pre_send', state: { route: { startsWith: 'a' } } })).toBe(false);
     expect(validateWhen({ phase: 'pre_send', last: { num: 3, role: 'user' } })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', last: { num: 0, role: 'user' } })).toBe(false);
     expect(validateWhen({ phase: 'pre_send', last: { num: 3 } })).toBe(false);

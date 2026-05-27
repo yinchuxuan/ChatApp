@@ -76,7 +76,7 @@ function applyGameCard({ card, phase, messages = [], state = {}, event = {}, con
 
   const result = card.rules.reduce((current, rule, index) => {
     try {
-      if (!matchesWhen(rule.when, phase, current.messages)) return current;
+      if (!matchesWhen(rule.when, phase, current.messages, current.state)) return current;
     } catch (error) {
       return {
         ...current,

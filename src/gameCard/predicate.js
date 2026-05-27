@@ -1,3 +1,5 @@
+const { getStateValue, hasStateValue } = require('./statePaths');
+
 function compareNumber(actual, expected) {
   if (typeof expected === 'number') return actual === expected;
   if (!expected || typeof expected !== 'object') return false;
@@ -9,6 +11,51 @@ function compareNumber(actual, expected) {
     if (op === 'lte') return actual <= value;
     if (op === 'eq') return actual === value;
     return false;
+  });
+}
+
+function isObject(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function matchesStateOperator(actual, exists, op, expected) {
+  if (op === 'exists') return expected === exists;
+  if (!exists) return false;
+  if (op === 'eq') return actual === expected;
+  if (op === 'gt') return typeof actual === 'number' && actual > expected;
+  if (op === 'gte') return typeof actual === 'number' && actual >= expected;
+  if (op === 'lt') return typeof actual === 'number' && actual < expected;
+  if (op === 'lte') return typeof actual === 'number' && actual <= expected;
+  if (op === 'in') return Array.isArray(expected) && expected.includes(actual);
+  if (op === 'nin') return Array.isArray(expected) && !expected.includes(actual);
+  if (op === 'contains' && typeof actual === 'string') return actual.includes(expected);
+  if (op === 'contains' && Array.isArray(actual)) return actual.includes(expected);
+  if (op === 'regex' && typeof actual === 'string') {
+    try {
+      return new RegExp(expected).test(actual);
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+function matchesStateValue(state, path, expected) {
+  const exists = hasStateValue(state, path);
+  const actual = getStateValue(state, path);
+  if (!isObject(expected)) return exists && actual === expected;
+
+  return Object.entries(expected).every(([op, value]) => {
+    return matchesStateOperator(actual, exists, op, value);
+  });
+}
+
+function matchesState(statePredicate, state) {
+  if (!isObject(statePredicate) || Object.keys(statePredicate).length === 0) {
+    return false;
+  }
+  return Object.entries(statePredicate).every(([path, expected]) => {
+    return matchesStateValue(state, path, expected);
   });
 }
 
@@ -94,7 +141,7 @@ function matchesLast(last, messages) {
   });
 }
 
-function matchesWhen(when, phase, messages) {
+function matchesWhen(when, phase, messages, state = {}) {
   if (!when || when.phase !== phase) return false;
   if (when.length !== undefined) {
     if (!compareNumber(messages.length, when.length)) return false;
@@ -108,9 +155,12 @@ function matchesWhen(when, phase, messages) {
   if (when.all !== undefined) {
     if (!messages.every((msg, index) => matchesPredicate(when.all, msg, index, messages))) return false;
   }
+  if (when.state !== undefined) {
+    if (!matchesState(when.state, state)) return false;
+  }
   return true;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { compareNumber, matchesPredicate, matchesWhen, matchesLast };
+  module.exports = { compareNumber, matchesPredicate, matchesWhen, matchesLast, matchesState };
 }

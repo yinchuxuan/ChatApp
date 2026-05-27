@@ -5,12 +5,12 @@ const VALID_ACTION_TYPES = ['insert', 'remove', 'replace', 'exec'];
 const VALID_VISIBILITIES = ['llm_only', 'user_visible', 'debug_only'];
 const VALID_COMPARISON_OPS = ['gt', 'gte', 'lt', 'lte', 'eq'];
 const VALID_STRING_OPS = ['contains', 'regex', 'in', 'nin'];
-function addError(errors, path, message) {
-  errors.push(`${path}: ${message}`);
-}
+const VALID_STATE_OPS = ['eq', 'gt', 'gte', 'lt', 'lte', 'in', 'nin', 'contains', 'exists', 'regex'];
+function addError(errors, path, message) { errors.push(`${path}: ${message}`); }
 function isString(v) { return typeof v === 'string'; }
 function isInteger(v) { return typeof v === 'number' && Number.isInteger(v); }
 function isObject(v) { return v && typeof v === 'object' && !Array.isArray(v); }
+function isStateLiteral(v) { return v === null || ['string', 'number', 'boolean'].includes(typeof v); }
 function validateTTL(value, path, errors) {
   if (!isInteger(value) || value < -1) addError(errors, path, 'ttl must be an integer >= -1');
 }
@@ -19,10 +19,7 @@ function validateMessageMeta(meta, path, errors) {
   if (meta.source !== undefined && !isString(meta.source)) addError(errors, path + '.source', 'must be a string');
   if (meta.visibility !== undefined && !VALID_VISIBILITIES.includes(meta.visibility)) addError(errors, path + '.visibility', 'must be one of ' + VALID_VISIBILITIES.join(', '));
 }
-
-function validateMessageRole(role, path, errors) {
-  if (!VALID_ROLES.includes(role)) addError(errors, path, 'must be one of ' + VALID_ROLES.join(', '));
-}
+function validateMessageRole(role, path, errors) { if (!VALID_ROLES.includes(role)) addError(errors, path, 'must be one of ' + VALID_ROLES.join(', ')); }
 function validateComparison(value, path, errors) {
   if (!isObject(value)) return;
   for (const [op, v] of Object.entries(value)) {
@@ -33,7 +30,6 @@ function validateComparison(value, path, errors) {
     }
   }
 }
-
 function validateStringMatcher(value, path, errors) {
   if (!isObject(value)) return;
   for (const [op, v] of Object.entries(value)) {
@@ -56,6 +52,24 @@ function validateStringSetMatcher(value, path, errors) {
     }
   }
 }
+function validateStateMatcher(value, path, errors) {
+  if (!isObject(value)) return;
+  for (const [op, v] of Object.entries(value)) {
+    if (!VALID_STATE_OPS.includes(op)) addError(errors, path, 'unknown state op: ' + op);
+    else if (['gt', 'gte', 'lt', 'lte'].includes(op) && typeof v !== 'number') addError(errors, path + '.' + op, 'must be a number');
+    else if ((op === 'in' || op === 'nin') && (!Array.isArray(v) || v.length === 0)) addError(errors, path + '.' + op, 'must be a non-empty array');
+    else if (op === 'exists' && typeof v !== 'boolean') addError(errors, path + '.exists', 'must be a boolean');
+    else if (op === 'regex' && !isString(v)) addError(errors, path + '.regex', 'must be a string');
+  }
+}
+function validateStatePredicate(predicate, path, errors) {
+  if (!isObject(predicate) || Object.keys(predicate).length === 0) return addError(errors, path, 'must be a non-empty object');
+  Object.entries(predicate).forEach(([key, value]) => {
+    if (!isString(key) || key.length === 0) addError(errors, path, 'state path must be a non-empty string');
+    if (isObject(value)) validateStateMatcher(value, path + '.' + key, errors);
+    else if (!isStateLiteral(value)) addError(errors, path + '.' + key, 'must be a scalar or state matcher');
+  });
+}
 function validatePredicate(predicate, path, errors) {
   if (!predicate || !isObject(predicate)) {
     addError(errors, path, 'must be an object');
@@ -68,30 +82,21 @@ function validatePredicate(predicate, path, errors) {
   for (const [key, value] of Object.entries(predicate)) {
     switch (key) {
       case 'role': {
-        if (isString(value)) {
-          validateMessageRole(value, path + '.role', errors);
-        } else {
-          validateStringSetMatcher(value, path + '.role', errors);
-        }
+        if (isString(value)) validateMessageRole(value, path + '.role', errors);
+        else validateStringSetMatcher(value, path + '.role', errors);
         break;
       }
       case 'content':
       case 'thinking': {
-        if (!isString(value)) {
-          validateStringMatcher(value, path + '.' + key, errors);
-        }
+        if (!isString(value)) validateStringMatcher(value, path + '.' + key, errors);
         break;
       }
       case '_meta.source': {
-        if (!isString(value)) {
-          validateStringMatcher(value, path + '._meta.source', errors);
-        }
+        if (!isString(value)) validateStringMatcher(value, path + '._meta.source', errors);
         break;
       }
       case 'index': {
-        if (!isInteger(value) && value !== 'last') {
-          addError(errors, path + '.index', 'must be a non-negative integer or "last"');
-        }
+        if (!isInteger(value) && value !== 'last') addError(errors, path + '.index', 'must be a non-negative integer or "last"');
         break;
       }
       case 'all': {
@@ -103,11 +108,8 @@ function validatePredicate(predicate, path, errors) {
         break;
       }
       case 'or': {
-        if (!Array.isArray(value) || value.length === 0) {
-          addError(errors, path + '.or', 'must be a non-empty array');
-        } else {
-          value.forEach((item, i) => validatePredicate(item, path + '.or[' + i + ']', errors));
-        }
+        if (!Array.isArray(value) || value.length === 0) addError(errors, path + '.or', 'must be a non-empty array');
+        else value.forEach((item, i) => validatePredicate(item, path + '.or[' + i + ']', errors));
         break;
       }
       case 'not': {
@@ -149,6 +151,7 @@ function validateWhen(when, path, errors) {
   if (when.last !== undefined) validateLastPredicate(when.last, path + '.last', errors);
   if (when.any !== undefined) validatePredicate(when.any, path + '.any', errors);
   if (when.all !== undefined) validatePredicate(when.all, path + '.all', errors);
+  if (when.state !== undefined) validateStatePredicate(when.state, path + '.state', errors);
 }
 
 function validateFindMap(find, path, errors) {
@@ -193,4 +196,4 @@ function validateAction(action, path, errors) {
   if (action._meta !== undefined) validateMessageMeta(action._meta, path + '._meta', errors);
   validateFindMap(action.find, path + '.find', errors);
 }
-if (typeof module !== 'undefined' && module.exports) module.exports = { validatePredicate, validateWhen, validateAction, validateTTL, validateMessageMeta, validateMessageRole };
+if (typeof module !== 'undefined' && module.exports) module.exports = { validatePredicate, validateWhen, validateAction, validateTTL, validateMessageMeta, validateMessageRole, validateStatePredicate };
