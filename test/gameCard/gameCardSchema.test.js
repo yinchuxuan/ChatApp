@@ -123,6 +123,7 @@ describe('game card schema', () => {
     const validate = compileDefinition('action');
     const cases = [
       [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'x' }, true],
+      [{ type: 'insert', role: 'system', content: 'x' }, true],
       [{ type: 'insert', predicate: { index: 0 }, role: 'tool', content: 'x' }, false],
       [{ type: 'insert', predicate: { index: 0 }, role: 'system' }, false],
       [{ type: 'remove', predicate: { role: 'system' } }, true],
@@ -144,6 +145,7 @@ describe('game card schema', () => {
     const validatePredicate = compileDefinition('predicate');
 
     expect(validateWhen({ phase: 'pre_send', length: 0 })).toBe(true);
+    expect(validateWhen({ phase: 'init', length: 0 })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', length: { gte: 1, lte: 5 } })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', last: { num: 3, role: 'user' } })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', last: { num: 0, role: 'user' } })).toBe(false);

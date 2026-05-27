@@ -94,6 +94,32 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
   };
 }
 
+function hasMessageChanges(before, after) {
+  return JSON.stringify(before) !== JSON.stringify(after);
+}
+
+async function prepareInitMessages({ messages = [], state = {}, event = {}, card } = {}) {
+  const api = typeof window !== 'undefined' ? window.electronAPI : null;
+  const activeCard = card === undefined
+    ? await loadActiveGameCard(api)
+    : card;
+
+  if (!activeCard || messages.length > 0) {
+    return { messages, state, trace: null, ttlTrace: null, applied: false, changed: false, card: activeCard || null };
+  }
+
+  let fileContents;
+  try {
+    fileContents = await loadFileContents(activeCard, api);
+  } catch (error) {
+    return { messages, state, trace: null, ttlTrace: null, applied: false, changed: false, card: null, error: error.message };
+  }
+
+  const result = applyGameCard({ card: activeCard, phase: 'init', messages, state, event, fileContents });
+  const changed = hasMessageChanges(messages, result.messages);
+  return { ...result, ttlTrace: null, applied: true, changed, card: activeCard };
+}
+
 function toApiMessages(messages, protocol = 'openai') {
   return adaptMessagesToProtocol(messages, protocol).messages;
 }
@@ -101,6 +127,7 @@ function toApiMessages(messages, protocol = 'openai') {
 if (typeof window !== 'undefined') {
   window.preparePreSendMessages = preparePreSendMessages;
   window.prepareAfterResponseMessages = prepareAfterResponseMessages;
+  window.prepareInitMessages = prepareInitMessages;
   window.toGameCardApiMessages = toApiMessages;
 }
 
@@ -108,6 +135,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     extractActiveCard,
     loadActiveGameCard,
+    prepareInitMessages,
     preparePreSendMessages,
     prepareAfterResponseMessages,
     toApiMessages,

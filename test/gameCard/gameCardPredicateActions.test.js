@@ -81,30 +81,26 @@ describe('game card predicate actions runtime', () => {
     }, 'after_response', messages)).toBe(false);
   });
 
-  test('inserts before and after matched anchors', () => {
+  test('inserts after matched anchors by default and before when requested', () => {
     const messages = [{ role: 'user', content: 'hello' }];
-
+    const afterByDefault = applyAction(messages, { type: 'insert', predicate: { index: 0 }, role: 'system', content: 'rules' });
     const before = applyAction(messages, {
       type: 'insert',
       predicate: { index: 0 },
-      role: 'system',
-      content: 'rules'
-    });
-    const after = applyAction(messages, {
-      type: 'insert',
-      predicate: { index: 0 },
-      anchor: 'after',
+      anchor: 'before',
       role: 'assistant',
       content: 'ready',
       ttl: 1,
       _meta: { source: 'game_card' }
     });
+    const appended = applyAction([], { type: 'insert', role: 'system', content: 'init' });
 
-    expect(before.messages.map((message) => message.role)).toEqual(['system', 'user']);
-    expect(after.messages).toEqual([
-      { role: 'user', content: 'hello' },
-      { role: 'assistant', content: 'ready', ttl: 1, _meta: { source: 'game_card' } }
+    expect(afterByDefault.messages.map((message) => message.role)).toEqual(['user', 'system']);
+    expect(before.messages).toEqual([
+      { role: 'assistant', content: 'ready', ttl: 1, _meta: { source: 'game_card' } },
+      { role: 'user', content: 'hello' }
     ]);
+    expect(appended.messages).toEqual([{ role: 'system', content: 'init' }]);
   });
 
   test('removes and replaces every matching message', () => {
@@ -175,7 +171,7 @@ describe('game card predicate actions runtime', () => {
       {
         id: 'bootstrap',
         when: { phase: 'pre_send', length: 1, last: { role: 'user' } },
-        then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'rules' }]
+        then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'rules' }]
       },
       {
         id: 'mark',

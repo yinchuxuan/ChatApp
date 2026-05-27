@@ -8,7 +8,7 @@ function createCard(content) {
     name: 'Section Card',
     rules: [{
       when: { phase: 'pre_send' },
-      then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content }]
+      then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content }]
     }]
   };
 }

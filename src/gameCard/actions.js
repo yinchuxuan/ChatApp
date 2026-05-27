@@ -44,10 +44,19 @@ function insertMessage(action, options) {
 }
 
 function applyInsert(messages, action, options) {
+  if (!action.role || typeof action.content !== 'string') {
+    return { messages, trace: buildTrace(action, [], false, messages, messages) };
+  }
+
+  if (action.predicate === undefined) {
+    const nextMessages = [...messages, insertMessage(action, options)];
+    return { messages: nextMessages, trace: buildTrace(action, [], true, messages, nextMessages) };
+  }
+
   const matches = findMatchingIndexes(messages, action.predicate);
   if (matches.length === 0) return { messages, trace: buildTrace(action, matches, false, messages, messages) };
 
-  const anchorIndex = matches[0] + (action.anchor === 'after' ? 1 : 0);
+  const anchorIndex = matches[0] + (action.anchor === 'before' ? 0 : 1);
   const nextMessages = [
     ...messages.slice(0, anchorIndex),
     insertMessage(action, options),

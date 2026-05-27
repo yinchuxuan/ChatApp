@@ -86,11 +86,30 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 
 同一条规则内的 `then` 操作也按顺序执行，前一个操作输出会作为后一个操作输入。因此后续操作的 `find` 可以查到前序操作插入或修改后的消息；单个操作不能 `find` 到自己尚未插入的消息。
 
+## 初始化阶段
+
+`init` 阶段在聊天历史加载后、用户发送消息前执行，用于向空会话写入初始消息。运行时只会对空的已加载历史执行 `init`，初始消息保存后再次加载会因为历史非空而跳过，避免重复插入。
+
+```json
+{
+  "when": { "phase": "init", "length": 0 },
+  "then": [
+    {
+      "type": "insert",
+      "role": "system",
+      "content": "{{file_content:intro.md}}",
+      "_meta": { "source": "game_card_init", "visibility": "user_visible" }
+    }
+  ]
+}
+```
+
 ## When（触发条件）
 
 `when` 的本质是判断当前流水线位置的消息数组是否满足触发条件。
 
 ```json
+{ "when": { "phase": "init", "length": 0 } }
 { "when": { "phase": "pre_send" } }
 { "when": { "phase": "pre_send", "length": 1 } }
 { "when": { "phase": "pre_send", "length": { "lte": 1 } } }
@@ -101,7 +120,7 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 
 | 字段 | 类型 | 含义 |
 |---|---|---|
-| `phase` | string | 必填。`pre_send` 或 `after_response` |
+| `phase` | string | 必填。`init`、`pre_send` 或 `after_response` |
 | `length` | number 或比较对象 | 消息总数。支持 `gt`/`gte`/`lt`/`lte`/`eq` |
 | `last` | predicate | 最后一条消息是否匹配 |
 | `any` | predicate | 是否有任意消息匹配 |
@@ -129,6 +148,9 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 ## Pipeline 执行流程
 
 ```txt
+聊天历史加载
+  -> 若 messages 为空，执行 init 规则并保存
+
 用户发送
   -> decayTTL
   -> 按顺序逐条判断 pre_send 规则的 when

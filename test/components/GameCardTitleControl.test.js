@@ -31,10 +31,12 @@ describe('GameCardTitleControl', () => {
 
   test('imports a game card and stops header click propagation', async () => {
     const headerClick = jest.fn();
+    const cardChanged = jest.fn();
     electronAPI.importGameCardFromDirectory.mockResolvedValue({
       success: true,
       card: { id: 'new_quest', name: 'New Quest', rules: [] }
     });
+    window.addEventListener('game-card-changed', cardChanged);
 
     render(
       <div onClick={headerClick}>
@@ -49,6 +51,10 @@ describe('GameCardTitleControl', () => {
 
     expect(electronAPI.importGameCardFromDirectory).toHaveBeenCalled();
     expect(headerClick).not.toHaveBeenCalled();
+    expect(cardChanged).toHaveBeenCalledWith(expect.objectContaining({
+      detail: { id: 'new_quest', name: 'New Quest', rules: [] }
+    }));
     expect(screen.getByText('New Quest')).toBeInTheDocument();
+    window.removeEventListener('game-card-changed', cardChanged);
   });
 });

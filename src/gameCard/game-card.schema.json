@@ -33,7 +33,7 @@
       "additionalProperties": false,
       "required": ["phase"],
       "properties": {
-        "phase": { "enum": ["pre_send", "after_response"] },
+        "phase": { "enum": ["init", "pre_send", "after_response"] },
         "length": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/definitions/comparison" }] },
         "last": { "$ref": "#/definitions/lastPredicate" },
         "any": { "$ref": "#/definitions/predicate" },
@@ -63,7 +63,7 @@
     "insertAction": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "predicate", "role", "content"],
+      "required": ["type", "role", "content"],
       "properties": {
         "type": { "const": "insert" },
         "predicate": { "$ref": "#/definitions/predicate" },

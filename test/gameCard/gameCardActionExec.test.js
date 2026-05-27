@@ -74,8 +74,8 @@ describe('game card action execution edge cases', () => {
       rules: [{
         when: { phase: 'pre_send' },
         then: [
-          { type: 'insert', predicate: { index: 0 }, role: 'system', content: 'first' },
-          { type: 'insert', predicate: { index: 0 }, role: 'system', content: 'second' },
+          { type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'first' },
+          { type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'second' },
           { type: 'replace', predicate: { index: 'last' }, content: 'modified' }
         ]
       }]
@@ -91,8 +91,8 @@ describe('game card action execution edge cases', () => {
     const card = {
       version: '1', id: 'order-card', name: 'Order',
       rules: [
-        { id: 'a', when: { phase: 'pre_send' }, then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'A' }] },
-        { id: 'b', when: { phase: 'pre_send' }, then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'B' }] },
+        { id: 'a', when: { phase: 'pre_send' }, then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'A' }] },
+        { id: 'b', when: { phase: 'pre_send' }, then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'B' }] },
         { id: 'c', when: { phase: 'pre_send' }, then: [{ type: 'remove', predicate: { all: true } }] }
       ]
     };
@@ -104,7 +104,7 @@ describe('game card action execution edge cases', () => {
   test('insert does not mutate original messages array', () => {
     const messages = [{ role: 'user', content: 'hello' }];
     const result = applyAction(messages, {
-      type: 'insert', predicate: { index: 0 },
+      type: 'insert', predicate: { index: 0 }, anchor: 'before',
       role: 'system', content: 'rules',
       _meta: { visibility: 'llm_only' }
     });

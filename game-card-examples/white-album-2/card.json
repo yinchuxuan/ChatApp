@@ -6,33 +6,32 @@
     {
       "id": "wa2-system-prompt",
       "when": {
-        "phase": "pre_send",
-        "length": { "eq": 1 }
+        "phase": "init"
       },
       "then": [
         {
           "type": "insert",
-          "predicate": { "all": true },
           "role": "system",
-          "content": "接下来开始进行《白色相簿2》ic篇的角色扮演互动，用户扮演北原春希，你是剧情创作者负责推进角色扮演的剧情",
-          "anchor": "before",
+          "content": "接下来开始进行《白色相簿2》ic篇的角色扮演互动，你是角色扮演剧情的创作者，负责根据用户的反馈创建合适的角色扮演剧情",
           "_meta": { "source": "wa2_system_prompt", "visibility": "llm_only" }
         },
         {
           "type": "insert",
-          "predicate": { "_meta.source": "wa2_system_prompt" },
           "role": "system",
           "content": "历史对话总结:\n暂无",
-          "anchor": "after",
           "_meta": { "source": "wa2_summary", "visibility": "llm_only" }
         },
         {
           "type": "insert",
-          "predicate": { "_meta.source": "wa2_summary" },
           "role": "system",
           "content": "本轮世界书:",
-          "anchor": "after",
           "_meta": { "source": "wa2_worldbook", "visibility": "llm_only" }
+        },
+        {
+          "type": "insert",
+          "role": "assistant",
+          "content": "{{file_content:first_msg.md}}",
+          "_meta": { "source": "wa2_first_msg", "visibility": "user_visible" }
         }
       ]
     },

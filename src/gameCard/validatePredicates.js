@@ -1,4 +1,4 @@
-const VALID_PHASES = ['pre_send', 'after_response'];
+const VALID_PHASES = ['init', 'pre_send', 'after_response'];
 const VALID_ANCHORS = ['before', 'after'];
 const VALID_ROLES = ['user', 'assistant', 'system'];
 const VALID_ACTION_TYPES = ['insert', 'remove', 'replace', 'exec'];
@@ -178,7 +178,8 @@ function validateAction(action, path, errors) {
     if (!isString(action.source) || action.source.length === 0) addError(errors, path + '.source', 'must be a non-empty string');
     return;
   }
-  validateRequiredPredicate(action, path, errors);
+  if (action.type !== 'insert') validateRequiredPredicate(action, path, errors);
+  if (action.type === 'insert' && action.predicate !== undefined) validatePredicate(action.predicate, path + '.predicate', errors);
   if (action.type === 'remove') return;
   if (action.type === 'insert') {
     if (!action.role) addError(errors, path, 'requires role');

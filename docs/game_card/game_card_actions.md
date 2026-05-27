@@ -15,12 +15,23 @@
 }
 ```
 
-- `predicate`：定位锚点消息
-- `anchor`：`before` 或 `after`，默认 `before`
+- `predicate`：可选。存在时定位锚点消息；省略时直接插入到 `messages` 末尾，支持空数组
+- `anchor`：`before` 或 `after`，默认 `after`。仅在声明 `predicate` 时生效
 - `role`：新消息的 role
 - `content`：Content 描述符
 - `ttl`：消息存活轮数，默认 `-1`
 - `find`：可选。声明可被 `content` 引用的跨消息查询
+
+初始化空会话时可省略 `predicate`：
+
+```json
+{
+  "type": "insert",
+  "role": "system",
+  "content": "开场规则",
+  "_meta": { "source": "game_card_init", "visibility": "user_visible" }
+}
+```
 
 ## remove
 

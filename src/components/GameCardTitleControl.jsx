@@ -21,6 +21,7 @@ function GameCardTitleControl({ modelName }) {
     const result = await window.electronAPI.importGameCardFromDirectory();
     if (result.success) {
       setCard(result.card || null);
+      window.dispatchEvent(new CustomEvent('game-card-changed', { detail: result.card || null }));
     } else if (!result.canceled) {
       setError(result.error || '导入失败');
     }

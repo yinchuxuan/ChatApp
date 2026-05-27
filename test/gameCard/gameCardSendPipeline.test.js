@@ -16,6 +16,7 @@ function cardWithInsert(content) {
       then: [{
         type: 'insert',
         predicate: { index: 0 },
+        anchor: 'before',
         role: 'system',
         content,
         _meta: { visibility: 'llm_only' }

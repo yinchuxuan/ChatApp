@@ -5,24 +5,43 @@ function user(content) {
   return { role: 'user', content };
 }
 
-function applyWhiteAlbum(messages) {
+const fileContents = {
+  'first_msg.md': [
+    '开场剧情',
+    '<summary>开场总结。</summary>',
+    'A. 继续交谈',
+    'B. 整理录音',
+    'C. 暂时沉默',
+    'D. 询问心情'
+  ].join('\n'),
+  'roleplay_rules.md': '回复时保持白色相簿2的氛围。',
+  'worldbook/characters.md': [
+    '# 角色世界书',
+    '## 北原春希',
+    '世界书：北原春希',
+    '## 冬马和纱',
+    '世界书：冬马和纱',
+    '## 小木曾雪菜',
+    '世界书：小木曾雪菜'
+  ].join('\n')
+};
+
+function applyWhiteAlbumPhase(phase, messages) {
   return applyGameCard({
     card,
-    phase: 'pre_send',
+    phase,
     messages,
-    fileContents: {
-      'roleplay_rules.md': '回复时保持白色相簿2的氛围。',
-      'worldbook/characters.md': [
-        '# 角色世界书',
-        '## 北原春希',
-        '世界书：北原春希',
-        '## 冬马和纱',
-        '世界书：冬马和纱',
-        '## 小木曾雪菜',
-        '世界书：小木曾雪菜'
-      ].join('\n')
-    }
+    fileContents
   });
+}
+
+function initWhiteAlbum() {
+  return applyWhiteAlbumPhase('init', []);
+}
+
+function applyWhiteAlbum(messages) {
+  const init = initWhiteAlbum();
+  return applyWhiteAlbumPhase('pre_send', [...init.messages, ...messages]);
 }
 
 describe('white album 2 game card', () => {
@@ -31,7 +50,7 @@ describe('white album 2 game card', () => {
   });
 
   test('inserts fixed hidden summary message after the system prompt', () => {
-    const result = applyWhiteAlbum([user('开始')]);
+    const result = initWhiteAlbum();
 
     expect(result.trace.errors).toEqual([]);
     expect(result.messages[0]._meta.source).toBe('wa2_system_prompt');
@@ -43,10 +62,14 @@ describe('white album 2 game card', () => {
     expect(result.messages[2].role).toBe('system');
     expect(result.messages[2]._meta.source).toBe('wa2_worldbook');
     expect(result.messages[2]._meta.visibility).toBe('llm_only');
+    expect(result.messages[3].role).toBe('assistant');
+    expect(result.messages[3]._meta.source).toBe('wa2_first_msg');
+    expect(result.messages[3]._meta.visibility).toBe('user_visible');
+    expect(result.messages[3].content).toContain('<summary>开场总结。</summary>');
   });
 
   test('compresses older assistant summaries and keeps latest user and assistant', () => {
-    const first = applyWhiteAlbum([user('开始')]);
+    const first = initWhiteAlbum();
     const latestAssistant = {
       role: 'assistant',
       content: '没有总结标签的回复'
@@ -82,7 +105,7 @@ describe('white album 2 game card', () => {
   });
 
   test('keeps latest assistant with summary uncompressed for next turn context', () => {
-    const first = applyWhiteAlbum([user('开始')]);
+    const first = initWhiteAlbum();
     const latestAssistant = {
       role: 'assistant',
       content: '春希犹豫着回应。<summary>春希回应了雪菜。</summary>'

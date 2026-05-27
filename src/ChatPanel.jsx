@@ -80,24 +80,32 @@ function ChatPanel() {
   const renderRetryBtn = msgRenderers ? (isLast, isLoading) => msgRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry) : null;
   const GameCardControl = window.GameCardTitleControl;
 
-  const chatHistoryRef = R.useRef(null);
-  const initialLoadDone = R.useRef(false);
-  const pinnedScrollAppliedRef = R.useRef(false);
-  const lastPinnedUserContentRef = R.useRef(null);
+  const chatHistoryRef = R.useRef(null), initialLoadDone = R.useRef(false);
+  const pinnedScrollAppliedRef = R.useRef(false), lastPinnedUserContentRef = R.useRef(null);
+
+  const loadHistory = R.useCallback(async () => {
+    if (window.electronAPI) {
+      const result = await window.electronAPI.getChatHistory();
+      if (result.success && result.retryBaseMessages) retryBaseRef.current = result.retryBaseMessages;
+      if (result.success) {
+        const loaded = result.messages || [];
+        const prepareInit = window.prepareInitMessages || (async ({ messages }) => ({ messages, changed: false }));
+        const init = await prepareInit({ messages: loaded });
+        const nextMessages = init.changed ? init.messages : loaded;
+        setMessages(nextMessages);
+        if (init.changed) window.electronAPI.saveChatHistory(nextMessages, { retryBaseMessages: retryBaseRef.current });
+      }
+    }
+    initialLoadDone.current = true;
+  }, []);
+
+  R.useEffect(() => { loadHistory(); }, [loadHistory]);
 
   R.useEffect(() => {
-    async function loadHistory() {
-      if (window.electronAPI) {
-        const result = await window.electronAPI.getChatHistory();
-        if (result.success && result.retryBaseMessages) retryBaseRef.current = result.retryBaseMessages;
-        if (result.success && result.messages && result.messages.length > 0) {
-          setMessages(result.messages);
-        }
-      }
-      initialLoadDone.current = true;
-    }
-    loadHistory();
-  }, []);
+    const handler = () => { retryBaseRef.current = null; tw.clearStreaming(); loadHistory(); };
+    window.addEventListener('game-card-changed', handler);
+    return () => window.removeEventListener('game-card-changed', handler);
+  }, [loadHistory, tw]);
 
   R.useEffect(() => {
     if (!initialLoadDone.current) return;

@@ -18,7 +18,7 @@ describe('legacy e2e game card coverage migrated to Jest', () => {
       card: card([
         {
           when: { phase: 'pre_send', any: { content: { contains: 'quest' } } },
-          then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: 'rules' }]
+          then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'rules' }]
         },
         {
           when: { phase: 'pre_send', last: { role: 'user' } },
@@ -91,7 +91,7 @@ describe('legacy e2e game card coverage migrated to Jest', () => {
       card: card([{
         when: { phase: 'pre_send', all: { role: 'user' } },
         then: [
-          { type: 'insert', predicate: { index: 0 }, role: 'system', content: 'all users', _meta: { visibility: 'llm_only' } },
+          { type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'all users', _meta: { visibility: 'llm_only' } },
           { type: 'insert', predicate: { index: 'last' }, anchor: 'after', role: 'system', content: 'debug trace', _meta: { visibility: 'debug_only' } }
         ]
       }]),
