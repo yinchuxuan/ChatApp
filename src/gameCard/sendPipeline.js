@@ -2,6 +2,7 @@ const { applyGameCard } = require('./engine');
 const { adaptMessagesToProtocol } = require('./protocolAdapter');
 const { decayTTL } = require('./ttl');
 const { parseFileSectionRef } = require('./fileSections');
+const { loadExternalStateSchema } = require('./stateSchemaLoader');
 
 function extractActiveCard(result) {
   if (!result || result.success === false) return null;
@@ -44,6 +45,14 @@ async function loadFileContents(card, api) {
   return Object.fromEntries(entries);
 }
 
+async function loadCardResources(card, api) {
+  const cardWithSchema = await loadExternalStateSchema(card, api);
+  return {
+    card: cardWithSchema,
+    fileContents: await loadFileContents(cardWithSchema, api)
+  };
+}
+
 async function preparePreSendMessages({ messages = [], state = {}, event = {}, card, protocol = 'openai' } = {}) {
   const api = typeof window !== 'undefined' ? window.electronAPI : null;
   const activeCard = card === undefined
@@ -55,17 +64,17 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
   }
 
   const ttl = decayTTL(messages);
-  let fileContents;
+  let resources;
   try {
-    fileContents = await loadFileContents(activeCard, api);
+    resources = await loadCardResources(activeCard, api);
   } catch (error) {
     return { messages, state, trace: null, ttlTrace: ttl.trace, applied: false, card: null, error: error.message };
   }
   return {
-    ...applyGameCard({ card: activeCard, phase: 'pre_send', messages: ttl.messages, state, event, fileContents }),
+    ...applyGameCard({ card: resources.card, phase: 'pre_send', messages: ttl.messages, state, event, fileContents: resources.fileContents }),
     ttlTrace: ttl.trace,
     applied: true,
-    card: activeCard,
+    card: resources.card,
     protocol
   };
 }
@@ -80,17 +89,17 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null };
   }
 
-  let fileContents;
+  let resources;
   try {
-    fileContents = await loadFileContents(activeCard, api);
+    resources = await loadCardResources(activeCard, api);
   } catch (error) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null, error: error.message };
   }
   return {
-    ...applyGameCard({ card: activeCard, phase: 'after_response', messages, state, event, fileContents }),
+    ...applyGameCard({ card: resources.card, phase: 'after_response', messages, state, event, fileContents: resources.fileContents }),
     ttlTrace: null,
     applied: true,
-    card: activeCard
+    card: resources.card
   };
 }
 
@@ -108,16 +117,16 @@ async function prepareInitMessages({ messages = [], state = {}, event = {}, card
     return { messages, state, trace: null, ttlTrace: null, applied: false, changed: false, card: activeCard || null };
   }
 
-  let fileContents;
+  let resources;
   try {
-    fileContents = await loadFileContents(activeCard, api);
+    resources = await loadCardResources(activeCard, api);
   } catch (error) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, changed: false, card: null, error: error.message };
   }
 
-  const result = applyGameCard({ card: activeCard, phase: 'init', messages, state, event, fileContents });
+  const result = applyGameCard({ card: resources.card, phase: 'init', messages, state, event, fileContents: resources.fileContents });
   const changed = hasMessageChanges(messages, result.messages);
-  return { ...result, ttlTrace: null, applied: true, changed, card: activeCard };
+  return { ...result, ttlTrace: null, applied: true, changed, card: resources.card };
 }
 
 function toApiMessages(messages, protocol = 'openai') {
@@ -135,6 +144,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     extractActiveCard,
     loadActiveGameCard,
+    loadCardResources,
     prepareInitMessages,
     preparePreSendMessages,
     prepareAfterResponseMessages,
