@@ -23,6 +23,22 @@ function schemaCard(schemaFile = 'state/schema.json') {
   };
 }
 
+function stateExecCard(phase) {
+  return {
+    version: '1',
+    id: 'state-card',
+    name: 'State Card',
+    state: { schemaFile: 'state/schema.json' },
+    rules: [{
+      when: { phase },
+      then: [{
+        type: 'exec',
+        source: 'state.seenHp = state.player.hp; return { state };'
+      }]
+    }]
+  };
+}
+
 describe('game card state schema pipeline', () => {
   beforeEach(() => {
     window.electronAPI.readGameCardFile.mockReset();
@@ -102,5 +118,79 @@ describe('game card state schema pipeline', () => {
     expect(result.applied).toBe(true);
     expect(result.card).toBe(card);
     expect(window.electronAPI.readGameCardFile).not.toHaveBeenCalled();
+  });
+
+  test('passes through the original state value when no schema exists', async () => {
+    const card = { ...schemaCard(), state: undefined };
+    const state = { route: 'alice' };
+    const result = await preparePreSendMessages({
+      card,
+      messages: [{ role: 'user', content: 'start' }],
+      state
+    });
+
+    expect(result.state).toEqual(state);
+    expect(result.stateTrace).toEqual({ changed: false, changedKeys: [], errors: [] });
+  });
+
+  test('pre_send rules receive state after schema defaults are applied', async () => {
+    const result = await preparePreSendMessages({
+      card: stateExecCard('pre_send'),
+      messages: [{ role: 'user', content: 'start' }],
+      state: {}
+    });
+
+    expect(result.state).toEqual({ player: { hp: 100 }, seenHp: 100 });
+    expect(result.stateTrace).toEqual({
+      changed: true,
+      changedKeys: ['player.hp'],
+      errors: []
+    });
+    expect(result.trace.rules[0].summary.state.changedKeys).toContain('seenHp');
+  });
+
+  test('after_response rules receive clamped existing state', async () => {
+    window.electronAPI.readGameCardFile.mockResolvedValue({
+      success: true,
+      content: '{"schema":{"player.hp":{"type":"number","min":0,"max":100,"onInvalid":"clamp"}}}'
+    });
+
+    const result = await prepareAfterResponseMessages({
+      card: stateExecCard('after_response'),
+      messages: [{ role: 'assistant', content: 'done' }],
+      state: { player: { hp: 150 } }
+    });
+
+    expect(result.state).toEqual({ player: { hp: 100 }, seenHp: 100 });
+    expect(result.stateTrace.changedKeys).toEqual(['player.hp']);
+  });
+
+  test('init with existing messages only applies schema defaults', async () => {
+    const result = await prepareInitMessages({
+      card: stateExecCard('init'),
+      messages: [{ role: 'user', content: 'loaded' }],
+      state: {}
+    });
+
+    expect(result.applied).toBe(false);
+    expect(result.changed).toBe(true);
+    expect(result.messages).toEqual([{ role: 'user', content: 'loaded' }]);
+    expect(result.state).toEqual({ player: { hp: 100 } });
+    expect(result.trace).toBeNull();
+  });
+
+  test('init with existing messages does not preload rule files', async () => {
+    const card = stateExecCard('init');
+    card.rules[0].then = [{ type: 'insert', role: 'system', content: '{{file_content:worldbook/rules.md}}' }];
+
+    await prepareInitMessages({
+      card,
+      messages: [{ role: 'user', content: 'loaded' }],
+      state: {}
+    });
+
+    expect(window.electronAPI.readGameCardFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.readGameCardFile)
+      .toHaveBeenCalledWith('state-card', 'state/schema.json');
   });
 });
