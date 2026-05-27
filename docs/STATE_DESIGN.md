@@ -1,198 +1,199 @@
 # State 机制设计文档
 
 ## 概述
-State 是 AI Roleplay Game 的变量系统。平台提供变量定义、引用、修改、LLM 补丁解析、校验、持久化和调试能力；变量业务含义由游戏卡开发者决定。
+
+State 是 AI Roleplay Game 的变量系统。平台提供变量定义、引用、修改、校验、持久化和调试能力；变量业务含义由游戏卡开发者决定。
 
 原则：
+
 - state 是事实源，messages 是叙事记录，prompt 是投影
-- 平台不预设 `player`、`npc`、`quest` 等结构
-- LLM 可以驱动变量变化，但必须通过可解析、可校验、可追踪的补丁协议
-- 哪些变量呈现给 LLM 由游戏卡规则决定
-- state 跟聊天存档绑定，不跟 active game card 绑定
+- state 是聊天 session 的数据，不是游戏卡文件自身的数据
+- 游戏卡不预设 `player`、`npc`、`quest` 等业务结构
+- 游戏卡通过 schema 描述关键字段，但运行时 state 仍是普通 JSON
+- state 处理必须发生在游戏卡 rules 之前
+- 哪些变量呈现给 LLM 由游戏卡规则显式决定
 
-## 变量定义
-游戏卡通过 `state.schema` 定义静态变量：
+## 游戏卡引用 Schema
+
+游戏卡不内联完整 schema，而是引用同目录下的 schema 文件：
+
 ```json
 {
   "state": {
-    "schema": {
-      "player.hp": {
-        "type": "number",
-        "default": 100,
-        "min": 0,
-        "max": 100,
-        "onInvalid": "clamp",
-        "llmRead": true,
-        "llmWrite": true,
-        "uiVisible": true
-      },
-      "route": {
-        "type": "enum",
-        "values": ["none", "alice", "bad_end"],
-        "default": "none"
-      }
+    "schemaFile": "state/schema.json"
+  }
+}
+```
+
+`schemaFile` 必须是相对路径，读取时限制在游戏卡目录内。
+
+schema 文件支持直接 map：
+
+```json
+{
+  "player.hp": {
+    "type": "number",
+    "default": 100,
+    "min": 0,
+    "max": 100,
+    "onInvalid": "clamp",
+    "llmRead": true,
+    "llmWrite": true,
+    "uiVisible": true
+  },
+  "route": {
+    "type": "enum",
+    "values": ["none", "alice", "bad_end"],
+    "default": "none"
+  }
+}
+```
+
+也支持包装格式：
+
+```json
+{
+  "schema": {
+    "player.hp": {
+      "type": "number",
+      "default": 100
     }
   }
 }
 ```
-第一版字段：
-- `type`: `string` / `number` / `boolean` / `object` / `array` / `enum`
-- `default`: 新聊天初始化值
-- `min` / `max`: number 范围
-- `values`: enum 可选值
-- `onInvalid`: `error` 或 `clamp`
-- `description`: 给作者和 debug UI 使用
-- `llmRead` / `llmWrite`: 是否允许 LLM 读写
-- `uiVisible` / `userEditable`: 是否展示或允许用户编辑
 
-权限字段只用于校验，不代表自动注入 prompt。
+## Schema 字段
 
-## 动态变量
-AI 剧情会产生未预设的人物、地点、线索、记忆和 flag，因此 state 不能只有静态变量。游戏卡通过 `state.dynamic` 声明可运行时创建的命名空间：
-```json
-{
-  "state": {
-    "dynamic": {
-      "memory.*": {
-        "type": "string",
-        "maxLength": 500,
-        "llmRead": true,
-        "llmWrite": true,
-        "uiVisible": true
-      },
-      "npc.*.notes": {
-        "type": "array",
-        "itemType": "string",
-        "maxItems": 20,
-        "llmWrite": true
-      },
-      "flags.*": {
-        "type": "boolean",
-        "llmWrite": true
-      }
-    }
-  }
-}
-```
-未被 `schema` 或 `dynamic` 覆盖的 path 默认不可创建、不可写入。动态变量可删除；静态变量默认不可删除，只能修改或恢复默认值。
+第一版支持 `type`、`default`、`min`、`max`、`values`、`onInvalid`、`description`、`llmRead`、`llmWrite`、`uiVisible`、`userEditable`。
+
+`type` 支持 `string` / `number` / `boolean` / `object` / `array` / `enum`。`onInvalid` 支持 `error` 或 `clamp`。权限字段只用于校验和后续 UI，不代表自动注入 prompt。
 
 ## 存储与路径
+
 schema 使用点路径声明，运行时 state 保存为嵌套 JSON：
+
 ```json
 {
-  "player": { "hp": 80 },
+  "player": {
+    "hp": 80
+  },
   "route": "none",
   "memory": {
-    "old_man_warning": "老人警告玩家不要在午夜进入钟楼"
+    "old_man_warning": "老人警告玩家不要午夜进入钟楼"
   }
 }
 ```
-平台提供 `getState`、`setState`、`hasState`、`deleteState`。第一版 path 只支持点路径；数组元素不使用 `inventory[0]` 语法，由 `push` / `remove` 操作处理。
 
-## 初始化与迁移
+第一版 path 只支持点路径；数组元素不使用 `inventory[0]` 语法，由后续 `push` / `remove` 操作处理。
+
+平台提供基础工具：`getStateValue`、`setStateValue`、`hasStateValue`、`deleteStateValue`、`ensureStateDefaults`。
+
+## 初始化与默认值
+
 新聊天：
+
 ```txt
-card.state.schema.default -> session.gameState
+state schema defaults -> session.gameState
 ```
+
 继续聊天：
+
 ```txt
-saved session.gameState -> ensureStateDefaults(card, savedState)
+saved session.gameState -> ensureStateDefaults(schema, savedState)
 ```
+
 `ensureStateDefaults` 只补缺失变量，不覆盖已有变量，不删除废弃变量。复杂迁移系统后置。
 
-## LLM 状态补丁
-LLM 不直接写入持久化 state，而是在回复中输出隐藏状态补丁：
+## 执行顺序
+
+state 处理必须在 rules 之前。
+
+加载会话：
+
 ```txt
-<state_patch>
-[
-  { "op": "set", "path": "player.hp", "value": 82, "reason": "治疗成功" },
-  { "op": "inc", "path": "npc.alice.affection", "value": 3 },
-  { "op": "push", "path": "inventory", "value": "silver_key" }
-]
-</state_patch>
+read messages.json
+  -> load active card and state schema
+  -> ensureStateDefaults(schema, savedGameState)
+  -> run init rules if messages is empty
+  -> save messages + gameState if changed
 ```
-`after_response` 阶段通过 action 提取并应用：
-```json
-{
-  "type": "state.apply_patch",
-  "from": "last_assistant",
-  "block": "state_patch",
-  "removeSourceBlock": true
-}
-```
-流程：
+
+用户发送：
+
 ```txt
-assistant content -> extract block -> parse JSON -> validate op/path/permission/type/range -> apply patch -> remove source block -> record trace
+append user message
+  -> load state schema
+  -> ensureStateDefaults(schema, gameState)
+  -> decayTTL
+  -> run pre_send rules
+  -> send to LLM
+  -> append assistant message
+  -> ensureStateDefaults(schema, gameState)
+  -> run after_response rules
+  -> save messages + gameState
 ```
-解析或校验失败不应中断聊天，记录 warning 并跳过非法补丁。
 
-## 状态修改操作
-平台内置声明式 mutation action，LLM 补丁和游戏卡规则复用同一套语义：
-
-| op | 效果 |
-|---|---|
-| `set` | 设置变量 |
-| `inc` | number 增减 |
-| `toggle` | boolean 取反 |
-| `push` | array 追加 |
-| `remove` | array 删除指定值 |
-| `merge` | object 浅合并 |
-| `delete` | 删除动态变量 |
-
-游戏卡规则中也可以直接使用：
-```json
-{ "type": "state.inc", "path": "player.hp", "by": -10 }
-```
-所有修改统一经过 schema / dynamic 校验，并生成 state diff。
+这保证 `when.state`、`{{state:path}}` 和后续 state action 都基于补齐后的合法状态。
 
 ## 变量引用
+
 Content 描述符支持读取 state：
+
 ```txt
 {{state:player.hp}}
 {{state:route}}
 {{state_json:memory}}
-{{state_write_schema}}
 ```
-示例：
-```json
-{
-  "type": "insert",
-  "role": "system",
-  "content": "当前 HP：{{state:player.hp}}\n可写状态：{{state_write_schema}}",
-  "ttl": 1,
-  "_meta": { "visibility": "llm_only" }
-}
-```
-缺失变量默认渲染为空字符串，并在 trace 中记录 warning。是否把变量呈现给 LLM 由规则显式决定。
+
+规则：
+
+- `{{state:path}}` 返回标量的字符串表示
+- object / array 使用 `{{state_json:path}}`
+- 缺失变量默认渲染为空字符串，并在 trace 中记录 warning
+
+是否把变量呈现给 LLM 由规则显式决定。
 
 ## State 条件
+
 `when.state` 支持基于变量触发规则：
+
 ```json
 {
   "when": {
     "phase": "pre_send",
     "state": {
       "player.hp": { "lte": 20 },
-      "flags.met_boss": true,
-      "inventory": { "contains": "silver_key" }
+      "flags.met_boss": true
     }
   }
 }
 ```
+
 第一版支持 `eq`、`gt`、`gte`、`lt`、`lte`、`in`、`nin`、`contains`、`exists`、`regex`。多 key 默认 AND。
 
-## 持久化与 Trace
+## 持久化
+
 state 随聊天历史保存：
+
 ```json
 {
-  "id": "chat-id",
-  "gameCard": { "id": "card-id", "version": "1.0.0" },
   "messages": [],
   "gameState": {}
 }
 ```
-保存时机：
-```txt
-pre_send decayTTL -> pre_send rules -> after_response rules -> save messages + gameState
-```
-messages 和 gameState 必须一起保存，避免剧情记录与变量状态不一致。每次 state 读取失败、补丁失败或修改成功都记录 trace，至少包含 phase、rule/action 位置、变更 diff、校验错误和 LLM patch reason。
+
+兼容旧格式：
+
+- 旧文件如果是数组，按 `messages` 读取，`gameState` 为空对象
+- 新保存统一写对象格式
+- messages 和 gameState 必须一起保存，避免剧情记录与变量状态不一致
+
+## 后续扩展
+
+动态变量用于开放运行时命名空间，例如 `memory.*`、`flags.*`、`npc.*.notes`。未被 schema 或 dynamic 覆盖的 path 默认不可由 LLM 创建或写入。
+
+mutation action 和 LLM patch 后续共用同一套语义：`set`、`inc`、`toggle`、`push`、`remove`、`merge`、`delete`。
+
+LLM 不直接写持久化 state，而是在回复中输出隐藏 `<state_patch>`，由 `after_response` action 解析、校验、应用并移除源 block。解析或校验失败不应中断聊天，只记录 warning 并跳过非法补丁。
+
+每次 state 读取失败、补丁失败或修改成功都应记录 trace，至少包含 phase、rule/action 位置、变更 diff、校验错误和 LLM patch reason。
