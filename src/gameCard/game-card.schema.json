@@ -58,7 +58,9 @@
         { "$ref": "#/definitions/insertAction" },
         { "$ref": "#/definitions/removeAction" },
         { "$ref": "#/definitions/replaceAction" },
-        { "$ref": "#/definitions/execAction" }
+        { "$ref": "#/definitions/execAction" },
+        { "$ref": "#/definitions/stateValueAction" },
+        { "$ref": "#/definitions/stateDeleteAction" }
       ]
     },
     "insertAction": {
@@ -108,6 +110,10 @@
         "source": { "type": "string", "minLength": 1 }
       }
     },
+    "statePath": { "type": "string", "pattern": "^[^.[\\]]+(\\.[^.[\\]]+)*$" },
+    "jsonValue": { "anyOf": [{ "type": ["string", "number", "boolean", "null"] }, { "type": "array", "items": { "$ref": "#/definitions/jsonValue" } }, { "type": "object", "additionalProperties": { "$ref": "#/definitions/jsonValue" } }] },
+    "stateValueAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "value"], "properties": { "type": { "enum": ["state.set", "state.append", "state.remove"] }, "path": { "$ref": "#/definitions/statePath" }, "value": { "$ref": "#/definitions/jsonValue" } } },
+    "stateDeleteAction": { "type": "object", "additionalProperties": false, "required": ["type", "path"], "properties": { "type": { "const": "state.delete" }, "path": { "$ref": "#/definitions/statePath" } } },
     "findMap": {
       "type": "object",
       "additionalProperties": { "$ref": "#/definitions/findSpec" },

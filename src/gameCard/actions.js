@@ -95,7 +95,10 @@ function applyAction(messages, action, options = {}) {
   if (action?.type === 'remove') return applyRemove(messages, action);
   if (action?.type === 'replace') return applyReplace(messages, action, options);
   if (action?.type?.startsWith('state.')) {
-    const result = applyStateAction(options.state || {}, action, { messages });
+    const result = applyStateAction(options.state || {}, action, {
+      messages,
+      schema: options.card?.state?.schema
+    });
     return { messages, state: result.state, trace: result.trace };
   }
   if (action?.type === 'exec') {

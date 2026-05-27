@@ -120,6 +120,21 @@ function ensureStateDefaults(schemaInput, state = {}) {
   return { state: nextState, changed: changedKeys.length > 0, changedKeys, errors };
 }
 
+function validateStatePathValue(schemaInput, path, value) {
+  const normalized = normalizeStateSchema(schemaInput);
+  if (!Object.prototype.hasOwnProperty.call(normalized.schema, path)) {
+    return { hit: false, errors: normalized.errors };
+  }
+
+  const validation = validateValue(value, normalized.schema[path]);
+  return {
+    hit: true,
+    errors: normalized.errors,
+    ...(validation.error ? { error: validation.error } : {}),
+    ...(validation.changed ? { value: validation.value, changed: true } : {})
+  };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ensureStateDefaults, normalizeStateSchema };
+  module.exports = { ensureStateDefaults, normalizeStateSchema, validateStatePathValue };
 }

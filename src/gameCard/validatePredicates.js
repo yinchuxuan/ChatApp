@@ -1,7 +1,8 @@
+const { VALID_STATE_ACTION_TYPES, validateStateAction } = require('./validateStateActions');
 const VALID_PHASES = ['init', 'pre_send', 'after_response'];
 const VALID_ANCHORS = ['before', 'after'];
 const VALID_ROLES = ['user', 'assistant', 'system'];
-const VALID_ACTION_TYPES = ['insert', 'remove', 'replace', 'exec', 'state.set', 'state.delete', 'state.append', 'state.remove'];
+const VALID_ACTION_TYPES = ['insert', 'remove', 'replace', 'exec', ...VALID_STATE_ACTION_TYPES];
 const VALID_VISIBILITIES = ['llm_only', 'user_visible', 'debug_only'];
 const VALID_COMPARISON_OPS = ['gt', 'gte', 'lt', 'lte', 'eq'];
 const VALID_STRING_OPS = ['contains', 'regex', 'in', 'nin'];
@@ -11,9 +12,7 @@ function isString(v) { return typeof v === 'string'; }
 function isInteger(v) { return typeof v === 'number' && Number.isInteger(v); }
 function isObject(v) { return v && typeof v === 'object' && !Array.isArray(v); }
 function isStateLiteral(v) { return v === null || ['string', 'number', 'boolean'].includes(typeof v); }
-function validateTTL(value, path, errors) {
-  if (!isInteger(value) || value < -1) addError(errors, path, 'ttl must be an integer >= -1');
-}
+function validateTTL(value, path, errors) { if (!isInteger(value) || value < -1) addError(errors, path, 'ttl must be an integer >= -1'); }
 function validateMessageMeta(meta, path, errors) {
   if (!isObject(meta)) return;
   if (meta.source !== undefined && !isString(meta.source)) addError(errors, path + '.source', 'must be a string');
@@ -122,7 +121,6 @@ function validatePredicate(predicate, path, errors) {
     }
   }
 }
-
 function validateLastPredicate(predicate, path, errors) {
   if (predicate?.num === undefined) return validatePredicate(predicate, path, errors);
   if (!isInteger(predicate.num) || predicate.num < 1) addError(errors, path + '.num', 'must be a positive integer');
@@ -153,7 +151,6 @@ function validateWhen(when, path, errors) {
   if (when.all !== undefined) validatePredicate(when.all, path + '.all', errors);
   if (when.state !== undefined) validateStatePredicate(when.state, path + '.state', errors);
 }
-
 function validateFindMap(find, path, errors) {
   if (find === undefined) return;
   if (!isObject(find) || Object.keys(find).length === 0) return addError(errors, path, 'must be a non-empty object');
@@ -174,6 +171,9 @@ function validateRequiredPredicate(action, path, errors) {
 }
 function validateAction(action, path, errors) {
   if (!action || !isObject(action)) return addError(errors, path, 'must be an object');
+  if (isString(action.type) && action.type.startsWith('state.')) {
+    return validateStateAction(action, path, errors);
+  }
   if (!VALID_ACTION_TYPES.includes(action.type)) {
     return addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));
   }
@@ -181,7 +181,6 @@ function validateAction(action, path, errors) {
     if (!isString(action.source) || action.source.length === 0) addError(errors, path + '.source', 'must be a non-empty string');
     return;
   }
-  if (action.type.startsWith('state.')) return;
   if (action.type !== 'insert') validateRequiredPredicate(action, path, errors);
   if (action.type === 'insert' && action.predicate !== undefined) validatePredicate(action.predicate, path + '.predicate', errors);
   if (action.type === 'remove') return;

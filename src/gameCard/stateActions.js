@@ -5,6 +5,7 @@ const {
   hasStateValue,
   setStateValue
 } = require('./statePaths');
+const { validateStatePathValue } = require('./stateSchema');
 
 function isObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -76,10 +77,20 @@ function requireValue(action) {
   return Object.prototype.hasOwnProperty.call(action || {}, 'value') && isJsonValue(action.value);
 }
 
+function validateNextState(type, before, after, path, options) {
+  if (!options.schema || !hasStateValue(after, path)) return finish(type, before, after, path, options);
+
+  const validation = validateStatePathValue(options.schema, path, getStateValue(after, path));
+  if (!validation.hit) return finish(type, before, after, path, options);
+  if (validation.error) return fail(type, before, `schema.${path}: ${validation.error}`, options);
+  if (!validation.changed) return finish(type, before, after, path, options);
+  return finish(type, before, setStateValue(after, path, validation.value), path, options);
+}
+
 function applySet(state, action, options) {
   if (!requireValue(action)) return fail(action?.type, state, 'invalid_value', options);
   const nextState = setStateValue(state, action.path, action.value);
-  return finish(action.type, state, nextState, action.path, options);
+  return validateNextState(action.type, state, nextState, action.path, options);
 }
 
 function applyDelete(state, action, options) {
@@ -90,12 +101,14 @@ function applyDelete(state, action, options) {
 function applyAppend(state, action, options) {
   if (!requireValue(action)) return fail(action?.type, state, 'invalid_value', options);
   if (!hasStateValue(state, action.path)) {
-    return finish(action.type, state, setStateValue(state, action.path, [action.value]), action.path, options);
+    const nextState = setStateValue(state, action.path, [action.value]);
+    return validateNextState(action.type, state, nextState, action.path, options);
   }
 
   const current = getStateValue(state, action.path);
   if (!Array.isArray(current)) return fail(action.type, state, 'target_not_array', options);
-  return finish(action.type, state, setStateValue(state, action.path, [...current, action.value]), action.path, options);
+  const nextState = setStateValue(state, action.path, [...current, action.value]);
+  return validateNextState(action.type, state, nextState, action.path, options);
 }
 
 function applyRemove(state, action, options) {
@@ -105,7 +118,8 @@ function applyRemove(state, action, options) {
   const current = getStateValue(state, action.path);
   if (!Array.isArray(current)) return fail(action.type, state, 'target_not_array', options);
   const nextArray = current.filter((item) => !deepEqual(item, action.value));
-  return finish(action.type, state, setStateValue(state, action.path, nextArray), action.path, options);
+  const nextState = setStateValue(state, action.path, nextArray);
+  return validateNextState(action.type, state, nextState, action.path, options);
 }
 
 function applyStateAction(state, action, options = {}) {
