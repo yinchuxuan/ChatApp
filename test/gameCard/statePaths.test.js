@@ -1,5 +1,6 @@
 const {
   cloneState,
+  deleteStateValue,
   getStateValue,
   hasStateValue,
   setStateValue
@@ -105,6 +106,56 @@ describe('state path tools', () => {
     const next = setStateValue(state, 'player..hp', 10);
 
     expect(next).toEqual(state);
+    expect(next).not.toBe(state);
+    expect(next.player).not.toBe(state.player);
+  });
+
+  test('deletes nested values without mutating the original state', () => {
+    const state = {
+      player: { hp: 80, mp: 20 },
+      temp: { lastRoll: 6 },
+      route: 'alice'
+    };
+
+    const next = deleteStateValue(state, 'player.hp');
+    const withoutTemp = deleteStateValue(next, 'temp.lastRoll');
+
+    expect(next).toEqual({
+      player: { mp: 20 },
+      temp: { lastRoll: 6 },
+      route: 'alice'
+    });
+    expect(withoutTemp).toEqual({
+      player: { mp: 20 },
+      temp: {},
+      route: 'alice'
+    });
+    expect(state).toEqual({
+      player: { hp: 80, mp: 20 },
+      temp: { lastRoll: 6 },
+      route: 'alice'
+    });
+    expect(next.player).not.toBe(state.player);
+  });
+
+  test('missing delete paths return an unchanged clone', () => {
+    const state = { player: { hp: 80 }, route: 'alice' };
+    const next = deleteStateValue(state, 'player.mp');
+    const missingParent = deleteStateValue(state, 'enemy.hp');
+
+    expect(next).toEqual(state);
+    expect(missingParent).toEqual(state);
+    expect(next).not.toBe(state);
+    expect(next.player).not.toBe(state.player);
+  });
+
+  test('invalid delete paths return a clone without changing values', () => {
+    const state = { player: { hp: 80 } };
+    const next = deleteStateValue(state, 'player..hp');
+    const missingPath = deleteStateValue(state);
+
+    expect(next).toEqual(state);
+    expect(missingPath).toEqual(state);
     expect(next).not.toBe(state);
     expect(next.player).not.toBe(state.player);
   });

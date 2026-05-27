@@ -58,9 +58,27 @@ function setStateValue(state, path, value) {
   return nextState;
 }
 
+function deleteStateValue(state, path) {
+  const parts = parsePath(path);
+  const nextState = cloneState(state);
+  if (parts.length === 0) return nextState;
+
+  let current = nextState;
+  for (let index = 0; index < parts.length - 1; index += 1) {
+    if (!isObject(current) || !Object.prototype.hasOwnProperty.call(current, parts[index])) {
+      return nextState;
+    }
+    current = current[parts[index]];
+  }
+
+  if (isObject(current)) delete current[parts[parts.length - 1]];
+  return nextState;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     cloneState,
+    deleteStateValue,
     getStateValue,
     hasStateValue,
     setStateValue
