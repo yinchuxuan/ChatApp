@@ -11,7 +11,7 @@ let appHelper;
 async function injectMessages(messages) {
   await appHelper.saveChatHistory(messages);
   await appHelper.waitForTimeout(500);
-  await appHelper.getWindow().reload();
+  await appHelper.getWindow().reload({ waitUntil: 'commit' });
   await appHelper.waitForSelector('.app-container', { timeout: 15000 });
   await appHelper.waitForTimeout(1000);
 }

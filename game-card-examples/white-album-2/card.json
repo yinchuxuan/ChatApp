@@ -2,6 +2,7 @@
   "version": "1.0",
   "id": "white-album-2",
   "name": "白色相簿2",
+  "state": { "schemaFile": "state/schema.json" },
   "rules": [
     {
       "id": "wa2-system-prompt",
@@ -29,9 +30,26 @@
         },
         {
           "type": "insert",
+          "role": "system",
+          "content": "{{raw_string:好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}",
+          "_meta": { "source": "wa2_affection_status", "visibility": "llm_only" }
+        },
+        {
+          "type": "insert",
           "role": "assistant",
           "content": "{{file_content:first_msg.md}}",
           "_meta": { "source": "wa2_first_msg", "visibility": "user_visible" }
+        }
+      ]
+    },
+    {
+      "id": "wa2-refresh-affection-status",
+      "when": { "phase": "pre_send" },
+      "then": [
+        {
+          "type": "replace",
+          "predicate": { "_meta.source": "wa2_affection_status" },
+          "content": "{{raw_string:好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}"
         }
       ]
     },

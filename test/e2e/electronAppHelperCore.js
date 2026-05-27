@@ -34,8 +34,6 @@ class ElectronAppHelperCore {
     this.window = await this.app.firstWindow();
     this.window.on('console', msg => console.log('Browser console:', msg.text()));
 
-    await this.window.waitForLoadState('domcontentloaded');
-
     await this.window.waitForSelector('.app-container', { timeout: 15000 });
 
     return { app: this.app, window: this.window };

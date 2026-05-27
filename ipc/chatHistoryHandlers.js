@@ -61,6 +61,13 @@ function cleanGameState(gameState) {
   return isPlainObject(gameState) ? JSON.parse(JSON.stringify(gameState)) : {};
 }
 
+function cleanRetryBase(options) {
+  return {
+    messages: Array.isArray(options.retryBaseMessages) ? cleanMessages(options.retryBaseMessages) : [],
+    gameState: cleanGameState(options.retryBaseState)
+  };
+}
+
 function restoreMessages(messages) {
   return messages.map(msg => {
     const restored = { ...msg };
@@ -99,6 +106,17 @@ function normalizeSavePayload(payload, options) {
   return { messages: [], gameState: {} };
 }
 
+function parseRetryBaseContent(content) {
+  const data = JSON.parse(content);
+  if (Array.isArray(data)) return { messages: restoreMessages(data), gameState: {}, hasGameState: false };
+  if (!isPlainObject(data)) return { messages: [], gameState: {}, hasGameState: false };
+  return {
+    messages: Array.isArray(data.messages) ? restoreMessages(data.messages) : [],
+    gameState: cleanGameState(data.gameState),
+    hasGameState: Object.prototype.hasOwnProperty.call(data, 'gameState')
+  };
+}
+
 function ensureSessionFiles(fs, messagesPath) {
   const sessionDir = path.dirname(messagesPath);
   const sessionRoot = path.dirname(sessionDir);
@@ -133,10 +151,9 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, legacyChatHistor
         const result = { success: true, messages: history.messages, gameState: history.gameState };
         const retryBasePath = getRetryBasePath(fs, gameCardsDir);
         if (fs.existsSync(retryBasePath)) {
-          const retryBase = JSON.parse(fs.readFileSync(retryBasePath, 'utf-8'));
-          if (Array.isArray(retryBase) && retryBase.length > 0) {
-            result.retryBaseMessages = restoreMessages(retryBase);
-          }
+          const retryBase = parseRetryBaseContent(fs.readFileSync(retryBasePath, 'utf-8'));
+          if (retryBase.messages.length > 0) result.retryBaseMessages = retryBase.messages;
+          if (retryBase.hasGameState) result.retryBaseState = retryBase.gameState;
         }
         return result;
       }
@@ -152,14 +169,14 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, legacyChatHistor
       const messagesPath = getMessagesPath(fs, gameCardsDir);
       ensureSessionFiles(fs, messagesPath);
       const retryBasePath = getRetryBasePath(fs, gameCardsDir);
-      const retryBase = Array.isArray(options.retryBaseMessages) ? options.retryBaseMessages : [];
+      const retryBase = cleanRetryBase(options);
       const history = normalizeSavePayload(payload, options);
       const cleanedHistory = {
         messages: cleanMessages(history.messages),
         gameState: history.gameState
       };
       fs.writeFileSync(messagesPath, JSON.stringify(cleanedHistory, null, 2), 'utf-8');
-      fs.writeFileSync(retryBasePath, JSON.stringify(cleanMessages(retryBase), null, 2), 'utf-8');
+      fs.writeFileSync(retryBasePath, JSON.stringify(retryBase, null, 2), 'utf-8');
       return { success: true };
     } catch (err) {
       console.error('Error saving chat history:', err);

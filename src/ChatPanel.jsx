@@ -83,6 +83,7 @@ function ChatPanel() {
     if (window.electronAPI) {
       const result = await window.electronAPI.getChatHistory();
       if (result.success && result.retryBaseMessages) retryBaseRef.current = result.retryBaseMessages;
+      if (result.success && result.retryBaseState) retryBaseStateRef.current = result.retryBaseState;
       if (result.success) {
         const loaded = result.messages || [];
         const loadedState = result.gameState || {};
@@ -92,7 +93,7 @@ function ChatPanel() {
         const nextState = init.state || loadedState;
         setMessages(nextMessages);
         setGameState(nextState);
-        if (init.changed) window.electronAPI.saveChatHistory(nextMessages, { gameState: nextState, retryBaseMessages: retryBaseRef.current });
+        if (init.changed) window.electronAPI.saveChatHistory(nextMessages, { gameState: nextState, retryBaseMessages: retryBaseRef.current, retryBaseState: retryBaseStateRef.current });
       }
     }
     initialLoadDone.current = true;
@@ -110,7 +111,7 @@ function ChatPanel() {
     if (!initialLoadDone.current) return;
     if (isLoading) return;
     if (window.electronAPI) {
-      window.electronAPI.saveChatHistory(messages, { gameState, retryBaseMessages: retryBaseRef.current });
+      window.electronAPI.saveChatHistory(messages, { gameState, retryBaseMessages: retryBaseRef.current, retryBaseState: retryBaseStateRef.current });
     }
   }, [messages, gameState, isLoading]);
 

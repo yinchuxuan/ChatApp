@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "touma.affection": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "onInvalid": "clamp",
+      "description": "冬马和纱对玩家/春希当前路线的好感度",
+      "llmRead": true,
+      "uiVisible": true
+    },
+    "setsuna.affection": {
+      "type": "number",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "onInvalid": "clamp",
+      "description": "小木曾雪菜对玩家/春希当前路线的好感度",
+      "llmRead": true,
+      "uiVisible": true
+    }
+  }
+}

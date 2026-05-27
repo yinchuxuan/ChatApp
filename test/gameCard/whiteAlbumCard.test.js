@@ -1,5 +1,7 @@
 const card = require('../../game-card-examples/white-album-2/card.json');
+const stateSchema = require('../../game-card-examples/white-album-2/state/schema.json');
 const { applyGameCard } = require('../../src/gameCard/engine');
+const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 
 function user(content) {
   return { role: 'user', content };
@@ -26,11 +28,17 @@ const fileContents = {
   ].join('\n')
 };
 
-function applyWhiteAlbumPhase(phase, messages) {
+function defaultState(overrides = {}) {
+  const state = ensureStateDefaults(stateSchema, overrides).state;
+  return state;
+}
+
+function applyWhiteAlbumPhase(phase, messages, state = defaultState()) {
   return applyGameCard({
     card,
     phase,
     messages,
+    state,
     fileContents
   });
 }
@@ -62,10 +70,33 @@ describe('white album 2 game card', () => {
     expect(result.messages[2].role).toBe('system');
     expect(result.messages[2]._meta.source).toBe('wa2_worldbook');
     expect(result.messages[2]._meta.visibility).toBe('llm_only');
-    expect(result.messages[3].role).toBe('assistant');
-    expect(result.messages[3]._meta.source).toBe('wa2_first_msg');
+    expect(result.messages[3].role).toBe('system');
+    expect(result.messages[3]._meta.source).toBe('wa2_affection_status');
     expect(result.messages[3]._meta.visibility).toBe('user_visible');
-    expect(result.messages[3].content).toContain('<summary>开场总结。</summary>');
+    expect(result.messages[3].content).toContain('冬马和纱: 0');
+    expect(result.messages[3].content).toContain('小木曾雪菜: 0');
+    expect(result.messages[4].role).toBe('assistant');
+    expect(result.messages[4]._meta.source).toBe('wa2_first_msg');
+    expect(result.messages[4]._meta.visibility).toBe('user_visible');
+    expect(result.messages[4].content).toContain('<summary>开场总结。</summary>');
+  });
+
+  test('declares Touma and Setsuna affection state and refreshes the visible status message', () => {
+    const initial = initWhiteAlbum();
+    const result = applyWhiteAlbumPhase(
+      'pre_send',
+      [...initial.messages, user('查看好感度')],
+      defaultState({ touma: { affection: 12 }, setsuna: { affection: 8 } })
+    );
+    const status = result.messages.find((msg) => msg._meta?.source === 'wa2_affection_status');
+
+    expect(card.state.schemaFile).toBe('state/schema.json');
+    expect(stateSchema.schema['touma.affection'].default).toBe(0);
+    expect(stateSchema.schema['setsuna.affection'].default).toBe(0);
+    expect(status.role).toBe('system');
+    expect(status._meta.visibility).toBe('user_visible');
+    expect(status.content).toContain('冬马和纱: 12');
+    expect(status.content).toContain('小木曾雪菜: 8');
   });
 
   test('compresses older assistant summaries and keeps latest user and assistant', () => {

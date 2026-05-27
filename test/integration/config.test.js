@@ -12,7 +12,7 @@ describe('Integration - Config Operations', () => {
   let configPath;
 
   beforeAll(() => {
-    testDir = path.join(os.tmpdir(), 'chatapp_integration_config_' + Date.now());
+    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chatapp_integration_config_'));
     configPath = getUserDataPaths(testDir, null).modelConfigPath;
     fs.mkdirSync(path.dirname(configPath), { recursive: true });
   });
@@ -84,7 +84,7 @@ describe('Integration - Directory and Path Operations', () => {
   let testDir;
 
   beforeAll(() => {
-    testDir = path.join(os.tmpdir(), 'chatapp_integration_paths_' + Date.now());
+    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chatapp_integration_paths_'));
     fs.mkdirSync(testDir, { recursive: true });
   });
 

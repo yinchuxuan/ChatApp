@@ -62,20 +62,34 @@ describe('IPC Chat History Operations', () => {
     expect(result.messages).toEqual(messages);
   });
 
-  test('should save and retrieve retry base messages', async () => {
+  test('should save and retrieve retry base messages and state', async () => {
     const messages = [
       { role: 'system', content: 'rules', _meta: { visibility: 'llm_only' } },
       { role: 'user', content: 'Question' }
     ];
     const retryBaseMessages = [{ role: 'user', content: 'Question' }];
+    const retryBaseState = {};
     const retryBasePath = path.join(path.dirname(chatHistoryPath), 'retry-base.json');
 
-    await handlers['save-chat-history']({}, messages, { retryBaseMessages });
+    await handlers['save-chat-history']({}, messages, { retryBaseMessages, retryBaseState });
 
     const rawRetryBase = JSON.parse(fs.readFileSync(retryBasePath, 'utf-8'));
     const result = await handlers['get-chat-history']();
-    expect(rawRetryBase).toEqual(retryBaseMessages);
+    expect(rawRetryBase).toEqual({ messages: retryBaseMessages, gameState: retryBaseState });
     expect(result.retryBaseMessages).toEqual(retryBaseMessages);
+    expect(result.retryBaseState).toEqual(retryBaseState);
+  });
+
+  test('should read legacy retry base message arrays', async () => {
+    const retryBaseMessages = [{ role: 'user', content: 'Question' }];
+    const retryBasePath = path.join(path.dirname(chatHistoryPath), 'retry-base.json');
+
+    await handlers['save-chat-history']({}, []);
+    fs.writeFileSync(retryBasePath, JSON.stringify(retryBaseMessages), 'utf-8');
+
+    const result = await handlers['get-chat-history']();
+    expect(result.retryBaseMessages).toEqual(retryBaseMessages);
+    expect(result.retryBaseState).toBeUndefined();
   });
 
   test('should overwrite existing chat history', async () => {
