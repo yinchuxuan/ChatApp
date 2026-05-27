@@ -4,6 +4,7 @@ const { decayTTL } = require('./ttl');
 const { parseFileSectionRef } = require('./fileSections');
 const { loadExternalStateSchema } = require('./stateSchemaLoader');
 const { ensureStateDefaults } = require('./stateSchema');
+const { applyLatestAssistantStatePatch } = require('./statePatch');
 
 function extractActiveCard(result) {
   if (!result || result.success === false) return null;
@@ -115,10 +116,17 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
     return { messages, state, trace: null, ttlTrace: null, stateTrace: null, applied: false, card: null, error: error.message };
   }
   const prepared = prepareState(resources.card, state);
+  const result = applyGameCard({ card: resources.card, phase: 'after_response', messages, state: prepared.state, event, fileContents: resources.fileContents });
+  const patched = applyLatestAssistantStatePatch(result.messages, result.state, {
+    messages: result.messages,
+    schema: resources.card?.state?.schema
+  });
   return {
-    ...applyGameCard({ card: resources.card, phase: 'after_response', messages, state: prepared.state, event, fileContents: resources.fileContents }),
+    ...result,
+    state: patched.state,
     ttlTrace: null,
     stateTrace: prepared.trace,
+    statePatchTrace: patched.trace,
     applied: true,
     card: resources.card
   };
@@ -182,15 +190,6 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    extractActiveCard,
-    loadActiveGameCard,
-    loadCardResources,
-    prepareState,
-    prepareInitMessages,
-    preparePreSendMessages,
-    prepareAfterResponseMessages,
-    toApiMessages,
-    adaptMessagesToProtocol
-  };
+  module.exports = { extractActiveCard, loadActiveGameCard, loadCardResources, prepareState, prepareInitMessages,
+    preparePreSendMessages, prepareAfterResponseMessages, toApiMessages, adaptMessagesToProtocol };
 }

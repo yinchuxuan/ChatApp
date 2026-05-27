@@ -1,4 +1,5 @@
 const useRetry = require('../../src/components/useRetry.js');
+const { prepareAfterResponseMessages } = require('../../src/gameCard/sendPipeline');
 
 function createTw() {
   let content = '';
@@ -129,5 +130,57 @@ describe('useRetry game card pipeline', () => {
     expect(window.preparePreSendMessages.mock.calls[0][0].state).toEqual({ score: 5 });
     expect(window.prepareAfterResponseMessages.mock.calls[0][0].state).toEqual({ score: 6 });
     expect(setGameState).toHaveBeenLastCalledWith({ score: 16 });
+  });
+
+  test('retry applies only the new assistant state patch from the saved state snapshot', async () => {
+    const R = { useCallback: (fn) => fn };
+    const modelConfig = { apiUrl: 'http://api.example.com/v1', apiKey: 'key' };
+    const retryBaseStateRef = { current: { score: 0 } };
+    const retryBaseRef = { current: [{ role: 'user', content: 'Q' }] };
+    const setGameState = jest.fn();
+    const setMessages = jest.fn();
+    const tw = createTw();
+    const card = { version: '1', id: 'patch-card', name: 'Patch Card', rules: [] };
+
+    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
+      applied: false,
+      card,
+      messages,
+      state
+    }));
+    window.prepareAfterResponseMessages = prepareAfterResponseMessages;
+    window.toGameCardApiMessages = jest.fn(messages => messages);
+    window.sendChatRequest = jest.fn(async (_payload, callbacks) => {
+      callbacks.onToken('<state_patch>{"type":"state.set","path":"score","value":2}</state_patch>');
+    });
+
+    const retry = useRetry(
+      R,
+      [
+        { role: 'user', content: 'Q' },
+        { role: 'assistant', content: '<state_patch>{"type":"state.set","path":"score","value":9}</state_patch>' }
+      ],
+      setMessages,
+      modelConfig,
+      jest.fn(),
+      tw,
+      retryBaseRef,
+      { score: 9 },
+      setGameState,
+      retryBaseStateRef
+    );
+    await retry();
+
+    expect(window.preparePreSendMessages.mock.calls[0][0].state).toEqual({ score: 0 });
+    expect(setGameState).toHaveBeenLastCalledWith({ score: 2 });
+    expect(setMessages).toHaveBeenLastCalledWith([
+      { role: 'user', content: 'Q' },
+      {
+        role: 'assistant',
+        content: '<state_patch>{"type":"state.set","path":"score","value":2}</state_patch>',
+        _thinking: '',
+        thinking: ''
+      }
+    ]);
   });
 });
