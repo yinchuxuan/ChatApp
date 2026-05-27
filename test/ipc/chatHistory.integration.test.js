@@ -58,7 +58,7 @@ describe('IPC Chat History Operations', () => {
 
     const raw = JSON.parse(fs.readFileSync(chatHistoryPath, 'utf-8'));
     const result = await handlers['get-chat-history']();
-    expect(raw).toEqual(messages);
+    expect(raw).toEqual({ messages, gameState: {} });
     expect(result.messages).toEqual(messages);
   });
 
@@ -124,8 +124,9 @@ describe('IPC Chat History Operations', () => {
     await handlers['save-chat-history']({}, [{ role: 'user', content: 'Quest session' }]);
 
     expect(fs.existsSync(expectedPath)).toBe(true);
-    expect(JSON.parse(fs.readFileSync(expectedPath, 'utf-8'))).toEqual([
-      { role: 'user', content: 'Quest session' }
-    ]);
+    expect(JSON.parse(fs.readFileSync(expectedPath, 'utf-8'))).toEqual({
+      messages: [{ role: 'user', content: 'Quest session' }],
+      gameState: {}
+    });
   });
 });

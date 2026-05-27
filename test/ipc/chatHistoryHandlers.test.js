@@ -27,6 +27,7 @@ describe('Chat History IPC Handlers', () => {
       const result = await handler();
       expect(result.success).toBe(true);
       expect(result.messages).toEqual([]);
+      expect(result.gameState).toEqual({});
     });
 
     test('should return messages when file exists', async () => {
@@ -43,6 +44,7 @@ describe('Chat History IPC Handlers', () => {
       const result = await handler();
       expect(result.success).toBe(true);
       expect(result.messages).toEqual(testMessages);
+      expect(result.gameState).toEqual({});
       expect(result.messages.length).toBe(2);
     });
 
@@ -56,6 +58,7 @@ describe('Chat History IPC Handlers', () => {
       const result = await handler();
       expect(result.success).toBe(true);
       expect(result.messages).toEqual([]);
+      expect(result.gameState).toEqual({});
     });
 
     test('should handle JSON parse error', async () => {
@@ -69,6 +72,7 @@ describe('Chat History IPC Handlers', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
       expect(result.messages).toEqual([]);
+      expect(result.gameState).toEqual({});
     });
   });
 
@@ -84,11 +88,8 @@ describe('Chat History IPC Handlers', () => {
 
       const result = await handler({}, messages);
       expect(result.success).toBe(true);
-      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('history.json'),
-        expect.stringContaining('Test message'),
-        'utf-8'
-      );
+      expect(mockFs.writeFileSync)
+        .toHaveBeenCalledWith(expect.any(String), expect.stringContaining('Test message'), 'utf-8');
     });
 
     test('should preserve game card runtime fields when saving', async () => {
@@ -103,10 +104,12 @@ describe('Chat History IPC Handlers', () => {
       }];
 
       const result = await handler({}, messages);
-      const saved = JSON.parse(mockFs.writeFileSync.mock.calls[0][1]);
+      const savedCall = mockFs.writeFileSync.mock.calls
+        .find(call => call[1].includes('rules'));
+      const saved = JSON.parse(savedCall[1]);
 
       expect(result.success).toBe(true);
-      expect(saved).toEqual([{
+      expect(saved.messages).toEqual([{
         role: 'system',
         content: 'rules',
         _meta: { source: 'game_card', visibility: 'llm_only' },
