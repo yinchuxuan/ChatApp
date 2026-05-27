@@ -22,7 +22,8 @@ function ChatPanel() {
   const [isInputTriggerHovered, setIsInputTriggerHovered] = R.useState(false);
   const [isHistoryExpanded, setIsHistoryExpanded] = R.useState(false);
   const tw = window.useTypewriter(R);
-  const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw);
+  const retryBaseRef = R.useRef(null);
+  const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef);
 
   R.useEffect(() => {
     if (window.ChatPanelRenderers) { setRenderersReady(true); return; }
@@ -62,7 +63,7 @@ function ChatPanel() {
     }
   };
 
-  const handleClearHistory = (e) => { e.stopPropagation(); setMessages([]); tw.clearStreaming(); setIsHistoryExpanded(false); };
+  const handleClearHistory = (e) => { e.stopPropagation(); retryBaseRef.current = null; setMessages([]); tw.clearStreaming(); setIsHistoryExpanded(false); };
 
   const toggleThinkingForMessage = (idx) => {
     setMessages(prev => prev.map((msg, i) =>
@@ -88,6 +89,7 @@ function ChatPanel() {
     async function loadHistory() {
       if (window.electronAPI) {
         const result = await window.electronAPI.getChatHistory();
+        if (result.success && result.retryBaseMessages) retryBaseRef.current = result.retryBaseMessages;
         if (result.success && result.messages && result.messages.length > 0) {
           setMessages(result.messages);
         }
@@ -101,7 +103,7 @@ function ChatPanel() {
     if (!initialLoadDone.current) return;
     if (isLoading) return;
     if (window.electronAPI) {
-      window.electronAPI.saveChatHistory(messages);
+      window.electronAPI.saveChatHistory(messages, { retryBaseMessages: retryBaseRef.current });
     }
   }, [messages, isLoading]);
 
@@ -180,7 +182,8 @@ function ChatPanel() {
     ),
     C(InputArea, {
       messages, setMessages, modelConfig, isLoading, setIsLoading, tw,
-      setShowStreamThinking, isInputHovered, setIsInputHovered, isInputTriggerHovered, setIsInputTriggerHovered
+      setShowStreamThinking, isInputHovered, setIsInputHovered, isInputTriggerHovered, setIsInputTriggerHovered,
+      retryBaseRef
     })
   );
 }

@@ -1,0 +1,168 @@
+{
+  "version": "1.0",
+  "id": "white-album-2",
+  "name": "白色相簿2",
+  "rules": [
+    {
+      "id": "wa2-system-prompt",
+      "when": {
+        "phase": "pre_send",
+        "length": { "eq": 1 }
+      },
+      "then": [
+        {
+          "type": "insert",
+          "predicate": { "all": true },
+          "role": "system",
+          "content": "接下来开始进行《白色相簿2》ic篇的角色扮演互动，用户扮演北原春希，你是剧情创作者负责推进角色扮演的剧情",
+          "anchor": "before",
+          "_meta": { "source": "wa2_system_prompt", "visibility": "llm_only" }
+        },
+        {
+          "type": "insert",
+          "predicate": { "_meta.source": "wa2_system_prompt" },
+          "role": "system",
+          "content": "历史对话总结:\n暂无",
+          "anchor": "after",
+          "_meta": { "source": "wa2_summary", "visibility": "llm_only" }
+        },
+        {
+          "type": "insert",
+          "predicate": { "_meta.source": "wa2_summary" },
+          "role": "system",
+          "content": "本轮世界书:",
+          "anchor": "after",
+          "_meta": { "source": "wa2_worldbook", "visibility": "llm_only" }
+        }
+      ]
+    },
+    {
+      "id": "wa2-reset-worldbook",
+      "when": { "phase": "pre_send" },
+      "then": [
+        {
+          "type": "replace",
+          "predicate": { "_meta.source": "wa2_worldbook" },
+          "content": "本轮世界书:"
+        }
+      ]
+    },
+    {
+      "id": "wa2-worldbook-haruki",
+      "when": {
+        "phase": "pre_send",
+        "last": {
+          "num": 3,
+          "role": { "in": ["user", "assistant"] },
+          "content": { "regex": "春希|北原|Kitahara|Haruki" }
+        }
+      },
+      "then": [
+        {
+          "type": "replace",
+          "predicate": { "_meta.source": "wa2_worldbook" },
+          "content": "{{original_content}} + {{raw_string:\n\n}} + {{file_section:worldbook/characters.md##北原春希}}"
+        }
+      ]
+    },
+    {
+      "id": "wa2-worldbook-kazusa",
+      "when": {
+        "phase": "pre_send",
+        "last": {
+          "num": 3,
+          "role": { "in": ["user", "assistant"] },
+          "content": { "regex": "冬马|冬馬|和纱|和紗|Touma|Kazusa" }
+        }
+      },
+      "then": [
+        {
+          "type": "replace",
+          "predicate": { "_meta.source": "wa2_worldbook" },
+          "content": "{{original_content}} + {{raw_string:\n\n}} + {{file_section:worldbook/characters.md##冬马和纱}}"
+        }
+      ]
+    },
+    {
+      "id": "wa2-worldbook-setsuna",
+      "when": {
+        "phase": "pre_send",
+        "last": {
+          "num": 3,
+          "role": { "in": ["user", "assistant"] },
+          "content": { "regex": "雪菜|小木曾|小木曽|Ogiso|Setsuna" }
+        }
+      },
+      "then": [
+        {
+          "type": "replace",
+          "predicate": { "_meta.source": "wa2_worldbook" },
+          "content": "{{original_content}} + {{raw_string:\n\n}} + {{file_section:worldbook/characters.md##小木曾雪菜}}"
+        }
+      ]
+    },
+    {
+      "id": "wa2-compress-assistant-history",
+      "when": {
+        "phase": "pre_send",
+        "any": {
+          "role": "assistant",
+          "content": { "regex": "<summary>[\\s\\S]*?</summary>" },
+          "exec": "return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"
+        }
+      },
+      "then": [
+        {
+          "type": "replace",
+          "predicate": { "_meta.source": "wa2_summary" },
+          "find": {
+            "summaryMsgs": {
+              "predicate": {
+                "role": "assistant",
+                "content": { "regex": "<summary>[\\s\\S]*?</summary>" },
+                "exec": "return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"
+              }
+            }
+          },
+          "content": "{{original_content}}.regex_replace{pattern:'\\n暂无\\s*$',with:''} + {{raw_string:\n}} + {{find:summaryMsgs}}.regex_extract{pattern:'<summary>([\\s\\S]*?)</summary>'}.format{'- {{value}}'}.join{'\\n'}"
+        },
+        {
+          "type": "remove",
+          "predicate": {
+            "role": "assistant",
+            "content": { "regex": "<summary>[\\s\\S]*?</summary>" },
+            "exec": "return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wa2-keep-latest-user",
+      "when": { "phase": "pre_send" },
+      "then": [
+        {
+          "type": "remove",
+          "predicate": {
+            "role": "user",
+            "not": { "index": "last" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "wa2-tail-system-hint",
+      "when": { "phase": "pre_send" },
+      "then": [
+        {
+          "type": "insert",
+          "predicate": { "index": "last" },
+          "anchor": "after",
+          "role": "user",
+          "content": "{{file_content:roleplay_rules.md}}",
+          "ttl": 1,
+          "_meta": { "source": "wa2_tail_hint", "visibility": "llm_only" }
+        }
+      ]
+    }
+  ]
+}

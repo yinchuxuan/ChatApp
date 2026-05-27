@@ -1,6 +1,7 @@
 const { applyGameCard } = require('./engine');
 const { adaptMessagesToProtocol } = require('./protocolAdapter');
 const { decayTTL } = require('./ttl');
+const { parseFileSectionRef } = require('./fileSections');
 
 function extractActiveCard(result) {
   if (!result || result.success === false) return null;
@@ -19,9 +20,15 @@ async function loadActiveGameCard(api) {
 
 function collectFileContentPaths(card) {
   const paths = new Set();
-  const pattern = /\{\{file_content:((?:\\.|[^}])*)\}\}/g;
-  JSON.stringify(card?.rules || []).replace(pattern, (_, filePath) => {
+  const contentPattern = /\{\{file_content:((?:\\.|[^}])*)\}\}/g;
+  JSON.stringify(card?.rules || []).replace(contentPattern, (_, filePath) => {
     paths.add(filePath.replaceAll('\\}}', '}}').replaceAll('\\\\', '\\'));
+    return '';
+  });
+  const sectionPattern = /\{\{file_section:((?:\\.|[^}])*)\}\}/g;
+  JSON.stringify(card?.rules || []).replace(sectionPattern, (_, ref) => {
+    const decoded = ref.replaceAll('\\}}', '}}').replaceAll('\\\\', '\\');
+    paths.add(parseFileSectionRef(decoded).filePath);
     return '';
   });
   return [...paths];

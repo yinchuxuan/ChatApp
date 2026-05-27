@@ -103,6 +103,21 @@ describe('game card send pipeline', () => {
     expect(result.messages[0].content).toBe('loaded rules');
   });
 
+  test('preloads file_section files through electronAPI before applying rules', async () => {
+    window.electronAPI.readGameCardFile.mockResolvedValue({
+      success: true,
+      content: '# Routes\n## 雪菜线\nloaded route\n## 和纱线\nother'
+    });
+    const result = await preparePreSendMessages({
+      messages: [{ role: 'user', content: 'start' }],
+      card: cardWithInsert('{{file_section:worldbook/routes.md##雪菜线}}')
+    });
+
+    expect(window.electronAPI.readGameCardFile)
+      .toHaveBeenCalledWith('send-card', 'worldbook/routes.md');
+    expect(result.messages[0].content).toBe('loaded route');
+  });
+
   test('gracefully returns applied=false when file_content preload fails', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,

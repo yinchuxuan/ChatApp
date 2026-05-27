@@ -1,5 +1,6 @@
 const { matchesPredicate } = require('./predicate');
 const { applyTransform, renderValue } = require('./contentTransforms');
+const { parseFileSectionRef, extractFileSection } = require('./fileSections');
 
 function parseSource(expression, index) {
   if (!expression.startsWith('{{', index)) throw new Error('content source expected');
@@ -53,6 +54,10 @@ function resolveSource(body, originalMessage, options) {
   if (body.startsWith('raw_string:')) return decodeRawString(body.slice('raw_string:'.length));
   if (body.startsWith('file_content:')) {
     return readFileContent(body.slice('file_content:'.length), options);
+  }
+  if (body.startsWith('file_section:')) {
+    const ref = body.slice('file_section:'.length);
+    return extractFileSection(readFileContent(parseFileSectionRef(ref).filePath, options), ref);
   }
   if (body.startsWith('find:')) return resolveFind(body.slice('find:'.length), options);
   throw new Error(`unsupported content source: ${body}`);

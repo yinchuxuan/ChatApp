@@ -12,7 +12,8 @@ function ChatInputArea({
   isInputHovered,
   setIsInputHovered,
   isInputTriggerHovered,
-  setIsInputTriggerHovered
+  setIsInputTriggerHovered,
+  retryBaseRef
 }) {
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
@@ -28,6 +29,11 @@ function ChatInputArea({
     }
     const userMessage = { role: 'user', content: inputValue };
     const newMessages = [...messages, userMessage];
+    if (retryBaseRef) {
+      retryBaseRef.current = typeof structuredClone === 'function'
+        ? structuredClone(newMessages)
+        : JSON.parse(JSON.stringify(newMessages));
+    }
     setMessages(newMessages); setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); setIsLoading(true);
     const textarea = e.currentTarget.querySelector('textarea');
     if (textarea) textarea.blur();

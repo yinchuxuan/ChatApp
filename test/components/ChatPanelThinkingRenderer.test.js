@@ -60,6 +60,30 @@ describe('ChatPanel thinking renderer', () => {
     expect(bubble.classList.contains('bubble-clickable')).toBe(false);
   });
 
+  test('streaming thinking reopens by clicking streamed content after hidden', () => {
+    const setShowStreamThinking = jest.fn();
+    const { container } = render(renderers.renderAssistantMsg(
+      React,
+      'partial answer',
+      0,
+      true,
+      { displayedCount: 7 },
+      'stream reasoning',
+      false,
+      setShowStreamThinking,
+      jest.fn(),
+      window.marked,
+      window.DOMPurify,
+      value => value
+    ));
+
+    expect(container.querySelector('.chat-thinking-text')).toBeNull();
+    expect(container.querySelector('.chat-bubble-content').textContent).toBe('partial');
+    fireEvent.click(container.querySelector('.chat-message-bubble.bubble-clickable'));
+    expect(setShowStreamThinking).toHaveBeenCalled();
+    expect(setShowStreamThinking.mock.calls[0][0](false)).toBe(true);
+  });
+
   test('toggles original assistant index after hidden messages are filtered', () => {
     const toggle = jest.fn();
     const renderAssistantMsg = (msg, idx, isStreaming) => renderers.renderAssistantMsg(

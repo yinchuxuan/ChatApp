@@ -104,4 +104,50 @@ describe('ChatPanel thinking display', () => {
       expect(screen.getByText('Just a regular response.')).toBeInTheDocument();
     });
   });
+
+  test('streaming thinking can be reopened by clicking streamed answer text', async () => {
+    let callbacks;
+    let finishRequest;
+    window.sendChatRequest = jest.fn((_config, cbs) => {
+      callbacks = cbs;
+      return new Promise(resolve => { finishRequest = resolve; });
+    });
+
+    render(React.createElement(ChatPanel));
+
+    await act(async () => {
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+    });
+
+    const input = screen.getByPlaceholderText('输入您的回答...');
+    fireEvent.change(input, { target: { value: 'test' } });
+    fireEvent.click(document.querySelector('button[type="submit"]'));
+
+    await waitFor(() => {
+      expect(window.sendChatRequest).toHaveBeenCalled();
+    });
+
+    await act(async () => {
+      callbacks.onThinkingToken('thinking while streaming');
+      callbacks.onToken('answer text');
+      jest.advanceTimersByTime(100);
+    });
+
+    expect(screen.getByText('thinking while streaming')).toBeInTheDocument();
+    fireEvent.click(document.querySelector('.streaming-message-row .chat-message-bubble'));
+    expect(screen.queryByText('thinking while streaming')).toBeNull();
+
+    await act(async () => {
+      jest.advanceTimersByTime(100);
+    });
+
+    fireEvent.click(document.querySelector('.streaming-message-row .chat-message-bubble'));
+    expect(screen.getByText('thinking while streaming')).toBeInTheDocument();
+
+    await act(async () => {
+      finishRequest();
+      await Promise.resolve();
+    });
+  });
 });

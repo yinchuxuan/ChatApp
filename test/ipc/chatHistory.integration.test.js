@@ -62,6 +62,22 @@ describe('IPC Chat History Operations', () => {
     expect(result.messages).toEqual(messages);
   });
 
+  test('should save and retrieve retry base messages', async () => {
+    const messages = [
+      { role: 'system', content: 'rules', _meta: { visibility: 'llm_only' } },
+      { role: 'user', content: 'Question' }
+    ];
+    const retryBaseMessages = [{ role: 'user', content: 'Question' }];
+    const retryBasePath = path.join(path.dirname(chatHistoryPath), 'retry-base.json');
+
+    await handlers['save-chat-history']({}, messages, { retryBaseMessages });
+
+    const rawRetryBase = JSON.parse(fs.readFileSync(retryBasePath, 'utf-8'));
+    const result = await handlers['get-chat-history']();
+    expect(rawRetryBase).toEqual(retryBaseMessages);
+    expect(result.retryBaseMessages).toEqual(retryBaseMessages);
+  });
+
   test('should overwrite existing chat history', async () => {
     const firstMessages = [{ role: 'user', content: 'First' }];
     await handlers['save-chat-history']({}, firstMessages);
