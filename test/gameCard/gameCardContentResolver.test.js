@@ -125,6 +125,39 @@ describe('game card content descriptors', () => {
     expect(result.messages[0]).toEqual({ role: 'system', content: 'Stay in scene.' });
   });
 
+  test('reads scalar state values from content descriptors', () => {
+    const result = resolveContent(
+      '{{raw_string:hp=}} + {{state:player.hp}} + {{raw_string:, alive=}} + {{state:player.alive}}',
+      {},
+      { state: { player: { hp: 80, alive: true } } }
+    );
+
+    expect(result).toBe('hp=80, alive=true');
+  });
+
+  test('renders object and array state values as JSON', () => {
+    const state = { memory: { lastScene: 'station', flags: ['met'] }, inventory: ['ticket', 'key'] };
+
+    expect(resolveContent('{{state_json:memory}}', {}, { state })).toBe(JSON.stringify(state.memory));
+    expect(resolveContent('{{state_json:inventory}}', {}, { state })).toBe(JSON.stringify(state.inventory));
+  });
+
+  test('renders missing state paths as empty strings', () => {
+    expect(resolveContent('{{state:player.mp}}', {}, { state: { player: { hp: 80 } } })).toBe('');
+    expect(resolveContent('{{state_json:memory}}', {}, { state: { player: { hp: 80 } } })).toBe('');
+  });
+
+  test('uses game state when resolving card action content', () => {
+    const result = applyGameCard({
+      card: createCard('{{raw_string:route=}} + {{state:route}}'),
+      phase: 'pre_send',
+      messages: [{ role: 'user', content: 'start' }],
+      state: { route: 'setsuna' }
+    });
+
+    expect(result.messages[0]).toEqual({ role: 'system', content: 'route=setsuna' });
+  });
+
   test('rejects file content paths outside the game card directory', () => {
     const result = applyGameCard({
       card: createCard('{{file_content:../secret.md}}'),

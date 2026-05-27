@@ -1,6 +1,7 @@
 const { matchesPredicate } = require('./predicate');
 const { applyTransform, renderValue } = require('./contentTransforms');
 const { parseFileSectionRef, extractFileSection } = require('./fileSections');
+const { getStateValue, hasStateValue } = require('./statePaths');
 
 function parseSource(expression, index) {
   if (!expression.startsWith('{{', index)) throw new Error('content source expected');
@@ -52,6 +53,8 @@ function readFileContent(requestedPath, options) {
 function resolveSource(body, originalMessage, options) {
   if (body === 'original_content') return originalMessage.content || '';
   if (body.startsWith('raw_string:')) return decodeRawString(body.slice('raw_string:'.length));
+  if (body.startsWith('state:')) return resolveState(body.slice('state:'.length), options, false);
+  if (body.startsWith('state_json:')) return resolveState(body.slice('state_json:'.length), options, true);
   if (body.startsWith('file_content:')) {
     return readFileContent(body.slice('file_content:'.length), options);
   }
@@ -61,6 +64,15 @@ function resolveSource(body, originalMessage, options) {
   }
   if (body.startsWith('find:')) return resolveFind(body.slice('find:'.length), options);
   throw new Error(`unsupported content source: ${body}`);
+}
+
+function resolveState(statePath, options, asJson) {
+  const state = options.state || {};
+  if (!hasStateValue(state, statePath)) return '';
+  const value = getStateValue(state, statePath);
+  if (value === undefined || value === null) return '';
+  if (asJson) return JSON.stringify(value);
+  return typeof value === 'object' ? '' : String(value);
 }
 
 function resolveFind(name, options) {
