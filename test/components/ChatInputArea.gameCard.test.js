@@ -159,4 +159,35 @@ describe('ChatInputArea game card pre_send integration', () => {
       { role: 'assistant', content: 'cleaned', _thinking: '', thinking: '' }
     ]));
   });
+
+  test('passes and updates gameState through send pipeline', async () => {
+    const originalPreSend = window.preparePreSendMessages;
+    const originalAfter = window.prepareAfterResponseMessages;
+    const setGameState = jest.fn();
+    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
+      messages,
+      state: { score: state.score + 1 },
+      applied: false,
+      card: { id: 'state-card' }
+    }));
+    window.prepareAfterResponseMessages = jest.fn(async ({ messages, state }) => ({
+      messages,
+      state: { score: state.score + 10 },
+      applied: false
+    }));
+
+    renderInputArea({ gameState: { score: 1 }, setGameState });
+
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
+      fireEvent.click(screen.getByRole('button', { name: '发送消息' }));
+    });
+
+    await waitFor(() => expect(window.prepareAfterResponseMessages).toHaveBeenCalled());
+    expect(window.preparePreSendMessages.mock.calls[0][0].state).toEqual({ score: 1 });
+    expect(window.prepareAfterResponseMessages.mock.calls[0][0].state).toEqual({ score: 2 });
+    expect(setGameState).toHaveBeenLastCalledWith({ score: 12 });
+    window.preparePreSendMessages = originalPreSend;
+    window.prepareAfterResponseMessages = originalAfter;
+  });
 });

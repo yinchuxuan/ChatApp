@@ -10,20 +10,16 @@ const RENDERER_POLL_TIMEOUT = 5000;
 function ChatPanel() {
   const R = window.React || React;
   const InputArea = window.ChatInputArea;
-  const [messages, setMessages] = R.useState([]);
-  const [isLoading, setIsLoading] = R.useState(false);
-  const [modelConfig, setModelConfig] = R.useState(null);
-  const [showMsgHistory, setShowMsgHistory] = R.useState(false);
-  const [msgHistoryMessages, setMsgHistoryMessages] = R.useState(null);
-  const [renderersReady, setRenderersReady] = R.useState(false);
-  const [showStreamThinking, setShowStreamThinking] = R.useState(true);
-  const [isHeaderHovered, setIsHeaderHovered] = R.useState(false);
-  const [isInputHovered, setIsInputHovered] = R.useState(false);
-  const [isInputTriggerHovered, setIsInputTriggerHovered] = R.useState(false);
-  const [isHistoryExpanded, setIsHistoryExpanded] = R.useState(false);
+  const [messages, setMessages] = R.useState([]), [gameState, setGameState] = R.useState({});
+  const [isLoading, setIsLoading] = R.useState(false), [modelConfig, setModelConfig] = R.useState(null);
+  const [showMsgHistory, setShowMsgHistory] = R.useState(false), [msgHistoryMessages, setMsgHistoryMessages] = R.useState(null);
+  const [renderersReady, setRenderersReady] = R.useState(false), [showStreamThinking, setShowStreamThinking] = R.useState(true);
+  const [isHeaderHovered, setIsHeaderHovered] = R.useState(false), [isInputHovered, setIsInputHovered] = R.useState(false);
+  const [isInputTriggerHovered, setIsInputTriggerHovered] = R.useState(false), [isHistoryExpanded, setIsHistoryExpanded] = R.useState(false);
   const tw = window.useTypewriter(R);
   const retryBaseRef = R.useRef(null);
-  const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef);
+  const retryBaseStateRef = R.useRef(null);
+  const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef);
 
   R.useEffect(() => {
     if (window.ChatPanelRenderers) { setRenderersReady(true); return; }
@@ -63,7 +59,7 @@ function ChatPanel() {
     }
   };
 
-  const handleClearHistory = (e) => { e.stopPropagation(); retryBaseRef.current = null; setMessages([]); tw.clearStreaming(); setIsHistoryExpanded(false); };
+  const handleClearHistory = (e) => { e.stopPropagation(); retryBaseRef.current = null; retryBaseStateRef.current = null; setMessages([]); setGameState({}); tw.clearStreaming(); setIsHistoryExpanded(false); };
 
   const toggleThinkingForMessage = (idx) => {
     setMessages(prev => prev.map((msg, i) =>
@@ -89,11 +85,14 @@ function ChatPanel() {
       if (result.success && result.retryBaseMessages) retryBaseRef.current = result.retryBaseMessages;
       if (result.success) {
         const loaded = result.messages || [];
+        const loadedState = result.gameState || {};
         const prepareInit = window.prepareInitMessages || (async ({ messages }) => ({ messages, changed: false }));
-        const init = await prepareInit({ messages: loaded });
+        const init = await prepareInit({ messages: loaded, state: loadedState });
         const nextMessages = init.changed ? init.messages : loaded;
+        const nextState = init.state || loadedState;
         setMessages(nextMessages);
-        if (init.changed) window.electronAPI.saveChatHistory(nextMessages, { retryBaseMessages: retryBaseRef.current });
+        setGameState(nextState);
+        if (init.changed) window.electronAPI.saveChatHistory(nextMessages, { gameState: nextState, retryBaseMessages: retryBaseRef.current });
       }
     }
     initialLoadDone.current = true;
@@ -102,7 +101,7 @@ function ChatPanel() {
   R.useEffect(() => { loadHistory(); }, [loadHistory]);
 
   R.useEffect(() => {
-    const handler = () => { retryBaseRef.current = null; tw.clearStreaming(); loadHistory(); };
+    const handler = () => { retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming(); loadHistory(); };
     window.addEventListener('game-card-changed', handler);
     return () => window.removeEventListener('game-card-changed', handler);
   }, [loadHistory, tw]);
@@ -111,9 +110,9 @@ function ChatPanel() {
     if (!initialLoadDone.current) return;
     if (isLoading) return;
     if (window.electronAPI) {
-      window.electronAPI.saveChatHistory(messages, { retryBaseMessages: retryBaseRef.current });
+      window.electronAPI.saveChatHistory(messages, { gameState, retryBaseMessages: retryBaseRef.current });
     }
-  }, [messages, isLoading]);
+  }, [messages, gameState, isLoading]);
 
   const SCROLL_DIVIDER_OFFSET = 80;
 
@@ -189,9 +188,9 @@ function ChatPanel() {
       C('div', { className: 'chat-input-hover-trigger', onMouseEnter: () => setIsInputTriggerHovered(true), onMouseLeave: () => setIsInputTriggerHovered(false) })
     ),
     C(InputArea, {
-      messages, setMessages, modelConfig, isLoading, setIsLoading, tw,
+      messages, setMessages, gameState, setGameState, modelConfig, isLoading, setIsLoading, tw,
       setShowStreamThinking, isInputHovered, setIsInputHovered, isInputTriggerHovered, setIsInputTriggerHovered,
-      retryBaseRef
+      retryBaseRef, retryBaseStateRef
     })
   );
 }

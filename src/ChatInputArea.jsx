@@ -4,6 +4,8 @@
 function ChatInputArea({
   messages,
   setMessages,
+  gameState = {},
+  setGameState,
   modelConfig,
   isLoading,
   setIsLoading,
@@ -13,12 +15,16 @@ function ChatInputArea({
   setIsInputHovered,
   isInputTriggerHovered,
   setIsInputTriggerHovered,
-  retryBaseRef
+  retryBaseRef,
+  retryBaseStateRef
 }) {
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
   const [isFocused, setIsFocused] = R.useState(false);
   const isVisible = isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
+  const clone = (value) => typeof structuredClone === 'function'
+    ? structuredClone(value)
+    : JSON.parse(JSON.stringify(value));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,10 +36,9 @@ function ChatInputArea({
     const userMessage = { role: 'user', content: inputValue };
     const newMessages = [...messages, userMessage];
     if (retryBaseRef) {
-      retryBaseRef.current = typeof structuredClone === 'function'
-        ? structuredClone(newMessages)
-        : JSON.parse(JSON.stringify(newMessages));
+      retryBaseRef.current = clone(newMessages);
     }
+    if (retryBaseStateRef) retryBaseStateRef.current = clone(gameState);
     setMessages(newMessages); setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); setIsLoading(true);
     const textarea = e.currentTarget.querySelector('textarea');
     if (textarea) textarea.blur();
@@ -41,12 +46,13 @@ function ChatInputArea({
     try {
       const preparePreSend = window.preparePreSendMessages || (async ({ messages }) => ({ messages }));
       const toApiMessages = window.toGameCardApiMessages || ((msgs) => msgs.map(msg => ({ role: msg.role, content: msg.content })));
-      const preSend = await preparePreSend({ messages: newMessages });
+      const preSend = await preparePreSend({ messages: newMessages, state: gameState });
       if (preSend.error) {
         setIsLoading(false); tw.reset();
         setMessages(prev => [...prev, { role: 'assistant', content: `游戏卡错误: ${preSend.error}`, isError: true }]);
         return;
       }
+      if (preSend.state && setGameState) setGameState(preSend.state);
       if (preSend.applied) {
         setMessages(preSend.messages);
       }
@@ -78,8 +84,10 @@ function ChatInputArea({
         const messagesWithAssistant = [...baseMessages, assistantMessage];
         const afterResponse = await prepareAfterResponse({
           messages: messagesWithAssistant,
+          state: preSend.state || gameState,
           card: preSend.card || null
         });
+        if (afterResponse.state && setGameState) setGameState(afterResponse.state);
         if (afterResponse.applied) {
           setMessages(afterResponse.messages);
         } else {
