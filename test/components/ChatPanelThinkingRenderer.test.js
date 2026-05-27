@@ -1,6 +1,7 @@
 const React = require('react');
 const { render, fireEvent } = require('@testing-library/react');
 const renderers = require('../../src/components/ChatPanelMessageRenderers');
+const MessageCollapseRenderer = require('../../src/components/MessageCollapseRenderer');
 
 function renderAssistant(msg, toggle = jest.fn()) {
   return render(renderers.renderAssistantMsg(
@@ -17,6 +18,10 @@ function renderAssistant(msg, toggle = jest.fn()) {
     window.DOMPurify,
     value => value
   ));
+}
+
+function renderMarkdown(text) {
+  return React.createElement('div', { className: 'chat-message-bubble' }, text);
 }
 
 describe('ChatPanel thinking renderer', () => {
@@ -53,5 +58,49 @@ describe('ChatPanel thinking renderer', () => {
 
     const bubble = container.querySelector('.chat-message-bubble');
     expect(bubble.classList.contains('bubble-clickable')).toBe(false);
+  });
+
+  test('toggles original assistant index after hidden messages are filtered', () => {
+    const toggle = jest.fn();
+    const renderAssistantMsg = (msg, idx, isStreaming) => renderers.renderAssistantMsg(
+      React, msg, idx, isStreaming, { displayedCount: 0 }, '', true, jest.fn(),
+      toggle, window.marked, window.DOMPurify, value => value
+    );
+    const result = renderers.renderMessages(
+      React,
+      [
+        { role: 'system', content: 'rules', _meta: { visibility: 'llm_only' } },
+        { role: 'user', content: 'hello' },
+        { role: 'assistant', content: 'answer', _thinking: 'reasoning' }
+      ],
+      false, {}, null, true, renderMarkdown, renderAssistantMsg, () => null,
+      null, true, jest.fn(), { apiUrl: 'http://api.example.com' }
+    );
+
+    const { container } = render(result);
+    fireEvent.click(container.querySelector('.chat-message-bubble.bubble-clickable'));
+    expect(toggle).toHaveBeenCalledWith(2);
+  });
+
+  test('collapsed renderer toggles original assistant index after hidden messages', () => {
+    const toggle = jest.fn();
+    const renderAssistantMsg = (msg, idx, isStreaming) => renderers.renderAssistantMsg(
+      React, msg, idx, isStreaming, { displayedCount: 0 }, '', true, jest.fn(),
+      toggle, window.marked, window.DOMPurify, value => value
+    );
+    const result = renderers.renderMessages(
+      React,
+      [
+        { role: 'system', content: 'rules', _meta: { visibility: 'llm_only' } },
+        { role: 'user', content: 'hello' },
+        { role: 'assistant', content: 'answer', _thinking: 'reasoning' }
+      ],
+      false, {}, null, true, renderMarkdown, renderAssistantMsg, () => null,
+      MessageCollapseRenderer, true, jest.fn(), { apiUrl: 'http://api.example.com' }
+    );
+
+    const { container } = render(result);
+    fireEvent.click(container.querySelector('.chat-message-bubble.bubble-clickable'));
+    expect(toggle).toHaveBeenCalledWith(2);
   });
 });

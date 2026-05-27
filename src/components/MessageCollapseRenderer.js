@@ -45,7 +45,13 @@ function resetPull() {
 }
 
 function filterDialogueMessages(messages) {
-  return (Array.isArray(messages) ? messages : []).filter(msg => ['user', 'assistant'].includes(msg?.role));
+  return (Array.isArray(messages) ? messages : [])
+    .map((msg, index) => ({ msg, index: msg?._renderIndex ?? index }))
+    .filter(({ msg }) =>
+      (['user', 'assistant'].includes(msg?.role) || msg?._meta?.visibility === 'user_visible') &&
+      msg?._meta?.visibility !== 'llm_only' &&
+      msg?._meta?.visibility !== 'debug_only')
+    .map(({ msg, index }) => ({ ...msg, _renderIndex: index }));
 }
 
 const MessageCollapseRenderer = {
@@ -102,11 +108,12 @@ const MessageCollapseRenderer = {
     } else if (lastUserIdx >= 0) {
       for (let i = 0; i < lastUserIdx; i++) {
         const msg = messages[i];
+        const renderIndex = msg._renderIndex ?? i;
         if (msg.role === 'assistant') {
           elements.push(
             R.createElement('div', { key: 'hist-' + i, className: 'chat-message-row' },
               R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-                msg._thinking ? renderAssistantMsg(msg, i, false) : renderMarkdown(msg.content)
+                msg._thinking ? renderAssistantMsg(msg, renderIndex, false) : renderMarkdown(msg.content)
               )
             )
           );
@@ -132,11 +139,12 @@ const MessageCollapseRenderer = {
     for (let i = startIdx; i < messages.length; i++) {
       const msg = messages[i];
       const isRetrySource = i === lastUserIdx;
+      const renderIndex = msg._renderIndex ?? i;
       if (msg.role === 'assistant') {
         elements.push(
           R.createElement('div', { key: 'pinned-' + i, className: 'chat-message-row' },
             R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-              msg._thinking ? renderAssistantMsg(msg, i, false, false) : renderMarkdown(msg.content)
+              msg._thinking ? renderAssistantMsg(msg, renderIndex, false) : renderMarkdown(msg.content)
             )
           )
         );

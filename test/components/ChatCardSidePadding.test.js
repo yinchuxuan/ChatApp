@@ -77,4 +77,11 @@ describe('Chat Area Reading Column Width', () => {
     expect(quotesCss).toMatch(/\.chat-bubble-content \.quoted-text\s*\{/);
     expect(indexHtml).toContain('styles/components.chat-quotes.css');
   });
+
+  test('chat content stylesheet is loaded by the app shell', () => {
+    const indexPath = require('path').join(__dirname, '../../src/index.html');
+    const indexHtml = execSync(`cat "${indexPath}"`, { encoding: 'utf8' });
+
+    expect(indexHtml).toContain('styles/components.chat-content.css');
+  });
 });

@@ -1,0 +1,197 @@
+/* Empty State */
+.chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--md-on-surface-variant);
+  font-size: 15px;
+  gap: 28px;
+  padding: 48px;
+}
+
+.chat-empty .empty-icon {
+  position: relative;
+}
+
+.chat-empty .empty-icon .material-icons {
+  font-size: 72px;
+  color: var(--md-outline-variant);
+  animation: float-rotate-soft 8s ease-in-out infinite;
+}
+
+.chat-empty .empty-icon::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  width: 50px;
+  height: 12px;
+  background: var(--md-surface-container-highest);
+  border-radius: var(--md-shape-corner-full);
+  transform: translateX(-50%);
+  animation: shadow-pulse-soft 8s ease-in-out infinite;
+  filter: blur(4px);
+}
+
+.chat-empty .chat-empty-hint {
+  font-size: 14px;
+  color: var(--md-on-surface-variant);
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+  padding: 12px 24px;
+  background: var(--md-surface-container);
+  border-radius: var(--md-shape-corner-medium);
+  border: 1px solid var(--md-outline-variant);
+}
+
+/* Thinking Indicator */
+.chat-thinking .chat-thinking-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--md-on-surface-variant);
+  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+}
+
+.chat-thinking-indicator .material-icons.rotating {
+  animation: rotate-pulse 1s var(--md-motion-easing-emphasized) infinite;
+  font-size: 18px;
+  color: var(--md-primary);
+}
+
+/* Clickable Bubble for Thinking Toggle */
+.chat-message.assistant .chat-message-bubble.bubble-clickable {
+  cursor: pointer;
+}
+
+/* Markdown Content inside Chat Bubbles */
+.chat-bubble-content {
+  word-break: break-word;
+}
+
+.chat-bubble-content p {
+  margin: 0 0 0.75em 0;
+}
+
+/* Assistant messages: slightly tighter paragraph spacing for novel-like reading */
+.chat-message.assistant .chat-bubble-content p {
+  margin: 0 0 1em 0;
+  line-height: 1.8;
+}
+
+.chat-bubble-content p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-bubble-content h1,
+.chat-bubble-content h2,
+.chat-bubble-content h3,
+.chat-bubble-content h4,
+.chat-bubble-content h5,
+.chat-bubble-content h6 {
+  margin: 0.75em 0 0.4em;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.chat-bubble-content h1 { font-size: 1.4em; }
+.chat-bubble-content h2 { font-size: 1.25em; }
+.chat-bubble-content h3 { font-size: 1.15em; }
+
+.chat-bubble-content ul,
+.chat-bubble-content ol {
+  margin: 0.4em 0;
+  padding-left: 1.5em;
+}
+
+.chat-bubble-content li {
+  margin: 0.2em 0;
+}
+
+.chat-bubble-content a {
+  color: var(--md-primary);
+  text-decoration: underline;
+}
+
+.chat-bubble-content code {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: var(--md-surface-container-highest);
+}
+
+.chat-message.user .chat-bubble-content code {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.chat-bubble-content pre {
+  margin: 0.5em 0;
+  padding: 12px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--md-surface-container-highest);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+
+.chat-bubble-content pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.chat-bubble-content blockquote {
+  margin: 0.5em 0;
+  padding: 0 0 0 1em;
+  border-left: 3px solid var(--md-outline-variant);
+  color: var(--md-on-surface-variant);
+}
+
+.chat-bubble-content hr {
+  margin: 0.75em 0;
+  border: none;
+  border-top: 1px solid var(--md-outline-variant);
+}
+
+.chat-bubble-content table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  width: 100%;
+}
+
+.chat-bubble-content th,
+.chat-bubble-content td {
+  border: 1px solid var(--md-outline-variant);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.chat-bubble-content th {
+  font-weight: 600;
+  background: var(--md-surface-container);
+}
+
+.chat-bubble-content img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* Thinking text inside bubble */
+.chat-thinking-text {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--md-outline-variant);
+  color: var(--md-on-surface-variant);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  animation: thinking-expand var(--md-motion-duration-medium2) var(--md-motion-easing-emphasized-decelerate);
+}
+
+@keyframes thinking-expand {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 1000px; }
+}

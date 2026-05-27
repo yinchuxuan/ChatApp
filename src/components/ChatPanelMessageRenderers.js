@@ -3,11 +3,13 @@
 
 const ChatPanelMessageRenderers = {
   filterDialogueMessages(messages) {
-    return (Array.isArray(messages) ? messages : []).filter(msg =>
-      ['user', 'assistant'].includes(msg?.role) &&
-      msg?._meta?.visibility !== 'llm_only' &&
-      msg?._meta?.visibility !== 'debug_only'
-    );
+    return (Array.isArray(messages) ? messages : [])
+      .map((msg, index) => ({ msg, index: msg?._renderIndex ?? index }))
+      .filter(({ msg }) =>
+        (['user', 'assistant'].includes(msg?.role) || msg?._meta?.visibility === 'user_visible') &&
+        msg?._meta?.visibility !== 'llm_only' &&
+        msg?._meta?.visibility !== 'debug_only')
+      .map(({ msg, index }) => ({ ...msg, _renderIndex: index }));
   },
 
   renderMarkdown(R, text, marked, DOMPurify, highlightQuotes) {
@@ -68,10 +70,11 @@ const ChatPanelMessageRenderers = {
     return R.createElement('div', { className: 'chat-messages-layer' },
       messages.map((msg, idx) => {
         const isRetrySource = idx === lastUserIdx;
+        const renderIndex = msg._renderIndex ?? idx;
         if (msg.role === 'assistant') {
           return R.createElement('div', { key: idx, className: 'chat-message-row' },
             R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-              msg._thinking ? renderAssistantMsg(msg, idx, false) : renderMarkdown(msg.content)
+              msg._thinking ? renderAssistantMsg(msg, renderIndex, false) : renderMarkdown(msg.content)
             )
           );
         }

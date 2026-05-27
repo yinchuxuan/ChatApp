@@ -148,13 +148,11 @@ function ChatPanel() {
   const currentThinking = hasThinking ? streamThinking : null;
 
   const renderMessages = () => {
-    const visibleMessages = messages.filter(msg =>
-      ['user', 'assistant'].includes(msg?.role) &&
-      msg?._meta?.visibility !== 'llm_only' &&
-      msg?._meta?.visibility !== 'debug_only'
-    );
+    const visibleMessages = msgRenderers ? msgRenderers.filterDialogueMessages(messages) : messages.filter(msg =>
+      (['user', 'assistant'].includes(msg?.role) || msg?._meta?.visibility === 'user_visible') &&
+      msg?._meta?.visibility !== 'llm_only' && msg?._meta?.visibility !== 'debug_only');
     if (msgRenderers && renderMarkdown && renderAssistantMsg && renderRetryBtn) {
-      return msgRenderers.renderMessages(R, visibleMessages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
+      return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
     }
     // Fallback: renderers not loaded
     if (visibleMessages.length === 0) return C('div', { className: 'chat-empty' }, C('div', null, '加载中...'));

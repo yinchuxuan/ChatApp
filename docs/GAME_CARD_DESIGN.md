@@ -21,13 +21,28 @@
   thinking?: string,     // 持久化
   isError?: boolean,     // UI 内部用
   _meta?: {
-    source?: string      // 消息来源标记
+    source?: string,     // 消息来源标记
+    visibility?: "llm_only" | "user_visible" | "debug_only"
   },
   ttl?: number           // 消息剩余存活轮数，-1 表示永久
 }
 ```
 
 `_meta` 和 `ttl` 不会发送给 LLM。
+
+## 消息可见性
+
+普通对话流默认只渲染 `role: "user"` 和 `role: "assistant"` 的消息，`role: "system"` 默认隐藏。
+
+`_meta.visibility` 可覆盖或收紧 UI 可见性：
+
+| visibility | 普通对话流 | 用途 |
+|---|---|---|
+| `llm_only` | 隐藏 | 系统规则、世界书、临时提示 |
+| `user_visible` | 显示 | 摘要、状态、任务日志等需要玩家看到的游戏卡消息 |
+| `debug_only` | 隐藏 | 调试信息 |
+
+`user_visible` 可以让 `system` 消息显示在普通对话流中；未声明 visibility 的 `system` 消息仍然隐藏。
 
 ## 消息 TTL
 
