@@ -1,6 +1,7 @@
 const { resolveContent } = require('./contentResolver');
 const { runExecAction } = require('./execRunner');
 const { matchesPredicate } = require('./predicate');
+const { applyStateAction } = require('./stateActions');
 
 function findMatchingIndexes(messages, predicate) {
   return messages.reduce((indexes, message, index) => {
@@ -93,6 +94,10 @@ function applyAction(messages, action, options = {}) {
   if (action?.type === 'insert') return applyInsert(messages, action, { ...options, messages });
   if (action?.type === 'remove') return applyRemove(messages, action);
   if (action?.type === 'replace') return applyReplace(messages, action, options);
+  if (action?.type?.startsWith('state.')) {
+    const result = applyStateAction(options.state || {}, action, { messages });
+    return { messages, state: result.state, trace: result.trace };
+  }
   if (action?.type === 'exec') {
     return runExecAction(messages, options.state || {}, action, options);
   }

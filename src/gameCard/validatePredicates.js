@@ -1,7 +1,7 @@
 const VALID_PHASES = ['init', 'pre_send', 'after_response'];
 const VALID_ANCHORS = ['before', 'after'];
 const VALID_ROLES = ['user', 'assistant', 'system'];
-const VALID_ACTION_TYPES = ['insert', 'remove', 'replace', 'exec'];
+const VALID_ACTION_TYPES = ['insert', 'remove', 'replace', 'exec', 'state.set', 'state.delete', 'state.append', 'state.remove'];
 const VALID_VISIBILITIES = ['llm_only', 'user_visible', 'debug_only'];
 const VALID_COMPARISON_OPS = ['gt', 'gte', 'lt', 'lte', 'eq'];
 const VALID_STRING_OPS = ['contains', 'regex', 'in', 'nin'];
@@ -181,6 +181,7 @@ function validateAction(action, path, errors) {
     if (!isString(action.source) || action.source.length === 0) addError(errors, path + '.source', 'must be a non-empty string');
     return;
   }
+  if (action.type.startsWith('state.')) return;
   if (action.type !== 'insert') validateRequiredPredicate(action, path, errors);
   if (action.type === 'insert' && action.predicate !== undefined) validatePredicate(action.predicate, path + '.predicate', errors);
   if (action.type === 'remove') return;
