@@ -56,6 +56,11 @@ function ChatInputArea({
           apiKey: modelConfig.apiKey,
           modelName: modelConfig.modelName,
           protocol: modelConfig.protocol || 'openai',
+          maxTokens: modelConfig.maxTokens,
+          temperature: modelConfig.temperature,
+          topP: modelConfig.topP,
+          frequencyPenalty: modelConfig.frequencyPenalty,
+          presencePenalty: modelConfig.presencePenalty,
           messages: toApiMessages(preSend.messages)
         },
         {

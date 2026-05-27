@@ -80,4 +80,35 @@ describe('SettingsModelConfig Component - Basic', () => {
     expect(_screen.getByText('test****2345')).toBeInTheDocument();
     expect(_screen.getByText('gpt-4')).toBeInTheDocument();
   });
+
+  test('should display generation parameter fields when configured', async () => {
+    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+
+    const props = {
+      config: {
+        apiUrl: 'http://api.example.com',
+        apiKey: 'test-key',
+        modelName: 'gpt-4',
+        protocol: 'openai',
+        maxTokens: '2048',
+        temperature: '0.8',
+        topP: '0.9',
+        frequencyPenalty: '0.2',
+        presencePenalty: '0.4'
+      },
+      onChange: jest.fn(),
+      maskApiKey: (key) => key ? 'tes****key' : '',
+      isConfigured: true
+    };
+
+    _render(React.createElement(SettingsModelConfig, props));
+
+    await act(async () => { await Promise.resolve(); });
+
+    expect(_screen.getByText('最大输出')).toBeInTheDocument();
+    expect(_screen.getByText('Temperature')).toBeInTheDocument();
+    expect(_screen.getByText('Top P')).toBeInTheDocument();
+    expect(_screen.getByText('频率惩罚')).toBeInTheDocument();
+    expect(_screen.getByText('存在惩罚')).toBeInTheDocument();
+  });
 });

@@ -28,6 +28,11 @@ function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retry
         apiKey: modelConfig.apiKey,
         modelName: modelConfig.modelName,
         protocol: modelConfig.protocol || 'openai',
+        maxTokens: modelConfig.maxTokens,
+        temperature: modelConfig.temperature,
+        topP: modelConfig.topP,
+        frequencyPenalty: modelConfig.frequencyPenalty,
+        presencePenalty: modelConfig.presencePenalty,
         messages: toApiMessages(preSend.messages, modelConfig.protocol || 'openai')
       }, {
         onToken: (text) => tw.pushContent(text),

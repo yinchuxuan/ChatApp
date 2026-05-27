@@ -38,6 +38,11 @@ describe('useSettingsState Hook - Config Loading', () => {
     expect(result.current.config.apiUrl).toBe('http://api.test.com');
     expect(result.current.config.apiKey).toBe('key123');
     expect(result.current.config.modelName).toBe('model-1');
+    expect(result.current.config.maxTokens).toBe('4096');
+    expect(result.current.config.temperature).toBe('0.8');
+    expect(result.current.config.topP).toBe('0.9');
+    expect(result.current.config.frequencyPenalty).toBe('0');
+    expect(result.current.config.presencePenalty).toBe('0');
   });
 
   test('should load background config on mount', async () => {

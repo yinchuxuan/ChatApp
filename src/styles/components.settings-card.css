@@ -98,6 +98,20 @@
   border: none !important;
 }
 
+.model-config-section input.settings-inline-input,
+.model-config-section input.settings-inline-input:hover,
+.model-config-section input.settings-inline-input:focus {
+  padding-left: 0;
+  padding-right: 0;
+  background: transparent;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  caret-color: var(--md-primary);
+}
+
 .config-empty-state {
   display: flex;
   flex-direction: column;

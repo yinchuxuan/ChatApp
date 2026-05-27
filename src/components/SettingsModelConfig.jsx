@@ -61,6 +61,7 @@ function SettingsModelConfig({
               onBlur={finishEdit}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
+              step={type === 'number' ? 'any' : undefined}
               autoFocus
             />
           )
@@ -102,6 +103,11 @@ function SettingsModelConfig({
           {renderField('apiKey', 'API Key', 'key', 'password', '输入您的 API Key')}
           {renderField('protocol', '协议类型', 'settings_ethernet')}
           {renderField('modelName', '模型名称', 'smart_toy', 'text', 'model-name')}
+          {renderField('maxTokens', '最大输出', 'short_text', 'number', '4096')}
+          {renderField('temperature', 'Temperature', 'device_thermostat', 'number', '0.8')}
+          {renderField('topP', 'Top P', 'filter_alt', 'number', '0.9')}
+          {renderField('frequencyPenalty', '频率惩罚', 'repeat', 'number', '0')}
+          {renderField('presencePenalty', '存在惩罚', 'person_search', 'number', '0')}
         </div>
       )}
     </div>

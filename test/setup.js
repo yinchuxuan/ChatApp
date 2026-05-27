@@ -78,6 +78,8 @@ global.window.highlightQuotes = highlightQuotes.highlightQuotes;
 
 require('../src/gameCard/sendPipeline.js');
 
+require('../src/components/modelGenerationParams.js');
+
 // Import apiClient for chat requests
 const apiClient = require('../src/components/apiClient.js');
 if (apiClient.sendChatRequest) {

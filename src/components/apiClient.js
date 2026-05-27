@@ -1,11 +1,17 @@
-// apiClient - API Client with OpenAI/Anthropic protocol support
-// Protocol is explicitly selected by the user in settings
-
 function normalizeUrl(url) {
   return url.replace(/\/+$/, '').replace(/\/v1$/, '');
 }
 
-function buildOpenAIRequest({ apiUrl, apiKey, modelName, messages }) {
+function getOpenAIParams(config) {
+  return window.buildOpenAIParams ? window.buildOpenAIParams(config) : {};
+}
+
+function getAnthropicParams(config) {
+  return window.buildAnthropicParams ? window.buildAnthropicParams(config) : {};
+}
+
+function buildOpenAIRequest(config) {
+  const { apiUrl, apiKey, modelName, messages } = config;
   const adapted = adaptMessagesForRequest(messages, 'openai');
   return {
     url: `${normalizeUrl(apiUrl)}/v1/chat/completions`,
@@ -18,19 +24,22 @@ function buildOpenAIRequest({ apiUrl, apiKey, modelName, messages }) {
       body: JSON.stringify({
         model: modelName || 'gpt-3.5-turbo',
         messages: adapted.messages,
-        stream: true
+        stream: true,
+        ...getOpenAIParams(config)
       })
     }
   };
 }
 
-function buildAnthropicRequest({ apiUrl, apiKey, modelName, messages }) {
+function buildAnthropicRequest(config) {
+  const { apiUrl, apiKey, modelName, messages } = config;
   const adapted = adaptMessagesForRequest(messages, 'anthropic');
   const body = {
     model: modelName || 'claude-sonnet-4-20250514',
     max_tokens: 4096,
     messages: adapted.messages,
-    stream: true
+    stream: true,
+    ...getAnthropicParams(config)
   };
   if (adapted.system) body.system = adapted.system;
 

@@ -56,6 +56,33 @@ describe('ChatInputArea game card pre_send integration', () => {
     expect(body.messages).toEqual([{ role: 'user', content: 'hello' }]);
   });
 
+  test('passes generation parameters from model config', async () => {
+    window.electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });
+    renderInputArea({
+      modelConfig: {
+        apiUrl: 'https://api.example.com/v1',
+        apiKey: 'key',
+        modelName: 'gpt-4',
+        maxTokens: '2048',
+        temperature: '0.8',
+        topP: '0.9',
+        frequencyPenalty: '0.2',
+        presencePenalty: '0.4'
+      }
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
+    fireEvent.click(screen.getByRole('button', { name: '发送消息' }));
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body.max_tokens).toBe(2048);
+    expect(body.temperature).toBe(0.8);
+    expect(body.top_p).toBe(0.9);
+    expect(body.frequency_penalty).toBe(0.2);
+    expect(body.presence_penalty).toBe(0.4);
+  });
+
   test('keeps normal message append behavior when no game card is active', async () => {
     const setMessages = jest.fn();
     window.electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });

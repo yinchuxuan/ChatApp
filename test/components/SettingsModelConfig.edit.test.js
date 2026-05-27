@@ -140,12 +140,43 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    _fireEvent.click(_screen.getByText('未设置'));
+    _fireEvent.click(_screen.getAllByText('未设置')[0]);
 
     const input = document.querySelector('input[type="password"]');
     _fireEvent.change(input, { target: { value: 'new-key' } });
     _fireEvent.blur(input);
 
     expect(props.onChange).toHaveBeenCalledWith('apiKey', 'new-key');
+  });
+
+  test('should allow editing numeric generation fields', async () => {
+    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+
+    const props = {
+      config: {
+        apiUrl: 'http://api.example.com',
+        apiKey: 'test-key',
+        modelName: 'gpt-4',
+        protocol: 'openai',
+        temperature: '0.7'
+      },
+      onChange: jest.fn(),
+      maskApiKey: (key) => key ? 'test****key' : '',
+      isConfigured: true
+    };
+
+    _render(React.createElement(SettingsModelConfig, props));
+
+    await act(async () => { await Promise.resolve(); });
+
+    _fireEvent.click(_screen.getByText('0.7'));
+
+    const input = _screen.getByDisplayValue('0.7');
+    expect(input).toHaveAttribute('type', 'number');
+    expect(input).toHaveAttribute('step', 'any');
+    _fireEvent.change(input, { target: { value: '0.85' } });
+    _fireEvent.blur(input);
+
+    expect(props.onChange).toHaveBeenCalledWith('temperature', '0.85');
   });
 });

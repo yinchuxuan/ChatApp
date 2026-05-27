@@ -1,9 +1,25 @@
 // useSettingsState - Custom hook for SettingsPanel state management
 // Extracts config loading and handlers from SettingsPanel
 
+function getDefaultGenerationParams() {
+  return window.DEFAULT_GENERATION_PARAMS || {
+    maxTokens: '4096',
+    temperature: '0.8',
+    topP: '0.9',
+    frequencyPenalty: '0',
+    presencePenalty: '0'
+  };
+}
+
+function addDefaultGenerationParams(config) {
+  if (window.withDefaultGenerationParams) return window.withDefaultGenerationParams(config);
+  return { ...getDefaultGenerationParams(), ...config };
+}
+
 function useSettingsState(onBackgroundChange) {
   const [config, setConfig] = React.useState({
-    apiUrl: '', apiKey: '', modelName: '', protocol: 'openai'
+    apiUrl: '', apiKey: '', modelName: '', protocol: 'openai',
+    ...getDefaultGenerationParams()
   });
   const [backgroundConfig, setBackgroundConfig] = React.useState({
     backgroundImageUrl: '', backgroundOpacity: 0.5
@@ -15,8 +31,11 @@ function useSettingsState(onBackgroundChange) {
       if (window.electronAPI) {
         const result = await window.electronAPI.getModelConfig();
         if (result.success) {
-          const defaultConfig = { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' };
-          const cfg = { ...defaultConfig, ...result.config };
+          const defaultConfig = {
+            apiUrl: '', apiKey: '', modelName: '', protocol: 'openai',
+            ...getDefaultGenerationParams()
+          };
+          const cfg = addDefaultGenerationParams({ ...defaultConfig, ...result.config });
           setConfig(cfg);
         }
         const bgResult = await window.electronAPI.getBackgroundConfig();
