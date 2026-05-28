@@ -1,0 +1,56 @@
+const card = require('../../game-card-examples/white-album-2/card.json');
+const stateSchema = require('../../game-card-examples/white-album-2/state/schema.json');
+const { applyGameCard } = require('../../src/gameCard/engine');
+const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
+
+const fileContents = {
+  'first_msg.md': '开场',
+  'roleplay_rules.md': '规则',
+  'state/schema.json': JSON.stringify(stateSchema),
+  'worldbook/characters.md': [
+    '# 角色世界书', '## 北原春希', '春希基础',
+    '## 冬马和纱', '冬马基础',
+    '## 小木曾雪菜', '雪菜基础'
+  ].join('\n')
+};
+
+function state(overrides) {
+  return ensureStateDefaults(stateSchema, overrides).state;
+}
+
+function run(content, gameState) {
+  const init = applyGameCard({ card, phase: 'init', messages: [], state: state({}), fileContents });
+  const result = applyGameCard({
+    card,
+    phase: 'pre_send',
+    messages: [...init.messages, { role: 'user', content }],
+    state: gameState,
+    fileContents
+  });
+  return {
+    status: result.messages.find((msg) => msg._meta?.source === 'wa2_affection_status').content,
+    worldbook: result.messages.find((msg) => msg._meta?.source === 'wa2_worldbook').content
+  };
+}
+
+describe('white album affection status', () => {
+  test('writes affection attitudes into the state status message', () => {
+    const low = run('今天去找冬马排练', state({ touma: { affection: 12 }, setsuna: { affection: 65 } }));
+    const high = run('今天去找冬马排练', state({ touma: { affection: 88 }, setsuna: { affection: 90 } }));
+
+    expect(low.status).toContain('人物态度');
+    expect(low.status).toContain('冬马和纱: 保持明显距离');
+    expect(low.status).toContain('小木曾雪菜: 已明显依赖春希');
+    expect(high.status).toContain('冬马和纱: 对春希的依恋强烈而压抑');
+    expect(high.status).toContain('小木曾雪菜: 对春希的感情接近无法回避');
+  });
+
+  test('keeps affection attitudes out of worldbook content', () => {
+    const result = run('和冬马、雪菜一起排练', state({ touma: { affection: 88 }, setsuna: { affection: 90 } }));
+
+    expect(result.worldbook).toContain('冬马基础');
+    expect(result.worldbook).toContain('雪菜基础');
+    expect(result.worldbook).not.toContain('人物态度');
+    expect(result.worldbook).not.toContain('依恋强烈而压抑');
+  });
+});

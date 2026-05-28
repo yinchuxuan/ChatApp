@@ -14,17 +14,15 @@ const fileContents = {
     'A. 继续交谈',
     'B. 整理录音',
     'C. 暂时沉默',
-    'D. 询问心情'
+    'D. 询问心情',
+    '<state_patch>[{"type":"state.set","path":"touma.affection","value":0},{"type":"state.set","path":"setsuna.affection","value":0}]</state_patch>'
   ].join('\n'),
-  'roleplay_rules.md': '回复时保持白色相簿2的氛围。',
+  'roleplay_rules.md': '回复时保持白色相簿2的氛围。追加 <state_patch> 并用 state.set 更新 touma.affection 和 setsuna.affection。',
+  'state/schema.json': JSON.stringify(stateSchema),
   'worldbook/characters.md': [
-    '# 角色世界书',
-    '## 北原春希',
-    '世界书：北原春希',
-    '## 冬马和纱',
-    '世界书：冬马和纱',
-    '## 小木曾雪菜',
-    '世界书：小木曾雪菜'
+    '# 角色世界书', '## 北原春希', '世界书：北原春希',
+    '## 冬马和纱', '世界书：冬马和纱',
+    '## 小木曾雪菜', '世界书：小木曾雪菜'
   ].join('\n')
 };
 
@@ -73,12 +71,18 @@ describe('white album 2 game card', () => {
     expect(result.messages[3].role).toBe('system');
     expect(result.messages[3]._meta.source).toBe('wa2_affection_status');
     expect(result.messages[3]._meta.visibility).toBe('user_visible');
+    expect(result.messages[3].content).toContain('好感度变量定义');
+    expect(result.messages[3].content).toContain('"touma.affection"');
+    expect(result.messages[3].content).toContain('"setsuna.affection"');
     expect(result.messages[3].content).toContain('冬马和纱: 0');
     expect(result.messages[3].content).toContain('小木曾雪菜: 0');
     expect(result.messages[4].role).toBe('assistant');
     expect(result.messages[4]._meta.source).toBe('wa2_first_msg');
     expect(result.messages[4]._meta.visibility).toBe('user_visible');
     expect(result.messages[4].content).toContain('<summary>开场总结。</summary>');
+    expect(result.messages[4].content).toContain('<state_patch>');
+    expect(result.messages[4].content).toContain('"touma.affection"');
+    expect(result.messages[4].content).toContain('"setsuna.affection"');
   });
 
   test('declares Touma and Setsuna affection state and refreshes the visible status message', () => {
@@ -95,8 +99,20 @@ describe('white album 2 game card', () => {
     expect(stateSchema.schema['setsuna.affection'].default).toBe(0);
     expect(status.role).toBe('system');
     expect(status._meta.visibility).toBe('user_visible');
+    expect(status.content).toContain('"touma.affection"');
+    expect(status.content).toContain('"setsuna.affection"');
     expect(status.content).toContain('冬马和纱: 12');
     expect(status.content).toContain('小木曾雪菜: 8');
+  });
+
+  test('tail roleplay rules tell the llm how to update affection state', () => {
+    const result = applyWhiteAlbum([user('继续')]);
+    const hint = result.messages.find((msg) => msg._meta?.source === 'wa2_tail_hint');
+
+    expect(hint.content).toContain('<state_patch>');
+    expect(hint.content).toContain('state.set');
+    expect(hint.content).toContain('touma.affection');
+    expect(hint.content).toContain('setsuna.affection');
   });
 
   test('compresses older assistant summaries and keeps latest user and assistant', () => {
@@ -124,7 +140,7 @@ describe('white album 2 game card', () => {
       user('最新选择'),
       {
         role: 'user',
-        content: '回复时保持白色相簿2的氛围。',
+        content: fileContents['roleplay_rules.md'],
         ttl: 1,
         _meta: { source: 'wa2_tail_hint', visibility: 'llm_only' }
       }

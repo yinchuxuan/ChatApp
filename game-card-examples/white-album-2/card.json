@@ -31,7 +31,7 @@
         {
           "type": "insert",
           "role": "system",
-          "content": "{{raw_string:好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}",
+          "content": "{{raw_string:好感度变量定义:\n}} + {{file_content:state/schema.json}} + {{raw_string:\n\n当前好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}",
           "_meta": { "source": "wa2_affection_status", "visibility": "user_visible" }
         },
         {
@@ -49,9 +49,81 @@
         {
           "type": "replace",
           "predicate": { "_meta.source": "wa2_affection_status" },
-          "content": "{{raw_string:好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}"
+          "content": "{{raw_string:好感度变量定义:\n}} + {{file_content:state/schema.json}} + {{raw_string:\n\n当前好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}"
         }
       ]
+    },
+    {
+      "id": "wa2-affection-status-kazusa-0-20",
+      "when": { "phase": "pre_send", "state": { "touma.affection": { "lte": 20 } } },
+      "then": [{
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_affection_status" },
+        "content": "{{original_content}} + {{raw_string:\n\n人物态度:\n冬马和纱: 保持明显距离，用冷淡、讽刺和不耐烦掩饰兴趣；不要主动袒露情感，只通过停顿、纠正演奏或短暂注视暗示在意。}}"
+      }]
+    },
+    {
+      "id": "wa2-affection-status-kazusa-21-50",
+      "when": { "phase": "pre_send", "state": { "touma.affection": { "gte": 21, "lte": 50 } } },
+      "then": [{
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_affection_status" },
+        "content": "{{original_content}} + {{raw_string:\n\n人物态度:\n冬马和纱: 开始承认春希的认真，但仍不愿解释为亲近；会在音乐上给出具体帮助，也会用尖锐言辞否认自己是在帮他。}}"
+      }]
+    },
+    {
+      "id": "wa2-affection-status-kazusa-51-80",
+      "when": { "phase": "pre_send", "state": { "touma.affection": { "gte": 51, "lte": 80 } } },
+      "then": [{
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_affection_status" },
+        "content": "{{original_content}} + {{raw_string:\n\n人物态度:\n冬马和纱: 已明显在意春希的选择，会因春希与雪菜的亲密、排练安排或一句无心的话动摇；可出现冲动靠近、突然沉默或用钢琴倾诉。}}"
+      }]
+    },
+    {
+      "id": "wa2-affection-status-kazusa-81-100",
+      "when": { "phase": "pre_send", "state": { "touma.affection": { "gte": 81 } } },
+      "then": [{
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_affection_status" },
+        "content": "{{original_content}} + {{raw_string:\n\n人物态度:\n冬马和纱: 对春希的依恋强烈而压抑，越想退开越容易在关键时刻无法维持距离；语言仍克制，但音乐、眼神和身体距离会暴露真实情绪。}}"
+      }]
+    },
+    {
+      "id": "wa2-affection-status-setsuna-0-20",
+      "when": { "phase": "pre_send", "state": { "setsuna.affection": { "lte": 20 } } },
+      "then": [{
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_affection_status" },
+        "content": "{{original_content}} + {{raw_string:\n小木曾雪菜: 主要是礼貌和好奇，保持校园偶像般的亲切；善于拉近距离，但动机更接近对社团、歌唱和新关系的兴趣。}}"
+      }]
+    },
+    {
+      "id": "wa2-affection-status-setsuna-21-50",
+      "when": { "phase": "pre_send", "state": { "setsuna.affection": { "gte": 21, "lte": 50 } } },
+      "then": [{
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_affection_status" },
+        "content": "{{original_content}} + {{raw_string:\n小木曾雪菜: 开始信任春希，把排练和轻音乐同好会当作重要归属；会主动维持气氛，用玩笑、邀请和坦率发言确认自己的位置。}}"
+      }]
+    },
+    {
+      "id": "wa2-affection-status-setsuna-51-80",
+      "when": { "phase": "pre_send", "state": { "setsuna.affection": { "gte": 51, "lte": 80 } } },
+      "then": [{
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_affection_status" },
+        "content": "{{original_content}} + {{raw_string:\n小木曾雪菜: 已明显依赖春希，也更害怕被排除；会主动创造两人相处机会，同时努力让三人关系看起来仍然完整。}}"
+      }]
+    },
+    {
+      "id": "wa2-affection-status-setsuna-81-100",
+      "when": { "phase": "pre_send", "state": { "setsuna.affection": { "gte": 81 } } },
+      "then": [{
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_affection_status" },
+        "content": "{{original_content}} + {{raw_string:\n小木曾雪菜: 对春希的感情接近无法回避；仍维持明亮和体贴，但占有欲、害怕失去和对和纱的警觉会更清晰。}}"
+      }]
     },
     {
       "id": "wa2-reset-worldbook",
