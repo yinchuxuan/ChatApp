@@ -84,7 +84,7 @@ schema 使用点路径声明，运行时 state 保存为嵌套 JSON：
 }
 ```
 
-第一版 path 只支持点路径；数组元素不使用 `inventory[0]` 语法，由后续 `push` / `remove` 操作处理。
+第一版 path 只支持点路径；数组元素不使用 `inventory[0]` 语法。
 
 平台提供基础工具：`getStateValue`、`setStateValue`、`hasStateValue`、`deleteStateValue`、`ensureStateDefaults`。
 
@@ -171,6 +171,9 @@ Content 描述符支持读取 state：
 
 第一版支持 `eq`、`gt`、`gte`、`lt`、`lte`、`in`、`nin`、`contains`、`exists`、`regex`。多 key 默认 AND。
 
+## State 修改
+第二阶段支持 `state.set`、`state.delete`、`state.append`、`state.remove`、`state.roll`、`state.randomInt`。`set` 创建/写入 JSON 值；`delete` 删除变量；`append` 向数组追加 `value`，目标缺失时创建数组；`remove` 从数组中移除深相等的 `value`；`roll` 将 `dice` 表达式的掷骰总和写入 path；`randomInt` 将 `[min, max]` 闭区间随机整数写入 path。它们不修改 messages；命中 schema 必须校验，`onInvalid: "clamp"` 对 number 生效；未命中 schema 允许写入；`llmWrite` 留给后续 LLM patch。
+
 ## 持久化
 
 state 随聊天历史保存：
@@ -190,10 +193,8 @@ state 随聊天历史保存：
 
 ## 后续扩展
 
-动态变量用于开放运行时命名空间，例如 `memory.*`、`flags.*`、`npc.*.notes`。未被 schema 或 dynamic 覆盖的 path 默认不可由 LLM 创建或写入。
+动态变量用于开放运行时命名空间，例如 `memory.*`、`flags.*`、`npc.*.notes`。未被 schema 或 dynamic 覆盖的 path 默认不可由 LLM 创建或写入。后续可按实际需求补充 `inc`、`toggle`、`merge` 等便利 action。
 
-mutation action 和 LLM patch 后续共用同一套语义：`set`、`inc`、`toggle`、`push`、`remove`、`merge`、`delete`。
-
-LLM 不直接写持久化 state，而是在回复中输出隐藏 `<state_patch>`，由 `after_response` action 解析、校验、应用并移除源 block。解析或校验失败不应中断聊天，只记录 warning 并跳过非法补丁。
+LLM 不直接写持久化 state，而是在回复中输出隐藏 `<state_patch>`，由 `after_response` action 解析、校验、应用并移除源 block。解析或校验失败不应中断聊天，只记录 warning 并跳过非法补丁。复杂状态逻辑在此之前继续使用 `exec`。
 
 每次 state 读取失败、补丁失败或修改成功都应记录 trace，至少包含 phase、rule/action 位置、变更 diff、校验错误和 LLM patch reason。
