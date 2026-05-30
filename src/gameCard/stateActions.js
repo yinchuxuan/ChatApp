@@ -77,6 +77,25 @@ function requireValue(action) {
   return Object.prototype.hasOwnProperty.call(action || {}, 'value') && isJsonValue(action.value);
 }
 
+function parseDice(dice) {
+  const match = String(dice || '').match(/^([1-9]\d*)?d([1-9]\d*)$/i);
+  if (!match) return null;
+  return { count: Number(match[1] || 1), sides: Number(match[2]) };
+}
+
+function rollDice(dice) {
+  const parsed = parseDice(dice);
+  if (!parsed) return null;
+  return Array.from({ length: parsed.count }).reduce((sum) => {
+    return sum + Math.floor(Math.random() * parsed.sides) + 1;
+  }, 0);
+}
+
+function randomInt(min, max) {
+  if (!Number.isInteger(min) || !Number.isInteger(max) || min > max) return null;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function validateNextState(type, before, after, path, options) {
   if (!options.schema || !hasStateValue(after, path)) return finish(type, before, after, path, options);
 
@@ -122,12 +141,28 @@ function applyRemove(state, action, options) {
   return validateNextState(action.type, state, nextState, action.path, options);
 }
 
+function applyRoll(state, action, options) {
+  const value = rollDice(action.dice);
+  if (value === null) return fail(action?.type, state, 'invalid_dice', options);
+  const nextState = setStateValue(state, action.path, value);
+  return validateNextState(action.type, state, nextState, action.path, options);
+}
+
+function applyRandomInt(state, action, options) {
+  const value = randomInt(action.min, action.max);
+  if (value === null) return fail(action?.type, state, 'invalid_range', options);
+  const nextState = setStateValue(state, action.path, value);
+  return validateNextState(action.type, state, nextState, action.path, options);
+}
+
 function applyStateAction(state, action, options = {}) {
   if (!isValidPath(action?.path)) return fail(action?.type || 'unknown', state, 'invalid_path', options);
   if (action.type === 'state.set') return applySet(state, action, options);
   if (action.type === 'state.delete') return applyDelete(state, action, options);
   if (action.type === 'state.append') return applyAppend(state, action, options);
   if (action.type === 'state.remove') return applyRemove(state, action, options);
+  if (action.type === 'state.roll') return applyRoll(state, action, options);
+  if (action.type === 'state.randomInt') return applyRandomInt(state, action, options);
   return fail(action?.type || 'unknown', state, 'not_implemented', options);
 }
 

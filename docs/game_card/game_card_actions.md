@@ -59,6 +59,21 @@
 
 `replace` 支持可选 `find` 字段，供 `content` 引用当前消息数组中其他消息的 content。
 
+## state actions
+
+声明式修改游戏状态，不直接修改 messages；后续 action 和后续 rule 可立即读取新 state。
+
+```json
+{ "type": "state.set", "path": "route", "value": "alice" }
+{ "type": "state.delete", "path": "temp.lastRoll" }
+{ "type": "state.append", "path": "inventory", "value": { "id": "key" } }
+{ "type": "state.remove", "path": "inventory", "value": { "id": "key" } }
+{ "type": "state.roll", "path": "temp.roll", "dice": "1d6" }
+{ "type": "state.randomInt", "path": "temp.pick", "min": 1, "max": 6 }
+```
+
+`state.roll` 支持 `d6` / `1d6` / `2d10` 形式，写入掷骰总和。`state.randomInt` 写入闭区间 `[min, max]` 的整数。
+
 ## exec
 
 兜底操作，用于声明式操作无法覆盖的游戏逻辑。`exec` 是受限上下文中的纯变换函数。

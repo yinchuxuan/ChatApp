@@ -18,7 +18,9 @@ describe('game card state action JSON schema', () => {
       { type: 'state.set', path: 'route', value: 'alice' },
       { type: 'state.delete', path: 'temp.lastRoll' },
       { type: 'state.append', path: 'inventory', value: { id: 'key' } },
-      { type: 'state.remove', path: 'inventory', value: { id: 'key' } }
+      { type: 'state.remove', path: 'inventory', value: { id: 'key' } },
+      { type: 'state.roll', path: 'temp.roll', dice: '1d6' },
+      { type: 'state.randomInt', path: 'temp.pick', min: 1, max: 6 }
     ];
 
     actions.forEach((action) => expect(validate(action)).toBe(true));
@@ -30,6 +32,8 @@ describe('game card state action JSON schema', () => {
       { type: 'state.set', path: 'inventory[0]', value: { id: 'key' } },
       { type: 'state.append', path: 'inventory' },
       { type: 'state.delete', path: 'temp.lastRoll', value: true },
+      { type: 'state.roll', path: 'temp.roll', dice: '0d6' },
+      { type: 'state.randomInt', path: 'temp.pick', min: 1 },
       { type: 'state.merge', path: 'route', value: 'alice' }
     ];
 

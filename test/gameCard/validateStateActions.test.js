@@ -19,7 +19,9 @@ describe('state action validation', () => {
       { type: 'state.set', path: 'route', value: 'alice' },
       { type: 'state.delete', path: 'temp.lastRoll' },
       { type: 'state.append', path: 'inventory', value: { id: 'key' } },
-      { type: 'state.remove', path: 'inventory', value: { id: 'key' } }
+      { type: 'state.remove', path: 'inventory', value: { id: 'key' } },
+      { type: 'state.roll', path: 'temp.roll', dice: '1d6' },
+      { type: 'state.randomInt', path: 'temp.pick', min: 1, max: 6 }
     ];
 
     actions.forEach((action) => {
@@ -48,6 +50,18 @@ describe('state action validation', () => {
     ]);
     expect(errorsFor({ type: 'state.remove', path: 'inventory', value: { bad: undefined } })).toEqual([
       'rules[0].then[0].value: must be a JSON value'
+    ]);
+  });
+
+  test('rejects invalid random state action parameters', () => {
+    expect(errorsFor({ type: 'state.roll', path: 'temp.roll', dice: '0d6' })).toEqual([
+      'rules[0].then[0].dice: must be a dice expression like 1d6'
+    ]);
+    expect(errorsFor({ type: 'state.randomInt', path: 'temp.pick', min: 6, max: 1 })).toEqual([
+      'rules[0].then[0].max: must be greater than or equal to min'
+    ]);
+    expect(errorsFor({ type: 'state.randomInt', path: 'temp.pick', min: '1', max: 6 })).toEqual([
+      'rules[0].then[0].min: must be an integer'
     ]);
   });
 

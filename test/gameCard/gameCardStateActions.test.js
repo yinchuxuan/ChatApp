@@ -10,6 +10,10 @@ function cardWithRules(rules) {
 }
 
 describe('game card state action pipeline', () => {
+  afterEach(() => {
+    if (Math.random.mockRestore) Math.random.mockRestore();
+  });
+
   test('state actions keep messages unchanged and update state in action order', () => {
     const messages = [{ role: 'user', content: 'start' }];
     const result = applyGameCard({
@@ -66,6 +70,25 @@ describe('game card state action pipeline', () => {
     ]);
     expect(result.state.route).toBe('alice');
     expect(result.trace.rules[0].summary.state.changedKeys).toEqual(['route']);
+  });
+
+  test('later message actions can render random state actions in the same rule', () => {
+    jest.spyOn(Math, 'random').mockReturnValue(0);
+    const result = applyGameCard({
+      card: cardWithRules([{
+        when: { phase: 'pre_send' },
+        then: [
+          { type: 'state.roll', path: 'eventRoll', dice: '1d6' },
+          { type: 'insert', role: 'system', content: '{{raw_string:roll=}} + {{state:eventRoll}}' }
+        ]
+      }]),
+      phase: 'pre_send',
+      messages: [{ role: 'user', content: 'go' }],
+      state: {}
+    });
+
+    expect(result.messages[1]).toEqual({ role: 'system', content: 'roll=1' });
+    expect(result.state.eventRoll).toBe(1);
   });
 
   test('later rules can match when.state against state changed by earlier rules', () => {
