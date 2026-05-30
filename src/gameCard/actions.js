@@ -45,7 +45,7 @@ function insertMessage(action, options) {
 }
 
 function applyInsert(messages, action, options) {
-  if (!action.role || typeof action.content !== 'string') {
+  if (!action.role || action.content === undefined) {
     return { messages, trace: buildTrace(action, [], false, messages, messages) };
   }
 

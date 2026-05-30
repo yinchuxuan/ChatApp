@@ -65,9 +65,70 @@ Content 描述符描述如何生成一条消息的 `content` 值。
 
 ## Content 值类型
 
-Content 表达式的中间值可以是 `string` 或 `string[]`。`{{find:name}}` 返回 `string[]`；普通来源返回 `string`。
+Content 可以是字符串表达式，也可以是 `include` / `select` 对象。
+
+字符串表达式的中间值可以是 `string` 或 `string[]`。`{{find:name}}` 返回 `string[]`；普通来源返回 `string`。
 
 Transform 函数默认支持列表输入：对列表中每个 item 逐条应用。`.join{...}` 将列表收敛为字符串；如果最终结果仍是列表，使用对应 `find.join` 或默认 `\n` 拼接。
+
+## include / select
+
+`include` 和 `select` 用于根据当前 messages / state 动态生成 content，适合世界书和状态分支。
+
+分支条件使用 `when`，语义与规则 `when` 相同，但 `phase` 可省略；省略时使用当前 action 所在阶段。`when.last` / `when.any` / `when.all` 内部继续使用 Predicate。
+
+### include
+
+`include` 会渲染所有命中的分支，并用 `join` 拼接。`join` 默认 `\n`。`prefix` / `suffix` 会包裹最终结果。
+
+```json
+{
+  "type": "replace",
+  "predicate": { "_meta.source": "worldbook" },
+  "content": {
+    "include": [
+      {
+        "when": {
+          "last": {
+            "num": 3,
+            "role": { "in": ["user", "assistant"] },
+            "content": { "regex": "冬马|和纱|Kazusa" }
+          }
+        },
+        "content": "{{file_section:worldbook/characters.md##冬马和纱}}"
+      },
+      {
+        "when": { "state": { "setsuna.affection": { "gte": 50 } } },
+        "content": "{{raw_string:小木曾雪菜对春希已经表现出明显依赖。}}"
+      }
+    ],
+    "prefix": "本轮世界书:",
+    "join": "\n\n"
+  }
+}
+```
+
+### select
+
+`select` 会渲染第一条命中的分支，适合互斥分支。没有命中时渲染 `default`；未声明 `default` 时为空字符串。
+
+```json
+{
+  "content": {
+    "select": [
+      {
+        "when": { "state": { "route": "kazusa" } },
+        "content": "{{file_section:worldbook/routes.md##和纱线}}"
+      },
+      {
+        "when": { "state": { "route": "setsuna" } },
+        "content": "{{file_section:worldbook/routes.md##雪菜线}}"
+      }
+    ],
+    "default": "{{file_section:worldbook/routes.md##共通线}}"
+  }
+}
+```
 
 ## Transform 函数
 

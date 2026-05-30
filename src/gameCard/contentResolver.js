@@ -1,5 +1,6 @@
 const { matchesPredicate } = require('./predicate');
 const { applyTransform, renderValue } = require('./contentTransforms');
+const { resolveContentObject } = require('./contentObjects');
 const { parseFileSectionRef, extractFileSection } = require('./fileSections');
 const { getStateValue, hasStateValue } = require('./statePaths');
 
@@ -156,6 +157,9 @@ function parseChain(expression, index, originalMessage, options) {
 }
 
 function resolveContent(content, originalMessage = {}, options = {}) {
+  if (content && typeof content === 'object') {
+    return resolveContentObject(content, originalMessage, options, resolveContent);
+  }
   if (typeof content !== 'string') return '';
   if (!content.includes('{{')) return content;
   if (!content.trimStart().startsWith('{{')) {

@@ -1,4 +1,5 @@
 const { VALID_STATE_ACTION_TYPES, validateStateAction } = require('./validateStateActions');
+const { validateContent } = require('./validateContent');
 const VALID_PHASES = ['init', 'pre_send', 'after_response'];
 const VALID_ANCHORS = ['before', 'after'];
 const VALID_ROLES = ['user', 'assistant', 'system'];
@@ -151,6 +152,7 @@ function validateWhen(when, path, errors) {
   if (when.all !== undefined) validatePredicate(when.all, path + '.all', errors);
   if (when.state !== undefined) validateStatePredicate(when.state, path + '.state', errors);
 }
+function validateContentWhen(when, path, errors) { validateWhen(when.phase ? when : { ...when, phase: 'pre_send' }, path, errors); }
 function validateFindMap(find, path, errors) {
   if (find === undefined) return;
   if (!isObject(find) || Object.keys(find).length === 0) return addError(errors, path, 'must be a non-empty object');
@@ -171,9 +173,7 @@ function validateRequiredPredicate(action, path, errors) {
 }
 function validateAction(action, path, errors) {
   if (!action || !isObject(action)) return addError(errors, path, 'must be an object');
-  if (isString(action.type) && action.type.startsWith('state.')) {
-    return validateStateAction(action, path, errors);
-  }
+  if (isString(action.type) && action.type.startsWith('state.')) return validateStateAction(action, path, errors);
   if (!VALID_ACTION_TYPES.includes(action.type)) {
     return addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));
   }
@@ -187,11 +187,11 @@ function validateAction(action, path, errors) {
   if (action.type === 'insert') {
     if (!action.role) addError(errors, path, 'requires role');
     else validateMessageRole(action.role, path + '.role', errors);
-    if (!isString(action.content)) addError(errors, path + '.content', 'must be a string');
+    validateContent(action.content, path + '.content', errors, validateContentWhen);
     if (action.anchor !== undefined && !VALID_ANCHORS.includes(action.anchor)) addError(errors, path + '.anchor', 'must be one of ' + VALID_ANCHORS.join(', '));
   }
   if (action.type === 'replace' && action.content === undefined && action.ttl === undefined) addError(errors, path, 'requires content or ttl');
-  if (action.type === 'replace' && action.content !== undefined && !isString(action.content)) addError(errors, path + '.content', 'must be a string');
+  if (action.type === 'replace' && action.content !== undefined) validateContent(action.content, path + '.content', errors, validateContentWhen);
   if (action.ttl !== undefined) validateTTL(action.ttl, path + '.ttl', errors);
   if (action._meta !== undefined) validateMessageMeta(action._meta, path + '._meta', errors);
   validateFindMap(action.find, path + '.find', errors);

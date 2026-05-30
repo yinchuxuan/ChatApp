@@ -49,144 +49,41 @@
         {
           "type": "replace",
           "predicate": { "_meta.source": "wa2_affection_status" },
-          "content": "{{raw_string:好感度变量定义:\n}} + {{file_content:state/schema.json}} + {{raw_string:\n\n当前好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}"
+          "content": {
+            "prefix": "{{raw_string:好感度变量定义:\n}} + {{file_content:state/schema.json}} + {{raw_string:\n\n当前好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}",
+            "include": [
+              { "when": { "state": { "touma.affection": { "lte": 20 } } }, "content": "{{raw_string:\n\n人物态度:\n冬马和纱: 保持明显距离，用冷淡、讽刺和不耐烦掩饰兴趣；不要主动袒露情感，只通过停顿、纠正演奏或短暂注视暗示在意。}}" },
+              { "when": { "state": { "touma.affection": { "gte": 21, "lte": 50 } } }, "content": "{{raw_string:\n\n人物态度:\n冬马和纱: 开始承认春希的认真，但仍不愿解释为亲近；会在音乐上给出具体帮助，也会用尖锐言辞否认自己是在帮他。}}" },
+              { "when": { "state": { "touma.affection": { "gte": 51, "lte": 80 } } }, "content": "{{raw_string:\n\n人物态度:\n冬马和纱: 已明显在意春希的选择，会因春希与雪菜的亲密、排练安排或一句无心的话动摇；可出现冲动靠近、突然沉默或用钢琴倾诉。}}" },
+              { "when": { "state": { "touma.affection": { "gte": 81 } } }, "content": "{{raw_string:\n\n人物态度:\n冬马和纱: 对春希的依恋强烈而压抑，越想退开越容易在关键时刻无法维持距离；语言仍克制，但音乐、眼神和身体距离会暴露真实情绪。}}" },
+              { "when": { "state": { "setsuna.affection": { "lte": 20 } } }, "content": "{{raw_string:\n小木曾雪菜: 主要是礼貌和好奇，保持校园偶像般的亲切；善于拉近距离，但动机更接近对社团、歌唱和新关系的兴趣。}}" },
+              { "when": { "state": { "setsuna.affection": { "gte": 21, "lte": 50 } } }, "content": "{{raw_string:\n小木曾雪菜: 开始信任春希，把排练和轻音乐同好会当作重要归属；会主动维持气氛，用玩笑、邀请和坦率发言确认自己的位置。}}" },
+              { "when": { "state": { "setsuna.affection": { "gte": 51, "lte": 80 } } }, "content": "{{raw_string:\n小木曾雪菜: 已明显依赖春希，也更害怕被排除；会主动创造两人相处机会，同时努力让三人关系看起来仍然完整。}}" },
+              { "when": { "state": { "setsuna.affection": { "gte": 81 } } }, "content": "{{raw_string:\n小木曾雪菜: 对春希的感情接近无法回避；仍维持明亮和体贴，但占有欲、害怕失去和对和纱的警觉会更清晰。}}" }
+            ],
+            "join": ""
+          }
         }
       ]
     },
     {
-      "id": "wa2-affection-status-kazusa-0-20",
-      "when": { "phase": "pre_send", "state": { "touma.affection": { "lte": 20 } } },
-      "then": [{
-        "type": "replace",
-        "predicate": { "_meta.source": "wa2_affection_status" },
-        "content": "{{original_content}} + {{raw_string:\n\n人物态度:\n冬马和纱: 保持明显距离，用冷淡、讽刺和不耐烦掩饰兴趣；不要主动袒露情感，只通过停顿、纠正演奏或短暂注视暗示在意。}}"
-      }]
-    },
-    {
-      "id": "wa2-affection-status-kazusa-21-50",
-      "when": { "phase": "pre_send", "state": { "touma.affection": { "gte": 21, "lte": 50 } } },
-      "then": [{
-        "type": "replace",
-        "predicate": { "_meta.source": "wa2_affection_status" },
-        "content": "{{original_content}} + {{raw_string:\n\n人物态度:\n冬马和纱: 开始承认春希的认真，但仍不愿解释为亲近；会在音乐上给出具体帮助，也会用尖锐言辞否认自己是在帮他。}}"
-      }]
-    },
-    {
-      "id": "wa2-affection-status-kazusa-51-80",
-      "when": { "phase": "pre_send", "state": { "touma.affection": { "gte": 51, "lte": 80 } } },
-      "then": [{
-        "type": "replace",
-        "predicate": { "_meta.source": "wa2_affection_status" },
-        "content": "{{original_content}} + {{raw_string:\n\n人物态度:\n冬马和纱: 已明显在意春希的选择，会因春希与雪菜的亲密、排练安排或一句无心的话动摇；可出现冲动靠近、突然沉默或用钢琴倾诉。}}"
-      }]
-    },
-    {
-      "id": "wa2-affection-status-kazusa-81-100",
-      "when": { "phase": "pre_send", "state": { "touma.affection": { "gte": 81 } } },
-      "then": [{
-        "type": "replace",
-        "predicate": { "_meta.source": "wa2_affection_status" },
-        "content": "{{original_content}} + {{raw_string:\n\n人物态度:\n冬马和纱: 对春希的依恋强烈而压抑，越想退开越容易在关键时刻无法维持距离；语言仍克制，但音乐、眼神和身体距离会暴露真实情绪。}}"
-      }]
-    },
-    {
-      "id": "wa2-affection-status-setsuna-0-20",
-      "when": { "phase": "pre_send", "state": { "setsuna.affection": { "lte": 20 } } },
-      "then": [{
-        "type": "replace",
-        "predicate": { "_meta.source": "wa2_affection_status" },
-        "content": "{{original_content}} + {{raw_string:\n小木曾雪菜: 主要是礼貌和好奇，保持校园偶像般的亲切；善于拉近距离，但动机更接近对社团、歌唱和新关系的兴趣。}}"
-      }]
-    },
-    {
-      "id": "wa2-affection-status-setsuna-21-50",
-      "when": { "phase": "pre_send", "state": { "setsuna.affection": { "gte": 21, "lte": 50 } } },
-      "then": [{
-        "type": "replace",
-        "predicate": { "_meta.source": "wa2_affection_status" },
-        "content": "{{original_content}} + {{raw_string:\n小木曾雪菜: 开始信任春希，把排练和轻音乐同好会当作重要归属；会主动维持气氛，用玩笑、邀请和坦率发言确认自己的位置。}}"
-      }]
-    },
-    {
-      "id": "wa2-affection-status-setsuna-51-80",
-      "when": { "phase": "pre_send", "state": { "setsuna.affection": { "gte": 51, "lte": 80 } } },
-      "then": [{
-        "type": "replace",
-        "predicate": { "_meta.source": "wa2_affection_status" },
-        "content": "{{original_content}} + {{raw_string:\n小木曾雪菜: 已明显依赖春希，也更害怕被排除；会主动创造两人相处机会，同时努力让三人关系看起来仍然完整。}}"
-      }]
-    },
-    {
-      "id": "wa2-affection-status-setsuna-81-100",
-      "when": { "phase": "pre_send", "state": { "setsuna.affection": { "gte": 81 } } },
-      "then": [{
-        "type": "replace",
-        "predicate": { "_meta.source": "wa2_affection_status" },
-        "content": "{{original_content}} + {{raw_string:\n小木曾雪菜: 对春希的感情接近无法回避；仍维持明亮和体贴，但占有欲、害怕失去和对和纱的警觉会更清晰。}}"
-      }]
-    },
-    {
-      "id": "wa2-reset-worldbook",
-      "when": { "phase": "pre_send" },
-      "then": [
-        {
-          "type": "replace",
-          "predicate": { "_meta.source": "wa2_worldbook" },
-          "content": "本轮世界书:"
-        }
-      ]
-    },
-    {
-      "id": "wa2-worldbook-haruki",
+      "id": "wa2-refresh-worldbook",
       "when": {
-        "phase": "pre_send",
-        "last": {
-          "num": 3,
-          "role": { "in": ["user", "assistant"] },
-          "content": { "regex": "春希|北原|Kitahara|Haruki" }
-        }
+        "phase": "pre_send"
       },
       "then": [
         {
           "type": "replace",
           "predicate": { "_meta.source": "wa2_worldbook" },
-          "content": "{{original_content}} + {{raw_string:\n\n}} + {{file_section:worldbook/characters.md##北原春希}}"
-        }
-      ]
-    },
-    {
-      "id": "wa2-worldbook-kazusa",
-      "when": {
-        "phase": "pre_send",
-        "last": {
-          "num": 3,
-          "role": { "in": ["user", "assistant"] },
-          "content": { "regex": "冬马|冬馬|和纱|和紗|Touma|Kazusa" }
-        }
-      },
-      "then": [
-        {
-          "type": "replace",
-          "predicate": { "_meta.source": "wa2_worldbook" },
-          "content": "{{original_content}} + {{raw_string:\n\n}} + {{file_section:worldbook/characters.md##冬马和纱}}"
-        }
-      ]
-    },
-    {
-      "id": "wa2-worldbook-setsuna",
-      "when": {
-        "phase": "pre_send",
-        "last": {
-          "num": 3,
-          "role": { "in": ["user", "assistant"] },
-          "content": { "regex": "雪菜|小木曾|小木曽|Ogiso|Setsuna" }
-        }
-      },
-      "then": [
-        {
-          "type": "replace",
-          "predicate": { "_meta.source": "wa2_worldbook" },
-          "content": "{{original_content}} + {{raw_string:\n\n}} + {{file_section:worldbook/characters.md##小木曾雪菜}}"
+          "content": {
+            "prefix": "本轮世界书:",
+            "include": [
+              { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "春希|北原|Kitahara|Haruki" } } }, "content": "{{file_section:worldbook/characters.md##北原春希}}" },
+              { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "冬马|冬馬|和纱|和紗|Touma|Kazusa" } } }, "content": "{{file_section:worldbook/characters.md##冬马和纱}}" },
+              { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "雪菜|小木曾|小木曽|Ogiso|Setsuna" } } }, "content": "{{file_section:worldbook/characters.md##小木曾雪菜}}" }
+            ],
+            "join": "\n\n"
+          }
         }
       ]
     },
@@ -250,6 +147,30 @@
           "content": "{{file_content:roleplay_rules.md}}",
           "ttl": 1,
           "_meta": { "source": "wa2_tail_hint", "visibility": "llm_only" }
+        }
+      ]
+    },
+    {
+      "id": "wa2-plot-direction-guide",
+      "when": { "phase": "pre_send" },
+      "then": [
+        { "type": "state.randomInt", "path": "temp.plotDirectionRoll", "min": 1, "max": 100 },
+        {
+          "type": "insert",
+          "predicate": { "index": "last" },
+          "anchor": "after",
+          "role": "system",
+          "ttl": 1,
+          "_meta": { "source": "wa2_plot_direction", "visibility": "llm_only" },
+          "content": {
+            "select": [
+              { "when": { "state": { "temp.plotDirectionRoll": { "lte": 10 } } }, "content": "本轮剧情走向: 很坏。让局面明显恶化，但不要强行制造灾难。可以让误会扩大、排练失败、关键话语被听错，或让某个角色选择逃避。结尾应留下沉重的余波，使下一轮必须处理信任、愧疚或三人关系的裂痕。" },
+              { "when": { "state": { "temp.plotDirectionRoll": { "gte": 11, "lte": 30 } } }, "content": "本轮剧情走向: 坏。让场面出现轻到中度挫折。可以安排尴尬沉默、计划受阻、角色把真实想法藏起来，或让春希的好意产生反效果。剧情仍可推进，但氛围应带有压抑和未说出口的刺。" },
+              { "when": { "state": { "temp.plotDirectionRoll": { "gte": 31, "lte": 70 } } }, "content": "本轮剧情走向: 自然。顺着用户选择和当前世界书推进，不刻意奖励也不刻意惩罚。重点描写白色相簿2式的日常细节、音乐排练、微妙视线和克制对话，让关系变化来自角色性格与前文因果。" },
+              { "when": { "state": { "temp.plotDirectionRoll": { "gte": 71, "lte": 90 } } }, "content": "本轮剧情走向: 好。让用户的选择带来温和正反馈。可以让排练更顺利、某个角色放下少许戒备、三人气氛短暂变好，或让一次小小的体贴被认真记住。不要过快表白，保持含蓄和现实阻力。" },
+              { "when": { "state": { "temp.plotDirectionRoll": { "gte": 91 } } }, "content": "本轮剧情走向: 很好。给出一次难得但克制的突破。可以让角色主动靠近、说出比平时更坦率的话、在音乐中产生强烈共鸣，或让三人短暂抵达近乎理想的瞬间。结尾仍要保留白色相簿2式的不安伏笔。" }
+            ]
+          }
         }
       ]
     }
