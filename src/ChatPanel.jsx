@@ -1,24 +1,22 @@
 import './ChatInputArea.jsx';
 import './components/GameCardTitleControl.jsx';
 import './components/ChatPanelMessageRenderers.js';
-// highlightQuotes exposes itself on window.highlightQuotes
 
 const RENDERER_POLL_INTERVAL = 100;
 const RENDERER_POLL_TIMEOUT = 5000;
 
-// ChatPanel Component
 function ChatPanel() {
   const R = window.React || React;
   const InputArea = window.ChatInputArea;
   const [messages, setMessages] = R.useState([]), [gameState, setGameState] = R.useState({});
   const [isLoading, setIsLoading] = R.useState(false), [modelConfig, setModelConfig] = R.useState(null);
+  const [activeGameCard, setActiveGameCard] = R.useState(null);
   const [showMsgHistory, setShowMsgHistory] = R.useState(false), [msgHistoryMessages, setMsgHistoryMessages] = R.useState(null);
   const [renderersReady, setRenderersReady] = R.useState(false), [showStreamThinking, setShowStreamThinking] = R.useState(true);
   const [isHeaderHovered, setIsHeaderHovered] = R.useState(false), [isInputHovered, setIsInputHovered] = R.useState(false);
   const [isInputTriggerHovered, setIsInputTriggerHovered] = R.useState(false), [isHistoryExpanded, setIsHistoryExpanded] = R.useState(false);
   const tw = window.useTypewriter(R);
-  const retryBaseRef = R.useRef(null);
-  const retryBaseStateRef = R.useRef(null);
+  const retryBaseRef = R.useRef(null), retryBaseStateRef = R.useRef(null);
   const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef);
 
   R.useEffect(() => {
@@ -31,10 +29,12 @@ function ChatPanel() {
   }, []);
 
   R.useEffect(() => {
-    async function loadConfig() {
-      if (window.electronAPI) { const result = await window.electronAPI.getModelConfig(); if (result.success) setModelConfig(result.config); }
+    async function loadInitialData() {
+      if (!window.electronAPI) return;
+      const [config, card] = await Promise.all([window.electronAPI.getModelConfig(), window.electronAPI.getActiveGameCard ? window.electronAPI.getActiveGameCard() : Promise.resolve(null)]);
+      if (config.success) setModelConfig(config.config); if (card?.success) setActiveGameCard(card.card || null);
     }
-    loadConfig();
+    loadInitialData();
   }, []);
 
   R.useEffect(() => {
@@ -44,9 +44,7 @@ function ChatPanel() {
   }, []);
 
   R.useEffect(() => {
-    if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
-      setIsHistoryExpanded(false);
-    }
+    if (messages.length > 0 && messages[messages.length - 1].role === 'user') setIsHistoryExpanded(false);
   }, [messages]);
 
   const handleToggleShowMsgHistory = () => {
@@ -62,17 +60,14 @@ function ChatPanel() {
   const handleClearHistory = (e) => { e.stopPropagation(); retryBaseRef.current = null; retryBaseStateRef.current = null; setMessages([]); setGameState({}); tw.clearStreaming(); setIsHistoryExpanded(false); };
 
   const toggleThinkingForMessage = (idx) => {
-    setMessages(prev => prev.map((msg, i) =>
-      i === idx ? { ...msg, _thinkingVisible: !msg._thinkingVisible } : msg
-    ));
+    setMessages(prev => prev.map((msg, i) => i === idx ? { ...msg, _thinkingVisible: !msg._thinkingVisible } : msg));
   };
 
   const renderers = window.ChatPanelRenderers;
   const collapseRenderer = window.MessageCollapseRenderer;
-  const renderMsgHistoryDisplay = (renderers && renderersReady) ? () => renderers.renderMsgHistoryDisplay(R, msgHistoryMessages) : () => null;
-  const msgRenderers = window.ChatPanelMessageRenderers;
+  const renderMsgHistoryDisplay = (renderers && renderersReady) ? () => renderers.renderMsgHistoryDisplay(R, msgHistoryMessages) : () => null, msgRenderers = window.ChatPanelMessageRenderers;
   const renderMarkdown = msgRenderers ? (text) => msgRenderers.renderMarkdown(R, text, window.marked, window.DOMPurify, window.highlightQuotes) : null;
-  const renderAssistantMsg = msgRenderers ? (msg, idx, isStreaming) => msgRenderers.renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, window.marked, window.DOMPurify, window.highlightQuotes) : null;
+  const renderAssistantMsg = msgRenderers ? (msg, idx, isStreaming) => msgRenderers.renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, window.marked, window.DOMPurify, window.highlightQuotes, activeGameCard?.display) : null;
   const renderRetryBtn = msgRenderers ? (isLast, isLoading) => msgRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry) : null;
   const GameCardControl = window.GameCardTitleControl;
 
@@ -100,9 +95,15 @@ function ChatPanel() {
   }, []);
 
   R.useEffect(() => { loadHistory(); }, [loadHistory]);
+  R.useEffect(() => { window.GameCardDisplayStyles?.loadGameCardDisplayStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
 
   R.useEffect(() => {
-    const handler = () => { retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming(); loadHistory(); };
+    const handler = async (e) => {
+      retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming();
+      if (e.detail !== undefined) setActiveGameCard(e.detail || null);
+      else if (window.electronAPI?.getActiveGameCard) { const card = await window.electronAPI.getActiveGameCard(); if (card.success) setActiveGameCard(card.card || null); }
+      loadHistory();
+    };
     window.addEventListener('game-card-changed', handler);
     return () => window.removeEventListener('game-card-changed', handler);
   }, [loadHistory, tw]);
@@ -164,7 +165,6 @@ function ChatPanel() {
     if (msgRenderers && renderMarkdown && renderAssistantMsg && renderRetryBtn) {
       return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
     }
-    // Fallback: renderers not loaded
     if (visibleMessages.length === 0) return C('div', { className: 'chat-empty' }, C('div', null, '加载中...'));
     return C('div', null, visibleMessages.map((msg, idx) => C('div', { key: idx }, msg.content)));
   };

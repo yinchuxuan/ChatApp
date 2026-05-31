@@ -3,6 +3,13 @@
   "id": "white-album-2",
   "name": "白色相簿2",
   "state": { "schemaFile": "state/schema.json" },
+  "display": { "stylesheet": "display.css", "assistant": [
+    { "id": "wa2-hide-summary-block", "stage": "before_markdown", "type": "regex_replace", "pattern": "\\n*---\\s*\\n\\s*<summary>[\\s\\S]*?<\\/summary>\\s*\\n\\s*---\\s*", "flags": "g", "replace": "\n\n" },
+    { "id": "wa2-hide-summary-tag", "stage": "before_markdown", "type": "regex_replace", "pattern": "<summary>[\\s\\S]*?<\\/summary>", "flags": "g", "replace": "" },
+    { "id": "wa2-hide-state-patch-block", "stage": "before_markdown", "type": "regex_replace", "pattern": "\\n*---\\s*\\n\\s*<state_patch>[\\s\\S]*?<\\/state_patch>\\s*\\n\\s*---\\s*", "flags": "g", "replace": "\n\n" },
+    { "id": "wa2-hide-state-patch-tag", "stage": "before_markdown", "type": "regex_replace", "pattern": "<state_patch>[\\s\\S]*?<\\/state_patch>", "flags": "g", "replace": "" },
+    { "id": "wa2-choice-card", "stage": "before_markdown", "type": "regex_replace", "pattern": "^([A-D])\\.\\s+(.+)$", "flags": "gm", "replace": "<div class=\"wa2-choice\"><span class=\"wa2-choice-label\">$1</span><span class=\"wa2-choice-text\">$2</span></div>" }
+  ] },
   "rules": [
     {
       "id": "wa2-system-prompt",
@@ -32,7 +39,7 @@
           "type": "insert",
           "role": "system",
           "content": "{{raw_string:好感度变量定义:\n}} + {{file_content:state/schema.json}} + {{raw_string:\n\n当前好感度:\n冬马和纱: }} + {{state:touma.affection}} + {{raw_string:\n小木曾雪菜: }} + {{state:setsuna.affection}}",
-          "_meta": { "source": "wa2_affection_status", "visibility": "user_visible" }
+          "_meta": { "source": "wa2_affection_status", "visibility": "llm_only" }
         },
         {
           "type": "insert",

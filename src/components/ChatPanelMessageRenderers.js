@@ -21,11 +21,19 @@ const ChatPanelMessageRenderers = {
     );
   },
 
-  renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, marked, DOMPurify, highlightQuotes) {
+  getDisplayRules() {
+    if (typeof window !== 'undefined' && window.GameCardDisplayRules) return window.GameCardDisplayRules;
+    if (typeof require !== 'undefined') return require('../gameCard/displayRules');
+    return null;
+  },
+
+  renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, marked, DOMPurify, highlightQuotes, display) {
     const thinking = isStreaming ? currentThinking : msg._thinking;
     const showThinking = isStreaming ? showStreamThinking : (msg._thinkingVisible === true);
     const rawContent = isStreaming ? msg.slice(0, tw.displayedCount) : msg.content;
-    const rawHtml = marked ? marked.parse(rawContent) : rawContent;
+    const rules = this.getDisplayRules();
+    const displayContent = rules ? rules.applyAssistantDisplayRules(rawContent, display) : rawContent;
+    const rawHtml = marked ? marked.parse(displayContent) : displayContent;
     const sanitizedHtml = DOMPurify ? DOMPurify.sanitize(rawHtml) : rawHtml;
     const html = highlightQuotes(sanitizedHtml);
     const bubbleClass = thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
@@ -73,8 +81,8 @@ const ChatPanelMessageRenderers = {
         const renderIndex = msg._renderIndex ?? idx;
         if (msg.role === 'assistant') {
           return R.createElement('div', { key: idx, className: 'chat-message-row' },
-            R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-              msg._thinking ? renderAssistantMsg(msg, renderIndex, false) : renderMarkdown(msg.content)
+              R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+              renderAssistantMsg(msg, renderIndex, false)
             )
           );
         }

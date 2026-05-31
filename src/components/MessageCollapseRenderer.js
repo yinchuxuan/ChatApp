@@ -113,7 +113,7 @@ const MessageCollapseRenderer = {
           elements.push(
             R.createElement('div', { key: 'hist-' + i, className: 'chat-message-row' },
               R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-                msg._thinking ? renderAssistantMsg(msg, renderIndex, false) : renderMarkdown(msg.content)
+                renderAssistantMsg(msg, renderIndex, false)
               )
             )
           );
@@ -144,7 +144,7 @@ const MessageCollapseRenderer = {
         elements.push(
           R.createElement('div', { key: 'pinned-' + i, className: 'chat-message-row' },
             R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
-              msg._thinking ? renderAssistantMsg(msg, renderIndex, false) : renderMarkdown(msg.content)
+              renderAssistantMsg(msg, renderIndex, false)
             )
           )
         );

@@ -1,0 +1,34 @@
+.chat-bubble-content .wa2-choice {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  margin: 0.45rem 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--md-outline-variant) 70%, transparent);
+  border-left: 3px solid var(--md-primary);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--md-surface-container-high) 72%, transparent);
+}
+
+.chat-bubble-content .wa2-choice-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.chat-bubble-content .wa2-choice-text {
+  min-width: 0;
+  line-height: 1.65;
+}
+
+[data-theme="dark"] .chat-bubble-content .wa2-choice {
+  background: color-mix(in srgb, var(--md-surface-container-highest) 78%, transparent);
+}

@@ -12,12 +12,12 @@
     "description": { "type": "string" },
     "author": { "type": "string" },
     "state": { "type": "object" },
-    "rules": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/rule" }
-    }
+    "rules": { "type": "array", "items": { "$ref": "#/definitions/rule" } },
+    "display": { "$ref": "#/definitions/display" }
   },
   "definitions": {
+    "display": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^[^/\\\\][^\\\\]*$" }, "assistant": { "type": "array", "items": { "$ref": "#/definitions/displayRule" } } } },
+    "displayRule": { "type": "object", "additionalProperties": false, "required": ["stage", "type", "pattern"], "properties": { "id": { "type": "string", "minLength": 1 }, "enabled": { "type": "boolean" }, "stage": { "const": "before_markdown" }, "type": { "const": "regex_replace" }, "pattern": { "type": "string", "maxLength": 1000 }, "flags": { "type": "string", "pattern": "^[gimsu]*$" }, "replace": { "type": "string" } } },
     "rule": {
       "type": "object",
       "additionalProperties": false,
