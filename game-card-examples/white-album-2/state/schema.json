@@ -19,6 +19,20 @@
       "description": "小木曾雪菜对玩家/春希当前路线的好感度",
       "llmRead": true,
       "uiVisible": true
+    },
+    "timeline.currentTime": {
+      "type": "string",
+      "default": "2007.10.20:下午",
+      "description": "当前剧情时间，格式为xxxx.xx.xx:上午/下午/晚上",
+      "llmRead": true,
+      "llmWrite": true
+    },
+    "status.setsunaContestAccepted": {
+      "type": "boolean",
+      "default": false,
+      "description": "小木曾雪菜是否同意参加峰城大附属小姐竞选",
+      "llmRead": true,
+      "llmWrite": true
     }
   }
 }

@@ -5,6 +5,8 @@ const { applyAssistantDisplayRules } = require('../../src/gameCard/displayRules'
 const renderers = require('../../src/components/ChatPanelMessageRenderers');
 
 const sample = [
+  '【时间地点】2007.10.20:下午｜峰城大附属第二音乐室',
+  '',
   '春希把吉他放回原处。',
   '',
   '---',
@@ -32,6 +34,9 @@ describe('white album display rules', () => {
   test('hide summary and state patch while wrapping choices', () => {
     const output = applyAssistantDisplayRules(sample, card.display);
 
+    expect(output).toContain('class="wa2-scene-meta"');
+    expect(output).toContain('class="wa2-scene-time">2007.10.20:下午</span>');
+    expect(output).toContain('class="wa2-scene-place">峰城大附属第二音乐室</span>');
     expect(output).toContain('春希把吉他放回原处。');
     expect(output).not.toContain('<summary>');
     expect(output).not.toContain('隐藏总结');
@@ -67,6 +72,7 @@ describe('white album display rules', () => {
 
     expect(content.textContent).not.toContain('隐藏总结');
     expect(content.textContent).not.toContain('touma.affection');
+    expect(content.querySelector('.wa2-scene-meta')).not.toBeNull();
     expect(content.querySelectorAll('.wa2-choice')).toHaveLength(4);
   });
 });

@@ -6,6 +6,13 @@ const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const fileContents = {
   'first_msg.md': '开场',
   'roleplay_rules.md': '规则',
+  'plot_guides.md': [
+    '# 剧情引导',
+    '## 三人初识',
+    '开头窗口',
+    '## 后续剧情窗口',
+    '后续窗口'
+  ].join('\n'),
   'state/schema.json': JSON.stringify(stateSchema),
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '春希基础',
@@ -28,21 +35,23 @@ function run(content, gameState) {
     fileContents
   });
   return {
-    status: result.messages.find((msg) => msg._meta?.source === 'wa2_affection_status').content,
+    status: result.messages.find((msg) => msg._meta?.source === 'wa2_state_context').content,
+    guide: result.messages.find((msg) => msg._meta?.source === 'wa2_timeline_guide').content,
     worldbook: result.messages.find((msg) => msg._meta?.source === 'wa2_worldbook').content
   };
 }
 
 describe('white album affection status', () => {
-  test('writes affection attitudes into the state status message', () => {
+  test('writes affection attitudes into the timeline guide', () => {
     const low = run('今天去找冬马排练', state({ touma: { affection: 12 }, setsuna: { affection: 65 } }));
     const high = run('今天去找冬马排练', state({ touma: { affection: 88 }, setsuna: { affection: 90 } }));
 
-    expect(low.status).toContain('人物态度');
-    expect(low.status).toContain('冬马和纱: 保持明显距离');
-    expect(low.status).toContain('小木曾雪菜: 已明显依赖春希');
-    expect(high.status).toContain('冬马和纱: 对春希的依恋强烈而压抑');
-    expect(high.status).toContain('小木曾雪菜: 对春希的感情接近无法回避');
+    expect(low.status).not.toContain('人物态度');
+    expect(low.guide).toContain('本轮好感度和随机数影响');
+    expect(low.guide).toContain('冬马和纱: 保持明显距离');
+    expect(low.guide).toContain('小木曾雪菜: 已明显依赖春希');
+    expect(high.guide).toContain('冬马和纱: 对春希的依恋强烈而压抑');
+    expect(high.guide).toContain('小木曾雪菜: 对春希的感情接近无法回避');
   });
 
   test('keeps affection attitudes out of worldbook content', () => {

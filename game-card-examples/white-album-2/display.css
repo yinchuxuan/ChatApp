@@ -1,3 +1,28 @@
+.chat-bubble-content .wa2-scene-meta {
+  margin: 0 0 0.85rem;
+  padding: 0.55rem 0.75rem;
+  border-left: 3px solid var(--md-tertiary);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--md-tertiary-container) 48%, transparent);
+  color: var(--md-on-tertiary-container);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.chat-bubble-content .wa2-scene-time,
+.chat-bubble-content .wa2-scene-place {
+  display: block;
+}
+
+.chat-bubble-content .wa2-scene-time {
+  font-weight: 700;
+}
+
+.chat-bubble-content .wa2-scene-place {
+  margin-top: 0.15rem;
+  opacity: 0.86;
+}
+
 .chat-bubble-content .wa2-choice {
   display: grid;
   grid-template-columns: 2rem minmax(0, 1fr);
