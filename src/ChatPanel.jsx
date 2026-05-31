@@ -1,6 +1,5 @@
-import './ChatInputArea.jsx';
-import './components/GameCardTitleControl.jsx';
-import './components/ChatPanelMessageRenderers.js';
+import './ChatInputArea.jsx'; import './components/ChatSessionManager.jsx';
+import './components/GameCardTitleControl.jsx'; import './components/ChatPanelMessageRenderers.js';
 
 const RENDERER_POLL_INTERVAL = 100;
 const RENDERER_POLL_TIMEOUT = 5000;
@@ -58,7 +57,6 @@ function ChatPanel() {
   };
 
   const handleClearHistory = (e) => { e.stopPropagation(); retryBaseRef.current = null; retryBaseStateRef.current = null; setMessages([]); setGameState({}); tw.clearStreaming(); setIsHistoryExpanded(false); };
-
   const toggleThinkingForMessage = (idx) => {
     setMessages(prev => prev.map((msg, i) => i === idx ? { ...msg, _thinkingVisible: !msg._thinkingVisible } : msg));
   };
@@ -70,10 +68,8 @@ function ChatPanel() {
   const renderAssistantMsg = msgRenderers ? (msg, idx, isStreaming) => msgRenderers.renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, window.marked, window.DOMPurify, window.highlightQuotes, activeGameCard?.display) : null;
   const renderRetryBtn = msgRenderers ? (isLast, isLoading) => msgRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry) : null;
   const GameCardControl = window.GameCardTitleControl;
-
   const chatHistoryRef = R.useRef(null), initialLoadDone = R.useRef(false);
   const pinnedScrollAppliedRef = R.useRef(false), lastPinnedUserContentRef = R.useRef(null);
-
   const loadHistory = R.useCallback(async () => {
     if (window.electronAPI) {
       const result = await window.electronAPI.getChatHistory();
@@ -96,6 +92,8 @@ function ChatPanel() {
 
   R.useEffect(() => { loadHistory(); }, [loadHistory]);
   R.useEffect(() => { window.GameCardDisplayStyles?.loadGameCardDisplayStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
+  const saveCurrentSession = R.useCallback(async () => { if (window.electronAPI && !isLoading) await window.electronAPI.saveChatHistory(messages, { gameState, retryBaseMessages: retryBaseRef.current, retryBaseState: retryBaseStateRef.current }); }, [messages, gameState, isLoading]);
+  const handleSessionChanged = R.useCallback(async () => { retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming(); setIsHistoryExpanded(false); await loadHistory(); }, [loadHistory, tw]);
 
   R.useEffect(() => {
     const handler = async (e) => {
@@ -107,7 +105,6 @@ function ChatPanel() {
     window.addEventListener('game-card-changed', handler);
     return () => window.removeEventListener('game-card-changed', handler);
   }, [loadHistory, tw]);
-
   R.useEffect(() => {
     if (!initialLoadDone.current) return;
     if (isLoading) return;
@@ -175,7 +172,9 @@ function ChatPanel() {
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
         showMsgHistory ? C('span', { className: 'material-icons' }, 'history') : null,
         showMsgHistory ? C('span', { className: 'header-title' }, 'msg历史记录') : (GameCardControl ? C(GameCardControl, {
-          modelName: modelConfig && modelConfig.apiUrl ? (modelConfig.modelName || '已连接') : ''
+          modelName: modelConfig && modelConfig.apiUrl ? (modelConfig.modelName || '已连接') : '',
+          onBeforeSessionChange: saveCurrentSession,
+          onSessionChanged: handleSessionChanged
         }) : C('span', { className: 'header-title' }, '未加载游戏卡')),
         messages.length > 0 && C('button', {
           className: 'chat-header-clear-btn md-btn md-btn-icon',

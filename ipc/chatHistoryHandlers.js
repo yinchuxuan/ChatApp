@@ -1,46 +1,8 @@
 const path = require('path');
-const { isSafeGameCardId } = require('./gameCardStorage');
-
-const DEFAULT_SESSION_ID = 'default';
-
-function getActiveCardId(fs, gameCardsDir) {
-  const activePath = path.join(gameCardsDir, 'active.json');
-  if (!fs.existsSync(activePath)) return null;
-  try {
-    const active = JSON.parse(fs.readFileSync(activePath, 'utf-8'));
-    return active && isSafeGameCardId(active.id) ? active.id : null;
-  } catch {
-    return null;
-  }
-}
-
-function getSessionRoot(fs, gameCardsDir) {
-  const cardsDir = path.join(gameCardsDir, 'cards');
-  const activeId = getActiveCardId(fs, gameCardsDir);
-  if (activeId) {
-    const cardPath = path.join(cardsDir, activeId, 'card.json');
-    if (fs.existsSync(cardPath)) return path.join(cardsDir, activeId, 'sessions');
-  }
-  return path.join(gameCardsDir, 'no-card', 'sessions');
-}
-
-function getMessagesPath(fs, gameCardsDir) {
-  const sessionRoot = getSessionRoot(fs, gameCardsDir);
-  const activeSessionPath = path.join(sessionRoot, 'active.json');
-  let sessionId = DEFAULT_SESSION_ID;
-  if (fs.existsSync(activeSessionPath)) {
-    try {
-      const activeSession = JSON.parse(fs.readFileSync(activeSessionPath, 'utf-8'));
-      if (activeSession && isSafeGameCardId(activeSession.id)) sessionId = activeSession.id;
-    } catch {
-      sessionId = DEFAULT_SESSION_ID;
-    }
-  }
-  return path.join(sessionRoot, sessionId, 'messages.json');
-}
+const sessions = require('./chatSessionStore');
 
 function getRetryBasePath(fs, gameCardsDir) {
-  return path.join(path.dirname(getMessagesPath(fs, gameCardsDir)), 'retry-base.json');
+  return sessions.getRetryBasePath(fs, gameCardsDir);
 }
 
 function cleanMessages(messages) {
@@ -140,11 +102,11 @@ function migrateLegacyHistory(fs, messagesPath, legacyChatHistoryPath) {
 }
 
 function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, legacyChatHistoryPath) {
-  migrateLegacyHistory(fs, getMessagesPath(fs, gameCardsDir), legacyChatHistoryPath);
+  migrateLegacyHistory(fs, sessions.getMessagesPath(fs, gameCardsDir), legacyChatHistoryPath);
 
   ipcMain.handle('get-chat-history', () => {
     try {
-      const messagesPath = getMessagesPath(fs, gameCardsDir);
+      const messagesPath = sessions.getMessagesPath(fs, gameCardsDir);
       if (fs.existsSync(messagesPath)) {
         const content = fs.readFileSync(messagesPath, 'utf-8');
         const history = parseHistoryContent(content);
@@ -166,7 +128,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, legacyChatHistor
 
   ipcMain.handle('save-chat-history', (event, payload, options = {}) => {
     try {
-      const messagesPath = getMessagesPath(fs, gameCardsDir);
+      const messagesPath = sessions.getMessagesPath(fs, gameCardsDir);
       ensureSessionFiles(fs, messagesPath);
       const retryBasePath = getRetryBasePath(fs, gameCardsDir);
       const retryBase = cleanRetryBase(options);
@@ -177,9 +139,59 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, legacyChatHistor
       };
       fs.writeFileSync(messagesPath, JSON.stringify(cleanedHistory, null, 2), 'utf-8');
       fs.writeFileSync(retryBasePath, JSON.stringify(retryBase, null, 2), 'utf-8');
+      sessions.updateSessionMeta(fs, gameCardsDir, cleanedHistory.messages);
       return { success: true };
     } catch (err) {
       console.error('Error saving chat history:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle('list-chat-sessions', () => {
+    try {
+      return { success: true, ...sessions.listSessions(fs, gameCardsDir) };
+    } catch (err) {
+      return { success: false, error: err.message, sessions: [], activeId: null };
+    }
+  });
+
+  ipcMain.handle('get-active-chat-session', () => {
+    try {
+      const list = sessions.listSessions(fs, gameCardsDir);
+      return { success: true, session: list.sessions.find(item => item.id === list.activeId) || null };
+    } catch (err) {
+      return { success: false, error: err.message, session: null };
+    }
+  });
+
+  ipcMain.handle('create-chat-session', (event, title) => {
+    try {
+      return { success: true, ...sessions.createSession(fs, gameCardsDir, title) };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle('set-active-chat-session', (event, id) => {
+    try {
+      return { success: true, ...sessions.setActiveSession(fs, gameCardsDir, id) };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle('rename-chat-session', (event, id, title) => {
+    try {
+      return { success: true, session: sessions.renameSession(fs, gameCardsDir, id, title) };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle('delete-chat-session', (event, id) => {
+    try {
+      return { success: true, ...sessions.deleteSession(fs, gameCardsDir, id) };
+    } catch (err) {
       return { success: false, error: err.message };
     }
   });

@@ -35,6 +35,12 @@ class ElectronAppHelper extends ElectronAppHelperCore {
   readBackgroundImage(filePath) { return this._ipcHelper.readBackgroundImage(filePath); }
   saveChatHistory(messages) { return this._ipcHelper.saveChatHistory(messages); }
   getChatHistory() { return this._ipcHelper.getChatHistory(); }
+  listChatSessions() { return this._ipcHelper.listChatSessions(); }
+  getActiveChatSession() { return this._ipcHelper.getActiveChatSession(); }
+  createChatSession(title) { return this._ipcHelper.createChatSession(title); }
+  setActiveChatSession(id) { return this._ipcHelper.setActiveChatSession(id); }
+  renameChatSession(id, title) { return this._ipcHelper.renameChatSession(id, title); }
+  deleteChatSession(id) { return this._ipcHelper.deleteChatSession(id); }
   getGameCards() { return this._ipcHelper.getGameCards(); }
   getGameCard(id) { return this._ipcHelper.getGameCard(id); }
   saveGameCard(card) { return this._ipcHelper.saveGameCard(card); }

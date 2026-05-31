@@ -59,7 +59,7 @@ describe('white album plot direction guide', () => {
     expect(guide.ttl).toBe(1);
     expect(guide._meta).toEqual({ source: 'wa2_timeline_guide', visibility: 'llm_only' });
     expect(guide.content).toContain('开头窗口');
-    expect(guide.content).toContain('随机数即时影响');
+    expect(guide.content).toContain('本轮好感度和随机数影响');
     expect(guide.content).toContain('本轮剧情走向: 很好');
     expect(guide.content).toContain('难得但克制的突破');
     expect(rules._meta).toEqual({ source: 'wa2_tail_hint', visibility: 'llm_only' });

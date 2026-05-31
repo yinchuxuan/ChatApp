@@ -56,6 +56,48 @@ class ElectronAppHelperIPC {
     });
   }
 
+  async listChatSessions() {
+    return await this.window.evaluate(async () => {
+      if (window.electronAPI) return await window.electronAPI.listChatSessions();
+      return { success: false, error: 'electronAPI not available' };
+    });
+  }
+
+  async createChatSession(title) {
+    return await this.window.evaluate(async ({ title }) => {
+      if (window.electronAPI) return await window.electronAPI.createChatSession(title);
+      return { success: false, error: 'electronAPI not available' };
+    }, { title });
+  }
+
+  async getActiveChatSession() {
+    return await this.window.evaluate(async () => {
+      if (window.electronAPI) return await window.electronAPI.getActiveChatSession();
+      return { success: false, error: 'electronAPI not available' };
+    });
+  }
+
+  async setActiveChatSession(id) {
+    return await this.window.evaluate(async ({ id }) => {
+      if (window.electronAPI) return await window.electronAPI.setActiveChatSession(id);
+      return { success: false, error: 'electronAPI not available' };
+    }, { id });
+  }
+
+  async renameChatSession(id, title) {
+    return await this.window.evaluate(async ({ id, title }) => {
+      if (window.electronAPI) return await window.electronAPI.renameChatSession(id, title);
+      return { success: false, error: 'electronAPI not available' };
+    }, { id, title });
+  }
+
+  async deleteChatSession(id) {
+    return await this.window.evaluate(async ({ id }) => {
+      if (window.electronAPI) return await window.electronAPI.deleteChatSession(id);
+      return { success: false, error: 'electronAPI not available' };
+    }, { id });
+  }
+
   async getGameCards() {
     return await this.window.evaluate(async () => {
       if (window.electronAPI) return await window.electronAPI.getGameCards();

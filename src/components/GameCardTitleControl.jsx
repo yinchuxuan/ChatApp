@@ -1,4 +1,4 @@
-function GameCardTitleControl({ modelName }) {
+function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged }) {
   const [card, setCard] = React.useState(null);
   const [error, setError] = React.useState('');
   const [isImporting, setIsImporting] = React.useState(false);
@@ -29,6 +29,7 @@ function GameCardTitleControl({ modelName }) {
   };
 
   const title = card ? (card.name || card.id) : '未加载游戏卡';
+  const SessionManager = window.ChatSessionManager;
 
   return (
     <div className={`game-card-title-control ${card ? 'loaded' : ''}`} title={error || title}>
@@ -37,6 +38,7 @@ function GameCardTitleControl({ modelName }) {
         <span className="game-card-title-name">{title}</span>
       </div>
       {modelName ? <span className="config-status configured game-card-model-status">{modelName}</span> : null}
+      {SessionManager ? <SessionManager onBeforeSessionChange={onBeforeSessionChange} onSessionChanged={onSessionChanged} /> : null}
       <button
         className="game-card-import-btn md-btn md-btn-icon"
         onClick={handleImport}
