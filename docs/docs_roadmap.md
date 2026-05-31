@@ -7,5 +7,3 @@ ui design spec: docs/ui_design_spec.md
 architecture: docs/architecture.md
 build and test: docs/build_and_test.md
 game card design: docs/game_card_design.md
-state design: docs/STATE_DESIGN.md
-state implementation_plan: docs/state_implementation_plan.md
