@@ -22,8 +22,8 @@
     },
     "timeline.currentTime": {
       "type": "string",
-      "default": "2007.10.20:下午",
-      "description": "当前剧情时间，格式为xxxx.xx.xx:上午/下午/晚上",
+      "default": "2007.10.20: 15:00",
+      "description": "当前剧情时间，格式为xxxx.xx.xx: HH:mm",
       "llmRead": true,
       "llmWrite": true
     },

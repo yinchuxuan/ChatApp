@@ -36,6 +36,47 @@ describe('game card display rules', () => {
       .toContain('<div class="rp-speaker">雪菜</div>');
   });
 
+  test('applies user rules independently from assistant rules', () => {
+    const display = {
+      user: [{
+        stage: 'before_markdown',
+        type: 'regex_replace',
+        pattern: '\\n*<hidden>[\\s\\S]*?<\\/hidden>',
+        flags: 'g',
+        replace: ''
+      }]
+    };
+
+    expect(displayRules.applyUserDisplayRules('玩家输入\n<hidden>prompt</hidden>', display))
+      .toBe('玩家输入');
+    expect(displayRules.applyAssistantDisplayRules('玩家输入\n<hidden>prompt</hidden>', display))
+      .toContain('prompt');
+  });
+
+  test('user renderer applies rules before markdown rendering', () => {
+    const element = renderers.renderUserMsg(
+      React,
+      { role: 'user', content: 'Hello **there**\n<hidden>prompt</hidden>' },
+      window.marked,
+      window.DOMPurify,
+      value => value,
+      {
+        user: [{
+          stage: 'before_markdown',
+          type: 'regex_replace',
+          pattern: '\\n*<hidden>[\\s\\S]*?<\\/hidden>',
+          flags: 'g',
+          replace: ''
+        }]
+      }
+    );
+
+    const { container } = render(element);
+    const html = container.querySelector('.chat-bubble-content').innerHTML;
+    expect(html).toContain('<strong>there</strong>');
+    expect(html).not.toContain('prompt');
+  });
+
   test('skips invalid flags and unsupported stages', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const display = {

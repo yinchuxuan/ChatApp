@@ -65,6 +65,7 @@ function ChatPanel() {
   const collapseRenderer = window.MessageCollapseRenderer;
   const renderMsgHistoryDisplay = (renderers && renderersReady) ? () => renderers.renderMsgHistoryDisplay(R, msgHistoryMessages) : () => null, msgRenderers = window.ChatPanelMessageRenderers;
   const renderMarkdown = msgRenderers ? (text) => msgRenderers.renderMarkdown(R, text, window.marked, window.DOMPurify, window.highlightQuotes) : null;
+  const renderUserMarkdown = msgRenderers ? (text) => msgRenderers.renderUserMsg(R, { content: text }, window.marked, window.DOMPurify, window.highlightQuotes, activeGameCard?.display) : null;
   const renderAssistantMsg = msgRenderers ? (msg, idx, isStreaming) => msgRenderers.renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, window.marked, window.DOMPurify, window.highlightQuotes, activeGameCard?.display) : null;
   const renderRetryBtn = msgRenderers ? (isLast, isLoading) => msgRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry) : null;
   const GameCardControl = window.GameCardTitleControl;
@@ -159,8 +160,8 @@ function ChatPanel() {
     const visibleMessages = msgRenderers ? msgRenderers.filterDialogueMessages(messages) : messages.filter(msg =>
       (['user', 'assistant'].includes(msg?.role) || msg?._meta?.visibility === 'user_visible') &&
       msg?._meta?.visibility !== 'llm_only' && msg?._meta?.visibility !== 'debug_only');
-    if (msgRenderers && renderMarkdown && renderAssistantMsg && renderRetryBtn) {
-      return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
+    if (msgRenderers && renderUserMarkdown && renderAssistantMsg && renderRetryBtn) {
+      return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderUserMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
     }
     if (visibleMessages.length === 0) return C('div', { className: 'chat-empty' }, C('div', null, '加载中...'));
     return C('div', null, visibleMessages.map((msg, idx) => C('div', { key: idx }, msg.content)));

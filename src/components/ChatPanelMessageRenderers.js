@@ -21,6 +21,14 @@ const ChatPanelMessageRenderers = {
     );
   },
 
+  renderUserMsg(R, msg, marked, DOMPurify, highlightQuotes, display) {
+    const rules = this.getDisplayRules();
+    const content = rules?.applyUserDisplayRules
+      ? rules.applyUserDisplayRules(msg.content, display)
+      : msg.content;
+    return this.renderMarkdown(R, content, marked, DOMPurify, highlightQuotes);
+  },
+
   getDisplayRules() {
     if (typeof window !== 'undefined' && window.GameCardDisplayRules) return window.GameCardDisplayRules;
     if (typeof require !== 'undefined') return require('../gameCard/displayRules');

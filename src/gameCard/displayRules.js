@@ -33,23 +33,35 @@ function applyRegexReplace(content, rule) {
   }
 }
 
-function getAssistantRules(display) {
-  const rules = display?.assistant;
+function getRules(display, role) {
+  const rules = display?.[role];
   return Array.isArray(rules) ? rules.slice(0, MAX_RULES) : [];
 }
 
-function applyAssistantDisplayRules(content, display) {
+function applyDisplayRules(content, display, role) {
   if (typeof content !== 'string' || content.length > MAX_INPUT_LENGTH) return content;
-  return getAssistantRules(display).reduce((text, rule) => {
+  return getRules(display, role).reduce((text, rule) => {
     if (!rule || typeof rule !== 'object' || rule.enabled === false) return text;
     return applyRegexReplace(text, rule);
   }, content);
 }
 
+function getAssistantRules(display) {
+  return getRules(display, 'assistant');
+}
+
+function applyAssistantDisplayRules(content, display) {
+  return applyDisplayRules(content, display, 'assistant');
+}
+
+function applyUserDisplayRules(content, display) {
+  return applyDisplayRules(content, display, 'user');
+}
+
 if (typeof window !== 'undefined') {
-  window.GameCardDisplayRules = { applyAssistantDisplayRules, getAssistantRules };
+  window.GameCardDisplayRules = { applyAssistantDisplayRules, applyUserDisplayRules, getAssistantRules, getRules };
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { applyAssistantDisplayRules, getAssistantRules };
+  module.exports = { applyAssistantDisplayRules, applyUserDisplayRules, getAssistantRules, getRules };
 }

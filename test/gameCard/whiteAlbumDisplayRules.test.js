@@ -1,11 +1,11 @@
 const React = require('react');
 const { render } = require('@testing-library/react');
 const card = require('../../game-card-examples/white-album-2/card.json');
-const { applyAssistantDisplayRules } = require('../../src/gameCard/displayRules');
+const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/gameCard/displayRules');
 const renderers = require('../../src/components/ChatPanelMessageRenderers');
 
 const sample = [
-  '【时间地点】2007.10.20:下午｜峰城大附属第二音乐室',
+  '【时间地点】2007.10.20: 15:00｜峰城大附属第二音乐室',
   '',
   '春希把吉他放回原处。',
   '',
@@ -35,7 +35,7 @@ describe('white album display rules', () => {
     const output = applyAssistantDisplayRules(sample, card.display);
 
     expect(output).toContain('class="wa2-scene-meta"');
-    expect(output).toContain('class="wa2-scene-time">2007.10.20:下午</span>');
+    expect(output).toContain('class="wa2-scene-time">2007.10.20: 15:00</span>');
     expect(output).toContain('class="wa2-scene-place">峰城大附属第二音乐室</span>');
     expect(output).toContain('春希把吉他放回原处。');
     expect(output).not.toContain('<summary>');
@@ -49,6 +49,23 @@ describe('white album display rules', () => {
 
   test('keeps option CSS as a game card resource', () => {
     expect(card.display.stylesheet).toBe('display.css');
+  });
+
+  test('hides appended user turn context while keeping player input', () => {
+    const content = [
+      '去第三音乐室继续练习。',
+      '',
+      '---',
+      '',
+      '<wa2_turn_context>',
+      '### 本轮剧情引导',
+      '隐藏的剧情提示',
+      '</wa2_turn_context>'
+    ].join('\n');
+
+    const output = applyUserDisplayRules(content, card.display);
+    expect(output.trim()).toBe('去第三音乐室继续练习。');
+    expect(output).not.toContain('剧情提示');
   });
 
   test('assistant renderer applies white album display rules before markdown', () => {

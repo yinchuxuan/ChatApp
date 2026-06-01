@@ -36,7 +36,7 @@ function run(content, gameState) {
   });
   return {
     status: result.messages.find((msg) => msg._meta?.source === 'wa2_state_context').content,
-    guide: result.messages.find((msg) => msg._meta?.source === 'wa2_timeline_guide').content,
+    guide: result.messages.find((msg) => msg.role === 'user').content,
     worldbook: result.messages.find((msg) => msg._meta?.source === 'wa2_worldbook').content
   };
 }

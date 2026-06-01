@@ -23,7 +23,10 @@ const fileContents = {
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '世界书：北原春希',
     '## 冬马和纱', '世界书：冬马和纱',
-    '## 小木曾雪菜', '世界书：小木曾雪菜'
+    '## 小木曾雪菜', '世界书：小木曾雪菜',
+    '## 饭冢武也', '世界书：饭冢武也',
+    '## 水泽依绪', '世界书：水泽依绪',
+    '## 柳原朋', '世界书：柳原朋'
   ].join('\n')
 };
 
@@ -92,7 +95,7 @@ describe('white album 2 game card', () => {
     expect(status._meta.visibility).toBe('llm_only');
     expect(status.content).toContain('"touma.affection"');
     expect(status.content).toContain('"setsuna.affection"');
-    expect(status.content).toContain('timeline.currentTime: 2007.10.20:下午');
+    expect(status.content).toContain('timeline.currentTime: 2007.10.20: 15:00');
     expect(status.content).toContain('touma.affection: 12');
     expect(status.content).toContain('setsuna.affection: 8');
     expect(status.content).toContain('status.setsunaContestAccepted: false');
@@ -100,9 +103,10 @@ describe('white album 2 game card', () => {
 
   test('tail roleplay rules tell the llm how to update affection state', () => {
     const result = applyWhiteAlbum([user('继续')]);
-    const hint = result.messages.find((msg) => msg._meta?.source === 'wa2_tail_hint');
+    const hint = result.messages.find((msg) => msg.role === 'user');
     const stateContext = result.messages.find((msg) => msg._meta?.source === 'wa2_state_context');
 
+    expect(hint.content).toContain('<wa2_turn_context>');
     expect(hint.content).toContain('<state_patch>');
     expect(stateContext.content).toContain('State更新规则');
     expect(stateContext.content).toContain('state.set');
@@ -131,15 +135,10 @@ describe('white album 2 game card', () => {
     expect(result.trace.errors).toEqual([]);
     expect(summary.content).toContain('- 雪菜邀请春希排练。');
     expect(summary.content).not.toContain('暂无\n-');
-    expect(users).toEqual([
-      user('最新选择'),
-      {
-        role: 'user',
-        content: fileContents['roleplay_rules.md'],
-        ttl: 1,
-        _meta: { source: 'wa2_tail_hint', visibility: 'llm_only' }
-      }
-    ]);
+    expect(users).toHaveLength(1);
+    expect(users[0].content).toContain('最新选择');
+    expect(users[0].content).toContain('<wa2_turn_context>');
+    expect(users[0].content).toContain(fileContents['roleplay_rules.md']);
     expect(result.messages.some((msg) => {
       return msg.role === 'assistant' && msg.content.includes('<summary>');
     })).toBe(false);
@@ -170,7 +169,7 @@ describe('white album 2 game card', () => {
   });
 
   test('appends character worldbook entries into the fixed worldbook message', () => {
-    const result = applyWhiteAlbum([user('春希想约冬马和雪菜一起排练')]);
+    const result = applyWhiteAlbum([user('春希想约冬马、雪菜、武也、依绪和柳原朋一起排练')]);
     const worldbook = result.messages.filter((msg) => msg._meta?.source === 'wa2_worldbook');
     const cardText = JSON.stringify(card.rules);
 
@@ -180,9 +179,13 @@ describe('white album 2 game card', () => {
     expect(worldbook).toHaveLength(1);
     expect(worldbook[0].role).toBe('system');
     expect(worldbook[0].ttl).toBe(1);
-    expect(worldbook[0].content).toContain('本轮世界书:');
+    expect(worldbook[0].content).toContain('世界书索引:');
+    expect(worldbook[0].content).toContain('本轮命中的世界书条目:');
     expect(worldbook[0].content).toContain('北原春希');
     expect(worldbook[0].content).toContain('冬马和纱');
     expect(worldbook[0].content).toContain('小木曾雪菜');
+    expect(worldbook[0].content).toContain('饭冢武也');
+    expect(worldbook[0].content).toContain('水泽依绪');
+    expect(worldbook[0].content).toContain('柳原朋');
   });
 });

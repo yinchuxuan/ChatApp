@@ -43,11 +43,10 @@ describe('white album plot direction guide', () => {
     if (Math.random.mockRestore) Math.random.mockRestore();
   });
 
-  test('adds plot direction to the one-turn timeline guide before roleplay rules', () => {
+  test('appends plot direction and roleplay rules to the latest user message', () => {
     const result = runWithRandom(0.99);
-    const guide = result.messages[result.messages.length - 2];
-    const rules = result.messages[result.messages.length - 1];
-    const userIndex = result.messages.findIndex((msg) => msg.role === 'user' && msg.content === '继续');
+    const userIndex = result.messages.findIndex((msg) => msg.role === 'user');
+    const guide = result.messages[userIndex];
 
     expect(result.trace.errors).toEqual([]);
     expect(result.state.temp.plotDirectionRoll).toBe(100);
@@ -55,26 +54,27 @@ describe('white album plot direction guide', () => {
     expect(result.messages[userIndex - 2].ttl).toBe(1);
     expect(result.messages[userIndex - 1]._meta.source).toBe('wa2_state_context');
     expect(result.messages[userIndex - 1].ttl).toBe(1);
-    expect(guide.role).toBe('system');
-    expect(guide.ttl).toBe(1);
-    expect(guide._meta).toEqual({ source: 'wa2_timeline_guide', visibility: 'llm_only' });
+    expect(guide.role).toBe('user');
+    expect(guide.content).toContain('继续');
+    expect(guide.content).toContain('<wa2_turn_context>');
     expect(guide.content).toContain('开头窗口');
     expect(guide.content).toContain('本轮好感度和随机数影响');
     expect(guide.content).toContain('本轮剧情走向: 很好');
     expect(guide.content).toContain('难得但克制的突破');
-    expect(rules._meta).toEqual({ source: 'wa2_tail_hint', visibility: 'llm_only' });
+    expect(guide.content).toContain('### 回复规则\n规则');
+    expect(result.messages.some((msg) => msg._meta?.source === 'wa2_tail_hint')).toBe(false);
   });
 
   test('loads plot guidance from the current timeline time', () => {
     const opening = runWithRandom(0.5);
-    const guide = opening.messages.find((msg) => msg._meta?.source === 'wa2_timeline_guide');
+    const guide = opening.messages.find((msg) => msg.role === 'user');
 
-    expect(guide.content).toContain('当前剧情时间: 2007.10.20:下午');
+    expect(guide.content).toContain('当前剧情时间: 2007.10.20: 15:00');
     expect(guide.content).toContain('开头窗口');
     expect(guide.content).not.toContain('后续窗口');
 
     const laterState = ensureStateDefaults(stateSchema, {
-      timeline: { currentTime: '2007.11.01:上午' }
+      timeline: { currentTime: '2007.11.01: 09:00' }
     }).state;
     const init = applyGameCard({ card, phase: 'init', messages: [], state: laterState, fileContents });
     const later = applyGameCard({
@@ -84,9 +84,9 @@ describe('white album plot direction guide', () => {
       state: init.state,
       fileContents
     });
-    const laterGuide = later.messages.find((msg) => msg._meta?.source === 'wa2_timeline_guide');
+    const laterGuide = later.messages.find((msg) => msg.role === 'user');
 
-    expect(laterGuide.content).toContain('当前剧情时间: 2007.11.01:上午');
+    expect(laterGuide.content).toContain('当前剧情时间: 2007.11.01: 09:00');
     expect(laterGuide.content).toContain('当前时间暂未匹配到已实现的固定剧情窗口');
   });
 });
