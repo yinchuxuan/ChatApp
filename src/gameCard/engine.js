@@ -1,4 +1,5 @@
 const { applyActions } = require('./actions');
+const { withFindState } = require('./findResolver');
 const { matchesWhen } = require('./predicate');
 const { validateGameCard } = require('./validateGameCard');
 
@@ -39,10 +40,16 @@ function summarizeState(before, after) {
 }
 
 function applyMatchingRule(messages, state, rule, index, options) {
-  const applied = applyActions(messages, rule.then || [], { ...options, state });
+  const found = rule.find ? withFindState(state, rule.find, messages) : null;
+  const applied = applyActions(messages, rule.then || [], {
+    ...options,
+    state: found?.state || state,
+    find: found && !Array.isArray(rule.find) ? { ...options.find, ...rule.find } : options.find
+  });
+  const finalState = found ? found.restore(applied.state) : applied.state;
   return {
     messages: applied.messages,
-    state: applied.state,
+    state: finalState,
     trace: {
       ruleIndex: index,
       ruleId: rule.id,
@@ -50,7 +57,7 @@ function applyMatchingRule(messages, state, rule, index, options) {
       actions: applied.trace,
       summary: {
         messages: summarizeActionMessages(applied.trace, messages, applied.messages),
-        state: summarizeState(state, applied.state)
+        state: summarizeState(state, finalState)
       }
     }
   };

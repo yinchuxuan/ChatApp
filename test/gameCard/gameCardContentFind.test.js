@@ -76,4 +76,65 @@ describe('game card content find descriptors', () => {
     expect(result.trace.errors).toEqual([]);
     expect(result.messages[0].content).toBe('seen: a / b');
   });
+
+  test('action find writes local temp state for content rendering', () => {
+    const card = {
+      version: '1',
+      id: 'find-temp-card',
+      name: 'Find Temp Card',
+      rules: [{
+        when: { phase: 'pre_send' },
+        then: [{
+          type: 'replace',
+          predicate: { role: 'system' },
+          find: [{
+            name: 'latestTime',
+            from: { role: 'assistant', index: 'last' },
+            match: { regex: '^time=(\\d{2}:\\d{2})', group: 1 }
+          }],
+          content: '{{raw_string:time: }} + {{state:temp.find.latestTime}}'
+        }]
+      }]
+    };
+
+    const result = applyGameCard({
+      card,
+      phase: 'pre_send',
+      messages: [
+        { role: 'system', content: 'seen' },
+        { role: 'assistant', content: 'time=14:30' }
+      ],
+      state: { temp: { find: { previous: 'kept' } } }
+    });
+
+    expect(result.trace.errors).toEqual([]);
+    expect(result.messages[0].content).toBe('time: 14:30');
+    expect(result.state.temp.find).toEqual({ previous: 'kept' });
+  });
+
+  test('rule find is shared by child actions without persisting temp find', () => {
+    const card = {
+      version: '1',
+      id: 'rule-find-card',
+      name: 'Rule Find Card',
+      rules: [{
+        when: { phase: 'pre_send' },
+        find: [{ name: 'users', from: { role: 'user' }, many: true }],
+        then: [
+          { type: 'insert', role: 'system', content: '{{state:temp.find.users}}.join{","}' },
+          { type: 'replace', predicate: { role: 'system' }, content: '{{raw_string:again }} + {{state:temp.find.users}}.join{"/"}' }
+        ]
+      }]
+    };
+
+    const result = applyGameCard({
+      card,
+      phase: 'pre_send',
+      messages: [{ role: 'user', content: 'a' }, { role: 'user', content: 'b' }]
+    });
+
+    expect(result.trace.errors).toEqual([]);
+    expect(result.messages[2].content).toBe('again a/b');
+    expect(result.state.temp?.find).toBeUndefined();
+  });
 });

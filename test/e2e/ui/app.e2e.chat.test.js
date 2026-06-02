@@ -127,46 +127,31 @@ test.describe('Chat Panel Msg History Toggle', () => {
     expect(toggleBtnCount).toBe(0);
   });
 });
-test.describe('Chat Panel Clear History', () => {
-  test('should not have clear button when no messages, appear after sending message', async () => {
-    expect(await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length)).toBe(0);
-    await revealChatInput(appHelper);
-    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
-    await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
-    await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
-    await appHelper.waitForTimeout(300);
-    const clearBtn = await appHelper.waitForSelector('.chat-header-clear-btn', { state: 'attached', timeout: 5000 });
-    expect(clearBtn).toBeTruthy();
-  });
-  test('should clear messages when clicking the clear button and show empty state', async () => {
-    await revealChatInput(appHelper);
-    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
-    await inputField.fill('e2e clear test'); await appHelper.waitForTimeout(100);
-    await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
-    await appHelper.waitForTimeout(300);
+test.describe('Chat Panel Header Actions', () => {
+  test('should not expose the legacy clear history button', async () => {
     await revealChatHeader(appHelper);
-    await appHelper.waitForSelector('.chat-header-clear-btn', { state: 'visible', timeout: 5000 });
-    await appHelper.evaluate(() => { document.querySelector('.chat-header-clear-btn')?.click(); });
-    await appHelper.waitForTimeout(300);
-    const countAfter = await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length);
-    expect(countAfter).toBe(0);
-    const chatEmpty = await appHelper.waitForSelector('.chat-empty', { timeout: 5000 });
-    expect(chatEmpty).toBeTruthy();
+    const count = await appHelper.evaluate(() => document.querySelectorAll('.chat-header-clear-btn').length);
+    expect(count).toBe(0);
   });
-  test('clear button should have correct attributes and icon', async () => {
-    await revealChatInput(appHelper);
-    const inputField = await appHelper.waitForSelector('.chat-input-area .chat-input-textarea');
-    await inputField.fill('e2e attr test'); await appHelper.waitForTimeout(100);
-    await (await appHelper.waitForSelector('.chat-input-area button[type="submit"]')).click();
-    await appHelper.waitForTimeout(300);
+  test('should keep session and import buttons inside the title control with right spacing', async () => {
+    await revealChatHeader(appHelper);
     const result = await appHelper.evaluate(() => {
-      const btn = document.querySelector('.chat-header-clear-btn');
-      if (!btn) return null;
-      return { hasMdBtn: btn.classList.contains('md-btn'), hasMdBtnIcon: btn.classList.contains('md-btn-icon'),
-        ariaLabel: btn.getAttribute('aria-label'), iconName: btn.querySelector('.material-icons')?.textContent };
+      const title = document.querySelector('.game-card-title-control');
+      const session = title?.querySelector('.chat-session-btn');
+      const importBtn = title?.querySelector('.game-card-import-btn');
+      if (!title || !session || !importBtn) return null;
+      const headerRect = document.querySelector('.chat-header').getBoundingClientRect();
+      const importRect = importBtn.getBoundingClientRect();
+      return {
+        hasSession: true,
+        hasImport: true,
+        rightGap: Math.round(headerRect.right - importRect.right),
+        paddingRight: window.getComputedStyle(title).paddingRight
+      };
     });
     expect(result).not.toBeNull();
-    expect(result.hasMdBtn).toBe(true); expect(result.hasMdBtnIcon).toBe(true);
-    expect(result.ariaLabel).toBe('清空聊天历史'); expect(result.iconName).toBe('delete_sweep');
+    expect(result.hasSession).toBe(true); expect(result.hasImport).toBe(true);
+    expect(result.rightGap).toBeGreaterThanOrEqual(70);
+    expect(result.paddingRight).toBe('54px');
   });
 });

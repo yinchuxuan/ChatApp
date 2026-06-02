@@ -1,13 +1,10 @@
-/**
- * Tests for ChatPanel Clear Chat History
- */
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import ChatPanel from '../../src/ChatPanel.jsx';
 
 const electronAPI = global.window.electronAPI;
 
-describe('ChatPanel Clear Chat History', () => {
+describe('ChatPanel without header clear history action', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
@@ -22,7 +19,7 @@ describe('ChatPanel Clear Chat History', () => {
     jest.useRealTimers();
   });
 
-  test('should not show clear button when there are no messages', async () => {
+  test('does not render the removed clear button before or after messages', async () => {
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -32,17 +29,7 @@ describe('ChatPanel Clear Chat History', () => {
 
     expect(screen.queryByTitle('清空聊天历史')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('清空聊天历史')).not.toBeInTheDocument();
-  });
 
-  test('should show clear button when there are messages', async () => {
-    render(React.createElement(ChatPanel));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    // Use the input to send a message that will add to messages array
     const input = screen.getByPlaceholderText('输入您的回答...');
     fireEvent.change(input, { target: { value: 'Hello' } });
 
@@ -58,52 +45,11 @@ describe('ChatPanel Clear Chat History', () => {
       jest.advanceTimersByTime(200);
     });
 
-    // After sending a message, the clear button should appear
-    const clearBtn = screen.queryByTitle('清空聊天历史');
-    expect(clearBtn).toBeInTheDocument();
-  });
-
-  test('should hide clear button after clearing messages', async () => {
-    render(React.createElement(ChatPanel));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    // First send a message to get the clear button to appear
-    const input = screen.getByPlaceholderText('输入您的回答...');
-    fireEvent.change(input, { target: { value: 'Hello' } });
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    const sendBtn = document.querySelector('button[type="submit"]');
-    fireEvent.click(sendBtn);
-
-    await act(async () => {
-      jest.advanceTimersByTime(200);
-    });
-
-    // Clear button should be visible
-    const clearBtn = screen.queryByTitle('清空聊天历史');
-    expect(clearBtn).toBeInTheDocument();
-
-    // Click clear button
-    fireEvent.click(clearBtn);
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    // Clear button should no longer be visible
     expect(screen.queryByTitle('清空聊天历史')).not.toBeInTheDocument();
+    expect(document.querySelector('.chat-header-clear-btn')).toBeNull();
   });
 
-  test('clear button should not toggle to msg history view', async () => {
+  test('keeps game card import and session buttons in the title control', async () => {
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -111,62 +57,9 @@ describe('ChatPanel Clear Chat History', () => {
       jest.advanceTimersByTime(100);
     });
 
-    // Send a message
-    const input = screen.getByPlaceholderText('输入您的回答...');
-    fireEvent.change(input, { target: { value: 'Hello' } });
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    const sendBtn = document.querySelector('button[type="submit"]');
-    fireEvent.click(sendBtn);
-
-    await act(async () => {
-      jest.advanceTimersByTime(200);
-    });
-
-    // Click clear button
-    const clearBtn = screen.getByTitle('清空聊天历史');
-    fireEvent.click(clearBtn);
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    // Should still be in chat view (not msg history view)
-    expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
-    expect(screen.queryByText('msg历史记录')).not.toBeInTheDocument();
-  });
-
-  test('clear button should have correct aria-label and title attributes', async () => {
-    render(React.createElement(ChatPanel));
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    // Send a message to reveal clear button
-    const input = screen.getByPlaceholderText('输入您的回答...');
-    fireEvent.change(input, { target: { value: 'Test' } });
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    const sendBtn = document.querySelector('button[type="submit"]');
-    fireEvent.click(sendBtn);
-
-    await act(async () => {
-      jest.advanceTimersByTime(200);
-    });
-
-    const clearBtn = screen.getByLabelText('清空聊天历史');
-    expect(clearBtn).toBeInTheDocument();
-    expect(clearBtn.getAttribute('title')).toBe('清空聊天历史');
+    const titleControl = document.querySelector('.game-card-title-control');
+    expect(titleControl).not.toBeNull();
+    expect(titleControl.querySelector('.chat-session-btn')).not.toBeNull();
+    expect(titleControl.querySelector('.game-card-import-btn')).not.toBeNull();
   });
 });

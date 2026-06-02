@@ -89,7 +89,7 @@ describe('ChatPanel Chat History Persistence', () => {
     expect(electronAPI.saveChatHistory).toHaveBeenCalled();
   });
 
-  test('should save empty messages when chat history is cleared', async () => {
+  test('should not expose the legacy clear history button after messages save', async () => {
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -113,22 +113,9 @@ describe('ChatPanel Chat History Persistence', () => {
       jest.advanceTimersByTime(200);
     });
 
-    // Clear save calls from auto-save
-    electronAPI.saveChatHistory.mockClear();
-
-    // Click clear button
-    const clearBtn = screen.getByTitle('清空聊天历史');
-    fireEvent.click(clearBtn);
-
-    await act(async () => {
-      await Promise.resolve();
-      jest.advanceTimersByTime(100);
-    });
-
-    // saveChatHistory should be called with empty array
     expect(electronAPI.saveChatHistory).toHaveBeenCalled();
-    const saveCall = electronAPI.saveChatHistory.mock.calls[0][0];
-    expect(saveCall).toEqual([]);
+    expect(screen.queryByTitle('清空聊天历史')).not.toBeInTheDocument();
+    expect(document.querySelector('.chat-header-clear-btn')).toBeNull();
   });
 
   test('should handle getChatHistory failure gracefully', async () => {

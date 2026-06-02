@@ -21,7 +21,8 @@ describe('state action validation', () => {
       { type: 'state.append', path: 'inventory', value: { id: 'key' } },
       { type: 'state.remove', path: 'inventory', value: { id: 'key' } },
       { type: 'state.roll', path: 'temp.roll', dice: '1d6' },
-      { type: 'state.randomInt', path: 'temp.pick', min: 1, max: 6 }
+      { type: 'state.randomInt', path: 'temp.pick', min: 1, max: 6 },
+      { type: 'state.advance', path: 'timeline.currentSlot' }
     ];
 
     actions.forEach((action) => {

@@ -5,7 +5,7 @@ const {
   hasStateValue,
   setStateValue
 } = require('./statePaths');
-const { validateStatePathValue } = require('./stateSchema');
+const { normalizeStateSchema, validateStatePathValue } = require('./stateSchema');
 
 function isObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -155,6 +155,22 @@ function applyRandomInt(state, action, options) {
   return validateNextState(action.type, state, nextState, action.path, options);
 }
 
+function applyAdvance(state, action, options) {
+  const normalized = normalizeStateSchema(options.schema || {});
+  const definition = normalized.schema[action.path];
+  if (!definition || definition.type !== 'enum') {
+    return fail(action.type, state, 'schema_not_enum', options);
+  }
+  const values = definition.values || [];
+  const current = hasStateValue(state, action.path)
+    ? getStateValue(state, action.path)
+    : definition.default;
+  const index = values.indexOf(current);
+  if (index < 0) return fail(action.type, state, 'enum_value_not_found', options);
+  const nextValue = values[Math.min(index + 1, values.length - 1)];
+  return finish(action.type, state, setStateValue(state, action.path, nextValue), action.path, options);
+}
+
 function applyStateAction(state, action, options = {}) {
   if (!isValidPath(action?.path)) return fail(action?.type || 'unknown', state, 'invalid_path', options);
   if (action.type === 'state.set') return applySet(state, action, options);
@@ -163,6 +179,7 @@ function applyStateAction(state, action, options = {}) {
   if (action.type === 'state.remove') return applyRemove(state, action, options);
   if (action.type === 'state.roll') return applyRoll(state, action, options);
   if (action.type === 'state.randomInt') return applyRandomInt(state, action, options);
+  if (action.type === 'state.advance') return applyAdvance(state, action, options);
   return fail(action?.type || 'unknown', state, 'not_implemented', options);
 }
 

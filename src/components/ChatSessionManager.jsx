@@ -69,7 +69,7 @@ function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
   );
 
   return C('div', { className: 'chat-session-manager' },
-    C('button', { className: 'chat-session-btn md-btn md-btn-icon', onClick: (event) => { event.stopPropagation(); setOpen(!open); if (!open) loadSessions(); }, title: '管理聊天会话', 'aria-label': '管理聊天会话' }, C('span', { className: 'material-icons' }, 'forum')),
+    C('button', { className: 'chat-session-btn md-btn md-btn-icon', onClick: (event) => { event.stopPropagation(); setOpen(!open); if (!open) loadSessions(); }, title: '管理聊天会话', 'aria-label': '管理聊天会话' }, C('span', { className: 'material-icons' }, 'inventory_2')),
     open ? C('div', { className: 'chat-session-panel', onClick: (event) => event.stopPropagation() },
       C('div', { className: 'chat-session-panel-head' },
         C('span', { className: 'chat-session-panel-title' }, '会话'),

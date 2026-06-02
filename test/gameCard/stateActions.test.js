@@ -161,4 +161,37 @@ describe('state action runtime', () => {
       summary: { state: { changedKeys: [] } }
     });
   });
+
+  test('state.advance moves enum values forward and stops at the end', () => {
+    const schema = { route: { type: 'enum', values: ['none', 'alice', 'true'] } };
+    const first = applyStateAction({ route: 'none' }, {
+      type: 'state.advance',
+      path: 'route'
+    }, { schema });
+    const last = applyStateAction({ route: 'true' }, {
+      type: 'state.advance',
+      path: 'route'
+    }, { schema });
+
+    expect(first.state.route).toBe('alice');
+    expect(first.trace.summary.state.changedKeys).toEqual(['route']);
+    expect(last.state.route).toBe('true');
+    expect(last.trace.applied).toBe(true);
+    expect(last.trace.summary.state.changedKeys).toEqual([]);
+  });
+
+  test('state.advance requires an enum schema and a valid current value', () => {
+    const missingSchema = applyStateAction({ route: 'none' }, {
+      type: 'state.advance',
+      path: 'route'
+    });
+    const invalidValue = applyStateAction({ route: 'bad' }, {
+      type: 'state.advance',
+      path: 'route'
+    }, { schema: { route: { type: 'enum', values: ['none', 'alice'] } } });
+
+    expect(missingSchema.trace).toMatchObject({ applied: false, reason: 'schema_not_enum' });
+    expect(invalidValue.state.route).toBe('bad');
+    expect(invalidValue.trace).toMatchObject({ applied: false, reason: 'enum_value_not_found' });
+  });
 });

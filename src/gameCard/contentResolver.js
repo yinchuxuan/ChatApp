@@ -1,8 +1,8 @@
-const { matchesPredicate } = require('./predicate');
 const { applyTransform, renderValue } = require('./contentTransforms');
 const { resolveContentObject } = require('./contentObjects');
 const { parseFileSectionRef, extractFileSection } = require('./fileSections');
 const { getStateValue, hasStateValue } = require('./statePaths');
+const { resolveFind: resolveFindValues } = require('./findResolver');
 
 function parseSource(expression, index) {
   if (!expression.startsWith('{{', index)) throw new Error('content source expected');
@@ -73,16 +73,16 @@ function resolveState(statePath, options, asJson) {
   const value = getStateValue(state, statePath);
   if (value === undefined || value === null) return '';
   if (asJson) return JSON.stringify(value);
+  if (Array.isArray(value)) return value;
   return typeof value === 'object' ? '' : String(value);
 }
 
 function resolveFind(name, options) {
   const spec = options.find?.[name];
   if (!spec) throw new Error(`unknown find source: ${name}`);
+  if (!spec.predicate && !spec.from) return spec;
   const messages = Array.isArray(options.messages) ? options.messages : [];
-  return messages
-    .filter((message, index) => matchesPredicate(spec.predicate, message, index, messages))
-    .map((message) => message.content || '');
+  return resolveFindValues({ [name]: spec }, messages)[name];
 }
 
 function parseTransform(expression, index) {
@@ -171,7 +171,7 @@ function resolveContent(content, originalMessage = {}, options = {}) {
   while (cursor < content.length) {
     const chain = parseChain(content, cursor, originalMessage, options);
     const joiner = chain.findName ? options.find?.[chain.findName]?.join : undefined;
-    resolved += renderValue(chain.value, joiner || '\n');
+    resolved += renderValue(chain.value, typeof joiner === 'string' ? joiner : '\n');
     cursor = skipSpaces(content, chain.next);
     if (cursor < content.length) {
       if (content[cursor] !== '+') throw new Error('content chains must be joined with +');

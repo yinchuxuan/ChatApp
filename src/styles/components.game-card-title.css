@@ -4,6 +4,7 @@
   gap: 12px;
   flex: 1;
   min-width: 0;
+  padding-right: 54px;
   color: var(--md-on-surface);
 }
 

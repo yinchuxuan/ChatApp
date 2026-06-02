@@ -1,4 +1,5 @@
-const { validateWhen, validateAction } = require('./validatePredicates');
+const { validateWhen, validateAction, validatePredicate } = require('./validatePredicates');
+const { validateFind } = require('./validateFind');
 
 function addError(errors, path, message) {
   errors.push(`${path}: ${message}`);
@@ -12,6 +13,7 @@ function validateRule(rule, path, errors) {
 
   if (rule.when === undefined) addError(errors, path, 'requires when');
   else validateWhen(rule.when, path + '.when', errors);
+  validateFind(rule.find, path + '.find', errors, validatePredicate);
 
   if (!Array.isArray(rule.then) || rule.then.length === 0) addError(errors, path + '.then', 'must be a non-empty array');
   else rule.then.forEach((action, i) => validateAction(action, path + '.then[' + i + ']', errors));

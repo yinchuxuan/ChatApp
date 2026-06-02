@@ -172,7 +172,7 @@ Content 描述符支持读取 state：
 第一版支持 `eq`、`gt`、`gte`、`lt`、`lte`、`in`、`nin`、`contains`、`exists`、`regex`。多 key 默认 AND。
 
 ## State 修改
-第二阶段支持 `state.set`、`state.delete`、`state.append`、`state.remove`、`state.roll`、`state.randomInt`。`set` 创建/写入 JSON 值；`delete` 删除变量；`append` 向数组追加 `value`，目标缺失时创建数组；`remove` 从数组中移除深相等的 `value`；`roll` 将 `dice` 表达式的掷骰总和写入 path；`randomInt` 将 `[min, max]` 闭区间随机整数写入 path。它们不修改 messages；命中 schema 必须校验，`onInvalid: "clamp"` 对 number 生效；未命中 schema 允许写入；`llmWrite` 留给后续 LLM patch。
+第二阶段支持 `state.set`、`state.delete`、`state.append`、`state.remove`、`state.roll`、`state.randomInt`、`state.advance`。`set` 写入 JSON 值；`delete` 删除变量；`append` 追加数组；`remove` 移除深相等值；`roll` 掷骰；`randomInt` 写入闭区间整数；`advance` 将 enum schema 路径推进到下一个枚举值，末尾保持不变。它们不修改 messages；命中 schema 必须校验，`onInvalid: "clamp"` 对 number 生效；未命中 schema 允许写入；`llmWrite` 留给后续 LLM patch。
 
 ## 持久化
 

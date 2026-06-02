@@ -70,9 +70,10 @@
 { "type": "state.remove", "path": "inventory", "value": { "id": "key" } }
 { "type": "state.roll", "path": "temp.roll", "dice": "1d6" }
 { "type": "state.randomInt", "path": "temp.pick", "min": 1, "max": 6 }
+{ "type": "state.advance", "path": "timeline.currentSlot" }
 ```
 
-`state.roll` 支持 `d6` / `1d6` / `2d10` 形式，写入掷骰总和。`state.randomInt` 写入闭区间 `[min, max]` 的整数。
+`state.roll` 支持 `d6` / `1d6` / `2d10` 形式，写入掷骰总和。`state.randomInt` 写入闭区间 `[min, max]` 的整数。`state.advance` 只支持 schema 中 `type: "enum"` 的路径，将当前值推进到 `values` 中的下一个值，已经在末尾时保持不变。
 
 ## exec
 

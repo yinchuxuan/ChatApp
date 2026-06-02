@@ -70,6 +70,7 @@ describe('GameCardTitleControl', () => {
     render(<GameCardTitleControl />);
 
     await screen.findByText('未加载游戏卡');
+    expect(screen.getByRole('button', { name: '管理聊天会话' }).querySelector('.material-icons')).toHaveTextContent('inventory_2');
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '管理聊天会话' }));
     });

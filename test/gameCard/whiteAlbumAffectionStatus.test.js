@@ -8,7 +8,7 @@ const fileContents = {
   'roleplay_rules.md': '规则',
   'plot_guides.md': [
     '# 剧情引导',
-    '## 三人初识',
+    '## 自由剧情',
     '开头窗口',
     '## 后续剧情窗口',
     '后续窗口'
@@ -42,16 +42,16 @@ function run(content, gameState) {
 }
 
 describe('white album affection status', () => {
-  test('writes affection attitudes into the timeline guide', () => {
+  test('writes affection attitudes into the free plot guide', () => {
     const low = run('今天去找冬马排练', state({ touma: { affection: 12 }, setsuna: { affection: 65 } }));
     const high = run('今天去找冬马排练', state({ touma: { affection: 88 }, setsuna: { affection: 90 } }));
 
-    expect(low.status).not.toContain('人物态度');
-    expect(low.guide).toContain('本轮好感度和随机数影响');
+    expect(low.status).toContain('touma.affection: 12');
+    expect(low.status).toContain('setsuna.affection: 65');
+    expect(low.guide).toContain('好感度与随机数分支');
     expect(low.guide).toContain('冬马和纱: 保持明显距离');
     expect(low.guide).toContain('小木曾雪菜: 已明显依赖春希');
-    expect(high.guide).toContain('冬马和纱: 对春希的依恋强烈而压抑');
-    expect(high.guide).toContain('小木曾雪菜: 对春希的感情接近无法回避');
+    expect(high.guide).toContain('冬马和纱: 已明显在意春希');
   });
 
   test('keeps affection attitudes out of worldbook content', () => {

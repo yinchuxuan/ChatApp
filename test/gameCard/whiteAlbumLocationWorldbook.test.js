@@ -6,7 +6,7 @@ const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const fileContents = {
   'first_msg.md': '开场',
   'roleplay_rules.md': '规则',
-  'plot_guides.md': '# 剧情引导\n## 三人初识\n开头窗口',
+  'plot_guides.md': '# 剧情引导\n## 自由剧情\n开头窗口',
   'state/schema.json': JSON.stringify(stateSchema),
   'worldbook/characters.md': '# 角色世界书\n## 冬马和纱\n角色：冬马和纱',
   'worldbook/location.md': [

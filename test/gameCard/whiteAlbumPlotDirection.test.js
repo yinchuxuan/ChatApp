@@ -2,14 +2,25 @@ const card = require('../../game-card-examples/white-album-2/card.json');
 const stateSchema = require('../../game-card-examples/white-album-2/state/schema.json');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
+const { applyLatestAssistantStatePatch } = require('../../src/gameCard/statePatch');
+
+const loadedCard = { ...card, state: { ...card.state, schema: stateSchema } };
 
 const fileContents = {
   'first_msg.md': '开场',
   'roleplay_rules.md': '规则',
   'plot_guides.md': [
     '# 剧情引导',
-    '## 三人初识',
-    '开头窗口',
+    '## 自由剧情',
+    '通用自由节点',
+    '## 2007.10.21: 16:00 - 2007.10.21: 18:00',
+    '隔墙合奏节点',
+    '## 2007.10.23: 08:00 - 2007.10.23: 12:00',
+    '邀请雪菜节点',
+    '## 2007.10.25: 08:00 - 2007.10.25: 12:00',
+    '报名截止节点',
+    '## 2007.10.25: 16:00 - 2007.10.25: 18:00',
+    '天台歌声节点',
     '## 后续剧情窗口',
     '后续窗口'
   ].join('\n'),
@@ -28,9 +39,20 @@ function user(content) {
 function runWithRandom(randomValue) {
   jest.spyOn(Math, 'random').mockReturnValue(randomValue);
   const state = ensureStateDefaults(stateSchema, {}).state;
-  const init = applyGameCard({ card, phase: 'init', messages: [], state, fileContents });
+  return runWithState(state);
+}
+
+function runAtSlot(currentSlot) {
+  const state = ensureStateDefaults(stateSchema, {
+    timeline: { currentSlot }
+  }).state;
+  return runWithState(state);
+}
+
+function runWithState(state) {
+  const init = applyGameCard({ card: loadedCard, phase: 'init', messages: [], state, fileContents });
   return applyGameCard({
-    card,
+    card: loadedCard,
     phase: 'pre_send',
     messages: [...init.messages, user('继续')],
     state: init.state,
@@ -57,10 +79,10 @@ describe('white album plot direction guide', () => {
     expect(guide.role).toBe('user');
     expect(guide.content).toContain('继续');
     expect(guide.content).toContain('<wa2_turn_context>');
-    expect(guide.content).toContain('开头窗口');
-    expect(guide.content).toContain('本轮好感度和随机数影响');
-    expect(guide.content).toContain('本轮剧情走向: 很好');
-    expect(guide.content).toContain('难得但克制的突破');
+    expect(guide.content).toContain('通用自由节点');
+    expect(guide.content).toContain('本轮自由剧情走向: 正反馈');
+    expect(guide.content).toContain('下一时间: 2007.10.21: 16:00 - 2007.10.21: 18:00');
+    expect(guide.content).toContain('下一轮才能描写下一时间');
     expect(guide.content).toContain('### 回复规则\n规则');
     expect(result.messages.some((msg) => msg._meta?.source === 'wa2_tail_hint')).toBe(false);
   });
@@ -69,24 +91,62 @@ describe('white album plot direction guide', () => {
     const opening = runWithRandom(0.5);
     const guide = opening.messages.find((msg) => msg.role === 'user');
 
-    expect(guide.content).toContain('当前剧情时间: 2007.10.20: 15:00');
-    expect(guide.content).toContain('开头窗口');
+    expect(guide.content).toContain('当前时间: 2007.10.21: 08:00 - 2007.10.21: 16:00');
+    expect(guide.content).toContain('通用自由节点');
     expect(guide.content).not.toContain('后续窗口');
 
-    const laterState = ensureStateDefaults(stateSchema, {
-      timeline: { currentTime: '2007.11.01: 09:00' }
-    }).state;
-    const init = applyGameCard({ card, phase: 'init', messages: [], state: laterState, fileContents });
-    const later = applyGameCard({
-      card,
-      phase: 'pre_send',
-      messages: [...init.messages, user('继续')],
-      state: init.state,
-      fileContents
-    });
-    const laterGuide = later.messages.find((msg) => msg.role === 'user');
+    const wall = runAtSlot('2007.10.21: 16:00 - 2007.10.21: 18:00');
+    const wallGuide = wall.messages.find((msg) => msg.role === 'user');
 
-    expect(laterGuide.content).toContain('当前剧情时间: 2007.11.01: 09:00');
-    expect(laterGuide.content).toContain('当前时间暂未匹配到已实现的固定剧情窗口');
+    expect(wallGuide.content).toContain('当前时间: 2007.10.21: 16:00 - 2007.10.21: 18:00');
+    expect(wallGuide.content).toContain('下一时间: 2007.10.22: 08:00 - 2007.10.22: 18:00');
+    expect(wallGuide.content).toContain('隔墙合奏节点');
+
+    const free = runAtSlot('2007.10.22: 08:00 - 2007.10.22: 18:00');
+    const freeGuide = free.messages.find((msg) => msg.role === 'user');
+
+    expect(freeGuide.content).toContain('当前时间: 2007.10.22: 08:00 - 2007.10.22: 18:00');
+    expect(freeGuide.content).toContain('通用自由节点');
+    expect(freeGuide.content).not.toContain('隔墙合奏节点');
+
+    const invite = runAtSlot('2007.10.23: 08:00 - 2007.10.23: 12:00');
+    const inviteGuide = invite.messages.find((msg) => msg.role === 'user');
+
+    expect(inviteGuide.content).toContain('当前时间: 2007.10.23: 08:00 - 2007.10.23: 12:00');
+    expect(inviteGuide.content).toContain('邀请雪菜节点');
+    expect(inviteGuide.content).not.toContain('隔墙合奏节点');
+
+    const deadline = runAtSlot('2007.10.25: 08:00 - 2007.10.25: 12:00');
+    const deadlineGuide = deadline.messages.find((msg) => msg.role === 'user');
+
+    expect(deadlineGuide.content).toContain('当前时间: 2007.10.25: 08:00 - 2007.10.25: 12:00');
+    expect(deadlineGuide.content).toContain('报名截止节点');
+    expect(deadlineGuide.content).not.toContain('隔墙合奏节点');
+
+    const rooftop = runAtSlot('2007.10.25: 16:00 - 2007.10.25: 18:00');
+    const rooftopGuide = rooftop.messages.find((msg) => msg.role === 'user');
+
+    expect(rooftopGuide.content).toContain('当前时间: 2007.10.25: 16:00 - 2007.10.25: 18:00');
+    expect(rooftopGuide.content).toContain('天台歌声节点');
+    expect(rooftopGuide.content).not.toContain('报名截止节点');
+  });
+
+  test('llm advances the timeline slot with state.advance in state patch', () => {
+    const state = ensureStateDefaults(stateSchema, {
+      timeline: { currentSlot: '2007.10.21: 08:00 - 2007.10.21: 16:00' }
+    }).state;
+    const patched = applyLatestAssistantStatePatch([
+      {
+        role: 'assistant',
+        content: '<state_patch>[{"type":"state.advance","path":"timeline.currentSlot"}]</state_patch>'
+      }
+    ], state, { schema: stateSchema });
+    const result = runWithState(patched.state);
+    const guide = result.messages.find((msg) => msg.role === 'user');
+
+    expect(patched.state.timeline.currentSlot).toBe('2007.10.21: 16:00 - 2007.10.21: 18:00');
+    expect(result.state.timeline.currentSlot).toBe('2007.10.21: 16:00 - 2007.10.21: 18:00');
+    expect(guide.content).toContain('当前时间: 2007.10.21: 16:00 - 2007.10.21: 18:00');
+    expect(guide.content).toContain('隔墙合奏节点');
   });
 });

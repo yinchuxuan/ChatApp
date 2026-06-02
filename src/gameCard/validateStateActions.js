@@ -1,6 +1,6 @@
 const VALID_STATE_ACTION_TYPES = [
   'state.set', 'state.delete', 'state.append', 'state.remove',
-  'state.roll', 'state.randomInt'
+  'state.roll', 'state.randomInt', 'state.advance'
 ];
 const VALUE_ACTION_TYPES = ['state.set', 'state.append', 'state.remove'];
 

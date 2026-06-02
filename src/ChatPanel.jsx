@@ -56,7 +56,6 @@ function ChatPanel() {
     }
   };
 
-  const handleClearHistory = (e) => { e.stopPropagation(); retryBaseRef.current = null; retryBaseStateRef.current = null; setMessages([]); setGameState({}); tw.clearStreaming(); setIsHistoryExpanded(false); };
   const toggleThinkingForMessage = (idx) => {
     setMessages(prev => prev.map((msg, i) => i === idx ? { ...msg, _thinkingVisible: !msg._thinkingVisible } : msg));
   };
@@ -176,11 +175,7 @@ function ChatPanel() {
           modelName: modelConfig && modelConfig.apiUrl ? (modelConfig.modelName || '已连接') : '',
           onBeforeSessionChange: saveCurrentSession,
           onSessionChanged: handleSessionChanged
-        }) : C('span', { className: 'header-title' }, '未加载游戏卡')),
-        messages.length > 0 && C('button', {
-          className: 'chat-header-clear-btn md-btn md-btn-icon',
-          onClick: handleClearHistory, title: '清空聊天历史', 'aria-label': '清空聊天历史'
-        }, C('span', { className: 'material-icons' }, 'delete_sweep'))
+        }) : C('span', { className: 'header-title' }, '未加载游戏卡'))
       ),
       C('div', { className: 'chat-history', ref: chatHistoryRef },
         C('div', { className: 'chat-reading-veil', 'aria-hidden': 'true' }),

@@ -18,7 +18,7 @@ const fileContents = {
     '<state_patch>[{"type":"state.set","path":"touma.affection","value":0},{"type":"state.set","path":"setsuna.affection","value":0}]</state_patch>'
   ].join('\n'),
   'roleplay_rules.md': '回复时保持白色相簿2的氛围。追加 <state_patch> 并用 state.set 更新 touma.affection 和 setsuna.affection。',
-  'plot_guides.md': '# 剧情引导\n## 三人初识\n开头窗口\n## 后续剧情窗口\n后续窗口',
+  'plot_guides.md': '# 剧情引导\n## 自由剧情\n开头窗口\n## 后续剧情窗口\n后续窗口',
   'state/schema.json': JSON.stringify(stateSchema),
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '世界书：北原春希',
@@ -95,7 +95,8 @@ describe('white album 2 game card', () => {
     expect(status._meta.visibility).toBe('llm_only');
     expect(status.content).toContain('"touma.affection"');
     expect(status.content).toContain('"setsuna.affection"');
-    expect(status.content).toContain('timeline.currentTime: 2007.10.20: 15:00');
+    expect(status.content).toContain('timeline.currentSlot: 2007.10.21: 08:00 - 2007.10.21: 16:00');
+    expect(status.content).not.toContain('timeline.advanceIntent');
     expect(status.content).toContain('touma.affection: 12');
     expect(status.content).toContain('setsuna.affection: 8');
     expect(status.content).toContain('status.setsunaContestAccepted: false');

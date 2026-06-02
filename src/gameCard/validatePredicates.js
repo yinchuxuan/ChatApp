@@ -1,5 +1,6 @@
 const { VALID_STATE_ACTION_TYPES, validateStateAction } = require('./validateStateActions');
 const { validateContent } = require('./validateContent');
+const { validateFind } = require('./validateFind');
 const VALID_PHASES = ['init', 'pre_send', 'after_response'];
 const VALID_ANCHORS = ['before', 'after'];
 const VALID_ROLES = ['user', 'assistant', 'system'];
@@ -153,20 +154,6 @@ function validateWhen(when, path, errors) {
   if (when.state !== undefined) validateStatePredicate(when.state, path + '.state', errors);
 }
 function validateContentWhen(when, path, errors) { validateWhen(when.phase ? when : { ...when, phase: 'pre_send' }, path, errors); }
-function validateFindMap(find, path, errors) {
-  if (find === undefined) return;
-  if (!isObject(find) || Object.keys(find).length === 0) return addError(errors, path, 'must be a non-empty object');
-  Object.entries(find).forEach(([name, spec]) => {
-    const specPath = `${path}.${name}`;
-    if (!isObject(spec)) return addError(errors, specPath, 'must be an object');
-    if (!spec.predicate) addError(errors, specPath, 'requires predicate');
-    else validatePredicate(spec.predicate, specPath + '.predicate', errors);
-    if (spec.join !== undefined && !isString(spec.join)) addError(errors, specPath + '.join', 'must be a string');
-    Object.keys(spec).forEach((key) => {
-      if (!['predicate', 'join'].includes(key)) addError(errors, specPath, 'unknown find key: ' + key);
-    });
-  });
-}
 function validateRequiredPredicate(action, path, errors) {
   if (!action.predicate) addError(errors, path, 'requires predicate');
   else validatePredicate(action.predicate, path + '.predicate', errors);
@@ -194,6 +181,6 @@ function validateAction(action, path, errors) {
   if (action.type === 'replace' && action.content !== undefined) validateContent(action.content, path + '.content', errors, validateContentWhen);
   if (action.ttl !== undefined) validateTTL(action.ttl, path + '.ttl', errors);
   if (action._meta !== undefined) validateMessageMeta(action._meta, path + '._meta', errors);
-  validateFindMap(action.find, path + '.find', errors);
+  validateFind(action.find, path + '.find', errors, validatePredicate);
 }
 if (typeof module !== 'undefined' && module.exports) module.exports = { validatePredicate, validateWhen, validateAction, validateTTL, validateMessageMeta, validateMessageRole, validateStatePredicate };
