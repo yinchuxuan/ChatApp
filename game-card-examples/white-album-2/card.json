@@ -118,20 +118,19 @@
           "name": "assistantTime",
           "from": {
             "role": "assistant",
-            "content": { "regex": "^【时间地点】\\s*\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2}" },
+            "content": { "regex": "^【时间地点】\\s*\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2}\\s+星期[一二三四五六日]" },
             "exec": "return i === msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"
           },
-          "match": { "regex": "^【时间地点】\\s*(\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2})", "group": 1 },
+          "match": { "regex": "^【时间地点】\\s*(\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2}\\s+星期[一二三四五六日])", "group": 1 },
           "many": false
         }
       ],
       "then": [
-        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": { "in": ["2007.10.21: 16:00 - 2007.10.21: 18:00", "2007.10.23: 08:00 - 2007.10.23: 12:00", "2007.10.25: 08:00 - 2007.10.25: 12:00", "2007.10.25: 16:00 - 2007.10.25: 18:00"] }, "temp.find.assistantTime": { "regex": "^\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2}$" } } } },
-        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.21: 08:00 - 2007.10.21: 16:00", "temp.find.assistantTime": { "gte": "2007.10.21: 14:00" } } } },
-        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.22: 08:00 - 2007.10.22: 18:00", "temp.find.assistantTime": { "gte": "2007.10.22: 16:00" } } } },
-        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.23: 12:00 - 2007.10.23: 18:00", "temp.find.assistantTime": { "gte": "2007.10.23: 16:00" } } } },
-        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.24: 08:00 - 2007.10.24: 18:00", "temp.find.assistantTime": { "gte": "2007.10.24: 16:00" } } } },
-        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.25: 12:00 - 2007.10.25: 16:00", "temp.find.assistantTime": { "gte": "2007.10.25: 15:00" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": { "in": ["2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日", "2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二", "2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四", "2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四"] }, "temp.find.assistantTime": { "regex": "^\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2}\\s+星期[一二三四五六日]$" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.21: 08:00 星期日 - 2007.10.21: 16:00 星期日", "temp.find.assistantTime": { "gte": "2007.10.21: 10:00 星期日" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.21: 18:00 星期日 - 2007.10.23: 08:00 星期二", "temp.find.assistantTime": { "gte": "2007.10.23: 02:00 星期二" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.23: 12:00 星期二 - 2007.10.25: 08:00 星期四", "temp.find.assistantTime": { "gte": "2007.10.25: 02:00 星期四" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.25: 12:00 星期四 - 2007.10.25: 16:00 星期四", "temp.find.assistantTime": { "gte": "2007.10.25: 12:00 星期四" } } } },
         { "type": "state.randomInt", "path": "temp.plotDirectionRoll", "min": 1, "max": 100 },
         {
           "type": "replace",
@@ -140,20 +139,19 @@
             "prefix": {
               "prefix": "{{original_content}} + {{raw_string:\n\n---\n<wa2_turn_context>\n请结合以上行动和以下剧情引导生成剧情\n当前时间: }} + {{state:timeline.currentSlot}} + {{raw_string:\n下一时间: }}",
               "select": [
-                { "when": { "state": { "timeline.currentSlot": "2007.10.21: 08:00 - 2007.10.21: 16:00" } }, "content": "2007.10.21: 16:00 - 2007.10.21: 18:00" },
-                { "when": { "state": { "timeline.currentSlot": "2007.10.21: 16:00 - 2007.10.21: 18:00" } }, "content": "2007.10.22: 08:00 - 2007.10.22: 18:00" },
-                { "when": { "state": { "timeline.currentSlot": "2007.10.22: 08:00 - 2007.10.22: 18:00" } }, "content": "2007.10.23: 08:00 - 2007.10.23: 12:00" },
-                { "when": { "state": { "timeline.currentSlot": "2007.10.23: 08:00 - 2007.10.23: 12:00" } }, "content": "2007.10.23: 12:00 - 2007.10.23: 18:00" },
-                { "when": { "state": { "timeline.currentSlot": "2007.10.23: 12:00 - 2007.10.23: 18:00" } }, "content": "2007.10.24: 08:00 - 2007.10.24: 18:00" },
-                { "when": { "state": { "timeline.currentSlot": "2007.10.24: 08:00 - 2007.10.24: 18:00" } }, "content": "2007.10.25: 08:00 - 2007.10.25: 12:00" },
-                { "when": { "state": { "timeline.currentSlot": "2007.10.25: 08:00 - 2007.10.25: 12:00" } }, "content": "2007.10.25: 12:00 - 2007.10.25: 16:00" },
-                { "when": { "state": { "timeline.currentSlot": "2007.10.25: 12:00 - 2007.10.25: 16:00" } }, "content": "2007.10.25: 16:00 - 2007.10.25: 18:00" }
+                { "when": { "state": { "timeline.currentSlot": "2007.10.21: 08:00 星期日 - 2007.10.21: 16:00 星期日" } }, "content": "2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日" },
+                { "when": { "state": { "timeline.currentSlot": "2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日" } }, "content": "2007.10.21: 18:00 星期日 - 2007.10.23: 08:00 星期二" },
+                { "when": { "state": { "timeline.currentSlot": "2007.10.21: 18:00 星期日 - 2007.10.23: 08:00 星期二" } }, "content": "2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二" },
+                { "when": { "state": { "timeline.currentSlot": "2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二" } }, "content": "2007.10.23: 12:00 星期二 - 2007.10.25: 08:00 星期四" },
+                { "when": { "state": { "timeline.currentSlot": "2007.10.23: 12:00 星期二 - 2007.10.25: 08:00 星期四" } }, "content": "2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四" },
+                { "when": { "state": { "timeline.currentSlot": "2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四" } }, "content": "2007.10.25: 12:00 星期四 - 2007.10.25: 16:00 星期四" },
+                { "when": { "state": { "timeline.currentSlot": "2007.10.25: 12:00 星期四 - 2007.10.25: 16:00 星期四" } }, "content": "2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四" }
               ],
               "default": "无",
-              "suffix": "{{raw_string:\n\nSlot边界规则:\n- 本轮正文只能发生在当前时间内，开头【时间地点】的时间必须落在当前时间。\n- 不得描写下一时间或更后时间内发生的事件，也不得提前发生下一固定剧情节点。\n- 如果剧情需要进入下一时间，必须只在 <state_patch> 中使用 state.advance；下一轮才能描写下一时间。\n\n}}"
+              "suffix": "{{raw_string:\n\nSlot边界规则:\n- 本轮正文只能发生在当前时间内，开头【时间地点】的时间必须落在当前时间。\n- 不得描写下一时间或更后时间内发生的事件，也不得提前发生下一固定剧情节点。\n\n}}"
             },
             "select": [
-              { "when": { "state": { "timeline.currentSlot": { "nin": ["2007.10.21: 16:00 - 2007.10.21: 18:00", "2007.10.23: 08:00 - 2007.10.23: 12:00", "2007.10.25: 08:00 - 2007.10.25: 12:00", "2007.10.25: 16:00 - 2007.10.25: 18:00"] } } }, "content": { "prefix": "{{file_section:plot_guides.md##自由剧情}} + {{raw_string:\n\n### 好感度与随机数分支\n}}", "include": [
+              { "when": { "state": { "timeline.currentSlot": { "nin": ["2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日", "2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二", "2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四", "2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四"] } } }, "content": { "prefix": "{{file_section:plot_guides.md##自由剧情}} + {{raw_string:\n\n### 好感度与随机数分支\n}}", "include": [
                 { "when": { "state": { "touma.affection": { "lte": 20 } } }, "content": "冬马和纱: 保持明显距离，用冷淡、讽刺和不耐烦掩饰兴趣；只通过停顿、纠正演奏或短暂注视暗示在意。" },
                 { "when": { "state": { "touma.affection": { "gte": 21, "lte": 60 } } }, "content": "冬马和纱: 开始承认春希的认真，但仍不愿解释为亲近；会在音乐上给出具体帮助，也会用尖锐言辞否认自己是在帮他。" },
                 { "when": { "state": { "touma.affection": { "gte": 61 } } }, "content": "冬马和纱: 已明显在意春希的选择，会因排练安排、雪菜的存在或一句无心的话动摇；用钢琴、沉默和身体距离暴露情绪。" },
@@ -164,10 +162,10 @@
                 { "when": { "state": { "temp.plotDirectionRoll": { "gte": 31, "lte": 70 } } }, "content": "本轮自由剧情走向: 日常。顺着用户选择写音乐练习、校园事务、微妙视线和克制对话，让关系变化来自性格与前文因果。" },
                 { "when": { "state": { "temp.plotDirectionRoll": { "gte": 71 } } }, "content": "本轮自由剧情走向: 正反馈。让排练更顺利、某个角色放下少许戒备，或让一次小小体贴被认真记住；不要过快表白。" }
               ], "join": "\n" } },
-              { "when": { "state": { "timeline.currentSlot": "2007.10.21: 16:00 - 2007.10.21: 18:00" } }, "content": "{{file_section:plot_guides.md##2007.10.21: 16:00 - 2007.10.21: 18:00}}" },
-              { "when": { "state": { "timeline.currentSlot": "2007.10.23: 08:00 - 2007.10.23: 12:00" } }, "content": "{{file_section:plot_guides.md##2007.10.23: 08:00 - 2007.10.23: 12:00}}" },
-              { "when": { "state": { "timeline.currentSlot": "2007.10.25: 08:00 - 2007.10.25: 12:00" } }, "content": "{{file_section:plot_guides.md##2007.10.25: 08:00 - 2007.10.25: 12:00}}" },
-              { "when": { "state": { "timeline.currentSlot": "2007.10.25: 16:00 - 2007.10.25: 18:00" } }, "content": "{{file_section:plot_guides.md##2007.10.25: 16:00 - 2007.10.25: 18:00}}" }
+              { "when": { "state": { "timeline.currentSlot": "2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日" } }, "content": "{{file_section:plot_guides.md##2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日}}" },
+              { "when": { "state": { "timeline.currentSlot": "2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二" } }, "content": "{{file_section:plot_guides.md##2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二}}" },
+              { "when": { "state": { "timeline.currentSlot": "2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四" } }, "content": "{{file_section:plot_guides.md##2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四}}" },
+              { "when": { "state": { "timeline.currentSlot": "2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四" } }, "content": "{{file_section:plot_guides.md##2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四}}" }
             ],
             "suffix": "{{raw_string:\n\n### 回复规则\n}} + {{file_content:roleplay_rules.md}} + {{raw_string:\n</wa2_turn_context>}}"
           }

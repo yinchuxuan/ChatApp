@@ -5,7 +5,7 @@ const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src
 const renderers = require('../../src/components/ChatPanelMessageRenderers');
 
 const sample = [
-  '【时间地点】2007.10.20: 15:00｜峰城大附属第二音乐室',
+  '【时间地点】2007.10.20: 15:00 星期六｜峰城大附属第二音乐室',
   '',
   '春希把吉他放回原处。',
   '',
@@ -35,7 +35,7 @@ describe('white album display rules', () => {
     const output = applyAssistantDisplayRules(sample, card.display);
 
     expect(output).toContain('class="wa2-scene-meta"');
-    expect(output).toContain('class="wa2-scene-time">2007.10.20: 15:00</span>');
+    expect(output).toContain('class="wa2-scene-time">2007.10.20: 15:00 星期六</span>');
     expect(output).toContain('class="wa2-scene-place">峰城大附属第二音乐室</span>');
     expect(output).toContain('春希把吉他放回原处。');
     expect(output).not.toContain('<summary>');

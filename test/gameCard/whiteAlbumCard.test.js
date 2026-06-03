@@ -95,7 +95,7 @@ describe('white album 2 game card', () => {
     expect(status._meta.visibility).toBe('llm_only');
     expect(status.content).toContain('"touma.affection"');
     expect(status.content).toContain('"setsuna.affection"');
-    expect(status.content).toContain('timeline.currentSlot: 2007.10.21: 08:00 - 2007.10.21: 16:00');
+    expect(status.content).toContain('timeline.currentSlot: 2007.10.21: 08:00 星期日 - 2007.10.21: 16:00 星期日');
     expect(status.content).not.toContain('timeline.advanceIntent');
     expect(status.content).toContain('touma.affection: 12');
     expect(status.content).toContain('setsuna.affection: 8');
