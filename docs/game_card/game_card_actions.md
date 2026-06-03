@@ -21,6 +21,7 @@
 - `content`：Content 描述符
 - `ttl`：消息存活轮数，默认 `-1`
 - `find`：可选。声明可被 `content` 引用的跨消息查询
+- `when`：可选。命中后才执行该 action；省略 `phase` 时使用当前规则阶段
 
 初始化空会话时可省略 `predicate`：
 
@@ -74,6 +75,20 @@
 ```
 
 `state.roll` 支持 `d6` / `1d6` / `2d10` 形式，写入掷骰总和。`state.randomInt` 写入闭区间 `[min, max]` 的整数。`state.advance` 只支持 schema 中 `type: "enum"` 的路径，将当前值推进到 `values` 中的下一个值，已经在末尾时保持不变。
+
+所有 action 都支持可选 `when`，条件语义与 content 分支一致。规则级或 action 级 `find` 写入的 `temp.find.*` 可以被后续 action 的 `when` 读取：
+
+```json
+{
+  "type": "state.advance",
+  "path": "timeline.currentSlot",
+  "when": {
+    "state": {
+      "temp.find.assistantTime": { "gte": "2007.10.22: 16:00" }
+    }
+  }
+}
+```
 
 ## exec
 
@@ -131,6 +146,8 @@ Predicate 是声明式匹配条件，用于 `insert` 定位锚点、`replace` / 
 ```
 
 多 key 隐式 AND：`{ "role": "user", "_meta.source": "game_card" }` 表示 role 为 user 且 `_meta.source` 为 game_card。
+
+`when.state` 的 `gt/gte/lt/lte` 支持 number，也支持同类型 string。字符串按字典序比较，只适合固定宽度、可排序格式，例如 `2007.10.22: 16:00`。
 
 ## `when.last.num`
 

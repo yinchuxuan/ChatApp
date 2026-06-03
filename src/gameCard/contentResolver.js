@@ -63,7 +63,7 @@ function resolveSource(body, originalMessage, options) {
     const ref = body.slice('file_section:'.length);
     return extractFileSection(readFileContent(parseFileSectionRef(ref).filePath, options), ref);
   }
-  if (body.startsWith('find:')) return resolveFind(body.slice('find:'.length), options);
+  if (body.startsWith('find:')) return resolveFindSource(body.slice('find:'.length), options);
   throw new Error(`unsupported content source: ${body}`);
 }
 
@@ -77,7 +77,7 @@ function resolveState(statePath, options, asJson) {
   return typeof value === 'object' ? '' : String(value);
 }
 
-function resolveFind(name, options) {
+function resolveFindSource(name, options) {
   const spec = options.find?.[name];
   if (!spec) throw new Error(`unknown find source: ${name}`);
   if (!spec.predicate && !spec.from) return spec;

@@ -72,6 +72,7 @@
       "required": ["type", "role", "content"],
       "properties": {
         "type": { "const": "insert" },
+        "when": { "$ref": "#/definitions/contentWhen" },
         "predicate": { "$ref": "#/definitions/predicate" },
         "anchor": { "enum": ["before", "after"] },
         "role": { "$ref": "#/definitions/messageRole" },
@@ -87,6 +88,7 @@
       "required": ["type", "predicate"],
       "properties": {
         "type": { "const": "remove" },
+        "when": { "$ref": "#/definitions/contentWhen" },
         "predicate": { "$ref": "#/definitions/predicate" }
       }
     },
@@ -97,6 +99,7 @@
       "anyOf": [{ "required": ["content"] }, { "required": ["ttl"] }],
       "properties": {
         "type": { "const": "replace" },
+        "when": { "$ref": "#/definitions/contentWhen" },
         "predicate": { "$ref": "#/definitions/predicate" },
         "content": { "$ref": "#/definitions/content" },
         "find": { "$ref": "#/definitions/find" },
@@ -110,15 +113,16 @@
       "required": ["type", "source"],
       "properties": {
         "type": { "const": "exec" },
+        "when": { "$ref": "#/definitions/contentWhen" },
         "source": { "type": "string", "minLength": 1 }
       }
     },
     "statePath": { "type": "string", "pattern": "^[^.[\\]]+(\\.[^.[\\]]+)*$" },
     "jsonValue": { "anyOf": [{ "type": ["string", "number", "boolean", "null"] }, { "type": "array", "items": { "$ref": "#/definitions/jsonValue" } }, { "type": "object", "additionalProperties": { "$ref": "#/definitions/jsonValue" } }] },
-    "stateValueAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "value"], "properties": { "type": { "enum": ["state.set", "state.append", "state.remove"] }, "path": { "$ref": "#/definitions/statePath" }, "value": { "$ref": "#/definitions/jsonValue" } } },
-    "stateDeleteAction": { "type": "object", "additionalProperties": false, "required": ["type", "path"], "properties": { "type": { "enum": ["state.delete", "state.advance"] }, "path": { "$ref": "#/definitions/statePath" } } },
-    "stateRollAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "dice"], "properties": { "type": { "const": "state.roll" }, "path": { "$ref": "#/definitions/statePath" }, "dice": { "type": "string", "pattern": "^([1-9]\\d*)?d([1-9]\\d*)$" } } },
-    "stateRandomIntAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "min", "max"], "properties": { "type": { "const": "state.randomInt" }, "path": { "$ref": "#/definitions/statePath" }, "min": { "type": "integer" }, "max": { "type": "integer" } } },
+    "stateValueAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "value"], "properties": { "type": { "enum": ["state.set", "state.append", "state.remove"] }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "value": { "$ref": "#/definitions/jsonValue" } } },
+    "stateDeleteAction": { "type": "object", "additionalProperties": false, "required": ["type", "path"], "properties": { "type": { "enum": ["state.delete", "state.advance"] }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" } } },
+    "stateRollAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "dice"], "properties": { "type": { "const": "state.roll" }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "dice": { "type": "string", "pattern": "^([1-9]\\d*)?d([1-9]\\d*)$" } } },
+    "stateRandomIntAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "min", "max"], "properties": { "type": { "const": "state.randomInt" }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "min": { "type": "integer" }, "max": { "type": "integer" } } },
     "find": { "anyOf": [{ "$ref": "#/definitions/findMap" }, { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/findItem" } }] },
     "findMap": { "type": "object", "additionalProperties": { "$ref": "#/definitions/findSpec" }, "minProperties": 1 },
     "findSpec": { "type": "object", "additionalProperties": false, "required": ["predicate"], "properties": { "predicate": { "$ref": "#/definitions/predicate" }, "join": { "type": "string" } } },
@@ -164,7 +168,7 @@
     "stringSetMatcher": { "type": "object", "additionalProperties": false, "minProperties": 1, "properties": { "in": { "$ref": "#/definitions/stringList" }, "nin": { "$ref": "#/definitions/stringList" } } },
     "stringList": { "type": "array", "minItems": 1, "items": { "type": "string" } },
     "statePredicate": { "type": "object", "additionalProperties": { "anyOf": [{ "type": ["string", "number", "boolean", "null"] }, { "$ref": "#/definitions/stateMatcher" }] }, "minProperties": 1 },
-    "stateMatcher": { "type": "object", "additionalProperties": false, "minProperties": 1, "properties": { "eq": {}, "gt": { "type": "number" }, "gte": { "type": "number" }, "lt": { "type": "number" }, "lte": { "type": "number" }, "in": { "type": "array", "minItems": 1 }, "nin": { "type": "array", "minItems": 1 }, "contains": {}, "exists": { "type": "boolean" }, "regex": { "type": "string" } } },
+    "stateMatcher": { "type": "object", "additionalProperties": false, "minProperties": 1, "properties": { "eq": {}, "gt": { "type": ["number", "string"] }, "gte": { "type": ["number", "string"] }, "lt": { "type": ["number", "string"] }, "lte": { "type": ["number", "string"] }, "in": { "type": "array", "minItems": 1 }, "nin": { "type": "array", "minItems": 1 }, "contains": {}, "exists": { "type": "boolean" }, "regex": { "type": "string" } } },
     "content": { "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/contentInclude" }, { "$ref": "#/definitions/contentSelect" }] }, "contentInclude": { "type": "object", "additionalProperties": false, "required": ["include"], "properties": { "include": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/contentBranch" } }, "join": { "type": "string" }, "prefix": { "$ref": "#/definitions/content" }, "suffix": { "$ref": "#/definitions/content" } } }, "contentSelect": { "type": "object", "additionalProperties": false, "required": ["select"], "properties": { "select": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/contentBranch" } }, "default": { "$ref": "#/definitions/content" }, "prefix": { "$ref": "#/definitions/content" }, "suffix": { "$ref": "#/definitions/content" } } }, "contentBranch": { "type": "object", "additionalProperties": false, "required": ["content"], "properties": { "when": { "$ref": "#/definitions/contentWhen" }, "content": { "$ref": "#/definitions/content" } } }, "contentWhen": { "type": "object", "additionalProperties": false, "minProperties": 1, "properties": { "phase": { "enum": ["init", "pre_send", "after_response"] }, "length": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/definitions/comparison" }] }, "last": { "$ref": "#/definitions/lastPredicate" }, "any": { "$ref": "#/definitions/predicate" }, "all": { "$ref": "#/definitions/predicate" }, "state": { "$ref": "#/definitions/statePredicate" } } },
     "messageRole": { "enum": ["user", "assistant", "system"] },
     "ttl": { "type": "integer", "minimum": -1 },

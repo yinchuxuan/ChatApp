@@ -36,6 +36,10 @@ function user(content) {
   return { role: 'user', content };
 }
 
+function assistantAt(time) {
+  return { role: 'assistant', content: `【时间地点】${time} | 第三音乐教室\n剧情` };
+}
+
 function runWithRandom(randomValue) {
   jest.spyOn(Math, 'random').mockReturnValue(randomValue);
   const state = ensureStateDefaults(stateSchema, {}).state;
@@ -55,6 +59,20 @@ function runWithState(state) {
     card: loadedCard,
     phase: 'pre_send',
     messages: [...init.messages, user('继续')],
+    state: init.state,
+    fileContents
+  });
+}
+
+function runAfterAssistant(currentSlot, time) {
+  const state = ensureStateDefaults(stateSchema, {
+    timeline: { currentSlot }
+  }).state;
+  const init = applyGameCard({ card: loadedCard, phase: 'init', messages: [], state, fileContents });
+  return applyGameCard({
+    card: loadedCard,
+    phase: 'pre_send',
+    messages: [...init.messages, assistantAt(time), user('继续')],
     state: init.state,
     fileContents
   });
@@ -148,5 +166,35 @@ describe('white album plot direction guide', () => {
     expect(result.state.timeline.currentSlot).toBe('2007.10.21: 16:00 - 2007.10.21: 18:00');
     expect(guide.content).toContain('当前时间: 2007.10.21: 16:00 - 2007.10.21: 18:00');
     expect(guide.content).toContain('隔墙合奏节点');
+  });
+
+  test('auto advances fixed slots after the latest assistant has a scene time', () => {
+    const result = runAfterAssistant(
+      '2007.10.21: 16:00 - 2007.10.21: 18:00',
+      '2007.10.21: 17:00'
+    );
+    const guide = result.messages.find((msg) => msg.role === 'user');
+
+    expect(result.state.timeline.currentSlot).toBe('2007.10.22: 08:00 - 2007.10.22: 18:00');
+    expect(guide.content).toContain('当前时间: 2007.10.22: 08:00 - 2007.10.22: 18:00');
+    expect(guide.content).toContain('通用自由节点');
+    expect(guide.content).not.toContain('隔墙合奏节点');
+  });
+
+  test('auto advances free slots when the latest assistant time reaches the snap point', () => {
+    const early = runAfterAssistant(
+      '2007.10.22: 08:00 - 2007.10.22: 18:00',
+      '2007.10.22: 15:59'
+    );
+    const snapped = runAfterAssistant(
+      '2007.10.22: 08:00 - 2007.10.22: 18:00',
+      '2007.10.22: 16:00'
+    );
+    const guide = snapped.messages.find((msg) => msg.role === 'user');
+
+    expect(early.state.timeline.currentSlot).toBe('2007.10.22: 08:00 - 2007.10.22: 18:00');
+    expect(snapped.state.timeline.currentSlot).toBe('2007.10.23: 08:00 - 2007.10.23: 12:00');
+    expect(guide.content).toContain('当前时间: 2007.10.23: 08:00 - 2007.10.23: 12:00');
+    expect(guide.content).toContain('邀请雪菜节点');
   });
 });

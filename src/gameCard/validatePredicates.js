@@ -57,7 +57,7 @@ function validateStateMatcher(value, path, errors) {
   if (!isObject(value)) return;
   for (const [op, v] of Object.entries(value)) {
     if (!VALID_STATE_OPS.includes(op)) addError(errors, path, 'unknown state op: ' + op);
-    else if (['gt', 'gte', 'lt', 'lte'].includes(op) && typeof v !== 'number') addError(errors, path + '.' + op, 'must be a number');
+    else if (['gt', 'gte', 'lt', 'lte'].includes(op) && typeof v !== 'number' && typeof v !== 'string') addError(errors, path + '.' + op, 'must be a number or string');
     else if ((op === 'in' || op === 'nin') && (!Array.isArray(v) || v.length === 0)) addError(errors, path + '.' + op, 'must be a non-empty array');
     else if (op === 'exists' && typeof v !== 'boolean') addError(errors, path + '.exists', 'must be a boolean');
     else if (op === 'regex' && !isString(v)) addError(errors, path + '.regex', 'must be a string');
@@ -160,6 +160,7 @@ function validateRequiredPredicate(action, path, errors) {
 }
 function validateAction(action, path, errors) {
   if (!action || !isObject(action)) return addError(errors, path, 'must be an object');
+  if (action.when !== undefined) validateContentWhen(action.when, path + '.when', errors);
   if (isString(action.type) && action.type.startsWith('state.')) return validateStateAction(action, path, errors);
   if (!VALID_ACTION_TYPES.includes(action.type)) {
     return addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));

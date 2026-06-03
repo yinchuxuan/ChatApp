@@ -1,6 +1,6 @@
 const { resolveContent } = require('./contentResolver');
 const { runExecAction } = require('./execRunner');
-const { matchesPredicate } = require('./predicate');
+const { matchesPredicate, matchesWhen } = require('./predicate');
 const { applyStateAction } = require('./stateActions');
 const { withFindState } = require('./findResolver');
 
@@ -33,6 +33,13 @@ function buildTrace(action, matches, applied, before, after, stateSummary) {
       messages: summarizeMessages(before, after, type, matches.length),
       state: stateSummary || { changedKeys: [] }
     }
+  };
+}
+
+function skippedTrace(action, messages, reason) {
+  return {
+    ...buildTrace(action, [], false, messages, messages),
+    ...(reason ? { reason } : {})
   };
 }
 
@@ -99,6 +106,13 @@ function applyAction(messages, action, options = {}) {
       find: Array.isArray(action.find) ? options.find : { ...options.find, ...action.find }
     });
     return { ...next, state: found.restore(next.state || found.state) };
+  }
+  if (action?.when) {
+    const phase = options.event?.phase || action.when.phase || 'pre_send';
+    const when = action.when.phase ? action.when : { ...action.when, phase };
+    if (!matchesWhen(when, phase, messages, options.state || {})) {
+      return { messages, state: options.state || {}, trace: skippedTrace(action, messages, 'when_not_matched') };
+    }
   }
   if (action?.type === 'insert') return applyInsert(messages, action, { ...options, messages });
   if (action?.type === 'remove') return applyRemove(messages, action);

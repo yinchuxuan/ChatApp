@@ -65,6 +65,52 @@ describe('when.state predicates', () => {
     expect(result.messages[1]).toEqual({ role: 'system', content: 'score gate open' });
   });
 
+  test('action when gates state actions and compares sortable strings', () => {
+    const card = runtimeCard([
+      {
+        when: { phase: 'pre_send' },
+        then: [
+          { type: 'state.set', path: 'slot', value: 'next', when: { state: { time: { gte: '2007.10.22: 16:00' } } } }
+        ]
+      }
+    ]);
+
+    const early = applyGameCard({
+      card,
+      phase: 'pre_send',
+      messages: [{ role: 'user', content: 'go' }],
+      state: { time: '2007.10.22: 15:59', slot: 'current' }
+    });
+    const late = applyGameCard({
+      card,
+      phase: 'pre_send',
+      messages: [{ role: 'user', content: 'go' }],
+      state: { time: '2007.10.22: 16:00', slot: 'current' }
+    });
+
+    expect(early.state.slot).toBe('current');
+    expect(early.trace.rules[0].actions[0].reason).toBe('when_not_matched');
+    expect(late.state.slot).toBe('next');
+  });
+
+  test('validation accepts action when and string state comparisons', () => {
+    const result = validateGameCard(runtimeCard([
+      {
+        when: { phase: 'pre_send' },
+        then: [
+          {
+            type: 'state.set',
+            path: 'route',
+            value: 'next',
+            when: { state: { time: { gte: '2007.10.22: 16:00' } } }
+          }
+        ]
+      }
+    ]));
+
+    expect(result).toEqual({ valid: true, errors: [] });
+  });
+
   test('validation accepts supported state operators and rejects unknown ones', () => {
     expect(validateGameCard(runtimeCard([
       {

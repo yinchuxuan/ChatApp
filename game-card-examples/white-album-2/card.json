@@ -113,7 +113,25 @@
     {
       "id": "wa2-tail-timeline-guide",
       "when": { "phase": "pre_send" },
+      "find": [
+        {
+          "name": "assistantTime",
+          "from": {
+            "role": "assistant",
+            "content": { "regex": "^【时间地点】\\s*\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2}" },
+            "exec": "return i === msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"
+          },
+          "match": { "regex": "^【时间地点】\\s*(\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2})", "group": 1 },
+          "many": false
+        }
+      ],
       "then": [
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": { "in": ["2007.10.21: 16:00 - 2007.10.21: 18:00", "2007.10.23: 08:00 - 2007.10.23: 12:00", "2007.10.25: 08:00 - 2007.10.25: 12:00", "2007.10.25: 16:00 - 2007.10.25: 18:00"] }, "temp.find.assistantTime": { "regex": "^\\d{4}\\.\\d{2}\\.\\d{2}: \\d{2}:\\d{2}$" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.21: 08:00 - 2007.10.21: 16:00", "temp.find.assistantTime": { "gte": "2007.10.21: 14:00" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.22: 08:00 - 2007.10.22: 18:00", "temp.find.assistantTime": { "gte": "2007.10.22: 16:00" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.23: 12:00 - 2007.10.23: 18:00", "temp.find.assistantTime": { "gte": "2007.10.23: 16:00" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.24: 08:00 - 2007.10.24: 18:00", "temp.find.assistantTime": { "gte": "2007.10.24: 16:00" } } } },
+        { "type": "state.advance", "path": "timeline.currentSlot", "when": { "state": { "timeline.currentSlot": "2007.10.25: 12:00 - 2007.10.25: 16:00", "temp.find.assistantTime": { "gte": "2007.10.25: 15:00" } } } },
         { "type": "state.randomInt", "path": "temp.plotDirectionRoll", "min": 1, "max": 100 },
         {
           "type": "replace",

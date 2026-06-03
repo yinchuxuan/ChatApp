@@ -22,10 +22,10 @@ function matchesStateOperator(actual, exists, op, expected) {
   if (op === 'exists') return expected === exists;
   if (!exists) return false;
   if (op === 'eq') return actual === expected;
-  if (op === 'gt') return typeof actual === 'number' && actual > expected;
-  if (op === 'gte') return typeof actual === 'number' && actual >= expected;
-  if (op === 'lt') return typeof actual === 'number' && actual < expected;
-  if (op === 'lte') return typeof actual === 'number' && actual <= expected;
+  if (op === 'gt') return typeof actual === typeof expected && actual > expected;
+  if (op === 'gte') return typeof actual === typeof expected && actual >= expected;
+  if (op === 'lt') return typeof actual === typeof expected && actual < expected;
+  if (op === 'lte') return typeof actual === typeof expected && actual <= expected;
   if (op === 'in') return Array.isArray(expected) && expected.includes(actual);
   if (op === 'nin') return Array.isArray(expected) && !expected.includes(actual);
   if (op === 'contains' && typeof actual === 'string') return actual.includes(expected);
