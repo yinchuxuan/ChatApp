@@ -8,3 +8,4 @@ architecture: docs/architecture.md
 chat session design: docs/chat_session_design.md
 build and test: docs/build_and_test.md
 game card design: docs/game_card_design.md
+game card audio: docs/game_card/game_card_audio.md

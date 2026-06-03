@@ -197,3 +197,4 @@ actions: docs/game_card/game_card_actions.md
 content: docs/game_card/game_card_content.md
 state: docs/game_card/game_card_state.md
 display: docs/game_card/game_card_display.md
+audio: docs/game_card/game_card_audio.md
