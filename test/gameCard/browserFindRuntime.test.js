@@ -87,12 +87,31 @@ describe('browser game card find runtime', () => {
     const runtime = loadBrowserRuntime();
     const card = require('../../game-card-examples/white-album-2/card.json');
     const schema = require('../../game-card-examples/white-album-2/state/schema.json');
-    const loadedCard = { ...card, state: { ...card.state, schema } };
+    const llmSchema = require('../../game-card-examples/white-album-2/state/llm_schema.json');
+    const loadedCard = {
+      ...card,
+      state: {
+        ...card.state,
+        schema: {
+          schema: {
+            ...schema.schema,
+            'audio.bgm': {
+              type: 'enum',
+              values: Object.keys(card.audio.bgm),
+              default: Object.keys(card.audio.bgm)[0],
+              llmRead: false,
+              llmWrite: false
+            }
+          }
+        }
+      }
+    };
     const fileContents = {
       'first_msg.md': '开场',
       'roleplay_rules.md': '规则',
       'plot_guides.md': '# 剧情引导\n## 自由剧情\n自由节点',
       'state/schema.json': JSON.stringify(schema),
+      'state/llm_schema.json': JSON.stringify(llmSchema),
       'worldbook/characters.md': '# 角色',
       'worldbook/location.md': '# 地点'
     };
@@ -100,7 +119,7 @@ describe('browser game card find runtime', () => {
       card: loadedCard,
       phase: 'init',
       messages: [],
-      state: runtime.ensureStateDefaults(schema, {}).state,
+      state: runtime.ensureStateDefaults(loadedCard.state.schema, {}).state,
       fileContents
     });
     const result = runtime.applyGameCard({

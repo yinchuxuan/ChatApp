@@ -70,6 +70,34 @@ describe('GameCardBgmPlayer', () => {
     expect(window.HTMLMediaElement.prototype.pause).toHaveBeenCalled();
   });
 
+  test('waits for the latest bgm url before playing after resume', async () => {
+    let resolveSad;
+    window.electronAPI.getGameCardAudioUrl
+      .mockResolvedValueOnce({ success: true, url: 'local:///intro.mp3' })
+      .mockReturnValueOnce(new Promise(resolve => { resolveSad = resolve; }));
+    const card = { audio: { bgm: { intro: 'audio/intro.mp3', sad: 'audio/sad.mp3' } } };
+    const { rerender } = render(React.createElement(GameCardBgmPlayer, {
+      card,
+      gameState: { audio: { bgm: 'intro' } },
+      resumeToken: 0
+    }));
+    await flushAudioEffects();
+    await waitFor(() => expect(document.querySelector('audio').getAttribute('src')).toBe('local:///intro.mp3'));
+
+    rerender(React.createElement(GameCardBgmPlayer, {
+      card,
+      gameState: { audio: { bgm: 'sad' } },
+      resumeToken: 1
+    }));
+    await flushAudioEffects();
+
+    expect(window.HTMLMediaElement.prototype.play).not.toHaveBeenCalled();
+    await act(async () => { resolveSad({ success: true, url: 'local:///sad.mp3' }); });
+    await waitFor(() => expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(1));
+    expect(document.querySelector('audio').getAttribute('src')).toBe('local:///sad.mp3');
+    expect(document.querySelector('audio').currentTime).toBe(0);
+  });
+
   test('manual button toggles audio enabled state with music icons', async () => {
     render(React.createElement(GameCardBgmPlayer, {
       card: { audio: { bgm: { intro: 'audio/intro.mp3' } } },

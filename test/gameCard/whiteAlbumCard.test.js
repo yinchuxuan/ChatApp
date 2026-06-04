@@ -1,7 +1,11 @@
 const card = require('../../game-card-examples/white-album-2/card.json');
 const stateSchema = require('../../game-card-examples/white-album-2/state/schema.json');
+const llmStateSchema = require('../../game-card-examples/white-album-2/state/llm_schema.json');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
+const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
+
+const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
 
 function user(content) {
   return { role: 'user', content };
@@ -20,6 +24,7 @@ const fileContents = {
   'roleplay_rules.md': '回复时保持白色相簿2的氛围。追加 <state_patch> 并用 state.set 更新 touma.affection 和 setsuna.affection。',
   'plot_guides.md': '# 剧情引导\n## 自由剧情\n开头窗口\n## 后续剧情窗口\n后续窗口',
   'state/schema.json': JSON.stringify(stateSchema),
+  'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '世界书：北原春希',
     '## 冬马和纱', '世界书：冬马和纱',
@@ -31,13 +36,13 @@ const fileContents = {
 };
 
 function defaultState(overrides = {}) {
-  const state = ensureStateDefaults(stateSchema, overrides).state;
+  const state = ensureStateDefaults(loadedCard.state.schema, overrides).state;
   return state;
 }
 
 function applyWhiteAlbumPhase(phase, messages, state = defaultState()) {
   return applyGameCard({
-    card,
+    card: loadedCard,
     phase,
     messages,
     state,
@@ -95,7 +100,9 @@ describe('white album 2 game card', () => {
     expect(status._meta.visibility).toBe('llm_only');
     expect(status.content).toContain('"touma.affection"');
     expect(status.content).toContain('"setsuna.affection"');
-    expect(status.content).toContain('timeline.currentSlot: 2007.10.21: 08:00 星期日 - 2007.10.21: 16:00 星期日');
+    expect(status.content).toContain('"timeline.currentTime"');
+    expect(status.content).not.toContain('"audio.bgm"');
+    expect(status.content).toContain('timeline.currentTime: 2007.10.21: 08:00 星期日');
     expect(status.content).not.toContain('timeline.advanceIntent');
     expect(status.content).toContain('touma.affection: 12');
     expect(status.content).toContain('setsuna.affection: 8');

@@ -2,34 +2,28 @@
   "schema": {
     "touma.affection": {
       "type": "number",
-      "default": 0,
       "min": 0,
       "max": 100,
-      "onInvalid": "clamp",
       "description": "冬马和纱对玩家/春希当前路线的好感度",
       "llmRead": true,
-      "uiVisible": true
+      "llmWrite": true
     },
     "setsuna.affection": {
       "type": "number",
-      "default": 0,
       "min": 0,
       "max": 100,
-      "onInvalid": "clamp",
       "description": "小木曾雪菜对玩家/春希当前路线的好感度",
       "llmRead": true,
-      "uiVisible": true
+      "llmWrite": true
     },
     "timeline.currentTime": {
       "type": "string",
-      "default": "2007.10.21: 08:00 星期日",
-      "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X。LLM 每轮用 state.set 写入本轮正文结束时的时间，剧情引导按该时间落入的区间选择。",
+      "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X",
       "llmRead": true,
       "llmWrite": true
     },
     "status.setsunaContestAccepted": {
       "type": "boolean",
-      "default": false,
       "description": "小木曾雪菜是否同意参加峰城大附属小姐竞选",
       "llmRead": true,
       "llmWrite": true

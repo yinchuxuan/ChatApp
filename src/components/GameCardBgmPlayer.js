@@ -2,13 +2,15 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
   const R = window.React || React;
   const audioRef = R.useRef(null), lastPathRef = R.useRef('');
   const playingRef = R.useRef(false);
-  const [src, setSrc] = R.useState('');
+  const pendingResumeRef = R.useRef(false);
+  const [audioSource, setAudioSource] = R.useState({ path: '', url: '' });
   const [blocked, setBlocked] = R.useState(false), [enabled, setEnabled] = R.useState(true);
 
   const relativePath = R.useMemo(() => {
     const key = gameState?.audio?.bgm;
     return typeof key === 'string' ? (card?.audio?.bgm?.[key] || '') : '';
   }, [card, gameState]);
+  const src = audioSource.path === relativePath ? audioSource.url : '';
 
   const stop = R.useCallback(() => {
     const audio = audioRef.current;
@@ -18,15 +20,19 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
 
   const playCurrent = R.useCallback(async (forceEnabled = false) => {
     const audio = audioRef.current;
-    if (!audio || !src || (!enabled && !forceEnabled)) return;
+    if (!audio || !src || (!enabled && !forceEnabled)) return false;
     try {
       audio.currentTime = 0;
       await audio.play();
       playingRef.current = true;
+      pendingResumeRef.current = false;
       setBlocked(false);
+      return true;
     } catch (_) {
       playingRef.current = false;
+      pendingResumeRef.current = false;
       setBlocked(true);
+      return false;
     }
   }, [src, enabled]);
 
@@ -36,7 +42,7 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
       stop();
       setBlocked(false);
       if (!relativePath || !window.electronAPI?.getGameCardAudioUrl) {
-        setSrc('');
+        setAudioSource({ path: '', url: '' });
         lastPathRef.current = '';
         return;
       }
@@ -44,18 +50,26 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
       lastPathRef.current = relativePath;
       const result = await window.electronAPI.getGameCardAudioUrl(relativePath);
       if (canceled) return;
-      if (result?.success && result.url) setSrc(result.url);
+      if (result?.success && result.url) setAudioSource({ path: relativePath, url: result.url });
       else {
         console.error('Failed to load game card audio:', result?.error || 'unknown error');
-        setSrc('');
+        setAudioSource({ path: relativePath, url: '' });
       }
     }
     resolveAudioUrl();
     return () => { canceled = true; };
   }, [relativePath, stop]);
 
-  R.useEffect(() => { stop(); }, [stopToken, stop]);
-  R.useEffect(() => { if (resumeToken > 0) playCurrent(); }, [resumeToken, playCurrent]);
+  R.useEffect(() => { pendingResumeRef.current = false; stop(); }, [stopToken, stop]);
+  R.useEffect(() => {
+    if (resumeToken > 0) {
+      pendingResumeRef.current = true;
+      playCurrent();
+    }
+  }, [resumeToken]);
+  R.useEffect(() => {
+    if (pendingResumeRef.current && src) playCurrent();
+  }, [src, playCurrent]);
   R.useEffect(() => () => stop(), [stop]);
 
   const toggle = (event) => {

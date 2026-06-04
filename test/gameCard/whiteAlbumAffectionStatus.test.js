@@ -1,7 +1,11 @@
 const card = require('../../game-card-examples/white-album-2/card.json');
 const stateSchema = require('../../game-card-examples/white-album-2/state/schema.json');
+const llmStateSchema = require('../../game-card-examples/white-album-2/state/llm_schema.json');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
+const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
+
+const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
 
 const fileContents = {
   'first_msg.md': '开场',
@@ -14,6 +18,7 @@ const fileContents = {
     '后续窗口'
   ].join('\n'),
   'state/schema.json': JSON.stringify(stateSchema),
+  'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '春希基础',
     '## 冬马和纱', '冬马基础',
@@ -22,13 +27,13 @@ const fileContents = {
 };
 
 function state(overrides) {
-  return ensureStateDefaults(stateSchema, overrides).state;
+  return ensureStateDefaults(loadedCard.state.schema, overrides).state;
 }
 
 function run(content, gameState) {
-  const init = applyGameCard({ card, phase: 'init', messages: [], state: state({}), fileContents });
+  const init = applyGameCard({ card: loadedCard, phase: 'init', messages: [], state: state({}), fileContents });
   const result = applyGameCard({
-    card,
+    card: loadedCard,
     phase: 'pre_send',
     messages: [...init.messages, { role: 'user', content }],
     state: gameState,
