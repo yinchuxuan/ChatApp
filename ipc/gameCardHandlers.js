@@ -1,4 +1,5 @@
 const path = require('path');
+const { getCardAssetPath, getCardAudioPath } = require('./gameCardAssets');
 const {
   ensureGameCardDirs,
   getCardPath,
@@ -23,26 +24,6 @@ function listCardIds(fs, cardsDir) {
   return fs.readdirSync(cardsDir)
     .filter(name => isSafeGameCardId(name) && fs.existsSync(getCardPath(cardsDir, name)))
     .sort();
-}
-
-function getCardAssetPath(fs, cardsDir, id, relativePath) {
-  if (!isSafeGameCardId(id)) throw new Error('Invalid game card id');
-  if (path.isAbsolute(relativePath)) throw new Error('file_content path must be relative');
-  const baseDir = path.resolve(cardsDir, id);
-  const filePath = path.resolve(baseDir, relativePath);
-  if (filePath !== baseDir && !filePath.startsWith(baseDir + path.sep)) {
-    throw new Error('file_content path must stay inside game card directory');
-  }
-  // Resolve symlinks to prevent path traversal via symbolic links
-  if (fs.existsSync(filePath)) {
-    const realPath = fs.realpathSync(filePath);
-    const realBaseDir = fs.existsSync(baseDir) ? fs.realpathSync(baseDir) : baseDir;
-    if (realPath !== realBaseDir && !realPath.startsWith(realBaseDir + path.sep)) {
-      throw new Error('file_content path must stay inside game card directory');
-    }
-  }
-  if (!fs.existsSync(filePath)) throw new Error('file_content file not found');
-  return filePath;
 }
 
 function migrateLegacyCards(fs, gameCardsDir, legacyGameCardsDir) {
@@ -186,6 +167,17 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameC
       return { success: true, content: fs.readFileSync(filePath, 'utf-8') };
     } catch (err) {
       return asErrorResult(err, { content: '' });
+    }
+  });
+
+  ipcMain.handle('get-game-card-audio-url', (event, relativePath) => {
+    try {
+      const active = readJsonFile(fs, activePath, { id: null });
+      if (!active?.id) throw new Error('No active game card');
+      const filePath = getCardAudioPath(fs, cardsDir, active.id, relativePath);
+      return { success: true, url: `local://${filePath}`, path: filePath };
+    } catch (err) {
+      return asErrorResult(err, { url: '' });
     }
   });
 }

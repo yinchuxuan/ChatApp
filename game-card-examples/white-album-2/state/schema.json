@@ -37,6 +37,14 @@
       "llmRead": true,
       "llmWrite": false
     },
+    "audio.bgm": {
+      "type": "enum",
+      "values": ["daily"],
+      "default": "daily",
+      "description": "当前播放的 BGM key",
+      "llmRead": false,
+      "llmWrite": false
+    },
     "status.setsunaContestAccepted": {
       "type": "boolean",
       "default": false,

@@ -16,7 +16,9 @@ function ChatInputArea({
   isInputTriggerHovered,
   setIsInputTriggerHovered,
   retryBaseRef,
-  retryBaseStateRef
+  retryBaseStateRef,
+  onAudioSubmit,
+  onAudioResponseComplete
 }) {
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
@@ -33,6 +35,7 @@ function ChatInputArea({
       setMessages(prev => [...prev, { role: 'user', content: inputValue }, { role: 'assistant', content: '请先在右侧设置面板配置模型 API', isError: true }]);
       setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); return;
     }
+    onAudioSubmit?.();
     const userMessage = { role: 'user', content: inputValue };
     const newMessages = [...messages, userMessage];
     if (retryBaseRef) {
@@ -93,8 +96,9 @@ function ChatInputArea({
         } else {
           setMessages(prev => [...prev, assistantMessage]);
         }
-        tw.clearStreaming();
       }
+      onAudioResponseComplete?.();
+      tw.clearStreaming();
     } catch (err) {
       setIsLoading(false); tw.reset();
       setMessages(prev => [...prev, { role: 'assistant', content: `请求失败: ${err.message}`, isError: true }]);

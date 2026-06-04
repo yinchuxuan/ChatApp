@@ -122,9 +122,9 @@ gameState.audio.bgm
 
 播放时机：
 
-- 用户键入输入后立即停止当前 BGM
+- 用户提交消息后立即停止当前 BGM；仅键入输入不停止
 - LLM 流式回复期间保持停止
-- 流式回复完成并完成 `after_response` 规则后，按最新 `gameState.audio.bgm` 加载并播放
+- 流式回复完成并完成 `after_response` 规则后，按最新 `gameState.audio.bgm` 从头加载并播放
 
 行为要求：
 

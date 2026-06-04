@@ -1,0 +1,29 @@
+.game-card-bgm-player {
+  flex: 0 0 auto;
+}
+
+.game-card-bgm-player audio {
+  display: none;
+}
+
+.game-card-bgm-btn {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: var(--md-shape-corner-full);
+  color: var(--md-primary);
+}
+
+.game-card-bgm-btn.no-source {
+  opacity: 0.72;
+}
+
+.game-card-bgm-btn.blocked {
+  color: var(--md-tertiary);
+}
+
+.game-card-bgm-btn .material-icons {
+  font-size: 20px;
+  color: currentColor;
+  animation: none;
+}

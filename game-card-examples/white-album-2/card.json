@@ -3,6 +3,7 @@
   "id": "white-album-2",
   "name": "白色相簿2",
   "state": { "schemaFile": "state/schema.json" },
+  "audio": { "bgm": { "daily": "audio/WA2_daily.mp3" } },
   "display": { "stylesheet": "display.css", "assistant": [
     { "id": "wa2-hide-summary-block", "stage": "before_markdown", "type": "regex_replace", "pattern": "\\n*---\\s*\\n\\s*<summary>[\\s\\S]*?<\\/summary>\\s*\\n\\s*---\\s*", "flags": "g", "replace": "\n\n" },
     { "id": "wa2-hide-summary-tag", "stage": "before_markdown", "type": "regex_replace", "pattern": "<summary>[\\s\\S]*?<\\/summary>", "flags": "g", "replace": "" },
@@ -148,7 +149,7 @@
                 { "when": { "state": { "timeline.currentSlot": "2007.10.25: 12:00 星期四 - 2007.10.25: 16:00 星期四" } }, "content": "2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四" }
               ],
               "default": "无",
-              "suffix": "{{raw_string:\n\nSlot边界规则:\n- 本轮正文只能发生在当前时间内，开头【时间地点】的时间必须落在当前时间。\n- 不得描写下一时间或更后时间内发生的事件，也不得提前发生下一固定剧情节点。\n\n}}"
+              "suffix": "{{raw_string:\n\nSlot边界规则:\n- 本轮正文只能发生在当前时间内，开头【时间地点】的时间必须落在当前时间。\n- 不得描写下一时间或更后时间内发生的事件，也不得提前发生下一固定剧情节点。\n- 如果剧情要推进到下一时间，必须先在本轮结尾使用 state.advance，下一轮才能描写下一时间。\n\n}}"
             },
             "select": [
               { "when": { "state": { "timeline.currentSlot": { "nin": ["2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日", "2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二", "2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四", "2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四"] } } }, "content": { "prefix": "{{file_section:plot_guides.md##自由剧情}} + {{raw_string:\n\n### 好感度与随机数分支\n}}", "include": [

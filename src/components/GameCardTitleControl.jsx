@@ -1,4 +1,4 @@
-function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged }) {
+function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged, audioControl }) {
   const [card, setCard] = React.useState(null);
   const [error, setError] = React.useState('');
   const [isImporting, setIsImporting] = React.useState(false);
@@ -38,21 +38,24 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
         <span className="game-card-title-name">{title}</span>
       </div>
       {modelName ? <span className="config-status configured game-card-model-status">{modelName}</span> : null}
-      {SessionManager ? <SessionManager onBeforeSessionChange={onBeforeSessionChange} onSessionChanged={onSessionChanged} /> : null}
-      <button
-        className="game-card-import-btn md-btn md-btn-icon"
-        onClick={handleImport}
-        disabled={isImporting}
-        title="导入游戏卡文件夹"
-        aria-label="导入游戏卡文件夹"
-      >
-        <span className="material-icons">{isImporting ? 'hourglass_empty' : 'drive_folder_upload'}</span>
-      </button>
-      {error ? (
-        <span className="game-card-title-error" aria-label={error}>
-          <span className="material-icons">error</span>
-        </span>
-      ) : null}
+      <div className="game-card-title-actions">
+        {audioControl || null}
+        {SessionManager ? <SessionManager onBeforeSessionChange={onBeforeSessionChange} onSessionChanged={onSessionChanged} /> : null}
+        <button
+          className="game-card-import-btn md-btn md-btn-icon"
+          onClick={handleImport}
+          disabled={isImporting}
+          title="导入游戏卡文件夹"
+          aria-label="导入游戏卡文件夹"
+        >
+          <span className="material-icons">{isImporting ? 'hourglass_empty' : 'drive_folder_upload'}</span>
+        </button>
+        {error ? (
+          <span className="game-card-title-error" aria-label={error}>
+            <span className="material-icons">error</span>
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }

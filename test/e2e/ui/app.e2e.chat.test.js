@@ -5,7 +5,7 @@
 
 const { test, expect } = require('@playwright/test');
 const { ElectronAppHelper } = require('../electronAppHelper');
-const { revealChatHeader, clickChatHeader, getChatHeaderTitle, revealChatInput } = require('../chatHeaderActions');
+const { revealChatHeader, clickChatHeader, getChatHeaderTitle } = require('../chatHeaderActions');
 
 let appHelper;
 
@@ -153,5 +153,27 @@ test.describe('Chat Panel Header Actions', () => {
     expect(result.hasSession).toBe(true); expect(result.hasImport).toBe(true);
     expect(result.rightGap).toBeGreaterThanOrEqual(70);
     expect(result.paddingRight).toBe('54px');
+  });
+  test('should show BGM toggle next to session management', async () => {
+    await revealChatHeader(appHelper);
+    const result = await appHelper.evaluate(() => {
+      const actions = document.querySelector('.game-card-title-actions');
+      const bgm = actions?.querySelector('.game-card-bgm-btn');
+      const session = actions?.querySelector('.chat-session-btn');
+      const icon = bgm?.querySelector('.material-icons');
+      if (!actions || !bgm || !session) return null;
+      return {
+        icon: bgm.textContent.trim(),
+        mask: window.getComputedStyle(icon).getPropertyValue('--icon-mask'),
+        bgmRight: Math.round(bgm.getBoundingClientRect().right),
+        sessionLeft: Math.round(session.getBoundingClientRect().left)
+      };
+    });
+    expect(result).not.toBeNull();
+    expect(result.icon).toBe('music_note');
+    expect(result.mask).toContain('svg');
+    expect(result.mask).toContain('path');
+    expect(result.sessionLeft - result.bgmRight).toBeGreaterThanOrEqual(0);
+    expect(result.sessionLeft - result.bgmRight).toBeLessThanOrEqual(12);
   });
 });

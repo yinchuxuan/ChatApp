@@ -1,5 +1,6 @@
 const { validateWhen, validateAction, validatePredicate } = require('./validatePredicates');
 const { validateFind } = require('./validateFind');
+const { validateAudioConfig } = require('./audioConfig');
 
 function addError(errors, path, message) {
   errors.push(`${path}: ${message}`);
@@ -36,6 +37,7 @@ function validateGameCard(card) {
     return { valid: errors.length === 0, errors };
   }
 
+  errors.push(...validateAudioConfig(card.audio));
   card.rules.forEach((rule, i) => validateRule(rule, 'rules[' + i + ']', errors));
 
   return { valid: errors.length === 0, errors };

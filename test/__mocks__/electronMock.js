@@ -58,7 +58,8 @@ const mockElectronAPI = {
   getGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
   saveGameCard: jest.fn().mockResolvedValue({ success: true }),
   setActiveGameCard: jest.fn().mockResolvedValue({ success: true }),
-  getActiveGameCard: jest.fn().mockResolvedValue({ success: true, card: null })
+  getActiveGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
+  getGameCardAudioUrl: jest.fn().mockResolvedValue({ success: true, url: 'local:///audio.mp3' })
 };
 
 module.exports = {

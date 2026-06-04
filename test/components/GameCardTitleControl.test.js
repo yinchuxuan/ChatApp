@@ -80,6 +80,16 @@ describe('GameCardTitleControl', () => {
     expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
   });
 
+  test('renders audio control in the title bar', async () => {
+    render(<GameCardTitleControl audioControl={<button className="audio-test" aria-label="关闭 BGM">music_note</button>} />);
+
+    await screen.findByText('未加载游戏卡');
+    const actions = document.querySelector('.game-card-title-actions');
+    expect(actions).toContainElement(screen.getByRole('button', { name: '关闭 BGM' }));
+    expect(actions.children[0]).toContainElement(screen.getByRole('button', { name: '关闭 BGM' }));
+    expect(actions.children[1].querySelector('.chat-session-btn')).not.toBeNull();
+  });
+
   test('creates and switches sessions through callbacks', async () => {
     const before = jest.fn();
     const changed = jest.fn();

@@ -47,10 +47,17 @@
   flex: 0 0 auto;
 }
 
+.game-card-title-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
 .chat-session-manager {
   position: relative;
   flex: 0 0 auto;
-  margin-left: auto;
 }
 
 .chat-session-btn {
