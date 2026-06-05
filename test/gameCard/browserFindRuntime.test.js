@@ -85,9 +85,7 @@ describe('browser game card find runtime', () => {
 
   test('white album browser runtime appends tail context to latest user message', () => {
     const runtime = loadBrowserRuntime();
-    const card = require('../../game-card-examples/white-album-2/card.json');
-    const schema = require('../../game-card-examples/white-album-2/state/schema.json');
-    const llmSchema = require('../../game-card-examples/white-album-2/state/llm_schema.json');
+    const { card, stateSchema: schema, llmStateSchema: llmSchema } = require('./whiteAlbumTestCard');
     const loadedCard = {
       ...card,
       state: {

@@ -7,6 +7,7 @@ const {
   readJsonFile,
   writeJsonFile
 } = require('./gameCardStorage');
+const { readGameCardJson } = require('./gameCardImportResolver');
 const { validateGameCard } = require('../src/gameCard/validateGameCard');
 
 function asErrorResult(err, fallback = {}) {
@@ -16,7 +17,7 @@ function asErrorResult(err, fallback = {}) {
 
 function readCard(fs, cardsDir, id) {
   const cardPath = getCardPath(cardsDir, id);
-  return readJsonFile(fs, cardPath, null);
+  return readGameCardJson(fs, cardPath, null);
 }
 
 function listCardIds(fs, cardsDir) {
@@ -60,7 +61,7 @@ function readImportCard(fs, selectedDir) {
   const cardPath = path.join(selectedDir, 'card.json');
   if (!fs.existsSync(cardPath)) throw new Error('Selected folder must contain card.json');
 
-  const card = JSON.parse(fs.readFileSync(cardPath, 'utf-8'));
+  const card = readGameCardJson(fs, cardPath);
   if (!card || !isSafeGameCardId(card.id)) {
     throw new Error('Game card must have a safe id');
   }

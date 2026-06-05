@@ -1,0 +1,1 @@
+[{"id":"wa2-keep-latest-user","when":{"phase":"pre_send"},"then":[{"type":"remove","predicate":{"role":"user","not":{"index":"last"}}}]}]

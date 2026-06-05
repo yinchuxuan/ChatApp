@@ -1,6 +1,4 @@
-const card = require('../../game-card-examples/white-album-2/card.json');
-const stateSchema = require('../../game-card-examples/white-album-2/state/schema.json');
-const llmStateSchema = require('../../game-card-examples/white-album-2/state/llm_schema.json');
+const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
@@ -130,6 +128,7 @@ describe('white album plot direction guide', () => {
     const invite = runAtSlot('2007.10.23: 08:00 星期二');
     const inviteGuide = invite.messages.find((msg) => msg.role === 'user');
 
+    expect(invite.state.audio.bgm).toBe('normal');
     expect(inviteGuide.content).toContain('当前时间: 2007.10.23: 08:00 星期二');
     expect(inviteGuide.content).toContain('邀请雪菜节点');
     expect(inviteGuide.content).not.toContain('隔墙合奏节点');
@@ -139,6 +138,7 @@ describe('white album plot direction guide', () => {
     const deadline = runAtSlot('2007.10.25: 08:00 星期四');
     const deadlineGuide = deadline.messages.find((msg) => msg.role === 'user');
 
+    expect(deadline.state.audio.bgm).toBe('sad');
     expect(deadlineGuide.content).toContain('当前时间: 2007.10.25: 08:00 星期四');
     expect(deadlineGuide.content).toContain('报名截止节点');
     expect(deadlineGuide.content).not.toContain('隔墙合奏节点');
@@ -148,6 +148,7 @@ describe('white album plot direction guide', () => {
     const rooftop = runAtSlot('2007.10.25: 16:00 星期四');
     const rooftopGuide = rooftop.messages.find((msg) => msg.role === 'user');
 
+    expect(rooftop.state.audio.bgm).toBe('WA_3');
     expect(rooftopGuide.content).toContain('当前时间: 2007.10.25: 16:00 星期四');
     expect(rooftopGuide.content).toContain('天台歌声节点');
     expect(rooftopGuide.content).not.toContain('报名截止节点');

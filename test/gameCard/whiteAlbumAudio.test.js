@@ -1,7 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const card = require('../../game-card-examples/white-album-2/card.json');
-const stateSchema = require('../../game-card-examples/white-album-2/state/schema.json');
+const { card, stateSchema } = require('./whiteAlbumTestCard');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
 const { validateGameCard } = require('../../src/gameCard/validateGameCard');
@@ -16,7 +15,7 @@ describe('white album 2 audio', () => {
     expect(stateSchema.schema['audio.bgm']).toBeUndefined();
     expect(loadedCard.state.schema.schema['audio.bgm']).toMatchObject({
       type: 'enum',
-      values: ['daily', 'happy', 'normal', 'sad', 'tragic', 'WA_piano'],
+      values: ['daily', 'happy', 'normal', 'sad', 'tragic', 'WA_piano', 'WA_3'],
       default: 'daily'
     });
     expect(initialized.audio.bgm).toBe('daily');
@@ -27,5 +26,6 @@ describe('white album 2 audio', () => {
     expect(card.audio.bgm.sad).toBe('audio/WA2_sad.mp3');
     expect(card.audio.bgm.tragic).toBe('audio/WA2_tragic.mp3');
     expect(card.audio.bgm.WA_piano).toBe('audio/WA2_WA_piano.ogg');
+    expect(card.audio.bgm.WA_3).toBe('audio/WA2_WA_3.mp3');
   });
 });

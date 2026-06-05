@@ -2,188 +2,106 @@
   "version": "1.0",
   "id": "white-album-2",
   "name": "白色相簿2",
-  "state": { "schemaFile": "state/schema.json" },
-  "audio": { "bgm": {
-    "daily": "audio/WA2_daily.mp3",
-    "happy": "audio/WA2_happy.mp3",
-    "normal": "audio/WA2_normal.mp3",
-    "sad": "audio/WA2_sad.mp3",
-    "tragic": "audio/WA2_tragic.mp3",
-    "WA_piano": "audio/WA2_WA_piano.ogg"
-  } },
-  "display": { "stylesheet": "display.css", "assistant": [
-    { "id": "wa2-hide-summary-block", "stage": "before_markdown", "type": "regex_replace", "pattern": "\\n*---\\s*\\n\\s*<summary>[\\s\\S]*?<\\/summary>\\s*\\n\\s*---\\s*", "flags": "g", "replace": "\n\n" },
-    { "id": "wa2-hide-summary-tag", "stage": "before_markdown", "type": "regex_replace", "pattern": "<summary>[\\s\\S]*?<\\/summary>", "flags": "g", "replace": "" },
-    { "id": "wa2-hide-state-patch-block", "stage": "before_markdown", "type": "regex_replace", "pattern": "\\n*---\\s*\\n\\s*<state_patch>[\\s\\S]*?<\\/state_patch>\\s*\\n\\s*---\\s*", "flags": "g", "replace": "\n\n" },
-    { "id": "wa2-hide-state-patch-tag", "stage": "before_markdown", "type": "regex_replace", "pattern": "<state_patch>[\\s\\S]*?<\\/state_patch>", "flags": "g", "replace": "" },
-    { "id": "wa2-scene-time-place", "stage": "before_markdown", "type": "regex_replace", "pattern": "^【时间地点】\\s*([^\\n｜|]+?)\\s*[｜|]\\s*([^\\n]+)$", "flags": "gm", "replace": "<div class=\"wa2-scene-meta\"><span class=\"wa2-scene-time\">$1</span><span class=\"wa2-scene-place\">$2</span></div>" },
-    { "id": "wa2-choice-card", "stage": "before_markdown", "type": "regex_replace", "pattern": "^([A-D])\\.\\s+(.+)$", "flags": "gm", "replace": "<div class=\"wa2-choice\"><span class=\"wa2-choice-label\">$1</span><span class=\"wa2-choice-text\">$2</span></div>" }
-  ], "user": [
-    { "id": "wa2-hide-user-turn-context", "stage": "before_markdown", "type": "regex_replace", "pattern": "\\n*---\\s*\\n\\s*<wa2_turn_context>[\\s\\S]*?<\\/wa2_turn_context>\\s*$", "flags": "g", "replace": "" },
-    { "id": "wa2-hide-user-turn-context-tag", "stage": "before_markdown", "type": "regex_replace", "pattern": "<wa2_turn_context>[\\s\\S]*?<\\/wa2_turn_context>", "flags": "g", "replace": "" }
-  ] },
+  "state": {
+    "schemaFile": "state/schema.json"
+  },
+  "audio": {
+    "bgm": {
+      "daily": "audio/WA2_daily.mp3",
+      "happy": "audio/WA2_happy.mp3",
+      "normal": "audio/WA2_normal.mp3",
+      "sad": "audio/WA2_sad.mp3",
+      "tragic": "audio/WA2_tragic.mp3",
+      "WA_piano": "audio/WA2_WA_piano.ogg",
+      "WA_3": "audio/WA2_WA_3.mp3"
+    }
+  },
+  "display": {
+    "stylesheet": "display.css",
+    "assistant": [
+      {
+        "id": "wa2-hide-summary-block",
+        "stage": "before_markdown",
+        "type": "regex_replace",
+        "pattern": "\\n*---\\s*\\n\\s*<summary>[\\s\\S]*?<\\/summary>\\s*\\n\\s*---\\s*",
+        "flags": "g",
+        "replace": "\n\n"
+      },
+      {
+        "id": "wa2-hide-summary-tag",
+        "stage": "before_markdown",
+        "type": "regex_replace",
+        "pattern": "<summary>[\\s\\S]*?<\\/summary>",
+        "flags": "g",
+        "replace": ""
+      },
+      {
+        "id": "wa2-hide-state-patch-block",
+        "stage": "before_markdown",
+        "type": "regex_replace",
+        "pattern": "\\n*---\\s*\\n\\s*<state_patch>[\\s\\S]*?<\\/state_patch>\\s*\\n\\s*---\\s*",
+        "flags": "g",
+        "replace": "\n\n"
+      },
+      {
+        "id": "wa2-hide-state-patch-tag",
+        "stage": "before_markdown",
+        "type": "regex_replace",
+        "pattern": "<state_patch>[\\s\\S]*?<\\/state_patch>",
+        "flags": "g",
+        "replace": ""
+      },
+      {
+        "id": "wa2-scene-time-place",
+        "stage": "before_markdown",
+        "type": "regex_replace",
+        "pattern": "^【时间地点】\\s*([^\\n｜|]+?)\\s*[｜|]\\s*([^\\n]+)$",
+        "flags": "gm",
+        "replace": "<div class=\"wa2-scene-meta\"><span class=\"wa2-scene-time\">$1</span><span class=\"wa2-scene-place\">$2</span></div>"
+      },
+      {
+        "id": "wa2-choice-card",
+        "stage": "before_markdown",
+        "type": "regex_replace",
+        "pattern": "^([A-D])\\.\\s+(.+)$",
+        "flags": "gm",
+        "replace": "<div class=\"wa2-choice\"><span class=\"wa2-choice-label\">$1</span><span class=\"wa2-choice-text\">$2</span></div>"
+      }
+    ],
+    "user": [
+      {
+        "id": "wa2-hide-user-turn-context",
+        "stage": "before_markdown",
+        "type": "regex_replace",
+        "pattern": "\\n*---\\s*\\n\\s*<wa2_turn_context>[\\s\\S]*?<\\/wa2_turn_context>\\s*$",
+        "flags": "g",
+        "replace": ""
+      },
+      {
+        "id": "wa2-hide-user-turn-context-tag",
+        "stage": "before_markdown",
+        "type": "regex_replace",
+        "pattern": "<wa2_turn_context>[\\s\\S]*?<\\/wa2_turn_context>",
+        "flags": "g",
+        "replace": ""
+      }
+    ]
+  },
   "rules": [
     {
-      "id": "wa2-system-prompt",
-      "when": {
-        "phase": "init"
-      },
-      "then": [
-        {
-          "type": "insert",
-          "role": "system",
-          "content": "你是《白色相簿2》剧情创作者丸户史明，接下来开始进行《白色相簿2》ic篇的角色扮演互动，你需要根据用户的反馈创建合适的角色扮演剧情",
-          "_meta": { "source": "wa2_system_prompt", "visibility": "llm_only" }
-        },
-        {
-          "type": "insert",
-          "role": "system",
-          "content": "历史对话总结:\n暂无",
-          "_meta": { "source": "wa2_summary", "visibility": "llm_only" }
-        },
-        {
-          "type": "insert",
-          "role": "assistant",
-          "content": "{{file_content:first_msg.md}}",
-          "_meta": { "source": "wa2_first_msg", "visibility": "user_visible" }
-        }
-      ]
+      "$import": "rules/system-prompt.json"
     },
     {
-      "id": "wa2-compress-assistant-history",
-      "when": {
-        "phase": "pre_send",
-        "any": {
-          "role": "assistant",
-          "content": { "regex": "<summary>[\\s\\S]*?</summary>" },
-          "exec": "return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"
-        }
-      },
-      "then": [
-        {
-          "type": "replace",
-          "predicate": { "_meta.source": "wa2_summary" },
-          "find": [
-            {
-              "name": "summaryMsgs",
-              "from": {
-                "role": "assistant",
-                "content": { "regex": "<summary>[\\s\\S]*?</summary>" },
-                "exec": "return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"
-              },
-              "match": { "regex": "<summary>([\\s\\S]*?)</summary>", "group": 1 },
-              "many": true
-            }
-          ],
-          "content": "{{original_content}}.regex_replace{pattern:'\\n暂无\\s*$',with:''} + {{raw_string:\n}} + {{state:temp.find.summaryMsgs}}.format{'- {{value}}'}.join{'\\n'}"
-        },
-        {
-          "type": "remove",
-          "predicate": {
-            "role": "assistant",
-            "content": { "regex": "<summary>[\\s\\S]*?</summary>" },
-            "exec": "return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"
-          }
-        }
-      ]
+      "$import": "rules/compress-assistant-history.json"
     },
     {
-      "id": "wa2-keep-latest-user",
-      "when": { "phase": "pre_send" },
-      "then": [
-        {
-          "type": "remove",
-          "predicate": {
-            "role": "user",
-            "not": { "index": "last" }
-          }
-        }
-      ]
+      "$import": "rules/keep-latest-user.json"
     },
     {
-      "id": "wa2-insert-turn-context",
-      "when": { "phase": "pre_send", "any": { "role": "user" } }, "then": [
-        { "type": "insert", "predicate": { "role": "user", "index": "last" }, "anchor": "before", "role": "system", "content": { "prefix": "世界书索引:\n人物:\n- 北原春希: 三年E班的认真学霸和轻音乐同好会吉他手，习惯把责任揽到自己身上。\n- 冬马和纱: 冷淡孤僻的天才钢琴少女，对春希有压抑而强烈的感情。\n- 小木曾雪菜: 明亮亲切的校园偶像，害怕被孤立，也渴望维系三人的关系。\n- 饭冢武也: 春希的死党，轻浮外向但敏锐，常用玩笑推动春希行动。\n- 水泽依绪: 雪菜的同班同学，武也和春希的好友，爽朗直接，常作为旁观者点出问题。\n- 柳原朋: 对雪菜抱有敌意和竞争心的学生，会刺痛雪菜隐藏的创伤。\n地点:\n- 第二音乐教室: 冬马独占的音乐教室，平时大门紧锁，一般人无法入内。\n- 第三音乐教室: 轻音乐同好会的活动地点。\n- 峰城大附属中学: 故事主要校园舞台，学园祭、社团和评选让关系被迫交汇。\n- 冬马家: 空旷富裕却冷清的住宅，体现冬马的孤独和以钢琴为出口的生活。\n\n本轮命中的世界书条目:\n", "include": [
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "春希|北原|Kitahara|Haruki" } } }, "content": "{{file_section:worldbook/characters.md##北原春希}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "冬马|冬馬|和纱|和紗|Touma|Kazusa" } } }, "content": "{{file_section:worldbook/characters.md##冬马和纱}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "雪菜|小木曾|小木曽|Ogiso|Setsuna" } } }, "content": "{{file_section:worldbook/characters.md##小木曾雪菜}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "武也|饭冢|飯塚|Takeya|Iizuka" } } }, "content": "{{file_section:worldbook/characters.md##饭冢武也}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "依绪|依緒|水泽|水沢|Io|Mizusawa" } } }, "content": "{{file_section:worldbook/characters.md##水泽依绪}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "柳原朋|柳原|Yanagihara|Tomo" } } }, "content": "{{file_section:worldbook/characters.md##柳原朋}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "第二音乐教室|第二音乐室｜第二音楽室" } } }, "content": "{{file_section:worldbook/location.md##第二音乐教室}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "第三音乐教室|第三音乐室|第三音楽室" } } }, "content": "{{file_section:worldbook/location.md##第三音乐教室}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "峰城大附属中学|峰城大附属|峰城大付属" } } }, "content": "{{file_section:worldbook/location.md##峰城大附属中学}}" },
-          { "when": { "last": { "num": 3, "role": { "in": ["user", "assistant"] }, "content": { "regex": "冬马家|冬馬家|和纱家|和紗家" } } }, "content": "{{file_section:worldbook/location.md##冬马家}}" }
-        ], "join": "\n\n" }, "ttl": 1, "_meta": { "source": "wa2_worldbook", "visibility": "llm_only" } },
-        { "type": "insert", "predicate": { "role": "user", "index": "last" }, "anchor": "before", "role": "system", "content": "{{raw_string:State定义:\n}} + {{file_content:state/llm_schema.json}} + {{raw_string:\n\nState更新规则:\n- 只能在回复末尾的 <state_patch>...</state_patch> 中更新 state。\n- <state_patch> 必须是 JSON 数组，只能使用 state.set。\n- 每轮必须用 state.set 写 timeline.currentTime，值为本轮正文结束时的具体时间点，格式必须是 YYYY.MM.DD: HH:mm 星期X。\n- 不要写入 schema 未定义的长期状态。\n- 进入固定剧情节点时，把 timeline.currentTime 写为该固定节点起始时间；完成固定剧情节点后，把 timeline.currentTime 写为节点内更晚的正文结束时间，系统下一轮会推进到下一个关键时间。\n- 本轮正文不得描写下一固定剧情节点之后发生的事件。\n- affection 每轮通常只允许小幅变化。\n- 事件 status 只能在剧情事实已经发生后设为 true。\n\n当前State:\n- timeline.currentTime: }} + {{state:timeline.currentTime}} + {{raw_string:\n- touma.affection: }} + {{state:touma.affection}} + {{raw_string:\n- setsuna.affection: }} + {{state:setsuna.affection}} + {{raw_string:\n- status.setsunaContestAccepted: }} + {{state:status.setsunaContestAccepted}}", "ttl": 1, "_meta": { "source": "wa2_state_context", "visibility": "llm_only" } }
-      ]
+      "$import": "rules/insert-turn-context.json"
     },
     {
-      "id": "wa2-tail-timeline-guide",
-      "when": { "phase": "pre_send" },
-      "then": [
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.21: 16:00 星期日", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 10:00 星期日", "lt": "2007.10.21: 16:00 星期日" } } } },
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.21: 18:00 星期日", "when": { "state": { "timeline.currentTime": { "gt": "2007.10.21: 16:00 星期日", "lt": "2007.10.21: 18:00 星期日" } } } },
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.23: 08:00 星期二", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.23: 02:00 星期二", "lt": "2007.10.23: 08:00 星期二" } } } },
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.23: 12:00 星期二", "when": { "state": { "timeline.currentTime": { "gt": "2007.10.23: 08:00 星期二", "lt": "2007.10.23: 12:00 星期二" } } } },
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 08:00 星期四", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 02:00 星期四", "lt": "2007.10.25: 08:00 星期四" } } } },
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 12:00 星期四", "when": { "state": { "timeline.currentTime": { "gt": "2007.10.25: 08:00 星期四", "lt": "2007.10.25: 12:00 星期四" } } } },
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 16:00 星期四", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 15:00 星期四", "lt": "2007.10.25: 16:00 星期四" } } } },
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 18:00 星期四", "when": { "state": { "timeline.currentTime": { "gt": "2007.10.25: 16:00 星期四", "lt": "2007.10.25: 18:00 星期四" } } } },
-        { "type": "state.set", "path": "temp.isFreePlot", "value": false },
-        { "type": "state.set", "path": "temp.isFreePlot", "value": true, "when": { "state": { "timeline.currentTime": { "lt": "2007.10.21: 16:00 星期日" } } } },
-        { "type": "state.set", "path": "temp.isFreePlot", "value": true, "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 18:00 星期日", "lt": "2007.10.23: 08:00 星期二" } } } },
-        { "type": "state.set", "path": "temp.isFreePlot", "value": true, "when": { "state": { "timeline.currentTime": { "gte": "2007.10.23: 12:00 星期二", "lt": "2007.10.25: 08:00 星期四" } } } },
-        { "type": "state.set", "path": "temp.isFreePlot", "value": true, "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 12:00 星期四", "lt": "2007.10.25: 16:00 星期四" } } } },
-        { "type": "state.randomInt", "path": "temp.plotDirectionRoll", "min": 1, "max": 100, "when": { "state": { "temp.isFreePlot": true } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "tragic", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "lte": 10 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "sad", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "gt": 10, "lt": 30 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "normal", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "gte": 30, "lt": 70 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "daily", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "gte": 70, "lt": 90 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "happy", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "gte": 90 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "WA_piano", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 16:00 星期日", "lt": "2007.10.21: 18:00 星期日" } } } },
-        {
-          "type": "replace",
-          "predicate": { "role": "user", "index": "last" },
-          "content": {
-            "prefix": {
-              "prefix": "{{original_content}} + {{raw_string:\n\n---\n<wa2_turn_context>\n请结合以上行动和以下剧情引导生成剧情\n当前时间: }} + {{state:timeline.currentTime}} + {{raw_string:\n下一时间: }}",
-              "select": [
-                { "when": { "state": { "timeline.currentTime": { "lt": "2007.10.21: 16:00 星期日" } } }, "content": "2007.10.21: 16:00 星期日" },
-                { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 16:00 星期日", "lt": "2007.10.21: 18:00 星期日" } } }, "content": "2007.10.21: 18:00 星期日" },
-                { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 18:00 星期日", "lt": "2007.10.23: 08:00 星期二" } } }, "content": "2007.10.23: 08:00 星期二" },
-                { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.23: 08:00 星期二", "lt": "2007.10.23: 12:00 星期二" } } }, "content": "2007.10.23: 12:00 星期二" },
-                { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.23: 12:00 星期二", "lt": "2007.10.25: 08:00 星期四" } } }, "content": "2007.10.25: 08:00 星期四" },
-                { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 08:00 星期四", "lt": "2007.10.25: 12:00 星期四" } } }, "content": "2007.10.25: 12:00 星期四" },
-                { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 12:00 星期四", "lt": "2007.10.25: 16:00 星期四" } } }, "content": "2007.10.25: 16:00 星期四" },
-                { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 16:00 星期四", "lt": "2007.10.25: 18:00 星期四" } } }, "content": "2007.10.25: 18:00 星期四" }
-              ],
-              "default": "无",
-              "suffix": "{{raw_string:\n\n时间边界规则:\n- 本轮正文只能发生在当前时间所在区间内，开头【时间地点】必须与 currentTime 所在区间一致。\n- 不得描写下一时间或更后时间内发生的事件，也不得提前发生下一固定剧情节点。\n- 每轮结尾必须用 state.set 写 timeline.currentTime，下一轮剧情引导会按该时间重新选择区间。\n\n}}"
-            },
-            "select": [
-              { "when": { "state": { "temp.isFreePlot": true } }, "content": { "prefix": "{{file_section:plot_guides.md##自由剧情}} + {{raw_string:\n\n### 好感度与随机数分支\n}}", "include": [
-                { "when": { "state": { "touma.affection": { "lte": 20 } } }, "content": "冬马和纱: 保持明显距离，用冷淡、讽刺和不耐烦掩饰兴趣；只通过停顿、纠正演奏或短暂注视暗示在意。" },
-                { "when": { "state": { "touma.affection": { "gte": 21, "lte": 60 } } }, "content": "冬马和纱: 开始承认春希的认真，但仍不愿解释为亲近；会在音乐上给出具体帮助，也会用尖锐言辞否认自己是在帮他。" },
-                { "when": { "state": { "touma.affection": { "gte": 61 } } }, "content": "冬马和纱: 已明显在意春希的选择，会因排练安排、雪菜的存在或一句无心的话动摇；用钢琴、沉默和身体距离暴露情绪。" },
-                { "when": { "state": { "setsuna.affection": { "lte": 20 } } }, "content": "小木曾雪菜: 主要是礼貌和好奇，保持校园偶像般的亲切；动机更接近对社团、歌唱和新关系的兴趣。" },
-                { "when": { "state": { "setsuna.affection": { "gte": 21, "lte": 60 } } }, "content": "小木曾雪菜: 开始信任春希，把排练和轻音乐同好会当作重要归属；会主动维持气氛，用邀请和坦率发言确认自己的位置。" },
-                { "when": { "state": { "setsuna.affection": { "gte": 61 } } }, "content": "小木曾雪菜: 已明显依赖春希，也更害怕被排除；会主动创造相处机会，同时努力让三人关系看起来仍然完整。" },
-                { "when": { "state": { "temp.plotDirectionRoll": { "lte": 10 } } }, "content": "本轮自由剧情走向: 极度负面。让关系出现强烈刺痛、误解或逃避，场面压抑到接近失控，但不要破坏固定主线。" },
-                { "when": { "state": { "temp.plotDirectionRoll": { "gt": 10, "lt": 30 } } }, "content": "本轮自由剧情走向: 负面。让误会、练习失败、执行委员压力或角色逃避使局面变重，但保留后续缓和空间。" },
-                { "when": { "state": { "temp.plotDirectionRoll": { "gte": 30, "lt": 70 } } }, "content": "本轮自由剧情走向: 日常。顺着用户选择写音乐练习、校园事务、微妙视线和克制对话，让关系变化来自性格与前文因果。" },
-                { "when": { "state": { "temp.plotDirectionRoll": { "gte": 70, "lt": 90 } } }, "content": "本轮自由剧情走向: 正面。让排练更顺利、某个角色放下少许戒备，或让一次小小体贴被认真记住；不要过快表白。" },
-                { "when": { "state": { "temp.plotDirectionRoll": { "gte": 90 } } }, "content": "本轮自由剧情走向: 极度正面。让一次难得的默契、主动靠近或被认真理解的瞬间明显推进关系，但仍保持白色相簿2式克制。" }
-              ], "join": "\n" } },
-              { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 16:00 星期日", "lt": "2007.10.21: 18:00 星期日" } } }, "content": "{{file_section:plot_guides.md##2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日}}" },
-              { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.23: 08:00 星期二", "lt": "2007.10.23: 12:00 星期二" } } }, "content": "{{file_section:plot_guides.md##2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二}}" },
-              { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 08:00 星期四", "lt": "2007.10.25: 12:00 星期四" } } }, "content": "{{file_section:plot_guides.md##2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四}}" },
-              { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 16:00 星期四", "lt": "2007.10.25: 18:00 星期四" } } }, "content": "{{file_section:plot_guides.md##2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四}}" }
-            ],
-            "suffix": "{{raw_string:\n\n### 回复规则\n}} + {{file_content:roleplay_rules.md}} + {{raw_string:\n</wa2_turn_context>}}"
-          }
-        }
-      ]
+      "$import": "rules/tail-timeline-guide.json"
     }
   ]
 }

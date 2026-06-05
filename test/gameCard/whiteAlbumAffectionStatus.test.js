@@ -1,6 +1,4 @@
-const card = require('../../game-card-examples/white-album-2/card.json');
-const stateSchema = require('../../game-card-examples/white-album-2/state/schema.json');
-const llmStateSchema = require('../../game-card-examples/white-album-2/state/llm_schema.json');
+const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');

@@ -1,6 +1,6 @@
 const React = require('react');
 const { render } = require('@testing-library/react');
-const card = require('../../game-card-examples/white-album-2/card.json');
+const { card } = require('./whiteAlbumTestCard');
 const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/gameCard/displayRules');
 const renderers = require('../../src/components/ChatPanelMessageRenderers');
 
