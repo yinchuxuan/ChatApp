@@ -1,0 +1,11 @@
+{
+  "bgm": {
+    "daily": "audio/WA2_daily.mp3",
+    "happy": "audio/WA2_happy.mp3",
+    "normal": "audio/WA2_normal.mp3",
+    "sad": "audio/WA2_sad.mp3",
+    "tragic": "audio/WA2_tragic.mp3",
+    "WA_piano": "audio/WA2_WA_piano.ogg",
+    "WA_3": "audio/WA2_WA_3.mp3"
+  }
+}

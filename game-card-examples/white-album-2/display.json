@@ -1,0 +1,71 @@
+{
+  "stylesheet": "display.css",
+  "assistant": [
+    {
+      "id": "wa2-hide-summary-block",
+      "stage": "before_markdown",
+      "type": "regex_replace",
+      "pattern": "\\n*---\\s*\\n\\s*<summary>[\\s\\S]*?<\\/summary>\\s*\\n\\s*---\\s*",
+      "flags": "g",
+      "replace": "\n\n"
+    },
+    {
+      "id": "wa2-hide-summary-tag",
+      "stage": "before_markdown",
+      "type": "regex_replace",
+      "pattern": "<summary>[\\s\\S]*?<\\/summary>",
+      "flags": "g",
+      "replace": ""
+    },
+    {
+      "id": "wa2-hide-state-patch-block",
+      "stage": "before_markdown",
+      "type": "regex_replace",
+      "pattern": "\\n*---\\s*\\n\\s*<state_patch>[\\s\\S]*?<\\/state_patch>\\s*\\n\\s*---\\s*",
+      "flags": "g",
+      "replace": "\n\n"
+    },
+    {
+      "id": "wa2-hide-state-patch-tag",
+      "stage": "before_markdown",
+      "type": "regex_replace",
+      "pattern": "<state_patch>[\\s\\S]*?<\\/state_patch>",
+      "flags": "g",
+      "replace": ""
+    },
+    {
+      "id": "wa2-scene-time-place",
+      "stage": "before_markdown",
+      "type": "regex_replace",
+      "pattern": "^【时间地点】\\s*([^\\n｜|]+?)\\s*[｜|]\\s*([^\\n]+)$",
+      "flags": "gm",
+      "replace": "<div class=\"wa2-scene-meta\"><span class=\"wa2-scene-time\">$1</span><span class=\"wa2-scene-place\">$2</span></div>"
+    },
+    {
+      "id": "wa2-choice-card",
+      "stage": "before_markdown",
+      "type": "regex_replace",
+      "pattern": "^([A-D])\\.\\s+(.+)$",
+      "flags": "gm",
+      "replace": "<div class=\"wa2-choice\"><span class=\"wa2-choice-label\">$1</span><span class=\"wa2-choice-text\">$2</span></div>"
+    }
+  ],
+  "user": [
+    {
+      "id": "wa2-hide-user-turn-context",
+      "stage": "before_markdown",
+      "type": "regex_replace",
+      "pattern": "\\n*---\\s*\\n\\s*<wa2_turn_context>[\\s\\S]*?<\\/wa2_turn_context>\\s*$",
+      "flags": "g",
+      "replace": ""
+    },
+    {
+      "id": "wa2-hide-user-turn-context-tag",
+      "stage": "before_markdown",
+      "type": "regex_replace",
+      "pattern": "<wa2_turn_context>[\\s\\S]*?<\\/wa2_turn_context>",
+      "flags": "g",
+      "replace": ""
+    }
+  ]
+}

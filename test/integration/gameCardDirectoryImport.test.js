@@ -88,6 +88,38 @@ describe('Game Card Directory Import', () => {
     ]);
   });
 
+  test('expands imported audio visual and display configs', async () => {
+    const cardDir = path.join(tempDir, 'asset-import-card');
+    fs.mkdirSync(cardDir, { recursive: true });
+    fs.writeFileSync(path.join(cardDir, 'card.json'), JSON.stringify({
+      version: '1.0',
+      id: 'asset_import',
+      name: 'Asset Import',
+      audio: { $import: 'audio.json' },
+      visual: { $import: 'visual.json' },
+      display: { $import: 'display.json' },
+      rules: [rule('start')]
+    }), 'utf-8');
+    fs.writeFileSync(path.join(cardDir, 'audio.json'), JSON.stringify({
+      bgm: { daily: 'audio/daily.mp3' }
+    }), 'utf-8');
+    fs.writeFileSync(path.join(cardDir, 'visual.json'), JSON.stringify({
+      background: { school: 'images/school.jpg' }
+    }), 'utf-8');
+    fs.writeFileSync(path.join(cardDir, 'display.json'), JSON.stringify({
+      stylesheet: 'display.css'
+    }), 'utf-8');
+    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [cardDir] });
+
+    const importResult = await ipcMain.handlers['import-game-card-from-directory']();
+    const activeResult = await ipcMain.handlers['get-active-game-card']();
+
+    expect(importResult.success).toBe(true);
+    expect(activeResult.card.audio.bgm.daily).toBe('audio/daily.mp3');
+    expect(activeResult.card.visual.background.school).toBe('images/school.jpg');
+    expect(activeResult.card.display.stylesheet).toBe('display.css');
+  });
+
   test('rejects unsafe import paths', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const cardDir = path.join(tempDir, 'unsafe-import-card');
