@@ -99,6 +99,39 @@ describe('App Component - Interaction', () => {
     expect(appContainer.className).toContain('has-background-image');
   });
 
+  test('should let game card background override and clear back to settings background', async () => {
+    const mockSettingsPanelWithBgChange = ({ onBackgroundChange }) =>
+      React.createElement('button', {
+        onClick: () => onBackgroundChange({
+          backgroundImageUrl: 'settings-bg-url',
+          backgroundOpacity: 0.3
+        })
+      }, 'Set Settings Background');
+
+    window.SettingsPanel = mockSettingsPanelWithBgChange;
+
+    const App = require('../../src/App.jsx').default;
+    _render(React.createElement(App, null));
+
+    await act(async () => { await Promise.resolve(); });
+    const appContainer = document.querySelector('.app-container');
+
+    _fireEvent.click(_screen.getByText('Set Settings Background'));
+    expect(appContainer.style.backgroundImage).toContain('settings-bg-url');
+
+    await act(async () => {
+      window.dispatchEvent(new CustomEvent('game-card-background-changed', {
+        detail: { url: 'game-card-bg-url' }
+      }));
+    });
+    expect(appContainer.style.backgroundImage).toContain('game-card-bg-url');
+
+    await act(async () => {
+      window.dispatchEvent(new CustomEvent('game-card-background-changed', { detail: { url: '' } }));
+    });
+    expect(appContainer.style.backgroundImage).toContain('settings-bg-url');
+  });
+
   test('should render null when ChatPanel component not available', async () => {
     window.ChatPanel = undefined;
 

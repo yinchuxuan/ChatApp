@@ -12,6 +12,7 @@ function App() {
     backgroundImageUrl: '',
     backgroundOpacity: 0.5
   });
+  const [gameCardBackgroundUrl, setGameCardBackgroundUrl] = React.useState('');
 
   // Initialize theme from system preference or localStorage
   React.useEffect(() => {
@@ -52,22 +53,30 @@ function App() {
     return () => window.removeEventListener('background-config-changed', handler);
   }, []);
 
+  React.useEffect(() => {
+    const handler = (e) => setGameCardBackgroundUrl(e.detail?.url || '');
+    window.addEventListener('game-card-background-changed', handler);
+    return () => window.removeEventListener('game-card-background-changed', handler);
+  }, []);
+
+  const backgroundImageUrl = gameCardBackgroundUrl || backgroundConfig.backgroundImageUrl;
+
   // Generate background style
   const getBackgroundStyle = React.useCallback(() => {
-    if (backgroundConfig.backgroundImageUrl) {
+    if (backgroundImageUrl) {
       return {
-        backgroundImage: `url(${backgroundConfig.backgroundImageUrl})`,
+        backgroundImage: `url(${backgroundImageUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       };
     }
     return {};
-  }, [backgroundConfig.backgroundImageUrl]);
+  }, [backgroundImageUrl]);
 
   // Generate overlay style for opacity
   const getOverlayStyle = React.useCallback(() => {
-    if (backgroundConfig.backgroundImageUrl) {
+    if (backgroundImageUrl) {
       const baseColor = theme === 'dark' ? 'rgba(20, 18, 24,' : 'rgba(255, 251, 254,';
       return {
         position: 'absolute',
@@ -82,14 +91,14 @@ function App() {
       };
     }
     return {};
-  }, [backgroundConfig.backgroundImageUrl, backgroundConfig.backgroundOpacity, theme]);
+  }, [backgroundImageUrl, backgroundConfig.backgroundOpacity, theme]);
 
   return (
     <div
-      className={`app-container${backgroundConfig.backgroundImageUrl ? ' has-background-image' : ''}`}
+      className={`app-container${backgroundImageUrl ? ' has-background-image' : ''}`}
       style={getBackgroundStyle()}
     >
-      {backgroundConfig.backgroundImageUrl && <div style={getOverlayStyle()} />}
+      {backgroundImageUrl && <div style={getOverlayStyle()} />}
       <div className="app-content-wrapper">
         {ChatPanel ? <ChatPanel /> : null}
       </div>

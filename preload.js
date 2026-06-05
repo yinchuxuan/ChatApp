@@ -23,5 +23,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getActiveGameCard: () => ipcRenderer.invoke('get-active-game-card'),
   readGameCardFile: (id, relativePath) => ipcRenderer.invoke('read-game-card-file', id, relativePath),
   getGameCardAudioUrl: (relativePath) => ipcRenderer.invoke('get-game-card-audio-url', relativePath),
+  getGameCardImageUrl: (relativePath) => ipcRenderer.invoke('get-game-card-image-url', relativePath),
   onBackgroundConfigChanged: (callback) => ipcRenderer.on('background-config-changed', (event, config) => callback(config))
 });

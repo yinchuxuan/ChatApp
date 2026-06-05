@@ -1,5 +1,5 @@
 const path = require('path');
-const { getCardAssetPath, getCardAudioPath } = require('./gameCardAssets');
+const { getCardAssetPath, getCardAudioPath, getCardImagePath } = require('./gameCardAssets');
 const {
   ensureGameCardDirs,
   getCardPath,
@@ -175,6 +175,17 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameC
       const active = readJsonFile(fs, activePath, { id: null });
       if (!active?.id) throw new Error('No active game card');
       const filePath = getCardAudioPath(fs, cardsDir, active.id, relativePath);
+      return { success: true, url: `local://${filePath}`, path: filePath };
+    } catch (err) {
+      return asErrorResult(err, { url: '' });
+    }
+  });
+
+  ipcMain.handle('get-game-card-image-url', (event, relativePath) => {
+    try {
+      const active = readJsonFile(fs, activePath, { id: null });
+      if (!active?.id) throw new Error('No active game card');
+      const filePath = getCardImagePath(fs, cardsDir, active.id, relativePath);
       return { success: true, url: `local://${filePath}`, path: filePath };
     } catch (err) {
       return asErrorResult(err, { url: '' });

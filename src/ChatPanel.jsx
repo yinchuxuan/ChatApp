@@ -1,6 +1,6 @@
 import './ChatInputArea.jsx'; import './components/ChatSessionManager.jsx';
 import './components/GameCardTitleControl.jsx'; import './components/ChatPanelMessageRenderers.js';
-import './components/GameCardBgmPlayer.js';
+import './components/GameCardBgmPlayer.js'; import './components/GameCardBackgroundRuntime.js';
 
 const RENDERER_POLL_INTERVAL = 100;
 const RENDERER_POLL_TIMEOUT = 5000;
@@ -153,10 +153,9 @@ function ChatPanel() {
   const handleAudioResponseComplete = R.useCallback(() => setAudioResumeToken(value => value + 1), []);
 
   const C = R.createElement;
-  const BgmPlayer = window.GameCardBgmPlayer;
+  const BgmPlayer = window.GameCardBgmPlayer, BackgroundRuntime = window.GameCardBackgroundRuntime;
 
-  const streamThinking = tw.getThinkingContent();
-  const hasThinking = isLoading && streamThinking && streamThinking.length > 0;
+  const streamThinking = tw.getThinkingContent(), hasThinking = isLoading && streamThinking && streamThinking.length > 0;
   const currentThinking = hasThinking ? streamThinking : null;
 
   const renderMessages = () => {
@@ -171,6 +170,7 @@ function ChatPanel() {
   };
 
   return C('div', { className: 'chat-panel' },
+    BackgroundRuntime ? C(BackgroundRuntime, { card: activeGameCard, gameState }) : null,
     C('div', { className: 'chat-main' },
       C('div', { className: 'chat-header-hover-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },

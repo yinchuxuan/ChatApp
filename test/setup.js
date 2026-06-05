@@ -64,6 +64,7 @@ global.window.electronAPI = {
   getActiveGameCard: jest.fn().mockResolvedValue({ success: true, card: null }),
   readGameCardFile: jest.fn().mockResolvedValue({ success: true, content: '' }),
   getGameCardAudioUrl: jest.fn().mockResolvedValue({ success: true, url: 'local:///audio.mp3' }),
+  getGameCardImageUrl: jest.fn().mockResolvedValue({ success: true, url: 'local:///background.jpg' }),
   onBackgroundConfigChanged: jest.fn()
 };
 

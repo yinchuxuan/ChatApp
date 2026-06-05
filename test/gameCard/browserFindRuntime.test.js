@@ -7,7 +7,7 @@ const scripts = [
   'fileSections.js', 'contentObjects.js', 'contentResolver.js', 'execRunner.js',
   'stateSchema.js', 'stateActions.js', 'statePatch.js', 'actions.js',
   'validateStateActions.js', 'validateContent.js', 'validateFind.js',
-  'validatePredicates.js', 'audioConfig.js', 'validateGameCard.js', 'engine.js'
+  'validatePredicates.js', 'audioConfig.js', 'visualConfig.js', 'validateGameCard.js', 'engine.js'
 ];
 
 function loadBrowserRuntime() {
