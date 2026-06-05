@@ -128,14 +128,19 @@
         { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.23: 12:00 星期二", "when": { "state": { "timeline.currentTime": { "gt": "2007.10.23: 08:00 星期二", "lt": "2007.10.23: 12:00 星期二" } } } },
         { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 08:00 星期四", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 02:00 星期四", "lt": "2007.10.25: 08:00 星期四" } } } },
         { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 12:00 星期四", "when": { "state": { "timeline.currentTime": { "gt": "2007.10.25: 08:00 星期四", "lt": "2007.10.25: 12:00 星期四" } } } },
-        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 16:00 星期四", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 12:00 星期四", "lt": "2007.10.25: 16:00 星期四" } } } },
+        { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 16:00 星期四", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 15:00 星期四", "lt": "2007.10.25: 16:00 星期四" } } } },
         { "type": "state.set", "path": "timeline.currentTime", "value": "2007.10.25: 18:00 星期四", "when": { "state": { "timeline.currentTime": { "gt": "2007.10.25: 16:00 星期四", "lt": "2007.10.25: 18:00 星期四" } } } },
-        { "type": "state.randomInt", "path": "temp.plotDirectionRoll", "min": 1, "max": 100 },
-        { "type": "state.set", "path": "audio.bgm", "value": "tragic", "when": { "state": { "temp.plotDirectionRoll": { "lte": 10 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "sad", "when": { "state": { "temp.plotDirectionRoll": { "gt": 10, "lt": 30 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "normal", "when": { "state": { "temp.plotDirectionRoll": { "gte": 30, "lt": 70 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "daily", "when": { "state": { "temp.plotDirectionRoll": { "gte": 70, "lt": 90 } } } },
-        { "type": "state.set", "path": "audio.bgm", "value": "happy", "when": { "state": { "temp.plotDirectionRoll": { "gte": 90 } } } },
+        { "type": "state.set", "path": "temp.isFreePlot", "value": false },
+        { "type": "state.set", "path": "temp.isFreePlot", "value": true, "when": { "state": { "timeline.currentTime": { "lt": "2007.10.21: 16:00 星期日" } } } },
+        { "type": "state.set", "path": "temp.isFreePlot", "value": true, "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 18:00 星期日", "lt": "2007.10.23: 08:00 星期二" } } } },
+        { "type": "state.set", "path": "temp.isFreePlot", "value": true, "when": { "state": { "timeline.currentTime": { "gte": "2007.10.23: 12:00 星期二", "lt": "2007.10.25: 08:00 星期四" } } } },
+        { "type": "state.set", "path": "temp.isFreePlot", "value": true, "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 12:00 星期四", "lt": "2007.10.25: 16:00 星期四" } } } },
+        { "type": "state.randomInt", "path": "temp.plotDirectionRoll", "min": 1, "max": 100, "when": { "state": { "temp.isFreePlot": true } } },
+        { "type": "state.set", "path": "audio.bgm", "value": "tragic", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "lte": 10 } } } },
+        { "type": "state.set", "path": "audio.bgm", "value": "sad", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "gt": 10, "lt": 30 } } } },
+        { "type": "state.set", "path": "audio.bgm", "value": "normal", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "gte": 30, "lt": 70 } } } },
+        { "type": "state.set", "path": "audio.bgm", "value": "daily", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "gte": 70, "lt": 90 } } } },
+        { "type": "state.set", "path": "audio.bgm", "value": "happy", "when": { "state": { "temp.isFreePlot": true, "temp.plotDirectionRoll": { "gte": 90 } } } },
         { "type": "state.set", "path": "audio.bgm", "value": "WA_piano", "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 16:00 星期日", "lt": "2007.10.21: 18:00 星期日" } } } },
         {
           "type": "replace",
@@ -157,7 +162,7 @@
               "suffix": "{{raw_string:\n\n时间边界规则:\n- 本轮正文只能发生在当前时间所在区间内，开头【时间地点】必须与 currentTime 所在区间一致。\n- 不得描写下一时间或更后时间内发生的事件，也不得提前发生下一固定剧情节点。\n- 每轮结尾必须用 state.set 写 timeline.currentTime，下一轮剧情引导会按该时间重新选择区间。\n\n}}"
             },
             "select": [
-              { "when": { "state": { "timeline.currentTime": { "lt": "2007.10.21: 16:00 星期日" } } }, "content": { "prefix": "{{file_section:plot_guides.md##自由剧情}} + {{raw_string:\n\n### 好感度与随机数分支\n}}", "include": [
+              { "when": { "state": { "temp.isFreePlot": true } }, "content": { "prefix": "{{file_section:plot_guides.md##自由剧情}} + {{raw_string:\n\n### 好感度与随机数分支\n}}", "include": [
                 { "when": { "state": { "touma.affection": { "lte": 20 } } }, "content": "冬马和纱: 保持明显距离，用冷淡、讽刺和不耐烦掩饰兴趣；只通过停顿、纠正演奏或短暂注视暗示在意。" },
                 { "when": { "state": { "touma.affection": { "gte": 21, "lte": 60 } } }, "content": "冬马和纱: 开始承认春希的认真，但仍不愿解释为亲近；会在音乐上给出具体帮助，也会用尖锐言辞否认自己是在帮他。" },
                 { "when": { "state": { "touma.affection": { "gte": 61 } } }, "content": "冬马和纱: 已明显在意春希的选择，会因排练安排、雪菜的存在或一句无心的话动摇；用钢琴、沉默和身体距离暴露情绪。" },
@@ -171,11 +176,8 @@
                 { "when": { "state": { "temp.plotDirectionRoll": { "gte": 90 } } }, "content": "本轮自由剧情走向: 极度正面。让一次难得的默契、主动靠近或被认真理解的瞬间明显推进关系，但仍保持白色相簿2式克制。" }
               ], "join": "\n" } },
               { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 16:00 星期日", "lt": "2007.10.21: 18:00 星期日" } } }, "content": "{{file_section:plot_guides.md##2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日}}" },
-              { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.21: 18:00 星期日", "lt": "2007.10.23: 08:00 星期二" } } }, "content": "{{file_section:plot_guides.md##自由剧情}}" },
               { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.23: 08:00 星期二", "lt": "2007.10.23: 12:00 星期二" } } }, "content": "{{file_section:plot_guides.md##2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二}}" },
-              { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.23: 12:00 星期二", "lt": "2007.10.25: 08:00 星期四" } } }, "content": "{{file_section:plot_guides.md##自由剧情}}" },
               { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 08:00 星期四", "lt": "2007.10.25: 12:00 星期四" } } }, "content": "{{file_section:plot_guides.md##2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四}}" },
-              { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 12:00 星期四", "lt": "2007.10.25: 16:00 星期四" } } }, "content": "{{file_section:plot_guides.md##自由剧情}}" },
               { "when": { "state": { "timeline.currentTime": { "gte": "2007.10.25: 16:00 星期四", "lt": "2007.10.25: 18:00 星期四" } } }, "content": "{{file_section:plot_guides.md##2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四}}" }
             ],
             "suffix": "{{raw_string:\n\n### 回复规则\n}} + {{file_content:roleplay_rules.md}} + {{raw_string:\n</wa2_turn_context>}}"

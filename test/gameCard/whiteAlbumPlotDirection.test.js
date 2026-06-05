@@ -35,9 +35,7 @@ const fileContents = {
   ].join('\n')
 };
 
-function user(content) {
-  return { role: 'user', content };
-}
+function user(content) { return { role: 'user', content }; }
 
 function runWithRandom(randomValue) {
   jest.spyOn(Math, 'random').mockReturnValue(randomValue);
@@ -64,9 +62,7 @@ function runWithState(state) {
 }
 
 describe('white album plot direction guide', () => {
-  afterEach(() => {
-    if (Math.random.mockRestore) Math.random.mockRestore();
-  });
+  afterEach(() => Math.random.mockRestore && Math.random.mockRestore());
 
   test('appends plot direction and roleplay rules to the latest user message', () => {
     const result = runWithRandom(0.99);
@@ -125,6 +121,11 @@ describe('white album plot direction guide', () => {
     expect(freeGuide.content).toContain('当前时间: 2007.10.21: 18:00 星期日');
     expect(freeGuide.content).toContain('通用自由节点');
     expect(freeGuide.content).not.toContain('隔墙合奏节点');
+    ['2007.10.21: 18:00 星期日', '2007.10.23: 12:00 星期二', '2007.10.25: 12:00 星期四'].forEach((time) => {
+      const branchGuide = runAtSlot(time).messages.find((msg) => msg.role === 'user');
+      expect(branchGuide.content).toContain('好感度与随机数分支');
+      expect(branchGuide.content).toContain('本轮自由剧情走向');
+    });
 
     const invite = runAtSlot('2007.10.23: 08:00 星期二');
     const inviteGuide = invite.messages.find((msg) => msg.role === 'user');
