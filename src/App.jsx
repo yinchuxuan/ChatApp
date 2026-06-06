@@ -13,6 +13,7 @@ function App() {
     backgroundOpacity: 0.5
   });
   const [gameCardBackgroundUrl, setGameCardBackgroundUrl] = React.useState('');
+  const [visualPanel, setVisualPanel] = React.useState({ textPanel: 'center', cardId: '' });
 
   // Initialize theme from system preference or localStorage
   React.useEffect(() => {
@@ -59,7 +60,20 @@ function App() {
     return () => window.removeEventListener('game-card-background-changed', handler);
   }, []);
 
+  React.useEffect(() => {
+    const handler = (e) => {
+      const textPanel = ['left', 'right'].includes(e.detail?.textPanel) ? e.detail.textPanel : 'center';
+      setVisualPanel({ textPanel, cardId: e.detail?.cardId || '' });
+    };
+    window.addEventListener('game-card-visual-panel-changed', handler);
+    return () => window.removeEventListener('game-card-visual-panel-changed', handler);
+  }, []);
+
   const backgroundImageUrl = gameCardBackgroundUrl || backgroundConfig.backgroundImageUrl;
+  const gameCardThemeClass = React.useMemo(() => {
+    if (!visualPanel.cardId) return '';
+    return ` game-card-theme-${visualPanel.cardId.toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}`;
+  }, [visualPanel.cardId]);
 
   // Generate background style
   const getBackgroundStyle = React.useCallback(() => {
@@ -95,7 +109,7 @@ function App() {
 
   return (
     <div
-      className={`app-container${backgroundImageUrl ? ' has-background-image' : ''}`}
+      className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}`}
       style={getBackgroundStyle()}
     >
       {backgroundImageUrl && <div style={getOverlayStyle()} />}

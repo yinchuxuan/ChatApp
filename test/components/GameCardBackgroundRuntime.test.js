@@ -63,4 +63,28 @@ describe('GameCardBackgroundRuntime', () => {
 
     expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledTimes(2);
   });
+
+  test('dispatches visual panel state and normalizes invalid values', async () => {
+    const handler = jest.fn();
+    window.addEventListener('game-card-visual-panel-changed', handler);
+
+    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
+      card: { id: 'wa2', visual: { background: { school: 'images/school.jpg' } } },
+      gameState: { visual: { background: 'school', textPanel: 'right' } }
+    }));
+    await flushEffects();
+    rerender(React.createElement(GameCardBackgroundRuntime, {
+      card: { id: 'wa2', visual: { background: { school: 'images/school.jpg' } } },
+      gameState: { visual: { background: 'school', textPanel: 'bottom' } }
+    }));
+    await flushEffects();
+
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining({
+      detail: { textPanel: 'right', cardId: 'wa2' }
+    }));
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining({
+      detail: { textPanel: 'center', cardId: 'wa2' }
+    }));
+    window.removeEventListener('game-card-visual-panel-changed', handler);
+  });
 });

@@ -10,4 +10,5 @@ build and test: docs/build_and_test.md
 game card design: docs/game_card_design.md
 game card audio: docs/game_card/game_card_audio.md
 game card visual: docs/game_card/game_card_visual.md
+game card visual panel: docs/game_card/game_card_visual_panel.md
 game card imports: docs/game_card/game_card_imports.md

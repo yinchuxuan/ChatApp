@@ -132,6 +132,24 @@ describe('App Component - Interaction', () => {
     expect(appContainer.style.backgroundImage).toContain('settings-bg-url');
   });
 
+  test('should apply visual panel position and scoped game card theme class', async () => {
+    const App = require('../../src/App.jsx').default;
+    _render(React.createElement(App, null));
+
+    await act(async () => { await Promise.resolve(); });
+    const appContainer = document.querySelector('.app-container');
+    expect(appContainer.className).toContain('game-card-visual-position-center');
+
+    await act(async () => {
+      window.dispatchEvent(new CustomEvent('game-card-visual-panel-changed', {
+        detail: { textPanel: 'right', cardId: 'White Album 2' }
+      }));
+    });
+
+    expect(appContainer.className).toContain('game-card-visual-position-right');
+    expect(appContainer.className).toContain('game-card-theme-white-album-2');
+  });
+
   test('should render null when ChatPanel component not available', async () => {
     window.ChatPanel = undefined;
 

@@ -92,7 +92,7 @@ function ChatPanel() {
   }, []);
 
   R.useEffect(() => { loadHistory(); }, [loadHistory]);
-  R.useEffect(() => { window.GameCardDisplayStyles?.loadGameCardDisplayStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
+  R.useEffect(() => { window.GameCardDisplayStyles?.loadGameCardDisplayStyle(activeGameCard, window.electronAPI); window.GameCardVisualStyles?.loadGameCardVisualStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
   const saveCurrentSession = R.useCallback(async () => { if (window.electronAPI && !isLoading) await window.electronAPI.saveChatHistory(messages, { gameState, retryBaseMessages: retryBaseRef.current, retryBaseState: retryBaseStateRef.current }); }, [messages, gameState, isLoading]);
   const handleSessionChanged = R.useCallback(async () => { retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming(); setIsHistoryExpanded(false); await loadHistory(); }, [loadHistory, tw]);
 
@@ -183,7 +183,7 @@ function ChatPanel() {
         }) : C('span', { className: 'header-title' }, '未加载游戏卡'))
       ),
       C('div', { className: 'chat-history', ref: chatHistoryRef },
-        C('div', { className: 'chat-reading-veil', 'aria-hidden': 'true' }),
+        C('div', { className: 'chat-reading-veil game-card-visual-panel', 'aria-hidden': 'true' }),
         showMsgHistory ? renderMsgHistoryDisplay() : renderMessages()
       ),
       C('div', { className: 'chat-input-hover-trigger', onMouseEnter: () => setIsInputTriggerHovered(true), onMouseLeave: () => setIsInputTriggerHovered(false) })

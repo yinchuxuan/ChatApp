@@ -151,7 +151,7 @@ describe('SettingsPanel Component - Basic', () => {
     expect(onToggleTheme).toHaveBeenCalled();
   });
 
-  test('should render settings indicator', async () => {
+  test('should keep settings trigger zone without edge indicator', async () => {
     const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
@@ -162,7 +162,7 @@ describe('SettingsPanel Component - Basic', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    const indicator = document.querySelector('.settings-indicator');
-    expect(indicator).toBeTruthy();
+    expect(document.querySelector('.settings-trigger-zone')).toBeTruthy();
+    expect(document.querySelector('.settings-indicator')).toBeNull();
   });
 });

@@ -27,6 +27,14 @@
       "llmRead": true,
       "llmWrite": true
     },
+    "visual.textPanel": {
+      "type": "enum",
+      "values": ["center", "left", "right"],
+      "default": "right",
+      "description": "剧情阅读面板位置",
+      "llmRead": false,
+      "llmWrite": false
+    },
     "status.setsunaContestAccepted": {
       "type": "boolean",
       "default": false,

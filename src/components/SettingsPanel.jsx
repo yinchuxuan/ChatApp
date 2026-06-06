@@ -55,9 +55,6 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
           ) : null}
         </div>
       </div>
-      <div className={`settings-indicator ${isConfigured ? 'configured' : ''}`}>
-        <span className="material-icons">chevron_left</span>
-      </div>
     </div>
   );
 }

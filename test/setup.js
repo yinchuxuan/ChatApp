@@ -87,6 +87,7 @@ global.window.highlightQuotes = highlightQuotes.highlightQuotes;
 require('../src/gameCard/sendPipeline.js');
 require('../src/gameCard/displayRules.js');
 require('../src/gameCard/displayStyles.js');
+require('../src/gameCard/visualStyles.js');
 
 require('../src/components/modelGenerationParams.js');
 

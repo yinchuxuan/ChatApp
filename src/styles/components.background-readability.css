@@ -1,0 +1,157 @@
+/* Background image readability tuning */
+.chat-history::before {
+  display: none;
+}
+
+.chat-reading-veil {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, calc(var(--chat-reading-width) + var(--chat-veil-gutter) * 2));
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    #000 8%,
+    #000 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    #000 8%,
+    #000 88%,
+    transparent 100%
+  );
+}
+
+.app-container.has-background-image .chat-reading-veil {
+  opacity: 1;
+  background: var(--game-card-veil-bg-light, var(--game-card-veil-bg, rgba(255, 251, 254, 0.60)));
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-reading-veil {
+  background: var(--game-card-veil-bg-dark, var(--game-card-veil-bg, rgba(15, 23, 42, 0.60)));
+}
+
+.app-container.game-card-visual-position-left .chat-reading-veil {
+  left: var(--game-card-panel-edge-gap);
+  transform: none;
+  width: 50%;
+}
+
+.app-container.game-card-visual-position-right .chat-reading-veil {
+  right: var(--game-card-panel-edge-gap);
+  left: auto;
+  transform: none;
+  width: 50%;
+}
+
+.app-container.game-card-visual-position-left .chat-history {
+  padding-left: calc(var(--game-card-panel-edge-gap) + var(--game-card-panel-inner-gap));
+  padding-right: calc(50% - var(--game-card-panel-edge-gap) + var(--game-card-panel-inner-gap));
+}
+
+.app-container.game-card-visual-position-right .chat-history {
+  padding-left: calc(50% - var(--game-card-panel-edge-gap) + var(--game-card-panel-inner-gap));
+  padding-right: calc(var(--game-card-panel-edge-gap) + var(--game-card-panel-inner-gap));
+}
+
+.app-container.game-card-visual-position-left .chat-message-row,
+.app-container.game-card-visual-position-left .collapse-inner-wrapper,
+.app-container.game-card-visual-position-left .msg-history-card {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.app-container.game-card-visual-position-right .chat-message-row,
+.app-container.game-card-visual-position-right .collapse-inner-wrapper,
+.app-container.game-card-visual-position-right .msg-history-card {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.app-container.game-card-visual-position-left .chat-message-row,
+.app-container.game-card-visual-position-right .chat-message-row,
+.app-container.game-card-visual-position-left .collapse-inner-wrapper,
+.app-container.game-card-visual-position-right .collapse-inner-wrapper {
+  max-width: 100%;
+}
+
+.app-container.game-card-visual-position-left .msg-history-card,
+.app-container.game-card-visual-position-right .msg-history-card {
+  width: 100%;
+}
+
+.app-container.has-background-image.game-card-visual-position-center .collapse-inner-wrapper {
+  max-width: var(--chat-reading-width, 660px);
+}
+
+.app-container.has-background-image .chat-input-area {
+  background: rgba(250, 251, 252, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-input-area {
+  background: rgba(18, 26, 46, 0.42);
+}
+
+.app-container.has-background-image .chat-message.user .chat-message-bubble {
+  background: rgba(219, 234, 254, 0.62);
+}
+
+:root:not([data-theme="dark"]) .app-container.has-background-image .chat-message.user .chat-message-bubble {
+  color: #061A2F;
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-message.user .chat-message-bubble {
+  background: rgba(30, 58, 95, 0.62);
+}
+
+.app-container.has-background-image .chat-message.assistant .chat-message-bubble {
+  text-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.70),
+    0 0 2px rgba(255, 255, 255, 0.48);
+}
+
+:root:not([data-theme="dark"]) .app-container.has-background-image .chat-message.assistant .chat-message-bubble {
+  color: var(--game-card-text-color-light, var(--game-card-text-color, #000000));
+  font-weight: var(--game-card-text-weight, 600);
+}
+
+:root:not([data-theme="dark"]) .app-container.has-background-image .chat-message.assistant .quoted-text {
+  background: transparent;
+  color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F));
+  border-radius: 0;
+  font-weight: 700;
+  padding: 0;
+  text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F)) 52%, transparent);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.40);
+}
+
+:root:not([data-theme="dark"]) .app-container.has-background-image .chat-message.user .quoted-text {
+  background: transparent;
+  color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F));
+  border-radius: 0;
+  font-weight: 700;
+  padding: 0;
+  text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F)) 52%, transparent);
+}
+
+[data-theme="dark"] .app-container.has-background-image .chat-message.assistant .chat-message-bubble {
+  color: var(--game-card-text-color-dark, var(--game-card-text-color, var(--md-on-surface, #E6E1E5)));
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.78);
+}
+
+.chat-message-bubble {
+  line-height: var(--game-card-text-line-height, 1.85);
+}
+
+.chat-message.assistant .chat-bubble-content p {
+  line-height: var(--game-card-paragraph-line-height, var(--game-card-text-line-height, 1.95));
+}

@@ -122,8 +122,10 @@
 .chat-header-clear-btn { margin-left: auto; color: var(--md-error, #B3261E); width: 40px; height: 40px; padding: 8px; border-radius: var(--md-shape-corner-full); }
 .chat-header-clear-btn:hover { background: color-mix(in srgb, var(--md-error, #B3261E) 8%, transparent); }
 .chat-history {
-  --chat-reading-width: 720px;
-  --chat-veil-gutter: 56px;
+  --chat-reading-width: 660px;
+  --chat-veil-gutter: 24px;
+  --game-card-panel-edge-gap: 40px;
+  --game-card-panel-inner-gap: 40px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -137,87 +139,6 @@
   isolation: isolate;
 }
 
-/* ============================================
-   Reading Column Veil (ui4: de-cardification)
-   Semi-transparent overlay at 720px reading column
-   Positioned between background image and message content
-   pointer-events: none ensures it doesn't block interactions
-   ============================================ */
-.chat-history::before {
-  display: none;
-}
-
-.chat-reading-veil {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(100%, calc(var(--chat-reading-width) + var(--chat-veil-gutter) * 2));
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  -webkit-mask-image: linear-gradient(
-    180deg,
-    transparent 0%,
-    #000 8%,
-    #000 88%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    180deg,
-    transparent 0%,
-    #000 8%,
-    #000 88%,
-    transparent 100%
-  );
-}
-
-/* Veil active only when background image is present */
-.app-container.has-background-image .chat-reading-veil {
-  opacity: 1 !important;
-}
-
-/* Light theme veil - warm white semi-transparent */
-.app-container.has-background-image .chat-reading-veil {
-  opacity: 1 !important;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 251, 254, 0.46) 12%,
-      rgba(255, 251, 254, 0.60) 50%,
-      rgba(255, 251, 254, 0.46) 88%,
-      transparent 100%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(255, 251, 254, 0.54) 0%,
-      rgba(255, 251, 254, 0.40) 50%,
-      rgba(255, 251, 254, 0.54) 100%
-  );
-}
-
-/* Dark theme veil - cool dark semi-transparent */
-[data-theme="dark"] .app-container.has-background-image .chat-reading-veil {
-  opacity: 1 !important;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(15, 23, 42, 0.50) 12%,
-      rgba(15, 23, 42, 0.66) 50%,
-      rgba(15, 23, 42, 0.50) 88%,
-      transparent 100%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(15, 23, 42, 0.62) 0%,
-      rgba(15, 23, 42, 0.48) 50%,
-      rgba(15, 23, 42, 0.62) 100%
-  );
-}
 .chat-history::-webkit-scrollbar {
   display: none;
 }

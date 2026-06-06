@@ -37,7 +37,16 @@ describe('game card visual state schema', () => {
       llmRead: false,
       llmWrite: false
     });
+    expect(result.card.state.schema.schema['visual.textPanel']).toMatchObject({
+      type: 'enum',
+      values: ['center', 'left', 'right'],
+      default: 'center',
+      llmRead: false,
+      llmWrite: false
+    });
     expect(result.state.visual.background).toBe('night');
+    expect(result.state.visual.textPanel).toBe('center');
     expect(result.stateTrace.changedKeys).toContain('visual.background');
+    expect(result.stateTrace.changedKeys).toContain('visual.textPanel');
   });
 });

@@ -1,15 +1,21 @@
 function GameCardBackgroundRuntime({ card, gameState = {} }) {
   const R = window.React || React;
   const lastSourceRef = R.useRef('');
+  const normalizeTextPanel = window.GameCardVisualConfig?.normalizeTextPanel ||
+    ((value) => (['left', 'right'].includes(value) ? value : 'center'));
 
   const relativePath = R.useMemo(() => {
     const key = gameState?.visual?.background;
     return typeof key === 'string' ? (card?.visual?.background?.[key] || '') : '';
   }, [card, gameState]);
   const sourceKey = `${card?.id || ''}:${relativePath}`;
+  const textPanel = normalizeTextPanel(gameState?.visual?.textPanel);
 
   const dispatchBackground = R.useCallback((url) => {
     window.dispatchEvent(new CustomEvent('game-card-background-changed', { detail: { url } }));
+  }, []);
+  const dispatchVisualPanel = R.useCallback((detail) => {
+    window.dispatchEvent(new CustomEvent('game-card-visual-panel-changed', { detail }));
   }, []);
 
   R.useEffect(() => {
@@ -34,7 +40,12 @@ function GameCardBackgroundRuntime({ card, gameState = {} }) {
     return () => { canceled = true; };
   }, [relativePath, sourceKey, dispatchBackground]);
 
+  R.useEffect(() => {
+    dispatchVisualPanel({ textPanel, cardId: card?.id || '' });
+  }, [card?.id, textPanel, dispatchVisualPanel]);
+
   R.useEffect(() => () => dispatchBackground(''), [dispatchBackground]);
+  R.useEffect(() => () => dispatchVisualPanel({ textPanel: 'center', cardId: '' }), [dispatchVisualPanel]);
   return null;
 }
 
