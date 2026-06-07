@@ -1,6 +1,7 @@
-function GameCardBackgroundRuntime({ card, gameState = {} }) {
+function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, revealToken = 0 }) {
   const R = window.React || React;
   const lastSourceRef = R.useRef('');
+  const pendingUrlRef = R.useRef(null), revealRequestedRef = R.useRef(false);
   const normalizeTextPanel = window.GameCardVisualConfig?.normalizeTextPanel ||
     ((value) => (['left', 'right'].includes(value) ? value : 'center'));
 
@@ -23,24 +24,36 @@ function GameCardBackgroundRuntime({ card, gameState = {} }) {
   R.useEffect(() => {
     let canceled = false;
     async function resolveImageUrl() {
+      if (defer) { pendingUrlRef.current = null; revealRequestedRef.current = false; }
       if (!relativePath || !window.electronAPI?.getGameCardImageUrl) {
         lastSourceRef.current = '';
-        dispatchBackground('');
+        if (defer) pendingUrlRef.current = '';
+        else dispatchBackground('');
         return;
       }
       if (sourceKey === lastSourceRef.current) return;
       lastSourceRef.current = sourceKey;
       const result = await window.electronAPI.getGameCardImageUrl(relativePath);
       if (canceled) return;
-      if (result?.success && result.url) dispatchBackground(result.url);
-      else {
+      const nextUrl = result?.success && result.url ? result.url : '';
+      if (nextUrl) {
+        if (defer && !revealRequestedRef.current) pendingUrlRef.current = nextUrl;
+        else dispatchBackground(nextUrl);
+      } else {
         console.error('Failed to load game card background:', result?.error || 'unknown error');
-        dispatchBackground('');
+        if (defer) pendingUrlRef.current = '';
+        else dispatchBackground('');
       }
     }
     resolveImageUrl();
     return () => { canceled = true; };
-  }, [relativePath, sourceKey, dispatchBackground]);
+  }, [relativePath, sourceKey, defer, dispatchBackground]);
+
+  R.useEffect(() => {
+    if (!defer || revealToken <= 0) return;
+    revealRequestedRef.current = true;
+    if (pendingUrlRef.current !== null) dispatchBackground(pendingUrlRef.current);
+  }, [defer, revealToken, dispatchBackground]);
 
   R.useEffect(() => {
     dispatchVisualPanel({ textPanel, cardId: card?.id || '' });

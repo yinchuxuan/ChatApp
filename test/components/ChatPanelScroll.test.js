@@ -10,6 +10,7 @@ const electronAPI = global.window.electronAPI;
 
 describe('ChatPanel Component - Auto-scroll', () => {
   let ChatPanel;
+  const originalSendChatRequest = window.sendChatRequest;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -26,6 +27,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
 
   afterEach(() => {
     window.ChatPanelRenderers = undefined;
+    window.sendChatRequest = originalSendChatRequest;
   });
 
   test('should have chat-history element as scrollable message container', async () => {
@@ -83,6 +85,35 @@ describe('ChatPanel Component - Auto-scroll', () => {
     expect(chatHistory._scrollTop).toBe(0);
 
     // Clean up
+    Object.defineProperty(HTMLElement.prototype, 'scrollTop', originalScrollTop || {});
+  });
+
+  test('should not reset collapsed view to user bubble when streaming finishes', async () => {
+    const originalScrollTop = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollTop');
+    Object.defineProperty(HTMLElement.prototype, 'scrollTop', {
+      configurable: true,
+      set(value) { this._scrollTop = value; },
+      get() { return this._scrollTop || 0; }
+    });
+    let finishStream;
+    window.sendChatRequest = jest.fn(async (_payload, callbacks) => {
+      callbacks.onToken('streaming answer');
+      await new Promise(resolve => { finishStream = resolve; });
+    });
+    ChatPanel = require('../../src/ChatPanel.jsx').default;
+    _render(_React.createElement(ChatPanel, null));
+
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
+    _fireEvent.change(_screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'test message' } });
+    _fireEvent.submit(document.querySelector('.chat-input-area'));
+    await _waitFor(() => expect(document.querySelector('.collapsed-message-view')).toBeTruthy());
+    const collapsedView = document.querySelector('.collapsed-message-view');
+    collapsedView.scrollTop = 123;
+
+    await act(async () => { finishStream(); await Promise.resolve(); });
+    await _waitFor(() => expect(document.querySelector('.streaming-message-row')).toBeFalsy());
+
+    expect(collapsedView._scrollTop).toBe(123);
     Object.defineProperty(HTMLElement.prototype, 'scrollTop', originalScrollTop || {});
   });
 

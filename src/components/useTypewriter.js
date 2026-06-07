@@ -15,6 +15,12 @@ function useTypewriter(R) {
   const thinkingRef = R.useRef('');
   const inThinkingRef = R.useRef(false);
   const thinkingDoneRef = R.useRef(false);
+  const appendContent = R.useCallback((text) => {
+    if (!text) return '';
+    streamContentRef.current += text;
+    setStreamContent(prev => prev + text);
+    return text;
+  }, []);
 
   R.useEffect(() => { isLoadingRef.current = streamContent !== '' || isStreamingRef.current; }, [streamContent]);
   R.useEffect(() => { streamContentRef.current = streamContent; }, [streamContent]);
@@ -55,7 +61,7 @@ function useTypewriter(R) {
     if (type === 'reasoning') {
       thinkingRef.current += delta;
       setThinkingContent(thinkingRef.current);
-      return;
+      return '';
     }
     // Handle <thinking> tags from legacy streaming (text content mode)
     let foundOpen = -1;
@@ -69,8 +75,7 @@ function useTypewriter(R) {
     }
 
     if (foundOpen !== -1 && !inThinkingRef.current && !thinkingDoneRef.current) {
-      streamContentRef.current += delta.slice(0, foundOpen);
-      setStreamContent(prev => prev + delta.slice(0, foundOpen));
+      let appended = appendContent(delta.slice(0, foundOpen));
       inThinkingRef.current = true;
       const after = delta.slice(foundOpen + 10);
       foundClose = after.indexOf('</thinking>');
@@ -80,28 +85,27 @@ function useTypewriter(R) {
         thinkingDoneRef.current = true;
         setThinkingContent(thinkingRef.current);
         setThinkingDone(true);
-        streamContentRef.current += after.slice(foundClose + 11);
-        setStreamContent(prev => prev + after.slice(foundClose + 11));
+        appended += appendContent(after.slice(foundClose + 11));
       } else {
         thinkingRef.current += after;
         setThinkingContent(thinkingRef.current);
       }
+      return appended;
     } else if (foundClose !== -1 && inThinkingRef.current) {
       thinkingRef.current += delta.slice(0, foundClose);
       inThinkingRef.current = false;
       thinkingDoneRef.current = true;
       setThinkingContent(thinkingRef.current);
       setThinkingDone(true);
-      streamContentRef.current += delta.slice(foundClose + 11);
-      setStreamContent(prev => prev + delta.slice(foundClose + 11));
+      return appendContent(delta.slice(foundClose + 11));
     } else if (inThinkingRef.current) {
       thinkingRef.current += delta;
       setThinkingContent(thinkingRef.current);
+      return '';
     } else {
-      streamContentRef.current += delta;
-      setStreamContent(prev => prev + delta);
+      return appendContent(delta);
     }
-  }, []);
+  }, [appendContent]);
 
   const finishStreaming = R.useCallback(() => {
     isStreamingRef.current = false;

@@ -1,21 +1,46 @@
 // useRetry - Custom hook for regenerating from the last user message
 
-function cloneMessages(messages) {
-  if (typeof structuredClone === 'function') return structuredClone(messages);
-  return JSON.parse(JSON.stringify(messages));
+function cloneRetryValue(value) {
+  return JSON.parse(JSON.stringify(value));
 }
 
-function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState = {}, setGameState, retryBaseStateRef) {
+function stripTurnContext(content) {
+  return typeof content === 'string'
+    ? content.replace(/\n*---\s*\n\s*<wa2_turn_context>[\s\S]*?<\/wa2_turn_context>\s*$/g, '')
+    : content;
+}
+
+function normalizeRetryMessages(messages) {
+  return cloneRetryValue(messages).filter(msg => msg?.ttl === undefined).map(msg => (
+    msg?.role === 'user' ? { ...msg, content: stripTurnContext(msg.content) } : msg
+  ));
+}
+
+async function loadRetryBase(retryBaseRef, retryBaseStateRef) {
+  const result = await window.electronAPI?.getChatHistory?.();
+  if (result?.success) {
+    if (retryBaseRef && Array.isArray(result.retryBaseMessages)) retryBaseRef.current = result.retryBaseMessages;
+    if (retryBaseStateRef && result.retryBaseState !== undefined) retryBaseStateRef.current = result.retryBaseState;
+  }
+  return result?.success ? result : null;
+}
+
+function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState = {}, setGameState, retryBaseStateRef, onStreamContentStart) {
   const handleRetry = R.useCallback(async () => {
     if (!modelConfig || !modelConfig.apiUrl || !modelConfig.apiKey) return;
     const lastUserIdx = messages.map((m, i) => m.role === 'user' ? i : -1).filter(i => i >= 0).pop();
     if (lastUserIdx === undefined || lastUserIdx < 0) return;
-    const retryMessages = retryBaseRef?.current
-      ? cloneMessages(retryBaseRef.current)
+    const persisted = await loadRetryBase(retryBaseRef, retryBaseStateRef);
+    const persistedMessages = Array.isArray(persisted?.retryBaseMessages) ? persisted.retryBaseMessages : null;
+    const persistedState = persisted?.retryBaseState !== undefined ? persisted.retryBaseState : undefined;
+    const retryMessages = persistedMessages || retryBaseRef?.current
+      ? normalizeRetryMessages(persistedMessages || retryBaseRef.current)
       : messages.slice(0, lastUserIdx + 1);
-    const retryState = retryBaseStateRef?.current
-      ? cloneMessages(retryBaseStateRef.current)
-      : cloneMessages(gameState);
+    const stateSnapshot = persistedState !== undefined ? persistedState : retryBaseStateRef?.current;
+    const hasRetryState = stateSnapshot !== undefined && stateSnapshot !== null;
+    const retryState = hasRetryState
+      ? cloneRetryValue(stateSnapshot)
+      : {};
     setMessages(retryMessages);
     if (setGameState) setGameState(retryState);
     tw.clearStreaming();
@@ -28,6 +53,12 @@ function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retry
       if (preSend.error) throw new Error(`游戏卡错误: ${preSend.error}`);
       if (preSend.state && setGameState) setGameState(preSend.state);
       if (preSend.applied) setMessages(preSend.messages);
+      let contentStarted = false;
+      const notifyContentStart = () => {
+        if (contentStarted) return;
+        contentStarted = true;
+        onStreamContentStart?.();
+      };
       await window.sendChatRequest({
         apiUrl: modelConfig.apiUrl,
         apiKey: modelConfig.apiKey,
@@ -40,7 +71,7 @@ function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retry
         presencePenalty: modelConfig.presencePenalty,
         messages: toApiMessages(preSend.messages, modelConfig.protocol || 'openai')
       }, {
-        onToken: (text) => tw.pushContent(text),
+        onToken: (text) => { if (tw.pushContent(text)) notifyContentStart(); },
         onThinkingToken: (text) => tw.pushContent(text, 'reasoning')
       });
       setIsLoading(false); tw.finishStreaming();
@@ -63,7 +94,7 @@ function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retry
       setIsLoading(false); tw.reset();
       setMessages(prev => [...prev, { role: 'assistant', content: `请求失败: ${err.message}`, isError: true }]);
     }
-  }, [messages, modelConfig, setMessages, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef]);
+  }, [messages, modelConfig, setMessages, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, onStreamContentStart]);
 
   return handleRetry;
 }

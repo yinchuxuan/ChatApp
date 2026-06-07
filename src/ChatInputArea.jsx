@@ -18,15 +18,18 @@ function ChatInputArea({
   retryBaseRef,
   retryBaseStateRef,
   onAudioSubmit,
-  onAudioResponseComplete
+  onStreamContentStart
 }) {
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
   const [isFocused, setIsFocused] = R.useState(false);
   const isVisible = isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
-  const clone = (value) => typeof structuredClone === 'function'
-    ? structuredClone(value)
-    : JSON.parse(JSON.stringify(value));
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+  const stripTurnContext = (content) => typeof content === 'string'
+    ? content.replace(/\n*---\s*\n\s*<wa2_turn_context>[\s\S]*?<\/wa2_turn_context>\s*$/g, '')
+    : content;
+  const normalizeRetryMessages = (msgs) => clone(msgs).filter(msg => msg?.ttl === undefined).map(msg =>
+    msg?.role === 'user' ? { ...msg, content: stripTurnContext(msg.content) } : msg);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,9 +41,7 @@ function ChatInputArea({
     onAudioSubmit?.();
     const userMessage = { role: 'user', content: inputValue };
     const newMessages = [...messages, userMessage];
-    if (retryBaseRef) {
-      retryBaseRef.current = clone(newMessages);
-    }
+    if (retryBaseRef) retryBaseRef.current = normalizeRetryMessages(newMessages);
     if (retryBaseStateRef) retryBaseStateRef.current = clone(gameState);
     setMessages(newMessages); setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); setIsLoading(true);
     const textarea = e.currentTarget.querySelector('textarea');
@@ -59,6 +60,12 @@ function ChatInputArea({
       if (preSend.applied) {
         setMessages(preSend.messages);
       }
+      let contentStarted = false;
+      const notifyContentStart = () => {
+        if (contentStarted) return;
+        contentStarted = true;
+        onStreamContentStart?.();
+      };
       await window.sendChatRequest(
         {
           apiUrl: modelConfig.apiUrl,
@@ -73,7 +80,7 @@ function ChatInputArea({
           messages: toApiMessages(preSend.messages)
         },
         {
-          onToken: (text) => tw.pushContent(text),
+          onToken: (text) => { if (tw.pushContent(text)) notifyContentStart(); },
           onThinkingToken: (text) => tw.pushContent(text, 'reasoning')
         }
       );
@@ -97,7 +104,6 @@ function ChatInputArea({
           setMessages(prev => [...prev, assistantMessage]);
         }
       }
-      onAudioResponseComplete?.();
       tw.clearStreaming();
     } catch (err) {
       setIsLoading(false); tw.reset();

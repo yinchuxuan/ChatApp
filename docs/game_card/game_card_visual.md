@@ -129,6 +129,7 @@ gameState.visual.background
 - 切换游戏卡时清理旧游戏卡背景。
 - 切换 session 后按恢复出的 `gameState.visual.background` 展示背景。
 - 相同 key 不重复解析资源 URL。
+- LLM 回复期间的背景变更等到正文第一个 token 开始流式输出时展示。
 - 游戏卡背景只覆盖背景图片，不覆盖用户设置的遮罩透明度；透明度仍使用现有 `backgroundOpacity`。
 
 ## IPC 与资源安全
@@ -185,6 +186,6 @@ card.visual.background + gameState.visual.background
 - state schema enum 默认值能初始化 `gameState.visual.background`
 - state action 能更新 `visual.background`
 - IPC 拒绝路径穿越和非图片扩展名
-- 前端在 key 变化时切换背景资源
+- 前端在 key 变化时解析背景资源，并在正文开始流式输出时展示本轮背景
 - 切换游戏卡或 session 时清理或恢复正确背景
 - 游戏卡背景缺失时回落到用户设置背景

@@ -97,8 +97,8 @@ test.describe('Background Image Class Toggle', () => {
     expect(hasClassAfter).toBe(true);
 
     const hasBackgroundStyle = await appHelper.evaluate(() => {
-      const appContainer = document.querySelector('.app-container');
-      return appContainer && appContainer.style.backgroundImage.includes('url');
+      const layer = document.querySelector('.app-background-layer-current');
+      return layer && layer.style.backgroundImage.includes('url');
     });
     expect(hasBackgroundStyle).toBe(true);
   });

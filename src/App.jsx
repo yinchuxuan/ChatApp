@@ -13,6 +13,7 @@ function App() {
     backgroundOpacity: 0.5
   });
   const [gameCardBackgroundUrl, setGameCardBackgroundUrl] = React.useState('');
+  const [backgroundLayers, setBackgroundLayers] = React.useState({ current: '', previous: '' });
   const [visualPanel, setVisualPanel] = React.useState({ textPanel: 'center', cardId: '' });
 
   // Initialize theme from system preference or localStorage
@@ -79,18 +80,22 @@ function App() {
     return ` game-card-theme-${visualPanel.cardId.toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}`;
   }, [visualPanel.cardId]);
 
-  // Generate background style
-  const getBackgroundStyle = React.useCallback(() => {
-    if (backgroundImageUrl) {
-      return {
-        backgroundImage: cssUrl(backgroundImageUrl),
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      };
-    }
-    return {};
+  React.useEffect(() => {
+    setBackgroundLayers(prev => prev.current === backgroundImageUrl
+      ? prev
+      : { current: backgroundImageUrl, previous: prev.current });
+    const timer = setTimeout(() => {
+      setBackgroundLayers(prev => ({ current: prev.current, previous: '' }));
+    }, 450);
+    return () => clearTimeout(timer);
   }, [backgroundImageUrl]);
+
+  const getBackgroundStyle = React.useCallback((url) => url ? {
+    backgroundImage: cssUrl(url),
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  } : {}, []);
 
   // Generate overlay style for opacity
   const getOverlayStyle = React.useCallback(() => {
@@ -114,8 +119,9 @@ function App() {
   return (
     <div
       className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}`}
-      style={getBackgroundStyle()}
     >
+      {backgroundLayers.previous && <div className="app-background-layer app-background-layer-previous" style={getBackgroundStyle(backgroundLayers.previous)} />}
+      {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} />}
       {backgroundImageUrl && <div style={getOverlayStyle()} />}
       <div className="app-content-wrapper">
         {ChatPanel ? <ChatPanel /> : null}

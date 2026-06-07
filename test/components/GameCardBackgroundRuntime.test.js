@@ -64,6 +64,56 @@ describe('GameCardBackgroundRuntime', () => {
     expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledTimes(2);
   });
 
+  test('defers background dispatch until response body starts', async () => {
+    const handler = jest.fn();
+    window.addEventListener('game-card-background-changed', handler);
+
+    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
+      card: { visual: { background: { school: 'images/school.jpg' } } },
+      gameState: { visual: { background: 'school' } },
+      defer: true,
+      revealToken: 0
+    }));
+    await flushEffects();
+
+    await waitFor(() => expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('images/school.jpg'));
+    expect(handler).not.toHaveBeenCalled();
+    rerender(React.createElement(GameCardBackgroundRuntime, {
+      card: { visual: { background: { school: 'images/school.jpg' } } },
+      gameState: { visual: { background: 'school' } },
+      defer: true,
+      revealToken: 1
+    }));
+    await flushEffects();
+
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ detail: { url: 'local:///school.jpg' } }));
+    window.removeEventListener('game-card-background-changed', handler);
+  });
+
+  test('reveals deferred background after the image resolves late', async () => {
+    let resolveImage;
+    window.electronAPI.getGameCardImageUrl.mockReturnValue(new Promise(resolve => { resolveImage = resolve; }));
+    const handler = jest.fn();
+    window.addEventListener('game-card-background-changed', handler);
+
+    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
+      card: { visual: { background: { school: 'images/school.jpg' } } },
+      gameState: { visual: { background: 'school' } },
+      defer: true,
+      revealToken: 0
+    }));
+    rerender(React.createElement(GameCardBackgroundRuntime, {
+      card: { visual: { background: { school: 'images/school.jpg' } } },
+      gameState: { visual: { background: 'school' } },
+      defer: true,
+      revealToken: 1
+    }));
+    await act(async () => resolveImage({ success: true, url: 'local:///school.jpg' }));
+
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ detail: { url: 'local:///school.jpg' } }));
+    window.removeEventListener('game-card-background-changed', handler);
+  });
+
   test('dispatches visual panel state and normalizes invalid values', async () => {
     const handler = jest.fn();
     window.addEventListener('game-card-visual-panel-changed', handler);

@@ -31,7 +31,7 @@
     {"type":"state.set","path":"audio.bgm","value":"normal","when":{"state":{"temp.PlotType":{"eq":"FixedPlot2"}}}},
     {"type":"state.set","path":"audio.bgm","value":"sad","when":{"state":{"temp.PlotType":{"eq":"FixedPlot3"}}}},
     {"type":"state.set","path":"audio.bgm","value":"WA_3","when":{"state":{"temp.PlotType":{"eq":"FixedPlot4"}}}},
-    {"type":"state.set","path":"visual.background","value":"classroom","when":{"state":{"temp.PlotType":{"regex": "^FreePlot"}}}},
+    {"type":"state.set","path":"visual.background","value":"school","when":{"state":{"temp.PlotType":{"regex": "^FreePlot"}}}},
     {"type":"state.set","path":"visual.background","value":"musical_classroom3","when":{"state":{"temp.PlotType":{"eq":"FixedPlot1"}}}},
     {"type":"state.set","path":"visual.background","value":"invite","when":{"state":{"temp.PlotType":{"eq":"FixedPlot2"}}}},
     {"type":"state.set","path":"visual.background","value":"haiku","when":{"state":{"temp.PlotType":{"eq":"FixedPlot3"}}}},

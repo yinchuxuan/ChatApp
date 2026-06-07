@@ -15,10 +15,11 @@ function ChatPanel() {
   const [renderersReady, setRenderersReady] = R.useState(false), [showStreamThinking, setShowStreamThinking] = R.useState(true);
   const [isHeaderHovered, setIsHeaderHovered] = R.useState(false), [isInputHovered, setIsInputHovered] = R.useState(false);
   const [isInputTriggerHovered, setIsInputTriggerHovered] = R.useState(false), [isHistoryExpanded, setIsHistoryExpanded] = R.useState(false);
-  const [audioStopToken, setAudioStopToken] = R.useState(0), [audioResumeToken, setAudioResumeToken] = R.useState(0);
+  const [audioStopToken, setAudioStopToken] = R.useState(0), [streamContentStartToken, setStreamContentStartToken] = R.useState(0);
   const tw = window.useTypewriter(R);
+  const handleStreamContentStart = R.useCallback(() => setStreamContentStartToken(value => value + 1), []);
   const retryBaseRef = R.useRef(null), retryBaseStateRef = R.useRef(null);
-  const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef);
+  const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, handleStreamContentStart);
 
   R.useEffect(() => {
     if (window.ChatPanelRenderers) { setRenderersReady(true); return; }
@@ -70,7 +71,7 @@ function ChatPanel() {
   const renderRetryBtn = msgRenderers ? (isLast, isLoading) => msgRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry) : null;
   const GameCardControl = window.GameCardTitleControl;
   const chatHistoryRef = R.useRef(null), initialLoadDone = R.useRef(false);
-  const pinnedScrollAppliedRef = R.useRef(false), lastPinnedUserContentRef = R.useRef(null);
+  const pinnedScrollAppliedRef = R.useRef(false), lastPinnedUserContentRef = R.useRef(null), wasLoadingRef = R.useRef(false);
   const loadHistory = R.useCallback(async () => {
     if (window.electronAPI) {
       const result = await window.electronAPI.getChatHistory();
@@ -115,16 +116,16 @@ function ChatPanel() {
   }, [messages, gameState, isLoading]);
 
   const SCROLL_DIVIDER_OFFSET = 80;
-
   R.useEffect(() => {
+    const justFinishedStreaming = wasLoadingRef.current && !isLoading;
+    wasLoadingRef.current = isLoading;
     if (chatHistoryRef.current && !isHistoryExpanded) {
       const collapsedView = chatHistoryRef.current.querySelector('.collapsed-message-view');
       if (collapsedView) {
+        if (justFinishedStreaming) return;
         const pinnedUser = collapsedView.querySelector('.retry-source-row .chat-message.user');
         const pinnedUserContent = pinnedUser ? pinnedUser.textContent : null;
-        const shouldPin =
-          pinnedUserContent &&
-          (!pinnedScrollAppliedRef.current || lastPinnedUserContentRef.current !== pinnedUserContent);
+        const shouldPin = pinnedUserContent && (!pinnedScrollAppliedRef.current || lastPinnedUserContentRef.current !== pinnedUserContent);
         if (shouldPin) {
           collapsedView.scrollTop = 0;
           chatHistoryRef.current.scrollTop = 0;
@@ -133,8 +134,7 @@ function ChatPanel() {
         }
         return;
       }
-      pinnedScrollAppliedRef.current = false;
-      lastPinnedUserContentRef.current = null;
+      pinnedScrollAppliedRef.current = false; lastPinnedUserContentRef.current = null;
       chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
     }
   }, [messages, isLoading, tw.displayedCount, showMsgHistory]);
@@ -150,7 +150,6 @@ function ChatPanel() {
 
   const handleExpandHistory = () => { setIsHistoryExpanded(true); };
   const handleAudioSubmit = R.useCallback(() => setAudioStopToken(value => value + 1), []);
-  const handleAudioResponseComplete = R.useCallback(() => setAudioResumeToken(value => value + 1), []);
 
   const C = R.createElement;
   const BgmPlayer = window.GameCardBgmPlayer, BackgroundRuntime = window.GameCardBackgroundRuntime;
@@ -170,7 +169,7 @@ function ChatPanel() {
   };
 
   return C('div', { className: 'chat-panel' },
-    BackgroundRuntime ? C(BackgroundRuntime, { card: activeGameCard, gameState }) : null,
+    BackgroundRuntime ? C(BackgroundRuntime, { card: activeGameCard, gameState, defer: isLoading, revealToken: streamContentStartToken }) : null,
     C('div', { className: 'chat-main' },
       C('div', { className: 'chat-header-hover-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
@@ -179,7 +178,7 @@ function ChatPanel() {
           modelName: modelConfig && modelConfig.apiUrl ? (modelConfig.modelName || '已连接') : '',
           onBeforeSessionChange: saveCurrentSession,
           onSessionChanged: handleSessionChanged,
-          audioControl: BgmPlayer ? C(BgmPlayer, { card: activeGameCard, gameState, stopToken: audioStopToken, resumeToken: audioResumeToken }) : null
+          audioControl: BgmPlayer ? C(BgmPlayer, { card: activeGameCard, gameState, stopToken: audioStopToken, resumeToken: streamContentStartToken }) : null
         }) : C('span', { className: 'header-title' }, '未加载游戏卡'))
       ),
       C('div', { className: 'chat-history', ref: chatHistoryRef },
@@ -191,7 +190,7 @@ function ChatPanel() {
     C(InputArea, {
       messages, setMessages, gameState, setGameState, modelConfig, isLoading, setIsLoading, tw,
       setShowStreamThinking, isInputHovered, setIsInputHovered, isInputTriggerHovered, setIsInputTriggerHovered,
-      retryBaseRef, retryBaseStateRef, onAudioSubmit: handleAudioSubmit, onAudioResponseComplete: handleAudioResponseComplete
+      retryBaseRef, retryBaseStateRef, onAudioSubmit: handleAudioSubmit, onStreamContentStart: handleStreamContentStart
     })
   );
 }

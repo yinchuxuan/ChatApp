@@ -129,7 +129,7 @@ describe('App Component - Theme', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(document.querySelector('.app-container').style.backgroundImage)
+    expect(document.querySelector('.app-background-layer-current').style.backgroundImage)
       .toContain('local:///Users/me/Application%20Support/ChatApp/invite.png');
   });
 

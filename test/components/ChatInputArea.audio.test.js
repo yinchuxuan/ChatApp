@@ -56,13 +56,26 @@ describe('ChatInputArea audio timing hooks', () => {
     await waitFor(() => expect(onAudioSubmit).toHaveBeenCalledTimes(1));
   });
 
-  test('resumes audio after streaming and after_response finish', async () => {
-    const onAudioResponseComplete = jest.fn();
-    renderInputArea({ onAudioResponseComplete });
+  test('resumes audio when response body starts streaming', async () => {
+    const onStreamContentStart = jest.fn();
+    const tw = renderInputArea({ onStreamContentStart }).tw;
+    tw.pushContent.mockReturnValueOnce('ok');
 
     fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
     fireEvent.click(screen.getByRole('button', { name: '发送消息' }));
 
-    await waitFor(() => expect(onAudioResponseComplete).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(onStreamContentStart).toHaveBeenCalledTimes(1));
+  });
+
+  test('does not resume audio for thinking-only tokens', async () => {
+    const onStreamContentStart = jest.fn();
+    const tw = renderInputArea({ onStreamContentStart }).tw;
+    tw.pushContent.mockReturnValue('');
+
+    fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
+    fireEvent.click(screen.getByRole('button', { name: '发送消息' }));
+
+    await waitFor(() => expect(tw.pushContent).toHaveBeenCalled());
+    expect(onStreamContentStart).not.toHaveBeenCalled();
   });
 });
