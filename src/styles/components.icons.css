@@ -55,6 +55,13 @@
   --icon-tune: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 7h8v2H4zm10-2h3v2h3v2h-3v2h-3V9h-2V7h2zM4 15h3v-2h3v6H7v-2H4zm8 0h8v2h-8z' fill='black'/%3E%3C/svg%3E");
   --icon-music-note: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18 3v12.5A3.5 3.5 0 1 1 16 12.3V7H9v10.5A3.5 3.5 0 1 1 7 14.3V5z' fill='black'/%3E%3C/svg%3E");
   --icon-music-off: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 3l17 17-1.4 1.4-3.3-3.3A3.5 3.5 0 0 1 10 16a3.5 3.5 0 0 1 4.3-3.4L12 10.3V7H8.7L2.6 4.4zm14 12.8-2-2V7H9.2l-2-2H18zM6.7 14.3 8 15.6v1.9A3.5 3.5 0 1 1 6.7 14.3z' fill='black'/%3E%3C/svg%3E");
+  --icon-extension: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 3h5v4h2a3 3 0 1 1 0 6h-2v2h4v6H3v-6h4v-2H3V7h5z' fill='black'/%3E%3C/svg%3E");
+  --icon-save: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 3h12l2 2v16H5zm2 2v5h9V5zm2 11h6v-4H9z' fill='black'/%3E%3C/svg%3E");
+  --icon-edit: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 17.5V21h3.5L18.1 10.4l-3.5-3.5zm12-12 2-2 3.5 3.5-2 2z' fill='black'/%3E%3C/svg%3E");
+  --icon-delete: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 7h10l-1 14H8zm2-4h6l1 2h4v2H4V5h4z' fill='black'/%3E%3C/svg%3E");
+  --icon-check: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z' fill='black'/%3E%3C/svg%3E");
+  --icon-error: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2 1 21h22zm-1 7h2v6h-2zm0 8h2v2h-2z' fill='black'/%3E%3C/svg%3E");
+  --icon-hourglass: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4zm2 2v3.2l4 4 4-4V4zm4 8.8-4 4V20h8v-3.2z' fill='black'/%3E%3C/svg%3E");
 }
 
 .material-icons[data-icon="chat"] { --icon-mask: var(--icon-chat); }
@@ -85,3 +92,10 @@
 .material-icons[data-icon="tune"] { --icon-mask: var(--icon-tune); }
 .material-icons[data-icon="music_note"] { --icon-mask: var(--icon-music-note); }
 .material-icons[data-icon="music_off"] { --icon-mask: var(--icon-music-off); }
+.material-icons[data-icon="extension"] { --icon-mask: var(--icon-extension); }
+.material-icons[data-icon="save"] { --icon-mask: var(--icon-save); }
+.material-icons[data-icon="edit"] { --icon-mask: var(--icon-edit); }
+.material-icons[data-icon="delete"] { --icon-mask: var(--icon-delete); }
+.material-icons[data-icon="check"] { --icon-mask: var(--icon-check); }
+.material-icons[data-icon="error"] { --icon-mask: var(--icon-error); }
+.material-icons[data-icon="hourglass_empty"] { --icon-mask: var(--icon-hourglass); }

@@ -75,7 +75,7 @@ describe('GameCardTitleControl', () => {
       fireEvent.click(screen.getByRole('button', { name: '管理聊天会话' }));
     });
 
-    expect(screen.getByText('会话')).toBeInTheDocument();
+    expect(document.querySelector('.chat-session-panel-title')).toHaveTextContent('会话');
     expect(screen.getByText('默认会话')).toBeInTheDocument();
     expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
   });
@@ -107,5 +107,33 @@ describe('GameCardTitleControl', () => {
     await waitFor(() => expect(electronAPI.createChatSession).toHaveBeenCalledWith('新会话'));
     expect(before).toHaveBeenCalled();
     expect(changed).toHaveBeenCalledWith('session-1');
+  });
+
+  test('saves current session from session manager', async () => {
+    const before = jest.fn();
+    electronAPI.getChatHistory.mockResolvedValue({
+      success: true,
+      messages: [{ role: 'user', content: 'snapshot' }],
+      gameState: { timeline: { currentTime: '10:30' } },
+      retryBaseMessages: [{ role: 'user', content: 'base' }],
+      retryBaseState: { timeline: { currentTime: '10:00' } }
+    });
+    electronAPI.createChatSession.mockResolvedValue({ success: true, id: 'archive-1' });
+
+    render(<GameCardTitleControl onBeforeSessionChange={before} />);
+    await screen.findByText('未加载游戏卡');
+    fireEvent.click(screen.getByRole('button', { name: '管理聊天会话' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: '保存当前会话' }));
+    });
+
+    expect(before).toHaveBeenCalledTimes(1);
+    expect(electronAPI.createChatSession).toHaveBeenCalledWith('会话存档');
+    expect(electronAPI.saveChatHistory).toHaveBeenCalledWith([{ role: 'user', content: 'snapshot' }], {
+      gameState: { timeline: { currentTime: '10:30' } },
+      retryBaseMessages: [{ role: 'user', content: 'base' }],
+      retryBaseState: { timeline: { currentTime: '10:00' } }
+    });
+    expect(electronAPI.setActiveChatSession).toHaveBeenCalledWith('default');
   });
 });

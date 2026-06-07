@@ -1,0 +1,194 @@
+.chat-session-manager {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.chat-session-btn {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  border-radius: var(--md-shape-corner-full);
+  background: transparent;
+  color: var(--md-primary);
+  cursor: pointer;
+}
+
+.chat-session-btn:hover {
+  background: rgba(59, 130, 246,var(--md-state-hover-opacity));
+}
+
+.chat-session-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -52px;
+  width: min(360px, calc(100vw - 32px));
+  max-height: min(440px, calc(100vh - 120px));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-shape-corner-medium);
+  box-shadow: var(--md-elevation-level-3);
+  z-index: 20;
+}
+
+.chat-session-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 12px 8px 16px;
+  border-bottom: 1px solid var(--md-outline-variant);
+}
+
+.chat-session-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--md-on-surface);
+}
+
+.chat-session-head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-session-text-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--md-shape-corner-full);
+  background: transparent;
+  color: var(--md-primary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-session-text-action:hover,
+.chat-session-action:hover {
+  background: color-mix(in srgb, var(--md-primary) 10%, transparent);
+}
+
+.chat-session-text-action:disabled {
+  color: var(--md-on-surface-variant);
+  cursor: default;
+  opacity: 0.6;
+}
+
+.chat-session-list {
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.chat-session-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 8px;
+  border-radius: var(--md-shape-corner-small);
+  cursor: pointer;
+}
+
+.chat-session-row:hover,
+.chat-session-row.active {
+  background: var(--md-surface-container-highest);
+}
+
+.chat-session-row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.chat-session-row-state {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--md-shape-corner-full);
+  border: 1px solid var(--md-outline-variant);
+  background: transparent;
+  flex: 0 0 auto;
+}
+
+.chat-session-row.active .chat-session-row-state {
+  border-color: var(--md-primary);
+  background: var(--md-primary);
+}
+
+.chat-session-title,
+.chat-session-preview {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-session-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-on-surface);
+}
+
+.chat-session-preview {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--md-on-surface-variant);
+}
+
+.chat-session-title-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-shape-corner-small);
+  background: var(--md-surface-container-low);
+  color: var(--md-on-surface);
+}
+
+.chat-session-action,
+.chat-session-btn {
+  flex: 0 0 auto;
+}
+
+.chat-session-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-shape-corner-full);
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  cursor: pointer;
+  opacity: 0.72;
+}
+
+.chat-session-row:hover .chat-session-action,
+.chat-session-row.active .chat-session-action,
+.chat-session-action:focus-visible {
+  opacity: 1;
+}
+
+.chat-session-action:hover {
+  color: var(--md-primary);
+}
+
+.chat-session-action.danger {
+  color: var(--md-error);
+}
+
+.chat-session-btn .material-icons,
+.chat-session-action .material-icons,
+.chat-session-text-action .material-icons {
+  font-size: 20px;
+  color: currentColor;
+  animation: none;
+}
