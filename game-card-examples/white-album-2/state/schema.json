@@ -34,13 +34,6 @@
       "description": "剧情阅读面板位置",
       "llmRead": false,
       "llmWrite": false
-    },
-    "status.setsunaContestAccepted": {
-      "type": "boolean",
-      "default": false,
-      "description": "小木曾雪菜是否同意参加峰城大附属小姐竞选",
-      "llmRead": true,
-      "llmWrite": true
     }
   }
 }

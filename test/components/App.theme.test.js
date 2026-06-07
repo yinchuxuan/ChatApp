@@ -40,6 +40,7 @@ describe('App Component - Theme', () => {
   afterEach(() => {
     window.ChatPanel = undefined;
     window.SettingsPanel = undefined;
+    window.__lastGameCardBackgroundDetail = undefined;
   });
 
   test('should initialize theme from localStorage', async () => {
@@ -116,6 +117,20 @@ describe('App Component - Theme', () => {
     await act(async () => { await Promise.resolve(); });
 
     expect(_screen.getByText('ChatPanel Mock')).toBeInTheDocument();
+  });
+
+  test('uses cached game card background event from early runtime dispatch', async () => {
+    window.__lastGameCardBackgroundDetail = {
+      url: 'local:///Users/me/Application Support/ChatApp/invite.png'
+    };
+    const App = require('../../src/App.jsx').default;
+
+    _render(React.createElement(App, null));
+
+    await act(async () => { await Promise.resolve(); });
+
+    expect(document.querySelector('.app-container').style.backgroundImage)
+      .toContain('local:///Users/me/Application%20Support/ChatApp/invite.png');
   });
 
   test('should render SettingsPanel component', async () => {

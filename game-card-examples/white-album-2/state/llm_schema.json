@@ -4,29 +4,17 @@
       "type": "number",
       "min": 0,
       "max": 100,
-      "description": "冬马和纱对玩家/春希当前路线的好感度",
-      "llmRead": true,
-      "llmWrite": true
+      "description": "冬马和纱对春希当前的好感度"
     },
     "setsuna.affection": {
       "type": "number",
       "min": 0,
       "max": 100,
-      "description": "小木曾雪菜对玩家/春希当前路线的好感度",
-      "llmRead": true,
-      "llmWrite": true
+      "description": "小木曾雪菜对春希当前的好感度"
     },
     "timeline.currentTime": {
       "type": "string",
-      "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X",
-      "llmRead": true,
-      "llmWrite": true
-    },
-    "status.setsunaContestAccepted": {
-      "type": "boolean",
-      "description": "小木曾雪菜是否同意参加峰城大附属小姐竞选",
-      "llmRead": true,
-      "llmWrite": true
+      "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X"
     }
   }
 }

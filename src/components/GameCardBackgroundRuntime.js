@@ -12,7 +12,9 @@ function GameCardBackgroundRuntime({ card, gameState = {} }) {
   const textPanel = normalizeTextPanel(gameState?.visual?.textPanel);
 
   const dispatchBackground = R.useCallback((url) => {
-    window.dispatchEvent(new CustomEvent('game-card-background-changed', { detail: { url } }));
+    const detail = { url };
+    window.__lastGameCardBackgroundDetail = detail;
+    window.dispatchEvent(new CustomEvent('game-card-background-changed', { detail }));
   }, []);
   const dispatchVisualPanel = R.useCallback((detail) => {
     window.dispatchEvent(new CustomEvent('game-card-visual-panel-changed', { detail }));

@@ -57,6 +57,9 @@ function App() {
   React.useEffect(() => {
     const handler = (e) => setGameCardBackgroundUrl(e.detail?.url || '');
     window.addEventListener('game-card-background-changed', handler);
+    if (window.__lastGameCardBackgroundDetail) {
+      setGameCardBackgroundUrl(window.__lastGameCardBackgroundDetail.url || '');
+    }
     return () => window.removeEventListener('game-card-background-changed', handler);
   }, []);
 
@@ -70,6 +73,7 @@ function App() {
   }, []);
 
   const backgroundImageUrl = gameCardBackgroundUrl || backgroundConfig.backgroundImageUrl;
+  const cssUrl = (url) => `url("${encodeURI(String(url)).replace(/["\\]/g, '\\$&')}")`;
   const gameCardThemeClass = React.useMemo(() => {
     if (!visualPanel.cardId) return '';
     return ` game-card-theme-${visualPanel.cardId.toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}`;
@@ -79,7 +83,7 @@ function App() {
   const getBackgroundStyle = React.useCallback(() => {
     if (backgroundImageUrl) {
       return {
-        backgroundImage: `url(${backgroundImageUrl})`,
+        backgroundImage: cssUrl(backgroundImageUrl),
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'

@@ -1,1 +1,48 @@
-[{"id":"wa2-insert-turn-context","when":{"phase":"pre_send","any":{"role":"user"}},"then":[{"type":"insert","predicate":{"role":"user","index":"last"},"anchor":"before","role":"system","content":{"prefix":"世界书索引:\n人物:\n- 北原春希: 三年E班的认真学霸和轻音乐同好会吉他手，习惯把责任揽到自己身上。\n- 冬马和纱: 冷淡孤僻的天才钢琴少女，对春希有压抑而强烈的感情。\n- 小木曾雪菜: 明亮亲切的校园偶像，害怕被孤立，也渴望维系三人的关系。\n- 饭冢武也: 春希的死党，轻浮外向但敏锐，常用玩笑推动春希行动。\n- 水泽依绪: 雪菜的同班同学，武也和春希的好友，爽朗直接，常作为旁观者点出问题。\n- 柳原朋: 对雪菜抱有敌意和竞争心的学生，会刺痛雪菜隐藏的创伤。\n地点:\n- 第二音乐教室: 冬马独占的音乐教室，平时大门紧锁，一般人无法入内。\n- 第三音乐教室: 轻音乐同好会的活动地点。\n- 峰城大附属中学: 故事主要校园舞台，学园祭、社团和评选让关系被迫交汇。\n- 冬马家: 空旷富裕却冷清的住宅，体现冬马的孤独和以钢琴为出口的生活。\n\n本轮命中的世界书条目:\n","include":[{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"春希|北原|Kitahara|Haruki"}}},"content":"{{file_section:worldbook/characters.md##北原春希}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"冬马|冬馬|和纱|和紗|Touma|Kazusa"}}},"content":"{{file_section:worldbook/characters.md##冬马和纱}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"雪菜|小木曾|小木曽|Ogiso|Setsuna"}}},"content":"{{file_section:worldbook/characters.md##小木曾雪菜}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"武也|饭冢|飯塚|Takeya|Iizuka"}}},"content":"{{file_section:worldbook/characters.md##饭冢武也}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"依绪|依緒|水泽|水沢|Io|Mizusawa"}}},"content":"{{file_section:worldbook/characters.md##水泽依绪}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"柳原朋|柳原|Yanagihara|Tomo"}}},"content":"{{file_section:worldbook/characters.md##柳原朋}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"第二音乐教室|第二音乐室｜第二音楽室"}}},"content":"{{file_section:worldbook/location.md##第二音乐教室}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"第三音乐教室|第三音乐室|第三音楽室"}}},"content":"{{file_section:worldbook/location.md##第三音乐教室}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"峰城大附属中学|峰城大附属|峰城大付属"}}},"content":"{{file_section:worldbook/location.md##峰城大附属中学}}"},{"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"冬马家|冬馬家|和纱家|和紗家"}}},"content":"{{file_section:worldbook/location.md##冬马家}}"}],"join":"\n\n"},"ttl":1,"_meta":{"source":"wa2_worldbook","visibility":"llm_only"}},{"type":"insert","predicate":{"role":"user","index":"last"},"anchor":"before","role":"system","content":"{{raw_string:State定义:\n}} + {{file_content:state/llm_schema.json}} + {{raw_string:\n\nState更新规则:\n- 只能在回复末尾的 <state_patch>...</state_patch> 中更新 state。\n- <state_patch> 必须是 JSON 数组，只能使用 state.set。\n- 每轮必须用 state.set 写 timeline.currentTime，值为本轮正文结束时的具体时间点，格式必须是 YYYY.MM.DD: HH:mm 星期X。\n- 不要写入 schema 未定义的长期状态。\n- 进入固定剧情节点时，把 timeline.currentTime 写为该固定节点起始时间；完成固定剧情节点后，把 timeline.currentTime 写为节点内更晚的正文结束时间，系统下一轮会推进到下一个关键时间。\n- 本轮正文不得描写下一固定剧情节点之后发生的事件。\n- affection 每轮通常只允许小幅变化。\n- 事件 status 只能在剧情事实已经发生后设为 true。\n\n当前State:\n- timeline.currentTime: }} + {{state:timeline.currentTime}} + {{raw_string:\n- touma.affection: }} + {{state:touma.affection}} + {{raw_string:\n- setsuna.affection: }} + {{state:setsuna.affection}} + {{raw_string:\n- status.setsunaContestAccepted: }} + {{state:status.setsunaContestAccepted}}","ttl":1,"_meta":{"source":"wa2_state_context","visibility":"llm_only"}}]}]
+[{"id":"wa2-insert-turn-context",
+  "when":{"phase":"pre_send","any":{"role":"user"}},
+  "then":[
+        {"type":"insert",
+            "predicate":{"role":"user","index":"last"},
+            "anchor":"before",
+            "role":"system",
+            "content":{
+                "prefix":"世界书索引:\n人物:\n- 北原春希: 三年E班的认真学霸和轻音乐同好会吉他手，习惯把责任揽到自己身上。\n- 冬马和纱: 冷淡孤僻的天才钢琴少女，对春希有压抑而强烈的感情。\n- 小木曾雪菜: 明亮亲切的校园偶像，害怕被孤立，也渴望维系三人的关系。\n- 饭冢武也: 春希的死党，轻浮外向但敏锐，常用玩笑推动春希行动。\n- 水泽依绪: 雪菜的同班同学，武也和春希的好友，爽朗直接，常作为旁观者点出问题。\n- 柳原朋: 对雪菜抱有敌意和竞争心的学生，会刺痛雪菜隐藏的创伤。\n地点:\n- 第二音乐教室: 冬马独占的音乐教室，平时大门紧锁，一般人无法入内。\n- 第三音乐教室: 轻音乐同好会的活动地点。\n- 峰城大附属中学: 故事主要校园舞台，学园祭、社团和评选让关系被迫交汇。\n- 冬马家: 空旷富裕却冷清的住宅，体现冬马的孤独和以钢琴为出口的生活。\n\n本轮命中的世界书条目:\n",
+                "include":[
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"春希|北原|Kitahara|Haruki"}}},
+                    "content":"{{file_section:worldbook/characters.md##北原春希}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"冬马|冬馬|和纱|和紗|Touma|Kazusa"}}},
+                    "content":"{{file_section:worldbook/characters.md##冬马和纱}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"雪菜|小木曾|小木曽|Ogiso|Setsuna"}}},
+                    "content":"{{file_section:worldbook/characters.md##小木曾雪菜}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"武也|饭冢|飯塚|Takeya|Iizuka"}}},
+                    "content":"{{file_section:worldbook/characters.md##饭冢武也}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"依绪|依緒|水泽|水沢|Io|Mizusawa"}}},
+                    "content":"{{file_section:worldbook/characters.md##水泽依绪}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"柳原朋|柳原|Yanagihara|Tomo"}}},
+                    "content":"{{file_section:worldbook/characters.md##柳原朋}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"第二音乐教室|第二音乐室｜第二音楽室"}}},
+                    "content":"{{file_section:worldbook/location.md##第二音乐教室}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"第三音乐教室|第三音乐室|第三音楽室"}}},
+                    "content":"{{file_section:worldbook/location.md##第三音乐教室}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"峰城大附属中学|峰城大附属|峰城大付属"}}},
+                    "content":"{{file_section:worldbook/location.md##峰城大附属中学}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"冬马家|冬馬家|和纱家|和紗家"}}},
+                    "content":"{{file_section:worldbook/location.md##冬马家}}"}
+                ],
+                "join":"\n\n"
+            },
+            "ttl":1,
+            "_meta":{"source":"wa2_worldbook","visibility":"llm_only"}
+        },
+        {"type":"insert",
+         "predicate":{"role":"user","index":"last"},
+         "anchor":"before",
+         "role":"system",
+         "content":"{{raw_string:State定义:\n}} + {{file_content:state/llm_schema.json}} + {{raw_string:\n\n当前State:\n- timeline.currentTime: }} + {{state:timeline.currentTime}} + {{raw_string:\n- touma.affection: }} + {{state:touma.affection}} + {{raw_string:\n- setsuna.affection: }} + {{state:setsuna.affection}} + {{raw_string:\n\n}} + {{file_content:state/state_update_rules.md}}",
+         "ttl":1,
+         "_meta":{"source":"wa2_state_context",
+         "visibility":"llm_only"}
+        }
+        ]
+    }
+]

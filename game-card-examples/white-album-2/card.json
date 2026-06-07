@@ -16,9 +16,6 @@
       "$import": "rules/compress-assistant-history.json"
     },
     {
-      "$import": "rules/keep-latest-user.json"
-    },
-    {
       "$import": "rules/insert-turn-context.json"
     },
     {

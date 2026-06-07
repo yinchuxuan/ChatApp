@@ -1,1 +1,29 @@
-[{"id":"wa2-system-prompt","when":{"phase":"init"},"then":[{"type":"insert","role":"system","content":"你是《白色相簿2》剧情创作者丸户史明，接下来开始进行《白色相簿2》ic篇的角色扮演互动，你需要根据用户的反馈创建合适的角色扮演剧情","_meta":{"source":"wa2_system_prompt","visibility":"llm_only"}},{"type":"insert","role":"system","content":"历史对话总结:\n暂无","_meta":{"source":"wa2_summary","visibility":"llm_only"}},{"type":"insert","role":"assistant","content":"{{file_content:first_msg.md}}","_meta":{"source":"wa2_first_msg","visibility":"user_visible"}}]}]
+[
+    {"id":"wa2-system-prompt",
+     "when":{"phase":"init"},
+     "then":[
+                {"type":"insert",
+                 "role":"system",
+                 "content":"你是《白色相簿2》剧情创作者丸户史明，接下来开始进行《白色相簿2》ic篇的角色扮演互动，你需要根据用户的反馈创建合适的角色扮演剧情",
+                 "_meta":{"source":"wa2_system_prompt","visibility":"llm_only"}
+                },
+                {"type":"insert","role":"system",
+                 "content":"历史对话总结:\n暂无",
+                 "_meta":{"source":"wa2_summary","visibility":"llm_only"}
+                },
+                {"type":"insert",
+                 "role":"assistant",
+                 "content":"{{file_content:first_msg.md}}",
+                 "_meta":{"source":"wa2_first_msg","visibility":"user_visible"}
+                },
+                {"type":"state.set",
+                 "path":"visual.background",
+                 "value":"musical_classroom3"
+                },
+                {"type":"state.set",
+                 "path":"audio.bgm",
+                 "value":"sad"
+                }
+            ]
+    }
+]
