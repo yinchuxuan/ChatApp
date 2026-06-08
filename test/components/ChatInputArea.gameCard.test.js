@@ -1,8 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-
 import ChatInputArea from '../../src/ChatInputArea.jsx';
-
 function renderInputArea(props = {}) {
   const tw = {
     startStreaming: jest.fn(),
@@ -13,7 +11,6 @@ function renderInputArea(props = {}) {
     clearStreaming: jest.fn(),
     reset: jest.fn()
   };
-
   return {
     tw,
     setMessages: jest.fn(),
@@ -37,13 +34,11 @@ function renderInputArea(props = {}) {
     }))
   };
 }
-
 describe('ChatInputArea game card pre_send integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch.mockResolvedValue(global.createStreamingMock('ok'));
   });
-
   test('does not modify request messages when no game card is active', async () => {
     window.electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });
     renderInputArea();
@@ -189,5 +184,17 @@ describe('ChatInputArea game card pre_send integration', () => {
     expect(setGameState).toHaveBeenLastCalledWith({ score: 12 });
     window.preparePreSendMessages = originalPreSend;
     window.prepareAfterResponseMessages = originalAfter;
+  });
+
+  test('reports pre_send game card errors through callback', async () => {
+    const originalPreSend = window.preparePreSendMessages, onGameCardError = jest.fn();
+    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, error: '游戏卡状态 schema 校验失败' }));
+    renderInputArea({ onGameCardError });
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
+      fireEvent.click(screen.getByRole('button', { name: '发送消息' }));
+    });
+    await waitFor(() => expect(onGameCardError).toHaveBeenCalledWith(expect.objectContaining({ error: '游戏卡状态 schema 校验失败' })));
+    expect(global.fetch).not.toHaveBeenCalled(); window.preparePreSendMessages = originalPreSend;
   });
 });

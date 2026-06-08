@@ -1,4 +1,5 @@
 .game-card-title-control {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -68,5 +69,11 @@
 
 .game-card-title-error {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  padding: 0;
   color: var(--md-error);
+  cursor: pointer;
 }

@@ -56,6 +56,32 @@ describe('Game Card Directory Import', () => {
     expect(result.card).toBe(null);
   });
 
+  test('rejects invalid external state schema with readable details', async () => {
+    const badDir = path.join(tempDir, 'bad-state-schema-card');
+    fs.mkdirSync(path.join(badDir, 'state'), { recursive: true });
+    fs.writeFileSync(path.join(badDir, 'card.json'), JSON.stringify({
+      version: '1.0',
+      id: 'bad_state_schema',
+      name: 'Bad State Schema',
+      state: { schemaFile: 'state/schema.json' },
+      rules: [rule('start')]
+    }), 'utf-8');
+    fs.writeFileSync(path.join(badDir, 'state/schema.json'), JSON.stringify({
+      'timeline.currentTime': { type: 'string', default: 0 }
+    }), 'utf-8');
+    dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [badDir] });
+
+    const result = await ipcMain.handlers['import-game-card-from-directory']();
+
+    expect(result.success).toBe(false);
+    expect(result.stage).toBe('validate_state_schema');
+    expect(result.file).toBe('state/schema.json');
+    expect(result.details[0]).toMatchObject({
+      file: 'state/schema.json',
+      message: 'schema.timeline.currentTime.default: must be a string'
+    });
+  });
+
   test('expands imported rules in declaration order', async () => {
     const cardDir = path.join(tempDir, 'ordered-import-card');
     const card = {

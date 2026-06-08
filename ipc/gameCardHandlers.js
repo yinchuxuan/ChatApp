@@ -8,18 +8,24 @@ const {
   writeJsonFile
 } = require('./gameCardStorage');
 const { readGameCardJson } = require('./gameCardImportResolver');
-const { validateGameCard } = require('../src/gameCard/validateGameCard');
+const { validateImportedGameCard } = require('./gameCardImportValidation');
 
 function asErrorResult(err, fallback = {}) {
   console.error('Error handling game card IPC:', err);
-  return { success: false, error: err.message, ...fallback };
+  return {
+    success: false,
+    error: err.message,
+    ...(err.stage ? { stage: err.stage } : {}),
+    ...(err.file ? { file: err.file } : {}),
+    ...(err.details ? { details: err.details } : {}),
+    ...fallback
+  };
 }
 
 function readCard(fs, cardsDir, id) {
   const cardPath = getCardPath(cardsDir, id);
   return readGameCardJson(fs, cardPath, null);
 }
-
 function listCardIds(fs, cardsDir) {
   if (!fs.existsSync(cardsDir)) return [];
   return fs.readdirSync(cardsDir)
@@ -65,10 +71,7 @@ function readImportCard(fs, selectedDir) {
   if (!card || !isSafeGameCardId(card.id)) {
     throw new Error('Game card must have a safe id');
   }
-  const validation = validateGameCard(card);
-  if (!validation.valid) {
-    throw new Error('card.json does not match game card schema: ' + validation.errors.join('; '));
-  }
+  validateImportedGameCard(fs, card, selectedDir);
   return card;
 }
 

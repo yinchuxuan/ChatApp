@@ -66,6 +66,32 @@ describe('GameCardTitleControl', () => {
     window.removeEventListener('game-card-changed', cardChanged);
   });
 
+  test('shows readable import errors without changing active card', async () => {
+    const cardChanged = jest.fn();
+    electronAPI.importGameCardFromDirectory.mockResolvedValue({
+      success: false,
+      error: '游戏卡状态 schema 校验失败',
+      stage: 'validate_state_schema',
+      file: 'state/schema.json',
+      details: [{ file: 'state/schema.json', message: 'schema.timeline.currentTime.default: must be a string' }]
+    });
+    window.addEventListener('game-card-changed', cardChanged);
+
+    render(<GameCardTitleControl />);
+    await screen.findByText('未加载游戏卡');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
+    });
+
+    expect(screen.getByText('导入游戏卡失败')).toBeInTheDocument();
+    expect(screen.getByText('游戏卡状态 schema 校验失败')).toBeInTheDocument();
+    expect(screen.getByText('阶段: 状态 schema 校验')).toBeInTheDocument();
+    expect(screen.getAllByText(/state\/schema\.json/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/schema\.timeline\.currentTime\.default/)).toBeInTheDocument();
+    expect(cardChanged).not.toHaveBeenCalled();
+    window.removeEventListener('game-card-changed', cardChanged);
+  });
+
   test('opens session manager without showing session name in title', async () => {
     render(<GameCardTitleControl />);
 

@@ -18,7 +18,8 @@ function ChatInputArea({
   retryBaseRef,
   retryBaseStateRef,
   onAudioSubmit,
-  onStreamContentStart
+  onStreamContentStart,
+  onGameCardError
 }) {
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
@@ -53,9 +54,10 @@ function ChatInputArea({
       const preSend = await preparePreSend({ messages: newMessages, state: gameState });
       if (preSend.error) {
         setIsLoading(false); tw.reset();
-        setMessages(prev => [...prev, { role: 'assistant', content: `游戏卡错误: ${preSend.error}`, isError: true }]);
+        onGameCardError?.(window.normalizeGameCardError?.(preSend) || preSend);
         return;
       }
+      onGameCardError?.(null);
       if (preSend.state && setGameState) setGameState(preSend.state);
       if (preSend.applied) {
         setMessages(preSend.messages);

@@ -1,0 +1,114 @@
+.game-card-error-panel {
+  position: relative;
+  z-index: 2;
+  width: min(760px, 100%);
+  margin: 0 auto 12px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--md-error, #ba1a1a) 34%, var(--md-outline-variant));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--md-error-container, #ffdad6) 68%, var(--md-surface) 32%);
+  color: var(--md-on-error-container, #410002);
+  box-shadow: var(--md-elevation-level-2);
+}
+
+.game-card-error-panel.import {
+  position: absolute;
+  top: 88px;
+  right: 28px;
+  width: min(560px, calc(100vw - 48px));
+  margin: 0;
+  z-index: 8;
+}
+
+.game-card-error-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-right: 32px;
+}
+
+.game-card-error-heading .material-icons {
+  flex: 0 0 auto;
+  font-size: 22px;
+  color: var(--md-error, #ba1a1a);
+  animation: none;
+}
+
+.game-card-error-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.game-card-error-message {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.game-card-error-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.game-card-error-meta span,
+.game-card-error-file {
+  font-family: 'Roboto Mono', monospace;
+}
+
+.game-card-error-details {
+  margin: 10px 0 0;
+  padding-left: 22px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.game-card-error-details li {
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+
+.game-card-error-file {
+  font-weight: 700;
+}
+
+.game-card-error-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.game-card-error-actions button {
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.game-card-error-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.game-card-error-close .material-icons {
+  font-size: 18px;
+  color: currentColor;
+  animation: none;
+}

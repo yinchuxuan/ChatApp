@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, act } from '@testing-library/react';
+import { render, waitFor, screen, act, fireEvent } from '@testing-library/react';
 import ChatPanel from '../../src/ChatPanel.jsx';
 
 describe('ChatPanel game card init', () => {
@@ -56,6 +56,51 @@ describe('ChatPanel game card init', () => {
       { role: 'system', content: 'score:1', _meta: { visibility: 'user_visible' } }
     ], { gameState: { score: 2 }, retryBaseMessages: null, retryBaseState: null });
     window.prepareInitMessages = originalPrepareInit;
+  });
+
+  test('shows active game card load errors in the chat panel', async () => {
+    const originalPrepareInit = window.prepareInitMessages;
+    window.prepareInitMessages = jest.fn(async ({ messages, state }) => ({
+      messages,
+      state,
+      changed: false,
+      error: 'state schema 文件无法读取或不是合法 JSON',
+      stage: 'load_state_schema',
+      file: 'state/schema.json',
+      details: [{ file: 'state/schema.json', message: 'Unexpected token } in JSON' }]
+    }));
+
+    render(React.createElement(ChatPanel));
+
+    await waitFor(() => expect(screen.getByText('当前游戏卡无法运行')).toBeInTheDocument());
+    expect(screen.getByText('state schema 文件无法读取或不是合法 JSON')).toBeInTheDocument();
+    expect(screen.getByText('阶段: 读取状态 schema')).toBeInTheDocument();
+    expect(screen.getAllByText(/state\/schema\.json/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Unexpected token/)).toBeInTheDocument();
+    window.prepareInitMessages = originalPrepareInit;
+  });
+
+  test('renders import errors outside the auto-hidden header', async () => {
+    window.electronAPI.importGameCardFromDirectory.mockResolvedValue({
+      success: false,
+      error: '游戏卡主文件 schema 校验失败',
+      stage: 'validate_card',
+      file: 'card.json',
+      details: [{ file: 'card.json', message: 'rules[0].then: must be a non-empty array' }]
+    });
+
+    render(React.createElement(ChatPanel));
+    await screen.findByText('Init Card');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
+    });
+
+    const panel = document.querySelector('.chat-main > .game-card-error-panel.import');
+    expect(panel).not.toBeNull();
+    expect(panel).toHaveTextContent('导入游戏卡失败');
+    expect(panel).toHaveTextContent('rules[0].then: must be a non-empty array');
+    fireEvent.click(screen.getByRole('button', { name: '关闭导入错误' }));
+    expect(document.querySelector('.chat-main > .game-card-error-panel.import')).toBeNull();
   });
 
   test('reruns history loading and init after the active game card changes', async () => {
