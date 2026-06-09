@@ -60,6 +60,22 @@
 
 `replace` 支持可选 `find` 字段，供 `content` 引用当前消息数组中其他消息的 content。
 
+## conditional action group
+
+`then` 中可以嵌套条件动作组，用同一个 `when` 控制多条 action。组本身按声明位置执行；命中后，内部 `then` 继续按顺序执行，并且可以读取组内前序 action 修改后的 state。组内 `when.phase` 可省略，省略时继承当前规则阶段。
+
+```json
+{
+  "when": { "state": { "route": "alice" } },
+  "then": [
+    { "type": "state.set", "path": "audio.bgm", "value": "normal" },
+    { "type": "state.set", "path": "visual.background", "value": "school" }
+  ]
+}
+```
+
+条件组可以嵌套，也支持 `find`。没有命中时整组跳过，不会执行内部 action。
+
 ## state actions
 
 声明式修改游戏状态，不直接修改 messages；后续 action 和后续 rule 可立即读取新 state。

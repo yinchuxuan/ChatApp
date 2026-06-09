@@ -132,7 +132,8 @@ describe('game card schema', () => {
       [{ type: 'replace', predicate: { role: 'assistant' }, ttl: 1 }, true],
       [{ type: 'replace', predicate: { role: 'assistant' } }, false],
       [{ type: 'exec', source: 'return { messages };' }, true],
-      [{ type: 'exec', source: '' }, false]
+      [{ type: 'exec', source: '' }, false],
+      [{ when: { state: { route: 'alice' } }, then: [{ type: 'remove', predicate: { all: true } }] }, true]
     ];
 
     cases.forEach(([action, expected]) => {

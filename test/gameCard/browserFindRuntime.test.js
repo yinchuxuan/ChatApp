@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
 
 const scripts = [
   'predicate.js', 'statePaths.js', 'findResolver.js', 'contentTransforms.js',
@@ -86,30 +87,14 @@ describe('browser game card find runtime', () => {
   test('white album browser runtime appends tail context to latest user message', () => {
     const runtime = loadBrowserRuntime();
     const { card, stateSchema: schema, llmStateSchema: llmSchema } = require('./whiteAlbumTestCard');
-    const loadedCard = {
-      ...card,
-      state: {
-        ...card.state,
-        schema: {
-          schema: {
-            ...schema.schema,
-            'audio.bgm': {
-              type: 'enum',
-              values: Object.keys(card.audio.bgm),
-              default: Object.keys(card.audio.bgm)[0],
-              llmRead: false,
-              llmWrite: false
-            }
-          }
-        }
-      }
-    };
+    const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema } });
     const fileContents = {
       'first_msg.md': '开场',
       'roleplay_rules.md': '规则',
-      'plot_guides.md': '# 剧情引导\n## 自由剧情\n自由节点',
+      'plot_guides.md': '# 剧情引导\n## 剧情大纲\n大纲\n## FreePlot1\n自由节点\n## 剧情限制\n限制',
       'state/schema.json': JSON.stringify(schema),
       'state/llm_schema.json': JSON.stringify(llmSchema),
+      'state/state_update_rules.md': '规则',
       'worldbook/characters.md': '# 角色',
       'worldbook/location.md': '# 地点'
     };

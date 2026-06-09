@@ -117,19 +117,20 @@ describe('App Component - Interaction', () => {
     const appContainer = document.querySelector('.app-container');
 
     _fireEvent.click(_screen.getByText('Set Settings Background'));
-    expect(appContainer.style.backgroundImage).toContain('settings-bg-url');
+    await act(async () => { await Promise.resolve(); });
+    expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('settings-bg-url');
 
     await act(async () => {
       window.dispatchEvent(new CustomEvent('game-card-background-changed', {
         detail: { url: 'game-card-bg-url' }
       }));
     });
-    expect(appContainer.style.backgroundImage).toContain('game-card-bg-url');
+    expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('game-card-bg-url');
 
     await act(async () => {
       window.dispatchEvent(new CustomEvent('game-card-background-changed', { detail: { url: '' } }));
     });
-    expect(appContainer.style.backgroundImage).toContain('settings-bg-url');
+    expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('settings-bg-url');
   });
 
   test('should apply visual panel position and scoped game card theme class', async () => {

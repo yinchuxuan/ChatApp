@@ -161,6 +161,13 @@ function validateRequiredPredicate(action, path, errors) {
 function validateAction(action, path, errors) {
   if (!action || !isObject(action)) return addError(errors, path, 'must be an object');
   if (action.when !== undefined) validateContentWhen(action.when, path + '.when', errors);
+  if (action.type === undefined && Array.isArray(action.then)) {
+    if (action.when === undefined) addError(errors, path + '.when', 'is required');
+    if (action.then.length === 0) addError(errors, path + '.then', 'must be a non-empty array');
+    action.then.forEach((item, i) => validateAction(item, path + '.then[' + i + ']', errors));
+    validateFind(action.find, path + '.find', errors, validatePredicate);
+    return;
+  }
   if (isString(action.type) && action.type.startsWith('state.')) return validateStateAction(action, path, errors);
   if (!VALID_ACTION_TYPES.includes(action.type)) {
     return addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));

@@ -68,7 +68,7 @@
         { "$ref": "#/definitions/stateValueAction" },
         { "$ref": "#/definitions/stateDeleteAction" },
         { "$ref": "#/definitions/stateRollAction" },
-        { "$ref": "#/definitions/stateRandomIntAction" }
+        { "$ref": "#/definitions/stateRandomIntAction" }, { "$ref": "#/definitions/actionGroup" }
       ]
     },
     "insertAction": {
@@ -127,7 +127,7 @@
     "stateValueAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "value"], "properties": { "type": { "enum": ["state.set", "state.append", "state.remove"] }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "value": { "$ref": "#/definitions/jsonValue" } } },
     "stateDeleteAction": { "type": "object", "additionalProperties": false, "required": ["type", "path"], "properties": { "type": { "enum": ["state.delete", "state.advance"] }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" } } },
     "stateRollAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "dice"], "properties": { "type": { "const": "state.roll" }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "dice": { "type": "string", "pattern": "^([1-9]\\d*)?d([1-9]\\d*)$" } } },
-    "stateRandomIntAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "min", "max"], "properties": { "type": { "const": "state.randomInt" }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "min": { "type": "integer" }, "max": { "type": "integer" } } },
+    "stateRandomIntAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "min", "max"], "properties": { "type": { "const": "state.randomInt" }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "min": { "type": "integer" }, "max": { "type": "integer" } } }, "actionGroup": { "type": "object", "additionalProperties": false, "required": ["when", "then"], "properties": { "when": { "$ref": "#/definitions/contentWhen" }, "find": { "$ref": "#/definitions/find" }, "then": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/action" } } } },
     "find": { "anyOf": [{ "$ref": "#/definitions/findMap" }, { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/findItem" } }] },
     "findMap": { "type": "object", "additionalProperties": { "$ref": "#/definitions/findSpec" }, "minProperties": 1 },
     "findSpec": { "type": "object", "additionalProperties": false, "required": ["predicate"], "properties": { "predicate": { "$ref": "#/definitions/predicate" }, "join": { "type": "string" } } },

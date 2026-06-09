@@ -1,16 +1,21 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
 
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
+const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
+function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, relativePath), 'utf-8'); }
 
 const fileContents = {
   'first_msg.md': '开场',
   'roleplay_rules.md': '规则',
-  'plot_guides.md': '# 剧情引导\n## 自由剧情\n开头窗口',
+  'plot_guides.md': readCardFile('plot_guides.md'),
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
+  'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'worldbook/characters.md': '# 角色世界书\n## 冬马和纱\n角色：冬马和纱',
   'worldbook/location.md': [
     '# 地点世界书',

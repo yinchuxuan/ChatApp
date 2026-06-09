@@ -91,6 +91,37 @@ describe('game card state action pipeline', () => {
     expect(result.state.eventRoll).toBe(1);
   });
 
+  test('conditional action groups run nested actions in order', () => {
+    const result = applyGameCard({
+      card: cardWithRules([{
+        when: { phase: 'pre_send' },
+        then: [
+          { type: 'state.set', path: 'route', value: 'alice' },
+          {
+            when: { state: { route: 'alice' } },
+            then: [
+              { type: 'state.set', path: 'audio.bgm', value: 'normal' },
+              { type: 'insert', role: 'system', content: '{{raw_string:bgm=}} + {{state:audio.bgm}}' }
+            ]
+          },
+          {
+            when: { state: { route: 'bob' } },
+            then: [{ type: 'insert', role: 'system', content: 'skipped' }]
+          }
+        ]
+      }]),
+      phase: 'pre_send',
+      messages: [{ role: 'user', content: 'go' }],
+      state: {}
+    });
+
+    expect(result.state).toEqual({ route: 'alice', audio: { bgm: 'normal' } });
+    expect(result.messages[1]).toEqual({ role: 'system', content: 'bgm=normal' });
+    expect(result.trace.rules[0].actions.map((action) => action.type)).toEqual(['state.set', 'group', 'group']);
+    expect(result.trace.rules[0].actions[1].actions.map((action) => action.type)).toEqual(['state.set', 'insert']);
+    expect(result.trace.rules[0].actions[2]).toMatchObject({ type: 'group', applied: false, reason: 'when_not_matched' });
+  });
+
   test('later rules can match when.state against state changed by earlier rules', () => {
     const result = applyGameCard({
       card: cardWithRules([

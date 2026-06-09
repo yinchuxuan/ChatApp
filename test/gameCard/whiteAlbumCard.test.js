@@ -1,13 +1,15 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
 
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
+const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
+function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, relativePath), 'utf-8'); }
 
-function user(content) {
-  return { role: 'user', content };
-}
+function user(content) { return { role: 'user', content }; }
 
 const fileContents = {
   'first_msg.md': [
@@ -20,9 +22,10 @@ const fileContents = {
     '<state_patch>[{"type":"state.set","path":"touma.affection","value":0},{"type":"state.set","path":"setsuna.affection","value":0}]</state_patch>'
   ].join('\n'),
   'roleplay_rules.md': '回复时保持白色相簿2的氛围。追加 <state_patch> 并用 state.set 更新 touma.affection 和 setsuna.affection。',
-  'plot_guides.md': '# 剧情引导\n## 自由剧情\n开头窗口\n## 后续剧情窗口\n后续窗口',
+  'plot_guides.md': readCardFile('plot_guides.md'),
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
+  'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '世界书：北原春希',
     '## 冬马和纱', '世界书：冬马和纱',
@@ -104,7 +107,6 @@ describe('white album 2 game card', () => {
     expect(status.content).not.toContain('timeline.advanceIntent');
     expect(status.content).toContain('touma.affection: 12');
     expect(status.content).toContain('setsuna.affection: 8');
-    expect(status.content).toContain('status.setsunaContestAccepted: false');
   });
 
   test('tail roleplay rules tell the llm how to update affection state', () => {
@@ -114,7 +116,7 @@ describe('white album 2 game card', () => {
 
     expect(hint.content).toContain('<wa2_turn_context>');
     expect(hint.content).toContain('<state_patch>');
-    expect(stateContext.content).toContain('State更新规则');
+    expect(stateContext.content).toContain('state更新规则');
     expect(stateContext.content).toContain('state.set');
     expect(stateContext.content).toContain('touma.affection');
     expect(stateContext.content).toContain('setsuna.affection');

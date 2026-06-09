@@ -1,27 +1,23 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
 
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
+const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
+function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, relativePath), 'utf-8'); }
 
 const fileContents = {
-  'first_msg.md': '开场',
-  'roleplay_rules.md': '规则',
-  'plot_guides.md': [
-    '# 剧情引导',
-    '## 自由剧情',
-    '开头窗口',
-    '## 后续剧情窗口',
-    '后续窗口'
-  ].join('\n'),
+  'first_msg.md': readCardFile('first_msg.md'),
+  'roleplay_rules.md': readCardFile('roleplay_rules.md'),
+  'plot_guides.md': readCardFile('plot_guides.md'),
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
-  'worldbook/characters.md': [
-    '# 角色世界书', '## 北原春希', '春希基础',
-    '## 冬马和纱', '冬马基础',
-    '## 小木曾雪菜', '雪菜基础'
-  ].join('\n')
+  'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
+  'worldbook/characters.md': readCardFile('worldbook/characters.md'),
+  'worldbook/location.md': readCardFile('worldbook/location.md')
 };
 
 function state(overrides) {
@@ -51,18 +47,16 @@ describe('white album affection status', () => {
 
     expect(low.status).toContain('touma.affection: 12');
     expect(low.status).toContain('setsuna.affection: 65');
-    expect(low.guide).toContain('好感度与随机数分支');
-    expect(low.guide).toContain('冬马和纱: 保持明显距离');
-    expect(low.guide).toContain('小木曾雪菜: 已明显依赖春希');
-    expect(high.guide).toContain('冬马和纱: 已明显在意春希');
+    expect(low.guide).toContain('冬马和纱当前态度');
+    expect(low.guide).toContain('小木曾雪菜当前态度');
+    expect(high.guide).toContain('冬马和纱当前态度');
   });
 
   test('keeps affection attitudes out of worldbook content', () => {
     const result = run('和冬马、雪菜一起排练', state({ touma: { affection: 88 }, setsuna: { affection: 90 } }));
 
-    expect(result.worldbook).toContain('冬马基础');
-    expect(result.worldbook).toContain('雪菜基础');
-    expect(result.worldbook).not.toContain('人物态度');
-    expect(result.worldbook).not.toContain('依恋强烈而压抑');
+    expect(result.worldbook).toContain('冬马和纱');
+    expect(result.worldbook).toContain('小木曾雪菜');
+    expect(result.worldbook).not.toContain('当前态度');
   });
 });

@@ -1,3 +1,5 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
@@ -5,32 +7,18 @@ const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader'
 const { applyLatestAssistantStatePatch } = require('../../src/gameCard/statePatch');
 
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
+const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
+function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, relativePath), 'utf-8'); }
 
 const fileContents = {
-  'first_msg.md': '开场',
-  'roleplay_rules.md': '规则',
-  'plot_guides.md': [
-    '# 剧情引导',
-    '## 自由剧情',
-    '通用自由节点',
-    '## 2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日',
-    '隔墙合奏节点',
-    '## 2007.10.23: 08:00 星期二 - 2007.10.23: 12:00 星期二',
-    '邀请雪菜节点',
-    '## 2007.10.25: 08:00 星期四 - 2007.10.25: 12:00 星期四',
-    '报名截止节点',
-    '## 2007.10.25: 16:00 星期四 - 2007.10.25: 18:00 星期四',
-    '天台歌声节点',
-    '## 后续剧情窗口',
-    '后续窗口'
-  ].join('\n'),
+  'first_msg.md': readCardFile('first_msg.md'),
+  'roleplay_rules.md': readCardFile('roleplay_rules.md'),
+  'plot_guides.md': readCardFile('plot_guides.md'),
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
-  'worldbook/characters.md': [
-    '# 角色世界书', '## 北原春希', '春希基础',
-    '## 冬马和纱', '冬马基础',
-    '## 小木曾雪菜', '雪菜基础'
-  ].join('\n')
+  'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
+  'worldbook/characters.md': readCardFile('worldbook/characters.md'),
+  'worldbook/location.md': readCardFile('worldbook/location.md')
 };
 
 function user(content) { return { role: 'user', content }; }
@@ -77,11 +65,11 @@ describe('white album plot direction guide', () => {
     expect(guide.role).toBe('user');
     expect(guide.content).toContain('继续');
     expect(guide.content).toContain('<wa2_turn_context>');
-    expect(guide.content).toContain('通用自由节点');
+    expect(guide.content).toContain('剧情大纲');
+    expect(guide.content).toContain('剧情类型：自由剧情节点');
     expect(guide.content).toContain('本轮自由剧情走向: 极度正面');
-    expect(guide.content).toContain('下一时间: 2007.10.21: 16:00 星期日');
-    expect(guide.content).toContain('每轮结尾必须用 state.set 写 timeline.currentTime');
-    expect(guide.content).toContain('### 回复规则\n规则');
+    expect(guide.content).toContain('根据 State更新规则写入本轮变化');
+    expect(guide.content).toContain('角色扮演规则:');
     expect(result.messages.some((msg) => msg._meta?.source === 'wa2_tail_hint')).toBe(false);
   });
 
@@ -97,62 +85,51 @@ describe('white album plot direction guide', () => {
     const opening = runWithRandom(0.5);
     const guide = opening.messages.find((msg) => msg.role === 'user');
 
-    expect(guide.content).toContain('当前时间: 2007.10.21: 08:00 星期日');
-    expect(guide.content).toContain('通用自由节点');
-    expect(guide.content).not.toContain('后续窗口');
+    expect(guide.content).toContain('当前剧情时间段：2007.10.20: 15:00 星期六 - 2007.10.21: 16:00 星期日');
+    expect(guide.content).toContain('剧情类型：自由剧情节点');
 
     const wall = runAtSlot('2007.10.21: 16:00 星期日');
     const wallGuide = wall.messages.find((msg) => msg.role === 'user');
 
     expect(wall.state.audio.bgm).toBe('WA_piano');
-    expect(wallGuide.content).toContain('当前时间: 2007.10.21: 16:00 星期日');
-    expect(wallGuide.content).toContain('下一时间: 2007.10.21: 18:00 星期日');
-    expect(wallGuide.content).toContain('隔墙合奏节点');
-    expect(wallGuide.content).not.toContain('好感度与随机数分支');
+    expect(wallGuide.content).toContain('当前剧情时间段：2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日');
+    expect(wallGuide.content).toContain('隔墙合奏');
     expect(wallGuide.content).not.toContain('本轮自由剧情走向');
-    expect(wallGuide.content).not.toContain('冬马和纱:');
-    expect(wallGuide.content).not.toContain('小木曾雪菜:');
+    expect(wallGuide.content).not.toContain('冬马和纱当前态度');
 
     const free = runAtSlot('2007.10.21: 18:00 星期日');
     const freeGuide = free.messages.find((msg) => msg.role === 'user');
 
-    expect(freeGuide.content).toContain('当前时间: 2007.10.21: 18:00 星期日');
-    expect(freeGuide.content).toContain('通用自由节点');
-    expect(freeGuide.content).not.toContain('隔墙合奏节点');
-    ['2007.10.21: 18:00 星期日', '2007.10.23: 12:00 星期二', '2007.10.25: 12:00 星期四'].forEach((time) => {
+    expect(freeGuide.content).toContain('当前剧情时间段：2007.10.21: 18:00 星期日 - 2007.10.23: 10:00 星期二');
+    expect(freeGuide.content).toContain('剧情类型：自由剧情节点');
+    expect(freeGuide.content).not.toContain('本轮必须完成该剧情节点');
+    ['2007.10.21: 18:00 星期日', '2007.10.23: 12:00 星期二', '2007.10.24: 12:00 星期三'].forEach((time) => {
       const branchGuide = runAtSlot(time).messages.find((msg) => msg.role === 'user');
-      expect(branchGuide.content).toContain('好感度与随机数分支');
-      expect(branchGuide.content).toContain('本轮自由剧情走向');
+      expect(branchGuide.content).toContain('本轮剧情走向');
     });
 
     const invite = runAtSlot('2007.10.23: 08:00 星期二');
     const inviteGuide = invite.messages.find((msg) => msg.role === 'user');
 
     expect(invite.state.audio.bgm).toBe('normal');
-    expect(inviteGuide.content).toContain('当前时间: 2007.10.23: 08:00 星期二');
-    expect(inviteGuide.content).toContain('邀请雪菜节点');
-    expect(inviteGuide.content).not.toContain('隔墙合奏节点');
-    expect(inviteGuide.content).not.toContain('好感度与随机数分支');
+    expect(inviteGuide.content).toContain('邀请小木曾雪菜');
+    expect(inviteGuide.content).not.toContain('隔墙合奏');
     expect(inviteGuide.content).not.toContain('本轮自由剧情走向');
 
     const deadline = runAtSlot('2007.10.25: 08:00 星期四');
     const deadlineGuide = deadline.messages.find((msg) => msg.role === 'user');
 
     expect(deadline.state.audio.bgm).toBe('sad');
-    expect(deadlineGuide.content).toContain('当前时间: 2007.10.25: 08:00 星期四');
-    expect(deadlineGuide.content).toContain('报名截止节点');
-    expect(deadlineGuide.content).not.toContain('隔墙合奏节点');
-    expect(deadlineGuide.content).not.toContain('好感度与随机数分支');
+    expect(deadlineGuide.content).toContain('今天是学园祭报名节目的截止日期');
+    expect(deadlineGuide.content).not.toContain('隔墙合奏');
     expect(deadlineGuide.content).not.toContain('本轮自由剧情走向');
 
     const rooftop = runAtSlot('2007.10.25: 16:00 星期四');
     const rooftopGuide = rooftop.messages.find((msg) => msg.role === 'user');
 
     expect(rooftop.state.audio.bgm).toBe('WA_3');
-    expect(rooftopGuide.content).toContain('当前时间: 2007.10.25: 16:00 星期四');
-    expect(rooftopGuide.content).toContain('天台歌声节点');
-    expect(rooftopGuide.content).not.toContain('报名截止节点');
-    expect(rooftopGuide.content).not.toContain('好感度与随机数分支');
+    expect(rooftopGuide.content).toContain('天台上响起了第三个声音');
+    expect(rooftopGuide.content).not.toContain('今天是学园祭报名节目的截止日期');
     expect(rooftopGuide.content).not.toContain('本轮自由剧情走向');
   });
 
@@ -171,28 +148,27 @@ describe('white album plot direction guide', () => {
 
     expect(patched.state.timeline.currentTime).toBe('2007.10.21: 16:00 星期日');
     expect(result.state.timeline.currentTime).toBe('2007.10.21: 16:00 星期日');
-    expect(guide.content).toContain('当前时间: 2007.10.21: 16:00 星期日');
-    expect(guide.content).toContain('隔墙合奏节点');
+    expect(guide.content).toContain('隔墙合奏');
   });
 
-  test('auto advances fixed slots from current time', () => {
+  test('keeps current time during fixed slots', () => {
     const result = runAtSlot('2007.10.21: 17:00 星期日');
     const guide = result.messages.find((msg) => msg.role === 'user');
 
-    expect(result.state.timeline.currentTime).toBe('2007.10.21: 18:00 星期日');
-    expect(guide.content).toContain('当前时间: 2007.10.21: 18:00 星期日');
-    expect(guide.content).toContain('通用自由节点');
-    expect(guide.content).not.toContain('隔墙合奏节点');
+    expect(result.state.timeline.currentTime).toBe('2007.10.21: 17:00 星期日');
+    expect(guide.content).toContain('剧情类型：自由剧情节点');
+    expect(guide.content).toContain('当前剧情时间段：2007.10.21: 18:00 星期日 - 2007.10.23: 10:00 星期二');
+    expect(guide.content).not.toContain('隔墙合奏');
   });
 
-  test('auto advances free slots when the latest assistant time reaches the snap point', () => {
+  test('keeps current time during free slots', () => {
     const early = runAtSlot('2007.10.23: 01:59 星期二');
     const snapped = runAtSlot('2007.10.23: 02:00 星期二');
     const guide = snapped.messages.find((msg) => msg.role === 'user');
 
     expect(early.state.timeline.currentTime).toBe('2007.10.23: 01:59 星期二');
-    expect(snapped.state.timeline.currentTime).toBe('2007.10.23: 08:00 星期二');
-    expect(guide.content).toContain('当前时间: 2007.10.23: 08:00 星期二');
-    expect(guide.content).toContain('邀请雪菜节点');
+    expect(snapped.state.timeline.currentTime).toBe('2007.10.23: 02:00 星期二');
+    expect(guide.content).toContain('剧情类型：固定剧情节点');
+    expect(guide.content).toContain('邀请小木曾雪菜');
   });
 });

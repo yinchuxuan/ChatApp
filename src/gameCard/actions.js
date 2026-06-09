@@ -24,7 +24,7 @@ function summarizeMessages(before, after, type, matched) {
 }
 
 function buildTrace(action, matches, applied, before, after, stateSummary) {
-  const type = action?.type || 'unknown';
+  const type = action?.type || (Array.isArray(action?.then) ? 'group' : 'unknown');
   return {
     type,
     applied,
@@ -114,6 +114,7 @@ function applyAction(messages, action, options = {}) {
       return { messages, state: options.state || {}, trace: skippedTrace(action, messages, 'when_not_matched') };
     }
   }
+  if (Array.isArray(action?.then) && action.type === undefined) return applyActionGroup(messages, action, options);
   if (action?.type === 'insert') return applyInsert(messages, action, { ...options, messages });
   if (action?.type === 'remove') return applyRemove(messages, action);
   if (action?.type === 'replace') return applyReplace(messages, action, options);
@@ -124,9 +125,7 @@ function applyAction(messages, action, options = {}) {
     });
     return { messages, state: result.state, trace: result.trace };
   }
-  if (action?.type === 'exec') {
-    return runExecAction(messages, options.state || {}, action, options);
-  }
+  if (action?.type === 'exec') return runExecAction(messages, options.state || {}, action, options);
 
   return {
     messages,
@@ -143,6 +142,44 @@ function applyAction(messages, action, options = {}) {
   };
 }
 
+function applyActionGroup(messages, action, options) {
+  const result = applyActions(messages, action.then, options);
+  return {
+    messages: result.messages,
+    state: result.state,
+    trace: {
+      type: 'group',
+      applied: result.trace.some((item) => item.applied),
+      matched: 1,
+      actions: result.trace,
+      summary: {
+        messages: summarizeGroupMessages(messages, result.messages, result.trace),
+        state: summarizeGroupState(result.trace)
+      }
+    }
+  };
+}
+
+function summarizeGroupMessages(before, after, traces) {
+  return {
+    before: before.length,
+    after: after.length,
+    inserted: sumTraceMessages(traces, 'inserted'),
+    removed: sumTraceMessages(traces, 'removed'),
+    replaced: sumTraceMessages(traces, 'replaced')
+  };
+}
+
+function summarizeGroupState(traces) {
+  const changed = new Set();
+  traces.forEach((trace) => (trace.summary?.state?.changedKeys || []).forEach((key) => changed.add(key)));
+  return { changedKeys: [...changed] };
+}
+
+function sumTraceMessages(traces, key) {
+  return traces.reduce((total, trace) => total + (trace.summary?.messages?.[key] || 0), 0);
+}
+
 function applyActions(messages, actions = [], options = {}) {
   return actions.reduce((result, action) => {
     const next = applyAction(result.messages, action, { ...options, state: result.state });
@@ -154,6 +191,4 @@ function applyActions(messages, actions = [], options = {}) {
   }, { messages, state: options.state || {}, trace: [] });
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { applyAction, applyActions };
-}
+if (typeof module !== 'undefined' && module.exports) module.exports = { applyAction, applyActions };

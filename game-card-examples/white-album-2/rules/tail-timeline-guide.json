@@ -15,32 +15,42 @@
      "when":{"state":{"timeline.currentTime":{"gt":"2007.10.24: 20:00 星期三","lte":"2007.10.25: 10:00 星期四"}}}},
     {"type":"state.set","path":"temp.PlotType","value":"FixedPlot4",
      "when":{"state":{"timeline.currentTime":{"gt":"2007.10.25: 10:00 星期四","lte":"2007.10.25: 16:00 星期四"}}}},
-    {"type":"state.randomInt","path":"temp.plotDirectionRoll","min":1,"max":100,
-     "when":{"state":{"temp.PlotType":{"regex":"^FreePlot"}}}},
-    {"type":"state.set","path":"audio.bgm","value":"tragic",
-     "when":{"state":{"temp.PlotType":{"regex": "^FreePlot"},"temp.plotDirectionRoll":{"lte":10}}}},
-    {"type":"state.set","path":"audio.bgm","value":"sad",
-     "when":{"state":{"temp.PlotType":{"regex": "^FreePlot"},"temp.plotDirectionRoll":{"gt":10,"lt":30}}}},
-    {"type":"state.set","path":"audio.bgm","value":"normal",
-     "when":{"state":{"temp.PlotType":{"regex": "^FreePlot"},"temp.plotDirectionRoll":{"gte":30,"lt":70}}}},
-    {"type":"state.set","path":"audio.bgm","value":"daily",
-     "when":{"state":{"temp.PlotType":{"regex": "^FreePlot"},"temp.plotDirectionRoll":{"gte":70,"lt":90}}}},
-    {"type":"state.set","path":"audio.bgm","value":"happy",
-     "when":{"state":{"temp.PlotType":{"regex": "^FreePlot"},"temp.plotDirectionRoll":{"gte":90}}}},
-    {"type":"state.set","path":"audio.bgm","value":"WA_piano","when":{"state":{"temp.PlotType":{"eq":"FixedPlot1"}}}},
-    {"type":"state.set","path":"audio.bgm","value":"normal","when":{"state":{"temp.PlotType":{"eq":"FixedPlot2"}}}},
-    {"type":"state.set","path":"audio.bgm","value":"sad","when":{"state":{"temp.PlotType":{"eq":"FixedPlot3"}}}},
-    {"type":"state.set","path":"audio.bgm","value":"WA_3","when":{"state":{"temp.PlotType":{"eq":"FixedPlot4"}}}},
-    {"type":"state.set","path":"visual.background","value":"school","when":{"state":{"temp.PlotType":{"regex": "^FreePlot"}}}},
-    {"type":"state.set","path":"visual.background","value":"musical_classroom3","when":{"state":{"temp.PlotType":{"eq":"FixedPlot1"}}}},
-    {"type":"state.set","path":"visual.background","value":"invite","when":{"state":{"temp.PlotType":{"eq":"FixedPlot2"}}}},
-    {"type":"state.set","path":"visual.background","value":"haiku","when":{"state":{"temp.PlotType":{"eq":"FixedPlot3"}}}},
-    {"type":"state.set","path":"visual.background","value":"rooftop","when":{"state":{"temp.PlotType":{"eq":"FixedPlot4"}}}},
+    {"when":{"state":{"temp.PlotType":{"regex":"^FreePlot"}}},
+     "then":[
+       {"type":"state.randomInt","path":"temp.plotDirectionRoll","min":1,"max":100},
+       {"type":"state.set","path":"audio.bgm","value":"tragic","when":{"state":{"temp.plotDirectionRoll":{"lte":10}}}},
+       {"type":"state.set","path":"audio.bgm","value":"sad","when":{"state":{"temp.plotDirectionRoll":{"gt":10,"lt":30}}}},
+       {"type":"state.set","path":"audio.bgm","value":"normal","when":{"state":{"temp.plotDirectionRoll":{"gte":30,"lt":70}}}},
+       {"type":"state.set","path":"audio.bgm","value":"daily","when":{"state":{"temp.plotDirectionRoll":{"gte":70,"lt":90}}}},
+       {"type":"state.set","path":"audio.bgm","value":"happy","when":{"state":{"temp.plotDirectionRoll":{"gte":90}}}},
+       {"type":"state.set","path":"visual.background","value":"school"}
+     ]},
+    {"when":{"state":{"temp.PlotType":{"eq":"FixedPlot1"}}},
+     "then":[
+       {"type":"state.set","path":"audio.bgm","value":"WA_piano"},
+       {"type":"state.set","path":"visual.background","value":"musical_classroom3"}
+     ]},
+    {"when":{"state":{"temp.PlotType":{"eq":"FixedPlot2"}}},
+     "then":[
+       {"type":"state.set","path":"audio.bgm","value":"normal"},
+       {"type":"state.set","path":"visual.background","value":"invite"}
+     ]},
+    {"when":{"state":{"temp.PlotType":{"eq":"FixedPlot3"}}},
+     "then":[
+       {"type":"state.set","path":"audio.bgm","value":"sad"},
+       {"type":"state.set","path":"visual.background","value":"haiku"}
+     ]},
+    {"when":{"state":{"temp.PlotType":{"eq":"FixedPlot4"}}},
+     "then":[
+       {"type":"state.set","path":"audio.bgm","value":"WA_3"},
+       {"type":"state.set","path":"visual.background","value":"rooftop"}
+     ]},
     {"type":"replace",
      "predicate":{"role":"user","index":"last"},
      "content":{
         "prefix":"{{original_content}} + {{raw_string:\n\n---\n<wa2_turn_context>\n请结合以上行动和以下剧情引导生成剧情:\n}}",
         "include":[
+            {"when":{"state":{"temp.PlotType":{"regex":"^FreePlot"},"temp.plotDirectionRoll":{"gt":0}}},"content":"{{file_section:plot_guides.md##剧情大纲}}"},
             {"when":{"state":{"temp.PlotType":{"eq":"FixedPlot1"}}}, "content":"{{file_section:plot_guides.md##FixedPlot1}}"},
             {"when":{"state":{"temp.PlotType":{"eq":"FixedPlot2"}}}, "content":"{{file_section:plot_guides.md##FixedPlot2}}"},
             {"when":{"state":{"temp.PlotType":{"eq":"FixedPlot3"}}}, "content":"{{file_section:plot_guides.md##FixedPlot3}}"},
