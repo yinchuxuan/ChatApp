@@ -173,7 +173,9 @@ function validateAction(action, path, errors) {
     return addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));
   }
   if (action.type === 'exec') {
-    if (!isString(action.source) || action.source.length === 0) addError(errors, path + '.source', 'must be a non-empty string');
+    const hasSource = isString(action.source) && action.source.length > 0;
+    const hasSourceFile = isString(action.sourceFile) && action.sourceFile.length > 0;
+    if (hasSource === hasSourceFile) addError(errors, path, 'requires exactly one of source or sourceFile');
     return;
   }
   if (action.type !== 'insert') validateRequiredPredicate(action, path, errors);

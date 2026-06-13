@@ -1,3 +1,5 @@
+const { resolveExecSource } = require('./execSource');
+
 function deepClone(value) {
   if (value === undefined) return undefined;
   return JSON.parse(JSON.stringify(value));
@@ -70,16 +72,22 @@ function validateExecResult(result) {
   });
 }
 
-function buildSource(source) {
+function blockedGlobals() {
   return `
-    (function () {
-      'use strict';
       const require = undefined;
       const process = undefined;
       const window = undefined;
       const document = undefined;
       const fetch = undefined;
       const ipcRenderer = undefined;
+  `;
+}
+
+function buildInlineSource(source) {
+  return `
+    (function () {
+      'use strict';
+      ${blockedGlobals()}
       const ctx = __ctx;
       const { messages, state, config, event, utils } = ctx;
       ${source}
@@ -87,26 +95,35 @@ function buildSource(source) {
   `;
 }
 
-function buildBrowserSource(source) {
+function buildFileSource(source) {
   return `
-    'use strict';
-    const ctx = __ctx;
-    const { messages, state, config, event, utils } = ctx;
-    ${source}
+    (function () {
+      'use strict';
+      ${blockedGlobals()}
+      ${source}
+      if (typeof run !== 'function') throw new Error('exec sourceFile must define function run(ctx)');
+      return run(__ctx);
+    })()
   `;
 }
 
-function runInNodeVm(source, context, timeoutMs) {
+function buildBrowserSource(source, isSourceFile) {
+  if (isSourceFile) return `${source}\nif (typeof run !== 'function') throw new Error('exec sourceFile must define function run(ctx)');\nreturn run(__ctx);`;
+  return `'use strict';\nconst ctx = __ctx;\nconst { messages, state, config, event, utils } = ctx;\n${source}`;
+}
+
+function runInNodeVm(source, context, timeoutMs, isSourceFile) {
   const globalRequire = require;
   const vmModule = globalRequire('vm');
   const sandbox = { __ctx: context };
   vmModule.createContext(sandbox, {
     codeGeneration: { strings: false, wasm: false }
   });
-  return vmModule.runInContext(buildSource(source), sandbox, { timeout: timeoutMs });
+  const wrappedSource = isSourceFile ? buildFileSource(source) : buildInlineSource(source);
+  return vmModule.runInContext(wrappedSource, sandbox, { timeout: timeoutMs });
 }
 
-function runInBrowser(source, context) {
+function runInBrowser(source, context, isSourceFile) {
   const blocked = /\b(for|while|do|import|require|process|window|document|fetch|ipcRenderer|Function|eval)\b/;
   if (blocked.test(source)) {
     throw new Error('exec source contains blocked browser runtime token');
@@ -119,7 +136,7 @@ function runInBrowser(source, context) {
     'document',
     'fetch',
     'ipcRenderer',
-    buildBrowserSource(source)
+    buildBrowserSource(source, isSourceFile)
   )(context, undefined, undefined, undefined, undefined, undefined, undefined);
 }
 
@@ -142,9 +159,11 @@ function runExecAction(messages, state, action, options = {}) {
 
   const startedAt = Date.now();
   const canUseNodeVm = typeof require === 'function' && typeof process !== 'undefined';
+  const source = resolveExecSource(action, options);
+  const isSourceFile = typeof action.sourceFile === 'string';
   const result = canUseNodeVm
-    ? runInNodeVm(action.source, context, timeoutMs)
-    : runInBrowser(action.source, context);
+    ? runInNodeVm(source, context, timeoutMs, isSourceFile)
+    : runInBrowser(source, context, isSourceFile);
   validateExecResult(result);
 
   const nextMessages = result.messages === undefined ? beforeMessages : deepClone(result.messages);
@@ -154,6 +173,7 @@ function runExecAction(messages, state, action, options = {}) {
     state: nextState,
     trace: {
       type: 'exec',
+      sourceFile: action.sourceFile,
       applied: true,
       matched: 1,
       timeoutMs,

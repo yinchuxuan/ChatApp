@@ -17,6 +17,7 @@ const fileContents = {
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
+  'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'worldbook/characters.md': readCardFile('worldbook/characters.md'),
   'worldbook/location.md': readCardFile('worldbook/location.md')
 };

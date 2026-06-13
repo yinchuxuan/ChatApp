@@ -10,7 +10,7 @@
   "predicate": { "index": 0 },
   "anchor": "before",
   "role": "system",
-  "content": "{{file_content:worldbook/rules.md}}",
+  "content": "{{file:worldbook.rules}}",
   "ttl": -1
 }
 ```
@@ -117,12 +117,24 @@
 }
 ```
 
-运行时包装为：
+长脚本推荐拆到游戏卡文件中，并通过 `sourceFile` 引用。`source` 与 `sourceFile` 必须二选一：
+
+```json
+{
+  "type": "exec",
+  "sourceFile": "scripts/timeline.js"
+}
+```
+
+`sourceFile` 使用游戏卡目录相对路径，路径安全规则与文本资源一致。平台会在执行前读取脚本内容；脚本本身仍运行在同一个受限 `exec` 上下文中，不获得文件 IO 权限。
+
+`sourceFile` 文件必须定义 `run(ctx)`，这是普通 JS 文件，不能写裸 `return`：
 
 ```js
 function run(ctx) {
-  const { messages, state, config, event, utils } = ctx;
-  // source
+  const { state, utils } = ctx;
+  state.roll = utils.randomInt(1, 100);
+  return { state };
 }
 ```
 
@@ -137,6 +149,8 @@ function run(ctx) {
 | `utils` | `randomInt`、`roll`、`clamp`、`uuid` |
 
 返回值固定为 `{ messages?, state?, effects? }`。不提供 `require` / `import` / `process` / `window` / `document` / `fetch` / `ipcRenderer` / Node.js / Electron API。
+
+推荐优先让 `exec` 只返回 `{ state }`，用于时间线、随机分支、audio/background 等派生状态；只有声明式 action 无法表达消息变换时，再返回 `{ messages, state }` 作为高级逃生口。
 
 ## Predicate
 

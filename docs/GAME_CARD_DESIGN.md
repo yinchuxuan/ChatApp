@@ -97,7 +97,7 @@ messages (含 system) -> adaptToProtocol -> API 请求体
     {
       "type": "insert",
       "role": "system",
-      "content": "{{file_content:intro.md}}",
+      "content": "{{file:intro}}",
       "_meta": { "source": "game_card_init", "visibility": "user_visible" }
     }
   ]
@@ -181,7 +181,7 @@ messages (含 system) -> adaptToProtocol -> API 请求体
           "predicate": { "index": 0 },
           "anchor": "before",
           "role": "system",
-          "content": "{{file_content:worldbook/rules.md}}"
+          "content": "{{file:worldbook.rules}}"
         }
       ]
     }

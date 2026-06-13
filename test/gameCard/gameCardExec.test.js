@@ -1,3 +1,4 @@
+const path = require('node:path');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { applyAction } = require('../../src/gameCard/actions');
 
@@ -7,14 +8,8 @@ function cardWithExec(source) {
 
 function cardWithActions(then) {
   return {
-    version: '1',
-    id: 'exec-card',
-    name: 'Exec Card',
-    rules: [{
-      id: 'exec-rule',
-      when: { phase: 'after_response' },
-      then
-    }]
+    version: '1', id: 'exec-card', name: 'Exec Card',
+    rules: [{ id: 'exec-rule', when: { phase: 'after_response' }, then }]
   };
 }
 
@@ -54,6 +49,48 @@ describe('game card exec runtime', () => {
     expect(result.messages).toEqual([{ role: 'user', content: 'hello' }]);
     expect(result.state).toEqual({ turn: 2 });
     expect(result.trace.summary.messages).toMatchObject({ before: 1, after: 1 });
+  });
+
+  test('exec can load source from preloaded game card file content', () => {
+    const result = applyGameCard({
+      card: cardWithActions([{ type: 'exec', sourceFile: 'scripts/timeline.js' }]),
+      phase: 'after_response', messages: [], state: {},
+      fileContents: {
+        'scripts/timeline.js': 'function run(ctx) { ctx.state.plot = "FreePlot1"; return { state: ctx.state }; }'
+      }
+    });
+
+    expect(result.state).toEqual({ plot: 'FreePlot1' });
+    expect(result.trace.errors).toEqual([]);
+    expect(result.trace.rules[0].actions[0].sourceFile).toBe('scripts/timeline.js');
+  });
+
+  test('exec sourceFile reads safely from the game card directory in Node runtime', () => {
+    const baseDir = path.resolve('/game-card');
+    const fakeFs = {
+      readFileSync: jest.fn(() => 'function run(ctx) { ctx.state.loaded = true; return { state: ctx.state }; }')
+    };
+    const result = applyGameCard({
+      card: cardWithActions([{ type: 'exec', sourceFile: 'scripts/timeline.js' }]),
+      phase: 'after_response', messages: [], state: {},
+      contentBaseDir: baseDir,
+      fs: fakeFs,
+      path
+    });
+
+    expect(result.state).toEqual({ loaded: true });
+    expect(fakeFs.readFileSync).toHaveBeenCalledWith(path.join(baseDir, 'scripts', 'timeline.js'), 'utf-8');
+  });
+
+  test('exec sourceFile requires a run function', () => {
+    const result = applyGameCard({
+      card: cardWithActions([{ type: 'exec', sourceFile: 'scripts/timeline.js' }]),
+      phase: 'after_response',
+      messages: [],
+      fileContents: { 'scripts/timeline.js': 'const ok = true;' }
+    });
+
+    expect(result.trace.errors[0]).toContain('exec sourceFile must define function run(ctx)');
   });
 
   test('exec exposes deterministic safe utils', () => {

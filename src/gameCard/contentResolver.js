@@ -1,6 +1,7 @@
 const { applyTransform, renderValue } = require('./contentTransforms');
 const { resolveContentObject } = require('./contentObjects');
 const { parseFileSectionRef, extractFileSection } = require('./fileSections');
+const { readPathFileContent, resolveFileSectionByState, resolveFileSource } = require('./contentFiles');
 const { getStateValue, hasStateValue } = require('./statePaths');
 const { resolveFind: resolveFindValues } = require('./findResolver');
 
@@ -27,41 +28,21 @@ function decodeRawString(value) {
   return value.replaceAll('\\}}', '}}').replaceAll('\\\\', '\\');
 }
 
-function resolveFilePath(requestedPath, options) {
-  const nodePath = options.path || (typeof require === 'function' ? require('path') : null);
-  if (!nodePath || !options.baseDir) throw new Error('file_content requires a baseDir');
-  if (nodePath.isAbsolute(requestedPath)) throw new Error('file_content path must be relative');
-
-  const baseDir = nodePath.resolve(options.baseDir);
-  const filePath = nodePath.resolve(baseDir, requestedPath);
-  if (filePath !== baseDir && !filePath.startsWith(baseDir + nodePath.sep)) {
-    throw new Error('file_content path must stay inside game card directory');
-  }
-  return filePath;
-}
-
-function readFileContent(requestedPath, options) {
-  if (options.fileContents && Object.prototype.hasOwnProperty.call(options.fileContents, requestedPath)) {
-    return options.fileContents[requestedPath];
-  }
-  const nodeFs = options.fs || (typeof require === 'function' ? require('fs') : null);
-  if (!nodeFs || typeof nodeFs.readFileSync !== 'function') {
-    throw new Error('file_content requires fs.readFileSync');
-  }
-  return nodeFs.readFileSync(resolveFilePath(requestedPath, options), 'utf-8');
-}
-
 function resolveSource(body, originalMessage, options) {
   if (body === 'original_content') return originalMessage.content || '';
   if (body.startsWith('raw_string:')) return decodeRawString(body.slice('raw_string:'.length));
   if (body.startsWith('state:')) return resolveState(body.slice('state:'.length), options, false);
   if (body.startsWith('state_json:')) return resolveState(body.slice('state_json:'.length), options, true);
+  if (body.startsWith('file:')) return resolveFileSource(body.slice('file:'.length), options);
   if (body.startsWith('file_content:')) {
-    return readFileContent(body.slice('file_content:'.length), options);
+    return readPathFileContent(body.slice('file_content:'.length), options);
   }
   if (body.startsWith('file_section:')) {
     const ref = body.slice('file_section:'.length);
-    return extractFileSection(readFileContent(parseFileSectionRef(ref).filePath, options), ref);
+    return extractFileSection(readPathFileContent(parseFileSectionRef(ref).filePath, options), ref);
+  }
+  if (body.startsWith('file_section_by_state:')) {
+    return resolveFileSectionByState(body.slice('file_section_by_state:'.length), options);
   }
   if (body.startsWith('find:')) return resolveFindSource(body.slice('find:'.length), options);
   throw new Error(`unsupported content source: ${body}`);

@@ -5,7 +5,7 @@ const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader'
 
 const scripts = [
   'predicate.js', 'statePaths.js', 'findResolver.js', 'contentTransforms.js',
-  'fileSections.js', 'contentObjects.js', 'contentResolver.js', 'execRunner.js',
+  'fileSections.js', 'contentFiles.js', 'contentObjects.js', 'contentResolver.js', 'execSource.js', 'execRunner.js',
   'stateSchema.js', 'stateActions.js', 'statePatch.js', 'actions.js',
   'validateStateActions.js', 'validateContent.js', 'validateFind.js',
   'validatePredicates.js', 'audioConfig.js', 'visualConfig.js', 'validateGameCard.js', 'engine.js'
@@ -95,6 +95,7 @@ describe('browser game card find runtime', () => {
       'state/schema.json': JSON.stringify(schema),
       'state/llm_schema.json': JSON.stringify(llmSchema),
       'state/state_update_rules.md': '规则',
+      'scripts/timeline.js': 'function run(ctx) { ctx.state.temp = { PlotType: "FreePlot1", plotDirectionRoll: 50 }; ctx.state.audio.bgm = "normal"; return { state: ctx.state }; }',
       'worldbook/characters.md': '# 角色',
       'worldbook/location.md': '# 地点'
     };

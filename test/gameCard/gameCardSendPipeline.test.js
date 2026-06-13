@@ -119,6 +119,19 @@ describe('game card send pipeline', () => {
     expect(result.messages[0].content).toBe('loaded route');
   });
 
+  test('preloads exec sourceFile through electronAPI before applying rules', async () => {
+    window.electronAPI.readGameCardFile.mockResolvedValue({
+      success: true,
+      content: 'function run(ctx) { ctx.state.loadedScript = true; return { state: ctx.state }; }'
+    });
+    const card = cardWithInsert('unused');
+    card.rules[0].then = [{ type: 'exec', sourceFile: 'scripts/timeline.js' }];
+    const result = await preparePreSendMessages({ messages: [], card });
+
+    expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/timeline.js');
+    expect(result.state.loadedScript).toBe(true);
+  });
+
   test('gracefully returns applied=false when file_content preload fails', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,

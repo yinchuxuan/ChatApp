@@ -16,6 +16,7 @@ const fileContents = {
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
+  'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'worldbook/characters.md': '# 角色世界书\n## 冬马和纱\n角色：冬马和纱',
   'worldbook/location.md': [
     '# 地点世界书',
@@ -45,7 +46,7 @@ describe('white album location worldbook', () => {
     const cardText = JSON.stringify(card.rules);
 
     expect(result.trace.errors).toEqual([]);
-    expect(cardText).toContain('worldbook/location.md##第二音乐教室');
+    expect(cardText).toContain('{{file:worldbook.location#第二音乐教室}}');
     expect(worldbook.content).toContain('地点:');
     expect(worldbook.content).toContain('第二音乐教室: 冬马独占的音乐教室');
     expect(worldbook.content).toContain('地点：第二音乐教室');

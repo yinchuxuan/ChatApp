@@ -26,6 +26,7 @@ const fileContents = {
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
+  'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '世界书：北原春希',
     '## 冬马和纱', '世界书：冬马和纱',
@@ -36,10 +37,7 @@ const fileContents = {
   ].join('\n')
 };
 
-function defaultState(overrides = {}) {
-  const state = ensureStateDefaults(loadedCard.state.schema, overrides).state;
-  return state;
-}
+function defaultState(overrides = {}) { return ensureStateDefaults(loadedCard.state.schema, overrides).state; }
 
 function applyWhiteAlbumPhase(phase, messages, state = defaultState()) {
   return applyGameCard({
@@ -61,8 +59,10 @@ function applyWhiteAlbum(messages) {
 }
 
 describe('white album 2 game card', () => {
-  test('uses declarative rules for compression', () => {
-    expect(JSON.stringify(card.rules)).not.toContain('"type":"exec"');
+  test('uses declarative rules for compression and exec sourceFile for timeline logic', () => {
+    const compression = card.rules.find((rule) => rule.id === 'wa2-compress-assistant-history');
+    expect(JSON.stringify(compression.then)).not.toContain('"type":"exec"');
+    expect(JSON.stringify(card.rules)).toContain('"sourceFile":"scripts/timeline.js"');
   });
 
   test('inserts fixed hidden summary message after the system prompt', () => {
@@ -182,7 +182,7 @@ describe('white album 2 game card', () => {
     const cardText = JSON.stringify(card.rules);
 
     expect(result.trace.errors).toEqual([]);
-    expect(cardText).toContain('{{file_section:worldbook/characters.md##北原春希}}');
+    expect(cardText).toContain('{{file:worldbook.characters#北原春希}}');
     expect(cardText).not.toContain('worldbook/haruki.md');
     expect(worldbook).toHaveLength(1);
     expect(worldbook[0].role).toBe('system');

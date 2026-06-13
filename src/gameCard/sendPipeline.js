@@ -1,7 +1,7 @@
 const { applyGameCard } = require('./engine');
 const { adaptMessagesToProtocol } = require('./protocolAdapter');
 const { decayTTL } = require('./ttl');
-const { parseFileSectionRef } = require('./fileSections');
+const { collectFileContentPaths } = require('./resourcePreload');
 const { loadExternalStateSchema } = require('./stateSchemaLoader');
 const { ensureStateDefaults } = require('./stateSchema');
 const { applyLatestAssistantStatePatch } = require('./statePatch');
@@ -19,22 +19,6 @@ async function loadActiveGameCard(api) {
   } catch (_) {
     return null;
   }
-}
-
-function collectFileContentPaths(card) {
-  const paths = new Set();
-  const contentPattern = /\{\{file_content:((?:\\.|[^}])*)\}\}/g;
-  JSON.stringify(card?.rules || []).replace(contentPattern, (_, filePath) => {
-    paths.add(filePath.replaceAll('\\}}', '}}').replaceAll('\\\\', '\\'));
-    return '';
-  });
-  const sectionPattern = /\{\{file_section:((?:\\.|[^}])*)\}\}/g;
-  JSON.stringify(card?.rules || []).replace(sectionPattern, (_, ref) => {
-    const decoded = ref.replaceAll('\\}}', '}}').replaceAll('\\\\', '\\');
-    paths.add(parseFileSectionRef(decoded).filePath);
-    return '';
-  });
-  return [...paths];
 }
 
 async function loadFileContents(card, api) {
@@ -73,9 +57,7 @@ function prepareState(card, state) {
 
 async function preparePreSendMessages({ messages = [], state = {}, event = {}, card, protocol = 'openai' } = {}) {
   const api = typeof window !== 'undefined' ? window.electronAPI : null;
-  const activeCard = card === undefined
-    ? await loadActiveGameCard(api)
-    : card;
+  const activeCard = card === undefined ? await loadActiveGameCard(api) : card;
 
   if (!activeCard) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null };
@@ -101,9 +83,7 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
 
 async function prepareAfterResponseMessages({ messages = [], state = {}, event = {}, card } = {}) {
   const api = typeof window !== 'undefined' ? window.electronAPI : null;
-  const activeCard = card === undefined
-    ? await loadActiveGameCard(api)
-    : card;
+  const activeCard = card === undefined ? await loadActiveGameCard(api) : card;
 
   if (!activeCard) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null };
@@ -138,9 +118,7 @@ function hasMessageChanges(before, after) {
 
 async function prepareInitMessages({ messages = [], state = {}, event = {}, card } = {}) {
   const api = typeof window !== 'undefined' ? window.electronAPI : null;
-  const activeCard = card === undefined
-    ? await loadActiveGameCard(api)
-    : card;
+  const activeCard = card === undefined ? await loadActiveGameCard(api) : card;
 
   if (!activeCard) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, changed: false, card: activeCard || null };
