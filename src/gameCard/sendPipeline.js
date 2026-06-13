@@ -2,6 +2,7 @@ const { applyGameCard } = require('./engine');
 const { adaptMessagesToProtocol } = require('./protocolAdapter');
 const { decayTTL } = require('./ttl');
 const { collectFileContentPaths } = require('./resourcePreload');
+const { expandCardImports } = require('./cardImportExpander');
 const { loadExternalStateSchema } = require('./stateSchemaLoader');
 const { ensureStateDefaults } = require('./stateSchema');
 const { applyLatestAssistantStatePatch } = require('./statePatch');
@@ -32,7 +33,8 @@ async function loadFileContents(card, api) {
 }
 
 async function loadCardResources(card, api) {
-  const cardWithSchema = await loadExternalStateSchema(card, api);
+  const expandedCard = await expandCardImports(card, api);
+  const cardWithSchema = await loadExternalStateSchema(expandedCard, api);
   return {
     card: cardWithSchema,
     fileContents: await loadFileContents(cardWithSchema, api)
@@ -126,7 +128,8 @@ async function prepareInitMessages({ messages = [], state = {}, event = {}, card
 
   if (messages.length > 0) {
     try {
-      const cardWithSchema = await loadExternalStateSchema(activeCard, api);
+      const expandedCard = await expandCardImports(activeCard, api);
+      const cardWithSchema = await loadExternalStateSchema(expandedCard, api);
       const prepared = prepareState(cardWithSchema, state);
       return {
         messages,
