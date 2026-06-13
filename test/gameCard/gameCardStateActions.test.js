@@ -56,7 +56,7 @@ describe('game card state action pipeline', () => {
         when: { phase: 'pre_send' },
         then: [
           { type: 'state.set', path: 'route', value: 'alice' },
-          { type: 'insert', role: 'system', content: '{{raw_string:route=}} + {{state:route}}' }
+          { type: 'insert', role: 'system', content: 'route={{state:route}}' }
         ]
       }]),
       phase: 'pre_send',
@@ -79,7 +79,7 @@ describe('game card state action pipeline', () => {
         when: { phase: 'pre_send' },
         then: [
           { type: 'state.roll', path: 'eventRoll', dice: '1d6' },
-          { type: 'insert', role: 'system', content: '{{raw_string:roll=}} + {{state:eventRoll}}' }
+          { type: 'insert', role: 'system', content: 'roll={{state:eventRoll}}' }
         ]
       }]),
       phase: 'pre_send',
@@ -101,7 +101,7 @@ describe('game card state action pipeline', () => {
             when: { state: { route: 'alice' } },
             then: [
               { type: 'state.set', path: 'audio.bgm', value: 'normal' },
-              { type: 'insert', role: 'system', content: '{{raw_string:bgm=}} + {{state:audio.bgm}}' }
+              { type: 'insert', role: 'system', content: 'bgm={{state:audio.bgm}}' }
             ]
           },
           {
@@ -155,7 +155,7 @@ describe('game card state action pipeline', () => {
         then: [
           { type: 'state.append', path: 'inventory', value: { id: 'key' } },
           { type: 'state.remove', path: 'inventory', value: { id: 'key' } },
-          { type: 'insert', role: 'system', content: '{{raw_string:items=}} + {{state_json:inventory}}' }
+          { type: 'insert', role: 'system', content: 'items={{state_json:inventory}}' }
         ]
       }]),
       phase: 'pre_send',

@@ -18,7 +18,7 @@ describe('game card content find descriptors', () => {
           type: 'replace',
           predicate: { role: 'system' },
           find: [{ name: 'users', from: { role: 'user' }, many: true }],
-          content: '{{original_content}} + {{raw_string:: }} + {{state:temp.find.users}}.join{" / "}'
+          content: '{{original_content}}: {{state:temp.find.users}}.join{" / "}'
         }]
       }]
     };
@@ -108,7 +108,7 @@ describe('game card content find descriptors', () => {
             from: { role: 'assistant', index: 'last' },
             match: { regex: '^time=(\\d{2}:\\d{2})', group: 1 }
           }],
-          content: '{{raw_string:time: }} + {{state:temp.find.latestTime}}'
+          content: 'time: {{state:temp.find.latestTime}}'
         }]
       }]
     };
@@ -138,7 +138,7 @@ describe('game card content find descriptors', () => {
         find: [{ name: 'users', from: { role: 'user' }, many: true }],
         then: [
           { type: 'insert', role: 'system', content: '{{state:temp.find.users}}.join{","}' },
-          { type: 'replace', predicate: { role: 'system' }, content: '{{raw_string:again }} + {{state:temp.find.users}}.join{"/"}' }
+          { type: 'replace', predicate: { role: 'system' }, content: 'again {{state:temp.find.users}}.join{"/"}' }
         ]
       }]
     };

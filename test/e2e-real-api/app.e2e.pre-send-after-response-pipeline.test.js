@@ -23,7 +23,7 @@ test.describe('Game card pre_send with real LLM', () => {
         when: { phase: 'pre_send' },
         then: [
           { type: 'insert', predicate: { index: 0 }, role: 'system', content: 'You are a helpful assistant. Respond in exactly 3 words.', _meta: { visibility: 'llm_only' } },
-          { type: 'replace', predicate: { index: 'last' }, content: '{{raw_string:Player says: }} + {{original_content}}' }
+          { type: 'replace', predicate: { index: 'last' }, content: 'Player says: {{original_content}}' }
         ]
       }]
     };
@@ -59,7 +59,7 @@ test.describe('Game card pre_send with real LLM', () => {
       version: '1.0', id: 'real_first', name: 'Real First',
       rules: [{
         when: { phase: 'pre_send', length: 1 },
-        then: [{ type: 'replace', predicate: { index: 'last' }, content: '{{raw_string:FIRST_MESSAGE: }} + {{original_content}}' }]
+        then: [{ type: 'replace', predicate: { index: 'last' }, content: 'FIRST_MESSAGE: {{original_content}}' }]
       }]
     };
     await configureAppRealAPI(card);

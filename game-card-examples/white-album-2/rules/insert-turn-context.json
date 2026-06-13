@@ -6,7 +6,7 @@
             "anchor":"before",
             "role":"system",
             "content":{
-                "prefix":"世界书索引:\n人物:\n- 北原春希: 三年E班的认真学霸和轻音乐同好会吉他手，习惯把责任揽到自己身上。\n- 冬马和纱: 冷淡孤僻的天才钢琴少女，对春希有压抑而强烈的感情。\n- 小木曾雪菜: 明亮亲切的校园偶像，害怕被孤立，也渴望维系三人的关系。\n- 饭冢武也: 春希的死党，轻浮外向但敏锐，常用玩笑推动春希行动。\n- 水泽依绪: 雪菜的同班同学，武也和春希的好友，爽朗直接，常作为旁观者点出问题。\n- 柳原朋: 对雪菜抱有敌意和竞争心的学生，会刺痛雪菜隐藏的创伤。\n地点:\n- 第二音乐教室: 冬马独占的音乐教室，平时大门紧锁，一般人无法入内。\n- 第三音乐教室: 轻音乐同好会的活动地点。\n- 峰城大附属中学: 故事主要校园舞台，学园祭、社团和评选让关系被迫交汇。\n- 冬马家: 空旷富裕却冷清的住宅，体现冬马的孤独和以钢琴为出口的生活。\n\n本轮命中的世界书条目:\n",
+                "prefix":"{{file:worldbook.index}}\n",
                 "include":[
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"春希|北原|Kitahara|Haruki"}}},
 	                    "content":"{{file:worldbook.characters#北原春希}}"},
@@ -29,7 +29,8 @@
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"冬马家|冬馬家|和纱家|和紗家"}}},
 	                    "content":"{{file:worldbook.location#冬马家}}"}
                 ],
-                "join":"\n\n"
+                "join":"\n\n",
+                "default":"无"
             },
             "ttl":1,
             "_meta":{"source":"wa2_worldbook","visibility":"llm_only"}
@@ -38,7 +39,7 @@
          "predicate":{"role":"user","index":"last"},
          "anchor":"before",
          "role":"system",
-	         "content":"{{raw_string:State定义:\n}} + {{file:state.llm_schema}} + {{raw_string:\n\n当前State:\n- timeline.currentTime: }} + {{state:timeline.currentTime}} + {{raw_string:\n- touma.affection: }} + {{state:touma.affection}} + {{raw_string:\n- setsuna.affection: }} + {{state:setsuna.affection}} + {{raw_string:\n\n}} + {{file:state.update_rules}}",
+	         "content":"State定义:\n{{file:state.llm_schema}}\n\n当前State:\n- timeline.currentTime: {{state:timeline.currentTime}}\n- touma.affection: {{state:touma.affection}}\n- setsuna.affection: {{state:setsuna.affection}}\n\n{{file:state.update_rules}}",
          "ttl":1,
          "_meta":{"source":"wa2_state_context",
          "visibility":"llm_only"}

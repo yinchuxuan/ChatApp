@@ -22,13 +22,8 @@ function parseSource(expression, index) {
   throw new Error('content source is not closed');
 }
 
-function decodeRawString(value) {
-  return value.replaceAll('\\}}', '}}').replaceAll('\\\\', '\\');
-}
-
 function resolveSource(body, originalMessage, options) {
   if (body === 'original_content') return originalMessage.content || '';
-  if (body.startsWith('raw_string:')) return decodeRawString(body.slice('raw_string:'.length));
   if (body.startsWith('state:')) return resolveState(body.slice('state:'.length), options, false);
   if (body.startsWith('state_json:')) return resolveState(body.slice('state_json:'.length), options, true);
   if (body.startsWith('file:')) return resolveFileSource(body.slice('file:'.length), options);
@@ -104,15 +99,29 @@ function skipSpaces(expression, index) {
 function parseChain(expression, index, originalMessage, options) {
   const source = parseSource(expression, skipSpaces(expression, index));
   let value = resolveSource(source.body, originalMessage, options);
-  let cursor = skipSpaces(expression, source.next);
+  let cursor = source.next;
   let transform = parseTransform(expression, cursor);
 
   while (transform) {
     value = applyTransform(value, transform);
-    cursor = skipSpaces(expression, transform.next);
+    cursor = transform.next;
     transform = parseTransform(expression, cursor);
   }
   return { value, next: cursor };
+}
+
+function resolveTemplate(content, originalMessage, options) {
+  let cursor = 0;
+  let resolved = '';
+  while (cursor < content.length) {
+    const start = content.indexOf('{{', cursor);
+    if (start < 0) return resolved + content.slice(cursor);
+    resolved += content.slice(cursor, start);
+    const chain = parseChain(content, start, originalMessage, options);
+    resolved += renderValue(chain.value);
+    cursor = chain.next;
+  }
+  return resolved;
 }
 
 function resolveContent(content, originalMessage = {}, options = {}) {
@@ -121,22 +130,7 @@ function resolveContent(content, originalMessage = {}, options = {}) {
   }
   if (typeof content !== 'string') return '';
   if (!content.includes('{{')) return content;
-  if (!content.trimStart().startsWith('{{')) {
-    return content.replaceAll('{{original_content}}', originalMessage.content || '');
-  }
-
-  let cursor = 0;
-  let resolved = '';
-  while (cursor < content.length) {
-    const chain = parseChain(content, cursor, originalMessage, options);
-    resolved += renderValue(chain.value);
-    cursor = skipSpaces(content, chain.next);
-    if (cursor < content.length) {
-      if (content[cursor] !== '+') throw new Error('content chains must be joined with +');
-      cursor += 1;
-    }
-  }
-  return resolved;
+  return resolveTemplate(content, originalMessage, options);
 }
 
 if (typeof module !== 'undefined' && module.exports) {

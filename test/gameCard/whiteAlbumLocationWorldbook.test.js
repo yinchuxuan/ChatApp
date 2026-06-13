@@ -18,6 +18,7 @@ const fileContents = {
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'worldbook/characters.md': '# 角色世界书\n## 冬马和纱\n角色：冬马和纱',
+  'worldbook/index.md': readCardFile('worldbook/index.md'),
   'worldbook/location.md': [
     '# 地点世界书',
     '## 第二音乐教室', '地点：第二音乐教室',

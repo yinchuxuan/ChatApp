@@ -15,7 +15,7 @@ test.describe('Multi-turn round trip', () => {
       rules: [
         { when: { phase: 'pre_send' }, then: [
           { type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'Game rules apply', _meta: { visibility: 'llm_only' } },
-          { type: 'replace', predicate: { role: 'user' }, content: '{{raw_string:[Player] }} + {{original_content}}' }
+          { type: 'replace', predicate: { role: 'user' }, content: '[Player] {{original_content}}' }
         ]},
         { when: { phase: 'after_response', last: { role: 'assistant' } }, then: [
           { type: 'insert', predicate: { index: 'last' }, anchor: 'after', role: 'system', content: 'round hint', ttl: 2, _meta: { visibility: 'llm_only' } }
@@ -72,7 +72,7 @@ test.describe('Multi-turn round trip', () => {
   test('game card deactivated mid-session', async () => {
     const card = {
       version: '1.0', id: 'deact', name: 'Deactivate',
-      rules: [{ when: { phase: 'pre_send' }, then: [{ type: 'replace', predicate: { role: 'user' }, content: '{{raw_string:MOD: }} + {{original_content}}' }] }]
+      rules: [{ when: { phase: 'pre_send' }, then: [{ type: 'replace', predicate: { role: 'user' }, content: 'MOD: {{original_content}}' }] }]
     };
     await configureApp(card);
     const requests = [];

@@ -38,15 +38,15 @@ describe('game card content include/select objects', () => {
       include: [
         {
           when: { last: { num: 2, role: 'user', content: { contains: '冬马' } } },
-          content: '{{raw_string:冬马资料}}'
+          content: '冬马资料'
         },
         {
           when: { state: { 'setsuna.affection': { gte: 50 } } },
-          content: '{{raw_string:雪菜高好感}}'
+          content: '雪菜高好感'
         },
         {
           when: { last: { role: 'assistant' } },
-          content: '{{raw_string:不会命中}}'
+          content: '不会命中'
         }
       ],
       prefix: '本轮世界书:',
@@ -71,6 +71,21 @@ describe('game card content include/select objects', () => {
 
     expect(run(content, [{ role: 'system', content: 'old', _meta: { source: 'worldbook' } }], { route: 'setsuna' }).messages[0].content).toBe('雪菜线');
     expect(run(content, [{ role: 'system', content: 'old', _meta: { source: 'worldbook' } }], { route: 'none' }).messages[0].content).toBe('共通线');
+  });
+
+  test('include renders default when no branch matches', () => {
+    const result = run({
+      include: [
+        { when: { state: { route: 'kazusa' } }, content: '和纱资料' }
+      ],
+      prefix: '本轮世界书:',
+      default: '无'
+    }, [
+      { role: 'system', content: 'old', _meta: { source: 'worldbook' } }
+    ], { route: 'none' });
+
+    expect(result.trace.errors).toEqual([]);
+    expect(result.messages[0].content).toBe('本轮世界书:无');
   });
 
   test('validators accept content objects and reject malformed branches', () => {

@@ -123,14 +123,14 @@ test.describe('Exec runtime with real LLM', () => {
 
 test.describe('Content descriptor with real LLM', () => {
 
-  test('raw_string concatenation prefixes user message', async () => {
+  test('template content prefixes user message', async () => {
     if (!OPENAI_CONFIG) { test.skip(true, skipReason('E2E_OPENAI')); return; }
 
     const card = {
       version: '1.0', id: 'real_concat', name: 'Real Concat',
       rules: [{
         when: { phase: 'pre_send' },
-        then: [{ type: 'replace', predicate: { role: 'user' }, content: '{{raw_string:【冒险者】}} + {{original_content}}' }]
+        then: [{ type: 'replace', predicate: { role: 'user' }, content: '【冒险者】{{original_content}}' }]
       }]
     };
     await configureAppRealAPI(card);

@@ -40,7 +40,7 @@ function pipelineCard() {
           {
             type: 'replace',
             predicate: { index: 'last' },
-            content: '{{raw_string:[player] }} + {{original_content}}'
+            content: '[player] {{original_content}}'
           }
         ]
       },

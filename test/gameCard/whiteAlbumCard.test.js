@@ -34,7 +34,8 @@ const fileContents = {
     '## 饭冢武也', '世界书：饭冢武也',
     '## 水泽依绪', '世界书：水泽依绪',
     '## 柳原朋', '世界书：柳原朋'
-  ].join('\n')
+  ].join('\n'),
+  'worldbook/index.md': readCardFile('worldbook/index.md')
 };
 
 function defaultState(overrides = {}) { return ensureStateDefaults(loadedCard.state.schema, overrides).state; }

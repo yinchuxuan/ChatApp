@@ -61,7 +61,7 @@ describe('state action schema validation', () => {
         when: { phase: 'pre_send' },
         then: [
           { type: 'state.set', path: 'route', value: 'bad' },
-          { type: 'insert', role: 'system', content: '{{raw_string:route=}} + {{state:route}}' }
+          { type: 'insert', role: 'system', content: 'route={{state:route}}' }
         ]
       }]
     };

@@ -19,6 +19,7 @@ const fileContents = {
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'worldbook/characters.md': readCardFile('worldbook/characters.md'),
+  'worldbook/index.md': readCardFile('worldbook/index.md'),
   'worldbook/location.md': readCardFile('worldbook/location.md')
 };
 

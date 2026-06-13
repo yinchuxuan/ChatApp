@@ -18,7 +18,7 @@
                      "many":true
             }
          ],
-         "content":"{{original_content}}.regex_replace{pattern:'\\n暂无\\s*$',with:''} + {{raw_string:\n}} + {{state:temp.find.summaryMsgs}}.format{'- {{value}}'}.join{'\\n'}"},
+         "content":"{{original_content}}.regex_replace{pattern:'\\n暂无\\s*$',with:''}\n{{state:temp.find.summaryMsgs}}.format{'- {{value}}'}.join{'\\n'}"},
         {"type":"remove",
          "predicate":{"role":"assistant",
                       "content":{"regex":"<summary>[\\s\\S]*?</summary>"},

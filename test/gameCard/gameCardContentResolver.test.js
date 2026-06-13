@@ -21,18 +21,14 @@ describe('game card content descriptors', () => {
     expect(resolveContent(null, { content: 'raw' })).toBe('');
   });
 
-  test('resolves raw strings original content transforms and concatenation', () => {
-    const content = [
-      '{{raw_string:【回复】}}',
-      '{{original_content}}.regex_replace{pattern:\'^```json\\\\n\',with:\'\'}',
-      '{{raw_string:\\\\done}}'
-    ].join(' + ');
+  test('resolves template text original content transforms and suffixes', () => {
+    const content = '【回复】{{original_content}}.regex_replace{pattern:\'^```json\\\\n\',with:\'\'}\\done';
 
     expect(resolveContent(content, { content: '```json\n{"hp":10}' })).toBe('【回复】{"hp":10}\\done');
   });
 
-  test('decodes escaped raw string delimiters', () => {
-    expect(resolveContent('{{raw_string:a\\}}b}}')).toBe('a}}b');
+  test('resolves sources anywhere in template text', () => {
+    expect(resolveContent('a {{original_content}} b', { content: 'raw' })).toBe('a raw b');
   });
 
   test('applies chained regex transforms before concatenation', () => {
@@ -40,7 +36,7 @@ describe('game card content descriptors', () => {
       '{{original_content}}',
       '.regex_replace{pattern:\'^```json\\\\n\',with:\'\'}',
       '.regex_replace{pattern:\'\\\\n```$\',with:\'\'}',
-      ' + {{raw_string: done}}'
+      ' done'
     ].join('');
 
     expect(resolveContent(content, { content: '```json\n{"hp":10}\n```' })).toBe('{"hp":10} done');
@@ -75,7 +71,7 @@ describe('game card content descriptors', () => {
 
   test('uses an empty original content value for insert actions', () => {
     const result = applyGameCard({
-      card: createCard('{{raw_string:prefix}} + {{original_content}}'),
+      card: createCard('prefix{{original_content}}'),
       phase: 'pre_send',
       messages: [{ role: 'user', content: 'start' }]
     });
@@ -108,7 +104,7 @@ describe('game card content descriptors', () => {
 
   test('reads scalar state values from content descriptors', () => {
     const result = resolveContent(
-      '{{raw_string:hp=}} + {{state:player.hp}} + {{raw_string:, alive=}} + {{state:player.alive}}',
+      'hp={{state:player.hp}}, alive={{state:player.alive}}',
       {},
       { state: { player: { hp: 80, alive: true } } }
     );
@@ -130,7 +126,7 @@ describe('game card content descriptors', () => {
 
   test('uses game state when resolving card action content', () => {
     const result = applyGameCard({
-      card: createCard('{{raw_string:route=}} + {{state:route}}'),
+      card: createCard('route={{state:route}}'),
       phase: 'pre_send',
       messages: [{ role: 'user', content: 'start' }],
       state: { route: 'setsuna' }
@@ -140,9 +136,8 @@ describe('game card content descriptors', () => {
   });
 
   test('reports malformed and unsupported descriptor expressions', () => {
-    expect(() => resolveContent('{{raw_string:open')).toThrow('content source is not closed');
+    expect(() => resolveContent('{{state:open')).toThrow('content source is not closed');
     expect(() => resolveContent('{{unknown:value}}')).toThrow('unsupported content source');
-    expect(() => resolveContent('{{raw_string:a}} {{raw_string:b}}')).toThrow('content chains must be joined with +');
-    expect(() => resolveContent('{{raw_string:a}}.unknown{}')).toThrow('unsupported content transform');
+    expect(() => resolveContent('{{original_content}}.unknown{}')).toThrow('unsupported content transform');
   });
 });

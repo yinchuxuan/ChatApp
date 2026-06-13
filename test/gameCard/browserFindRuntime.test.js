@@ -37,7 +37,7 @@ describe('browser game card find runtime', () => {
         then: [{
           type: 'replace',
           predicate: { role: 'user', index: 'last' },
-          content: '{{original_content}} + {{raw_string: @ }} + {{state:temp.find.assistantTime}}'
+          content: '{{original_content}} @ {{state:temp.find.assistantTime}}'
         }]
       }]
     };
@@ -97,6 +97,7 @@ describe('browser game card find runtime', () => {
       'state/state_update_rules.md': '规则',
       'scripts/timeline.js': 'function run(ctx) { ctx.state.temp = { PlotType: "FreePlot1", plotDirectionRoll: 50 }; ctx.state.audio.bgm = "normal"; return { state: ctx.state }; }',
       'worldbook/characters.md': '# 角色',
+      'worldbook/index.md': '世界书索引',
       'worldbook/location.md': '# 地点'
     };
     const init = runtime.applyGameCard({

@@ -22,7 +22,7 @@ describe('legacy e2e game card coverage migrated to Jest', () => {
         },
         {
           when: { phase: 'pre_send', last: { role: 'user' } },
-          then: [{ type: 'replace', predicate: { index: 'last' }, content: '{{raw_string:player: }} + {{original_content}}' }]
+          then: [{ type: 'replace', predicate: { index: 'last' }, content: 'player: {{original_content}}' }]
         }
       ]),
       phase: 'pre_send',
@@ -66,7 +66,7 @@ describe('legacy e2e game card coverage migrated to Jest', () => {
   test('pre_send length predicates only affect matching turns', async () => {
     const firstOnly = card([{
       when: { phase: 'pre_send', length: 1 },
-      then: [{ type: 'replace', predicate: { index: 'last' }, content: '{{raw_string:FIRST: }} + {{original_content}}' }]
+      then: [{ type: 'replace', predicate: { index: 'last' }, content: 'FIRST: {{original_content}}' }]
     }]);
 
     const first = await preparePreSendMessages({

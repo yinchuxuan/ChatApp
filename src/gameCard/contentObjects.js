@@ -21,7 +21,10 @@ function resolveInclude(content, originalMessage, options, resolveContent) {
   const parts = content.include
     .filter((branch) => resolveWhen(branch.when, options))
     .map((branch) => resolveBranchContent(branch, originalMessage, options, resolveContent));
-  return withAffixes(parts.join(content.join ?? '\n'), content, originalMessage, options, resolveContent);
+  const value = parts.length > 0
+    ? parts.join(content.join ?? '\n')
+    : resolveContent(content.default ?? '', originalMessage, options);
+  return withAffixes(value, content, originalMessage, options, resolveContent);
 }
 
 function resolveSelect(content, originalMessage, options, resolveContent) {

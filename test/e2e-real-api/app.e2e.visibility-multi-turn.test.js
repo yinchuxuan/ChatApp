@@ -55,7 +55,7 @@ test.describe('Multi-turn full pipeline with real Anthropic LLM', () => {
       version: '1.0', id: 'real_ant_multi_turn', name: 'Real Anthropic Multi',
       rules: [{ when: { phase: 'pre_send' }, then: [
         { type: 'insert', predicate: { index: 0 }, role: 'system', content: 'You are a storyteller in a fantasy world. Respond briefly.', _meta: { visibility: 'llm_only' } },
-        { type: 'replace', predicate: { role: 'user' }, content: '{{raw_string:>> }} + {{original_content}}' }
+        { type: 'replace', predicate: { role: 'user' }, content: '>> {{original_content}}' }
       ]}]
     };
     await configureAppRealAPI(card, 'anthropic');
@@ -114,7 +114,7 @@ test.describe('Multi-turn real LLM conversation (live API)', () => {
       version: '1.0', id: 'real_multi_openai', name: 'Real Multi OpenAI',
       rules: [{
         when: { phase: 'pre_send' },
-        then: [{ type: 'replace', predicate: { role: 'user' }, content: '{{raw_string:【玩家】}} + {{original_content}}' }]
+        then: [{ type: 'replace', predicate: { role: 'user' }, content: '【玩家】{{original_content}}' }]
       }]
     };
     await configureAppRealAPI(card);
@@ -140,7 +140,7 @@ test.describe('Multi-turn real LLM conversation (live API)', () => {
       version: '1.0', id: 'real_multi_anthropic', name: 'Real Multi Anthropic',
       rules: [{ when: { phase: 'pre_send' }, then: [
         { type: 'insert', predicate: { index: 0 }, role: 'system', content: 'You are a helpful assistant. Respond briefly in Chinese.', _meta: { visibility: 'llm_only' } },
-        { type: 'replace', predicate: { role: 'user' }, content: '{{raw_string:>> }} + {{original_content}}' }
+        { type: 'replace', predicate: { role: 'user' }, content: '>> {{original_content}}' }
       ]}]
     };
     await configureAppRealAPI(card, 'anthropic');
