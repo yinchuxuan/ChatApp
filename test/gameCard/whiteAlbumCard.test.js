@@ -93,7 +93,7 @@ describe('white album 2 game card', () => {
     );
     const status = result.messages.find((msg) => msg._meta?.source === 'wa2_state_context');
 
-    expect(card.state.schemaFile).toBe('state/schema.json');
+    expect(card.stateSchema).toBe('state/schema.json');
     expect(stateSchema.schema['touma.affection'].default).toBe(0);
     expect(stateSchema.schema['setsuna.affection'].default).toBe(0);
     expect(status.role).toBe('system');

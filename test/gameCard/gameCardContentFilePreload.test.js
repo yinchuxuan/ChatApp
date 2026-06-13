@@ -5,7 +5,7 @@ function dynamicFileCard() {
     version: '1',
     id: 'send-card',
     name: 'Send Card',
-    content: { files: { plot1: 'chapters/chapter-1/plot.md' } },
+    files: { plot1: 'chapters/chapter-1/plot.md' },
     rules: [{
       when: { phase: 'pre_send' },
       then: [

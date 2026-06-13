@@ -6,7 +6,7 @@ function cardWithFiles(files) {
     version: '1',
     id: 'file-card',
     name: 'File Card',
-    content: { files },
+    files,
     rules: [{ when: { phase: 'pre_send' }, then: [{ type: 'insert', role: 'system', content: 'x' }] }]
   };
 }

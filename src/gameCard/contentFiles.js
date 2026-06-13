@@ -54,7 +54,7 @@ function parseFileRef(ref) {
 function resolveFileSource(ref, options) {
   const { fileRef, sectionRef } = parseFileRef(ref);
   const fileId = resolveRefValue(fileRef, options, 'file');
-  const filePath = options.card?.content?.files?.[fileId];
+  const filePath = options.card?.files?.[fileId];
   if (!filePath) throw new Error(`unknown content file id: ${fileId}`);
   const content = readDeclaredFile(filePath, options);
   if (!sectionRef) return content;
@@ -71,18 +71,14 @@ function resolveFileSectionByState(ref, options) {
   return extractFileSection(content, `${section.filePath}${'#'.repeat(section.level)}${heading}`);
 }
 
-function validateContentFiles(content, path = 'content') {
+function validateContentFiles(files, path = 'files') {
   const errors = [];
-  if (content === undefined) return errors;
-  if (!content || typeof content !== 'object' || Array.isArray(content)) return [`${path}: must be an object`];
-  if (content.files === undefined) return errors;
-  if (!content.files || typeof content.files !== 'object' || Array.isArray(content.files)) {
-    return [`${path}.files: must be an object`];
-  }
-  Object.entries(content.files).forEach(([key, filePath]) => {
-    if (!key) errors.push(`${path}.files: file id must be non-empty`);
+  if (files === undefined) return errors;
+  if (!files || typeof files !== 'object' || Array.isArray(files)) return [`${path}: must be an object`];
+  Object.entries(files).forEach(([key, filePath]) => {
+    if (!key) errors.push(`${path}: file id must be non-empty`);
     if (typeof filePath !== 'string' || !FILE_PATH_PATTERN.test(filePath)) {
-      errors.push(`${path}.files.${key}: path must be a safe relative text file`);
+      errors.push(`${path}.${key}: path must be a safe relative text file`);
     }
   });
   return errors;

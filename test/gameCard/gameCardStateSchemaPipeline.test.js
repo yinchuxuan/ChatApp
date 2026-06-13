@@ -9,7 +9,7 @@ function schemaCard(schemaFile = 'state/schema.json') {
     version: '1',
     id: 'state-card',
     name: 'State Card',
-    state: { schemaFile },
+    stateSchema: schemaFile,
     rules: [{
       when: { phase: 'pre_send' },
       then: [{
@@ -28,7 +28,7 @@ function stateExecCard(phase) {
     version: '1',
     id: 'state-card',
     name: 'State Card',
-    state: { schemaFile: 'state/schema.json' },
+    stateSchema: 'state/schema.json',
     rules: [{
       when: { phase },
       then: [{
@@ -112,7 +112,8 @@ describe('game card state schema pipeline', () => {
   });
 
   test('allows cards without state to run unchanged', async () => {
-    const card = { ...schemaCard(), state: undefined };
+    const card = schemaCard();
+    delete card.stateSchema;
     const result = await prepareInitMessages({ card, messages: [] });
 
     expect(result.applied).toBe(true);
@@ -121,7 +122,8 @@ describe('game card state schema pipeline', () => {
   });
 
   test('passes through the original state value when no schema exists', async () => {
-    const card = { ...schemaCard(), state: undefined };
+    const card = schemaCard();
+    delete card.stateSchema;
     const state = { route: 'alice' };
     const result = await preparePreSendMessages({
       card,

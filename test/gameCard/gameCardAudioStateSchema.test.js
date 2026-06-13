@@ -5,7 +5,7 @@ function audioCard() {
     version: '1',
     id: 'audio-state-card',
     name: 'Audio State Card',
-    state: { schemaFile: 'state/schema.json' },
+    stateSchema: 'state/schema.json',
     audio: { bgm: { daily: 'audio/daily.mp3', sad: 'audio/sad.mp3' } },
     rules: [{
       when: { phase: 'pre_send' },

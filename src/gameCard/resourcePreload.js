@@ -1,7 +1,7 @@
 const { parseFileSectionRef } = require('./fileSections');
 
 function collectContentFilePaths(card, paths) {
-  Object.values(card?.content?.files || {}).forEach((filePath) => {
+  Object.values(card?.files || {}).forEach((filePath) => {
     if (typeof filePath === 'string') paths.add(filePath);
   });
 }

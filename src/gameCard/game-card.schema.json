@@ -11,6 +11,8 @@
     "name": { "type": "string", "minLength": 1 },
     "description": { "type": "string" },
     "author": { "type": "string" },
+    "stateSchema": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.json$" },
+    "files": { "$ref": "#/definitions/textFiles" },
     "state": { "type": "object" },
     "audio": { "$ref": "#/definitions/audio" }, "visual": { "$ref": "#/definitions/visual" },
     "rules": { "type": "array", "items": { "$ref": "#/definitions/rule" } },
@@ -19,6 +21,7 @@
   "definitions": {
     "audio": { "type": "object", "additionalProperties": false, "properties": { "bgm": { "$ref": "#/definitions/audioMap" } } },
     "audioMap": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(mp3|ogg|wav|m4a)$" } },
+    "textFiles": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(md|txt|json)$" } },
     "visual": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.css$" }, "background": { "$ref": "#/definitions/imageMap" } } },
     "imageMap": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(png|jpg|jpeg|webp|gif|bmp)$" } },
     "display": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^[^/\\\\][^\\\\]*$" }, "assistant": { "type": "array", "items": { "$ref": "#/definitions/displayRule" } } } },

@@ -32,22 +32,22 @@ function validateImportedGameCard(fs, card, cardDir) {
   if (errors.length > 0) {
     throw new GameCardValidationError('游戏卡状态 schema 校验失败', {
       stage: 'validate_state_schema',
-      file: schema ? card.state.schemaFile : 'card.json',
-      details: errors.map(error => detail(schema ? card.state.schemaFile : 'card.json', error))
+      file: schema ? card.stateSchema : 'card.json',
+      details: errors.map(error => detail(schema ? card.stateSchema : 'card.json', error))
     });
   }
 }
 
 function readStateSchema(fs, card, cardDir) {
-  const schemaFile = card?.state?.schemaFile;
+  const schemaFile = card?.stateSchema;
   if (typeof schemaFile !== 'string' || schemaFile.length === 0) return null;
   validateSchemaPath(schemaFile);
   const filePath = path.resolve(cardDir, schemaFile);
   if (!filePath.startsWith(path.resolve(cardDir) + path.sep)) {
-    throw new GameCardValidationError('state.schemaFile 必须位于游戏卡目录内', {
+    throw new GameCardValidationError('stateSchema 必须位于游戏卡目录内', {
       stage: 'load_state_schema',
       file: 'card.json',
-      details: [detail('card.json', `state.schemaFile: unsafe path ${schemaFile}`)]
+      details: [detail('card.json', `stateSchema: unsafe path ${schemaFile}`)]
     });
   }
   try {
@@ -65,10 +65,10 @@ function validateSchemaPath(value) {
   const parts = value.split('/');
   if (path.isAbsolute(value) || value.includes('\\') || !value.endsWith('.json') ||
       parts.some(part => part === '' || part === '..')) {
-    throw new GameCardValidationError('state.schemaFile 必须是安全的相对 JSON 路径', {
+    throw new GameCardValidationError('stateSchema 必须是安全的相对 JSON 路径', {
       stage: 'load_state_schema',
       file: 'card.json',
-      details: [detail('card.json', `state.schemaFile: invalid path ${value}`)]
+      details: [detail('card.json', `stateSchema: invalid path ${value}`)]
     });
   }
 }

@@ -42,7 +42,7 @@ function validateGameCard(card) {
   errors.push(
     ...validateAudioConfig(card.audio),
     ...validateVisualConfig(card.visual),
-    ...validateContentFiles(card.content)
+    ...validateContentFiles(card.files)
   );
   card.rules.forEach((rule, i) => validateRule(rule, 'rules[' + i + ']', errors));
 

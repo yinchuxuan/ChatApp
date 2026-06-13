@@ -8,26 +8,30 @@ Content 描述符描述如何生成一条消息的 `content` 值。
 |---|---|---|
 | 消息原文 | `{{original_content}}` | `replace` 时为被匹配消息的 content；`insert` 时为空字符串 |
 | 字符串 | `{{raw_string:文本}}` | 字面量字符串，`\}}` 和 `\\` 需要转义 |
-| 文本文件 | `{{file:fileId}}` | 读取游戏卡 `content.files` 预声明的文本资源 |
+| 文本文件 | `{{file:fileId}}` | 读取游戏卡 `files` 预声明的文本资源 |
 | Markdown 章节 | `{{file:fileId#标题}}` | 读取预声明文本资源里的唯一 Markdown 章节 |
 | 状态读取 | `{{state:path.to.value}}` | 读取当前 state；`find` 结果通过 `temp.find.*` 读取 |
 
 ## 文本文件
 
-游戏卡通过 `content.files` 预声明可被 prompt 读取的文本资源：
+游戏卡通过顶层 `files` 预声明可被 prompt 读取的文本资源：
 
 ```json
 {
-  "content": {
-    "files": {
-      "plot_guides": "chapters/chapter-1/plot_guides.md",
-      "worldbook.characters": "worldbook/characters.md"
-    }
+  "files": {
+    "plot_guides": "chapters/chapter-1/plot_guides.md",
+    "worldbook.characters": "worldbook/characters.md"
   }
 }
 ```
 
-路径必须是游戏卡目录内的安全相对路径，建议只用于 `.md`、`.txt`、`.json` 等文本资源。音频和图片继续使用 `audio` / `visual` 资源表，不进入 `content.files`。
+也可以像 audio / visual 一样拆到单独 JSON：
+
+```json
+{ "files": { "$import": "files.json" } }
+```
+
+路径必须是游戏卡目录内的安全相对路径，建议只用于 `.md`、`.txt`、`.json` 等文本资源。音频和图片继续使用 `audio` / `visual` 资源表，不进入 `files`。
 
 `fileId` 和章节名都可以从 state 读取：
 
@@ -37,7 +41,7 @@ Content 描述符描述如何生成一条消息的 `content` 值。
 {{file:$temp.plotFile#$temp.PlotType}}
 ```
 
-`$temp.plotFile` 读取到的值必须是 `content.files` 中的 file id，不是裸文件路径。
+`$temp.plotFile` 读取到的值必须是 `files` 中的 file id，不是裸文件路径。
 
 ## Markdown 章节
 
@@ -185,16 +189,7 @@ source     = "{{original_content}}" | "{{raw_string:...}}" | "{{state:...}}" | "
 
 ```txt
 {{original_content}}.regex_replace{pattern:'^```',with:''}
-```
-
-```txt
 {{original_content}} + {{file:roleplay_rules}}
-```
-
-```txt
 {{file:$temp.plotFile#$temp.PlotType}}
-```
-
-```txt
 {{raw_string:【回复】}} + {{original_content}}
 ```

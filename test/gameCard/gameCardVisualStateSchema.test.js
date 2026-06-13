@@ -5,7 +5,7 @@ function visualCard() {
     version: '1',
     id: 'visual-state-card',
     name: 'Visual State Card',
-    state: { schemaFile: 'state/schema.json' },
+    stateSchema: 'state/schema.json',
     visual: { background: { school: 'images/school.jpg', night: 'images/night.png' } },
     rules: [{
       when: { phase: 'pre_send' },

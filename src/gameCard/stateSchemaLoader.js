@@ -2,7 +2,7 @@ const { getAudioStateSchema } = require('./audioConfig');
 const { getVisualStateSchema } = require('./visualConfig');
 
 function hasSchemaFile(card) {
-  return typeof card?.state?.schemaFile === 'string' && card.state.schemaFile.length > 0;
+  return typeof card?.stateSchema === 'string' && card.stateSchema.length > 0;
 }
 
 function isObject(value) {
@@ -30,7 +30,7 @@ async function loadExternalStateSchema(card, api) {
     throw new Error('state schema requires readGameCardFile');
   }
 
-  const result = await api.readGameCardFile(card.id, card.state.schemaFile);
+  const result = await api.readGameCardFile(card.id, card.stateSchema);
   if (!result?.success) throw new Error(result?.error || 'failed to read state schema file');
 
   let schema;

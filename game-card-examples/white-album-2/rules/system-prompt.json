@@ -8,7 +8,7 @@
                  "_meta":{"source":"wa2_system_prompt","visibility":"llm_only"}
                 },
                 {"type":"insert","role":"system",
-                 "content":"历史对话总结:\n暂无",
+                 "content":"历史对话总结（含时间地点）:\n暂无",
                  "_meta":{"source":"wa2_summary","visibility":"llm_only"}
                 },
                 {"type":"insert",
