@@ -32,24 +32,9 @@ function validateFindList(find, path, errors, validatePredicate) {
   });
 }
 
-function validateFindMap(find, path, errors, validatePredicate) {
-  if (!isObject(find) || Object.keys(find).length === 0) return addError(errors, path, 'must be a non-empty object');
-  Object.entries(find).forEach(([name, spec]) => {
-    const specPath = `${path}.${name}`;
-    if (!isObject(spec)) return addError(errors, specPath, 'must be an object');
-    if (!spec.predicate) addError(errors, specPath, 'requires predicate');
-    else validatePredicate(spec.predicate, specPath + '.predicate', errors);
-    if (spec.join !== undefined && !isString(spec.join)) addError(errors, specPath + '.join', 'must be a string');
-    Object.keys(spec).forEach((key) => {
-      if (!['predicate', 'join'].includes(key)) addError(errors, specPath, 'unknown find key: ' + key);
-    });
-  });
-}
-
 function validateFind(find, path, errors, validatePredicate) {
   if (find === undefined) return;
-  if (Array.isArray(find)) return validateFindList(find, path, errors, validatePredicate);
-  return validateFindMap(find, path, errors, validatePredicate);
+  return validateFindList(find, path, errors, validatePredicate);
 }
 
 if (typeof module !== 'undefined' && module.exports) {

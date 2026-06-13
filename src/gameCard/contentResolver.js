@@ -1,9 +1,7 @@
 const { applyTransform, renderValue } = require('./contentTransforms');
 const { resolveContentObject } = require('./contentObjects');
-const { parseFileSectionRef, extractFileSection } = require('./fileSections');
-const { readPathFileContent, resolveFileSectionByState, resolveFileSource } = require('./contentFiles');
+const { resolveFileSource } = require('./contentFiles');
 const { getStateValue, hasStateValue } = require('./statePaths');
-const { resolveFind: resolveFindValues } = require('./findResolver');
 
 function parseSource(expression, index) {
   if (!expression.startsWith('{{', index)) throw new Error('content source expected');
@@ -34,17 +32,6 @@ function resolveSource(body, originalMessage, options) {
   if (body.startsWith('state:')) return resolveState(body.slice('state:'.length), options, false);
   if (body.startsWith('state_json:')) return resolveState(body.slice('state_json:'.length), options, true);
   if (body.startsWith('file:')) return resolveFileSource(body.slice('file:'.length), options);
-  if (body.startsWith('file_content:')) {
-    return readPathFileContent(body.slice('file_content:'.length), options);
-  }
-  if (body.startsWith('file_section:')) {
-    const ref = body.slice('file_section:'.length);
-    return extractFileSection(readPathFileContent(parseFileSectionRef(ref).filePath, options), ref);
-  }
-  if (body.startsWith('file_section_by_state:')) {
-    return resolveFileSectionByState(body.slice('file_section_by_state:'.length), options);
-  }
-  if (body.startsWith('find:')) return resolveFindSource(body.slice('find:'.length), options);
   throw new Error(`unsupported content source: ${body}`);
 }
 
@@ -56,14 +43,6 @@ function resolveState(statePath, options, asJson) {
   if (asJson) return JSON.stringify(value);
   if (Array.isArray(value)) return value;
   return typeof value === 'object' ? '' : String(value);
-}
-
-function resolveFindSource(name, options) {
-  const spec = options.find?.[name];
-  if (!spec) throw new Error(`unknown find source: ${name}`);
-  if (!spec.predicate && !spec.from) return spec;
-  const messages = Array.isArray(options.messages) ? options.messages : [];
-  return resolveFindValues({ [name]: spec }, messages)[name];
 }
 
 function parseTransform(expression, index) {
@@ -133,8 +112,7 @@ function parseChain(expression, index, originalMessage, options) {
     cursor = skipSpaces(expression, transform.next);
     transform = parseTransform(expression, cursor);
   }
-  const findName = source.body.startsWith('find:') ? source.body.slice('find:'.length) : null;
-  return { value, findName, next: cursor };
+  return { value, next: cursor };
 }
 
 function resolveContent(content, originalMessage = {}, options = {}) {
@@ -151,8 +129,7 @@ function resolveContent(content, originalMessage = {}, options = {}) {
   let resolved = '';
   while (cursor < content.length) {
     const chain = parseChain(content, cursor, originalMessage, options);
-    const joiner = chain.findName ? options.find?.[chain.findName]?.join : undefined;
-    resolved += renderValue(chain.value, typeof joiner === 'string' ? joiner : '\n');
+    resolved += renderValue(chain.value);
     cursor = skipSpaces(content, chain.next);
     if (cursor < content.length) {
       if (content[cursor] !== '+') throw new Error('content chains must be joined with +');

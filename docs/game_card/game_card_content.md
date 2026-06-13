@@ -43,6 +43,8 @@ Content 描述符描述如何生成一条消息的 `content` 值。
 
 `$temp.plotFile` 读取到的值必须是 `files` 中的 file id，不是裸文件路径。
 
+Content 不支持直接读取裸文件路径；请先在顶层 `files` 中预声明文本资源，再通过 `{{file:fileId}}` 或 `{{file:fileId#标题}}` 引用。
+
 ## Markdown 章节
 
 `{{file:fileId#标题}}` 会在对应 Markdown 文件中查找标题文本完全相同的唯一标题，不要求写 `##` / `###` 层级：
@@ -94,10 +96,10 @@ Content 描述符描述如何生成一条消息的 `content` 值。
 | `select` | 可选。取消息字段，默认 `content`；支持 `content`、`thinking`、`role`、`_meta.source` |
 | `match` | 可选。`regex` + `group`，对选中字段提取子串 |
 | `many` | 可选。`true` 写入数组；默认写入第一条命中结果 |
-| `join` | 可选。旧 `{{find:name}}` 读取数组时的拼接符；新写法通常不需要 |
+| `join` | 可选。供外部调试或后续兼容使用；content 通常直接读取 `temp.find.*` |
 | `default` | 可选。没有命中时写入的 JSON 值；默认单值为 `null`，多值为 `[]` |
 
-旧对象语法仍兼容：`"find": { "summaryMsgs": { "predicate": { "role": "assistant" }, "join": "\n" } }`。它等价于 `many: true`、`select: "content"`，并可继续用 `{{find:summaryMsgs}}`；新卡片推荐数组语法和 `{{state:temp.find.summaryMsgs}}`。
+`find` 只支持数组语法，content 通过 `{{state:temp.find.name}}` 读取查询结果。
 
 ## Content 值类型
 

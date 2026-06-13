@@ -4,7 +4,7 @@ const { isSafeGameCardId } = require('./gameCardStorage');
 const AUDIO_EXTENSIONS = new Set(['.mp3', '.ogg', '.wav', '.m4a']);
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp']);
 
-function getCardAssetPath(fs, cardsDir, id, relativePath, label = 'file_content') {
+function getCardAssetPath(fs, cardsDir, id, relativePath, label = 'game card file') {
   if (!isSafeGameCardId(id)) throw new Error('Invalid game card id');
   if (path.isAbsolute(relativePath)) throw new Error(`${label} path must be relative`);
   const baseDir = path.resolve(cardsDir, id);

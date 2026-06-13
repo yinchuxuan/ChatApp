@@ -123,7 +123,7 @@ describe('Game Card Persistence IPC', () => {
     const result = await ipcMain.handlers['read-game-card-file']({}, 'quest', '../secret.md');
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain('file_content path must stay inside game card directory');
+    expect(result.error).toContain('game card file path must stay inside game card directory');
     errorSpy.mockRestore();
   });
 

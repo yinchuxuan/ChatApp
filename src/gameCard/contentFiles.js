@@ -1,4 +1,4 @@
-const { parseFileSectionRef, extractFileSection, extractUniqueFileSection } = require('./fileSections');
+const { extractUniqueFileSection } = require('./fileSections');
 const { getStateValue, hasStateValue } = require('./statePaths');
 
 const FILE_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.(md|txt|json)$/i;
@@ -17,22 +17,6 @@ function readDeclaredFile(filePath, options) {
     throw new Error('file path must stay inside game card directory');
   }
   return nodeFs.readFileSync(resolved, 'utf-8');
-}
-
-function readPathFileContent(requestedPath, options) {
-  if (options.fileContents && Object.prototype.hasOwnProperty.call(options.fileContents, requestedPath)) {
-    return options.fileContents[requestedPath];
-  }
-  const nodeFs = options.fs || (typeof require === 'function' ? require('fs') : null);
-  const nodePath = options.path || (typeof require === 'function' ? require('path') : null);
-  if (!nodeFs?.readFileSync || !nodePath || !options.baseDir) throw new Error('file_content requires a baseDir');
-  if (nodePath.isAbsolute(requestedPath)) throw new Error('file_content path must be relative');
-  const baseDir = nodePath.resolve(options.baseDir);
-  const filePath = nodePath.resolve(baseDir, requestedPath);
-  if (filePath !== baseDir && !filePath.startsWith(baseDir + nodePath.sep)) {
-    throw new Error('file_content path must stay inside game card directory');
-  }
-  return nodeFs.readFileSync(filePath, 'utf-8');
 }
 
 function resolveRefValue(ref, options, label) {
@@ -62,15 +46,6 @@ function resolveFileSource(ref, options) {
   return extractUniqueFileSection(content, heading);
 }
 
-function resolveFileSectionByState(ref, options) {
-  const section = parseFileSectionRef(ref);
-  if (!hasStateValue(options.state || {}, section.heading)) throw new Error(`file_section_by_state state not found: ${section.heading}`);
-  const heading = getStateValue(options.state || {}, section.heading);
-  if (typeof heading !== 'string' || heading.length === 0) throw new Error(`file_section_by_state requires string state: ${section.heading}`);
-  const content = readPathFileContent(section.filePath, options);
-  return extractFileSection(content, `${section.filePath}${'#'.repeat(section.level)}${heading}`);
-}
-
 function validateContentFiles(files, path = 'files') {
   const errors = [];
   if (files === undefined) return errors;
@@ -87,8 +62,6 @@ function validateContentFiles(files, path = 'files') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     FILE_PATH_PATTERN,
-    readPathFileContent,
-    resolveFileSectionByState,
     resolveFileSource,
     validateContentFiles
   };

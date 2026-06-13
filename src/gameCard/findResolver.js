@@ -3,13 +3,8 @@ const { getStateValue, hasStateValue, setStateValue, deleteStateValue } = requir
 
 function normalizeFind(find) {
   if (Array.isArray(find)) return find;
-  if (!find || typeof find !== 'object') return [];
-  return Object.entries(find).map(([name, spec]) => ({
-    name,
-    from: spec.predicate,
-    many: true,
-    join: spec.join
-  }));
+  if (find !== undefined) throw new Error('find must be a non-empty array');
+  return [];
 }
 
 function selectValue(message, select = 'content') {
@@ -27,7 +22,7 @@ function applyMatch(value, match) {
 
 function resolveFindSpec(spec, messages) {
   const matched = messages
-    .filter((message, index) => matchesPredicate(spec.from || spec.predicate, message, index, messages))
+    .filter((message, index) => matchesPredicate(spec.from, message, index, messages))
     .map((message) => applyMatch(selectValue(message, spec.select), spec.match));
   const values = matched.filter((value) => value !== '');
   if (spec.many) return values.length > 0 ? values : spec.default ?? [];

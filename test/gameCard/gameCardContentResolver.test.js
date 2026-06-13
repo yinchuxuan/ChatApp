@@ -1,12 +1,12 @@
-const path = require('path');
 const { resolveContent } = require('../../src/gameCard/contentResolver');
 const { applyGameCard } = require('../../src/gameCard/engine');
 
-function createCard(content) {
+function createCard(content, files) {
   return {
     version: '1',
     id: 'content-card',
     name: 'Content Card',
+    files,
     rules: [{
       when: { phase: 'pre_send' },
       then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content }]
@@ -15,20 +15,6 @@ function createCard(content) {
 }
 
 describe('game card content descriptors', () => {
-  const baseDir = path.resolve('/game-card');
-  const fakeFs = {
-    readFileSync: jest.fn((filePath) => {
-      if (filePath === path.join(baseDir, 'worldbook', 'rules.md')) {
-        return '# Rules\nStay in scene.';
-      }
-      throw new Error('missing fixture');
-    })
-  };
-
-  beforeEach(() => {
-    fakeFs.readFileSync.mockClear();
-  });
-
   test('keeps plain content and legacy original_content replacement working', () => {
     expect(resolveContent('plain text')).toBe('plain text');
     expect(resolveContent('fixed {{original_content}}', { content: 'raw' })).toBe('fixed raw');
@@ -97,29 +83,24 @@ describe('game card content descriptors', () => {
     expect(result.messages[0]).toEqual({ role: 'system', content: 'prefix' });
   });
 
-  test('reads file content relative to the game card directory', () => {
+  test('reads declared file content by id', () => {
     const result = applyGameCard({
-      card: createCard('{{file_content:worldbook/rules.md}}'),
+      card: createCard('{{file:rules}}', { rules: 'worldbook/rules.md' }),
       phase: 'pre_send',
       messages: [{ role: 'user', content: 'start' }],
-      contentBaseDir: baseDir,
-      fs: fakeFs,
-      path
+      fileContents: { 'worldbook/rules.md': '# Rules\nStay in scene.' }
     });
 
     expect(result.messages[0]).toEqual({ role: 'system', content: '# Rules\nStay in scene.' });
     expect(result.trace.errors).toEqual([]);
-    expect(fakeFs.readFileSync).toHaveBeenCalledWith(path.join(baseDir, 'worldbook', 'rules.md'), 'utf-8');
   });
 
   test('transforms file content before concatenating it', () => {
     const result = applyGameCard({
-      card: createCard('{{file_content:worldbook/rules.md}}.regex_replace{pattern:\'^#.*\\\\n\',with:\'\'}'),
+      card: createCard('{{file:rules}}.regex_replace{pattern:\'^#.*\\\\n\',with:\'\'}', { rules: 'worldbook/rules.md' }),
       phase: 'pre_send',
       messages: [{ role: 'user', content: 'start' }],
-      contentBaseDir: baseDir,
-      fs: fakeFs,
-      path
+      fileContents: { 'worldbook/rules.md': '# Rules\nStay in scene.' }
     });
 
     expect(result.messages[0]).toEqual({ role: 'system', content: 'Stay in scene.' });
@@ -156,36 +137,6 @@ describe('game card content descriptors', () => {
     });
 
     expect(result.messages[0]).toEqual({ role: 'system', content: 'route=setsuna' });
-  });
-
-  test('rejects file content paths outside the game card directory', () => {
-    const result = applyGameCard({
-      card: createCard('{{file_content:../secret.md}}'),
-      phase: 'pre_send',
-      messages: [{ role: 'user', content: 'start' }],
-      contentBaseDir: baseDir,
-      fs: fakeFs,
-      path
-    });
-
-    expect(result.messages).toEqual([{ role: 'user', content: 'start' }]);
-    expect(result.trace.errors[0]).toContain('file_content path must stay inside game card directory');
-  });
-
-  test('rejects absolute file content paths', () => {
-    expect(() => resolveContent(
-      '{{file_content:/tmp/secret.md}}',
-      {},
-      { baseDir, fs: fakeFs, path }
-    )).toThrow('file_content path must be relative');
-  });
-
-  test('requires a game card base directory for file content', () => {
-    expect(() => resolveContent(
-      '{{file_content:worldbook/rules.md}}',
-      {},
-      { fs: fakeFs, path }
-    )).toThrow('file_content requires a baseDir');
   });
 
   test('reports malformed and unsupported descriptor expressions', () => {

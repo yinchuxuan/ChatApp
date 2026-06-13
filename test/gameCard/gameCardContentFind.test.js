@@ -1,4 +1,3 @@
-const { resolveContent } = require('../../src/gameCard/contentResolver');
 const { applyGameCard } = require('../../src/gameCard/engine');
 
 const messages = [
@@ -8,46 +7,7 @@ const messages = [
 ];
 
 describe('game card content find descriptors', () => {
-  test('find returns matching message content as a list with default join', () => {
-    const content = '{{find:summaries}}';
-    const result = resolveContent(content, {}, {
-      messages,
-      find: {
-        summaries: {
-          predicate: { role: 'assistant' }
-        }
-      }
-    });
-
-    expect(result).toBe([
-      'scene <summary>first event</summary>',
-      'scene <summary>second event</summary>'
-    ].join('\n'));
-  });
-
-  test('list-aware transforms extract format and join each found message', () => {
-    const content = [
-      '{{find:summaries}}',
-      ".regex_extract{pattern:'<summary>([\\\\s\\\\S]*?)</summary>'}",
-      ".format{'- {{value}}'}",
-      ".join{' | '}"
-    ].join('');
-    const result = resolveContent(content, {}, {
-      messages,
-      find: {
-        summaries: {
-          predicate: {
-            role: 'assistant',
-            content: { regex: '<summary>[\\s\\S]*?</summary>' }
-          }
-        }
-      }
-    });
-
-    expect(result).toBe('- first event | - second event');
-  });
-
-  test('insert and replace actions can use find content', () => {
+  test('insert and replace actions can use array find content from temp state', () => {
     const card = {
       version: '1',
       id: 'find-card',
@@ -57,8 +17,8 @@ describe('game card content find descriptors', () => {
         then: [{
           type: 'replace',
           predicate: { role: 'system' },
-          find: { users: { predicate: { role: 'user' }, join: ' / ' } },
-          content: '{{original_content}} + {{raw_string:: }} + {{find:users}}'
+          find: [{ name: 'users', from: { role: 'user' }, many: true }],
+          content: '{{original_content}} + {{raw_string:: }} + {{state:temp.find.users}}.join{" / "}'
         }]
       }]
     };
@@ -75,6 +35,62 @@ describe('game card content find descriptors', () => {
 
     expect(result.trace.errors).toEqual([]);
     expect(result.messages[0].content).toBe('seen: a / b');
+  });
+
+  test('runtime rejects object find declarations', () => {
+    const card = {
+      version: '1',
+      id: 'legacy-find-card',
+      name: 'Legacy Find Card',
+      rules: [{
+        when: { phase: 'pre_send' },
+        then: [{
+          type: 'replace',
+          predicate: { role: 'system' },
+          find: { users: { predicate: { role: 'user' } } },
+          content: '{{state:temp.find.users}}'
+        }]
+      }]
+    };
+
+    const result = applyGameCard({
+      card,
+      phase: 'pre_send',
+      messages: [{ role: 'system', content: 'seen' }, { role: 'user', content: 'a' }]
+    });
+
+    expect(result.trace.errors[0]).toContain('must be a non-empty array');
+  });
+
+  test('list-aware transforms extract format and join find state values', () => {
+    const card = {
+      version: '1',
+      id: 'find-list-card',
+      name: 'Find List Card',
+      rules: [{
+        when: { phase: 'pre_send' },
+        find: [{
+          name: 'summaries',
+          from: { role: 'assistant', content: { regex: '<summary>[\\s\\S]*?</summary>' } },
+          many: true
+        }],
+        then: [{
+          type: 'insert',
+          role: 'system',
+          content: [
+            '{{state:temp.find.summaries}}',
+            ".regex_extract{pattern:'<summary>([\\\\s\\\\S]*?)</summary>'}",
+            ".format{'- {{value}}'}",
+            ".join{' | '}"
+          ].join('')
+        }]
+      }]
+    };
+
+    const result = applyGameCard({ card, phase: 'pre_send', messages });
+
+    expect(result.trace.errors).toEqual([]);
+    expect(result.messages[3].content).toBe('- first event | - second event');
   });
 
   test('action find writes local temp state for content rendering', () => {

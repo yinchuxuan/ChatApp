@@ -21,14 +21,14 @@ function cardWithFind(find) {
         type: 'replace',
         predicate: { role: 'system' },
         find,
-        content: '{{find:items}}'
+        content: '{{state:temp.find.items}}'
       }]
     }]
   };
 }
 
 describe('game card find schema', () => {
-  test('accepts legacy find on insert and replace actions', () => {
+  test('rejects legacy object find declarations', () => {
     const validate = compileSchema();
     const card = cardWithFind({
       items: {
@@ -37,8 +37,8 @@ describe('game card find schema', () => {
       }
     });
 
-    expect(validate(card)).toBe(true);
-    expect(validateGameCard(card).errors).toEqual([]);
+    expect(validate(card)).toBe(false);
+    expect(validateGameCard(card).errors[0]).toContain('must be a non-empty array');
   });
 
   test('accepts list find on rules and actions', () => {
@@ -70,12 +70,7 @@ describe('game card find schema', () => {
 
   test('rejects malformed find declarations', () => {
     const validate = compileSchema();
-    const card = cardWithFind({
-      items: {
-        predicate: { role: 'assistant' },
-        field: 'content'
-      }
-    });
+    const card = cardWithFind([{ name: 'items', from: { role: 'assistant' }, field: 'content' }]);
 
     expect(validate(card)).toBe(false);
     expect(validateGameCard(card).errors[0]).toContain('unknown find key: field');

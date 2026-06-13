@@ -66,7 +66,7 @@ describe('game card state schema pipeline', () => {
   test('reports missing schema files without applying rules', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,
-      error: 'file_content file not found'
+      error: 'game card file not found'
     });
 
     const result = await preparePreSendMessages({
@@ -75,14 +75,14 @@ describe('game card state schema pipeline', () => {
     });
 
     expect(result.applied).toBe(false);
-    expect(result.error).toContain('file_content file not found');
+    expect(result.error).toContain('game card file not found');
     expect(result.messages).toEqual([{ role: 'user', content: 'start' }]);
   });
 
   test('surfaces safe path rejections for schema files', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,
-      error: 'file_content path must stay inside game card directory'
+      error: 'game card file path must stay inside game card directory'
     });
 
     const result = await preparePreSendMessages({
@@ -93,13 +93,13 @@ describe('game card state schema pipeline', () => {
     expect(window.electronAPI.readGameCardFile)
       .toHaveBeenCalledWith('state-card', '../schema.json');
     expect(result.applied).toBe(false);
-    expect(result.error).toContain('file_content path must stay inside game card directory');
+    expect(result.error).toContain('game card file path must stay inside game card directory');
   });
 
   test('surfaces absolute path rejections for schema files', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,
-      error: 'file_content path must be relative'
+      error: 'game card file path must be relative'
     });
 
     const result = await prepareAfterResponseMessages({
@@ -108,7 +108,7 @@ describe('game card state schema pipeline', () => {
     });
 
     expect(result.applied).toBe(false);
-    expect(result.error).toContain('file_content path must be relative');
+    expect(result.error).toContain('game card file path must be relative');
   });
 
   test('allows cards without state to run unchanged', async () => {
@@ -183,7 +183,8 @@ describe('game card state schema pipeline', () => {
 
   test('init with existing messages does not preload rule files', async () => {
     const card = stateExecCard('init');
-    card.rules[0].then = [{ type: 'insert', role: 'system', content: '{{file_content:worldbook/rules.md}}' }];
+    card.files = { rules: 'worldbook/rules.md' };
+    card.rules[0].then = [{ type: 'insert', role: 'system', content: '{{file:rules}}' }];
 
     await prepareInitMessages({
       card,

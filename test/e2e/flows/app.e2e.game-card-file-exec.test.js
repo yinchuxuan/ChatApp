@@ -44,11 +44,12 @@ async function send(text) {
   await appHelper.window.locator('.chat-input-area button[type="submit"]').click();
 }
 
-test('resolves file_content through safe IPC in the chat send pipeline', async () => {
+test('resolves declared files through safe IPC in the chat send pipeline', async () => {
   const card = {
     version: '1.0',
     id: 'e2e_file_card',
     name: 'File Quest',
+    files: { rules: 'worldbook/rules.md' },
     rules: [{
       when: { phase: 'pre_send' },
       then: [{
@@ -56,7 +57,7 @@ test('resolves file_content through safe IPC in the chat send pipeline', async (
         predicate: { index: 0 },
         anchor: 'before',
         role: 'system',
-        content: '{{file_content:worldbook/rules.md}}',
+        content: '{{file:rules}}',
         _meta: { visibility: 'llm_only' }
       }]
     }]
@@ -78,14 +79,14 @@ test('resolves file_content through safe IPC in the chat send pipeline', async (
   await expect(appHelper.window.locator('.chat-history')).not.toContainText('File rules');
 });
 
-test('rejects file_content traversal before sending the API request', async () => {
+test('rejects unsupported content source before sending the API request', async () => {
   const card = {
     version: '1.0',
     id: 'e2e_bad_file_card',
     name: 'Bad File Quest',
     rules: [{
       when: { phase: 'pre_send' },
-      then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: '{{file_content:../secret.md}}' }]
+      then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: '{{unknown_source:rules}}' }]
     }]
   };
   await activateCard(card);
@@ -99,7 +100,7 @@ test('rejects file_content traversal before sending the API request', async () =
 
   await send('start');
 
-  await expect(appHelper.window.locator('.chat-history')).toContainText('file_content path must stay inside game card directory');
+  await expect(appHelper.window.locator('.chat-history')).toContainText('unsupported content source: unknown_source:rules');
   expect(requestCount).toBe(0);
 });
 

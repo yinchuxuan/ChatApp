@@ -46,6 +46,7 @@ describe('game card schema', () => {
       name: 'Demo Card',
       description: 'Injects rules before the first send.',
       author: 'ChatApp',
+      files: { rules: 'worldbook/rules.md' },
       state: { player: { hp: 10 } },
       rules: [
         {
@@ -57,7 +58,7 @@ describe('game card schema', () => {
               predicate: { index: 0 },
               anchor: 'before',
               role: 'system',
-              content: '{{file_content:worldbook/rules.md}}',
+              content: '{{file:rules}}',
               ttl: -1,
               _meta: { source: 'game_card', visibility: 'llm_only' }
             }

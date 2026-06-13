@@ -126,6 +126,7 @@ describe('Game Card Persistence - Restart and Round-trip', () => {
       name: 'Complex Quest',
       description: 'A quest with multiple rules',
       author: 'Test Author',
+      files: { rules: 'worldbook/rules.md' },
       state: { player: { hp: 100, mp: 50 } },
       rules: [
         {
@@ -137,7 +138,7 @@ describe('Game Card Persistence - Restart and Round-trip', () => {
               predicate: { index: 0 },
               anchor: 'before',
               role: 'system',
-              content: '{{file_content:worldbook/rules.md}}',
+              content: '{{file:rules}}',
               ttl: -1,
               _meta: { source: 'game_card', visibility: 'llm_only' }
             }

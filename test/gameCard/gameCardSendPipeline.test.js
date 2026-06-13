@@ -6,11 +6,12 @@ const {
   toApiMessages
 } = require('../../src/gameCard/sendPipeline');
 
-function cardWithInsert(content) {
+function cardWithInsert(content, files) {
   return {
     version: '1',
     id: 'send-card',
     name: 'Send Card',
+    files,
     rules: [{
       when: { phase: 'pre_send' },
       then: [{
@@ -88,7 +89,7 @@ describe('game card send pipeline', () => {
     expect(result.ttlTrace.summary.messages).toMatchObject({ decayed: 1, removed: 1 });
   });
 
-  test('preloads file_content through electronAPI before applying rules', async () => {
+  test('preloads declared files through electronAPI before applying rules', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: true,
       content: 'loaded rules'
@@ -96,7 +97,7 @@ describe('game card send pipeline', () => {
     const messages = [{ role: 'user', content: 'start' }];
     const result = await preparePreSendMessages({
       messages,
-      card: cardWithInsert('{{file_content:worldbook/rules.md}}')
+      card: cardWithInsert('{{file:rules}}', { rules: 'worldbook/rules.md' })
     });
 
     expect(window.electronAPI.readGameCardFile)
@@ -104,14 +105,14 @@ describe('game card send pipeline', () => {
     expect(result.messages[0].content).toBe('loaded rules');
   });
 
-  test('preloads file_section files through electronAPI before applying rules', async () => {
+  test('preloads declared files before resolving markdown sections', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: true,
       content: '# Routes\n## 雪菜线\nloaded route\n## 和纱线\nother'
     });
     const result = await preparePreSendMessages({
       messages: [{ role: 'user', content: 'start' }],
-      card: cardWithInsert('{{file_section:worldbook/routes.md##雪菜线}}')
+      card: cardWithInsert('{{file:routes#雪菜线}}', { routes: 'worldbook/routes.md' })
     });
 
     expect(window.electronAPI.readGameCardFile)
@@ -132,7 +133,7 @@ describe('game card send pipeline', () => {
     expect(result.state.loadedScript).toBe(true);
   });
 
-  test('gracefully returns applied=false when file_content preload fails', async () => {
+  test('gracefully returns applied=false when declared file preload fails', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,
       error: 'blocked path'
@@ -140,7 +141,7 @@ describe('game card send pipeline', () => {
 
     const result = await preparePreSendMessages({
       messages: [{ role: 'user', content: 'start' }],
-      card: cardWithInsert('{{file_content:../secret.md}}')
+      card: cardWithInsert('{{file:rules}}', { rules: '../secret.md' })
     });
 
     expect(result.applied).toBe(false);

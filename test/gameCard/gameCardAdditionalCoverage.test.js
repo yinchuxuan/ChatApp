@@ -2,7 +2,6 @@ const { matchesPredicate, matchesWhen } = require('../../src/gameCard/predicate'
 const { applyAction } = require('../../src/gameCard/actions');
 const { applyGameCard } = require('../../src/gameCard/engine');
 const { resolveContent } = require('../../src/gameCard/contentResolver');
-const path = require('path');
 
 describe('game card additional unit coverage', () => {
   describe('_meta visibility predicate matching', () => {
@@ -39,26 +38,20 @@ describe('game card additional unit coverage', () => {
     });
   });
 
-  describe('file_content file not found error', () => {
-    const baseDir = path.resolve('/game-card');
-    const fakeFs = {
-      readFileSync: jest.fn(() => { throw new Error('ENOENT: no such file'); })
-    };
-
-    test('reports file not found error without crashing', () => {
+  describe('declared file errors', () => {
+    test('reports missing declared file content without crashing', () => {
       const result = applyGameCard({
         card: {
           version: '1', id: 'fc-card', name: 'FC',
+          files: { missing: 'missing.md' },
           rules: [{
             when: { phase: 'pre_send' },
-            then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: '{{file_content:missing.md}}' }]
+            then: [{ type: 'insert', predicate: { index: 0 }, role: 'system', content: '{{file:missing}}' }]
           }]
         },
         phase: 'pre_send',
         messages: [{ role: 'user', content: 'start' }],
-        contentBaseDir: baseDir,
-        fs: fakeFs,
-        path
+        fileContents: {}
       });
 
       expect(result.messages).toEqual([{ role: 'user', content: 'start' }]);
