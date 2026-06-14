@@ -1,5 +1,6 @@
 const path = require('path');
 const { getCardAssetPath, getCardAudioPath, getCardImagePath } = require('./gameCardAssets');
+const { copyCardDirectory } = require('./gameCardDirectoryCopy');
 const {
   ensureGameCardDirs,
   getCardPath,
@@ -73,14 +74,6 @@ function readImportCard(fs, selectedDir) {
   }
   validateImportedGameCard(fs, card, selectedDir);
   return card;
-}
-
-function copyCardDirectory(fs, sourceDir, targetDir) {
-  const sourceReal = fs.realpathSync(sourceDir);
-  const targetReal = fs.existsSync(targetDir) ? fs.realpathSync(targetDir) : null;
-  if (targetReal && sourceReal === targetReal) return;
-  if (fs.existsSync(targetDir)) fs.rmSync(targetDir, { recursive: true, force: true });
-  fs.cpSync(sourceDir, targetDir, { recursive: true });
 }
 
 function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameCardsDir) {
