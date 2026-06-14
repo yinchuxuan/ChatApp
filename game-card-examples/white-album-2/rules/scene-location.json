@@ -1,0 +1,9 @@
+[
+  {
+    "id": "wa2-scene-location",
+    "when": { "phase": "after_response", "last": { "role": "assistant" } },
+    "then": [
+      { "type": "exec", "sourceFile": "scripts/scene-location.js" }
+    ]
+  }
+]

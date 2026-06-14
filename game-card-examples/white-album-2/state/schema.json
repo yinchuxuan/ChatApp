@@ -50,6 +50,21 @@
       "llmRead": true,
       "llmWrite": false
     },
+    "story.location": {
+      "type": "enum",
+      "values": ["school", "classroom", "third_music_room"],
+      "default": "school",
+      "description": "最近一段剧情发生地点的标准化 key，由 after_response 场景解析写入。",
+      "llmRead": true,
+      "llmWrite": false
+    },
+    "story.locationText": {
+      "type": "string",
+      "default": "峰城大附属中学",
+      "description": "最近一段剧情回复中写出的原始地点文本。",
+      "llmRead": true,
+      "llmWrite": false
+    },
     "visual.textPanel": {
       "type": "enum",
       "values": ["center", "left", "right"],

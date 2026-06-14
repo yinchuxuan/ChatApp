@@ -19,6 +19,9 @@
     },
     {
       "$import": "rules/tail-timeline-guide.json"
+    },
+    {
+      "$import": "rules/scene-location.json"
     }
   ]
 }
