@@ -14,11 +14,13 @@ const fileContents = {
   'first_msg.md': readCardFile('first_msg.md'),
   'roleplay_rules.md': readCardFile('roleplay_rules.md'),
   'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
+  'plot/chapter-2.md': readCardFile('plot/chapter-2.md'),
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
+  'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js'),
   'worldbook/characters.md': readCardFile('worldbook/characters.md'),
   'worldbook/index.md': readCardFile('worldbook/index.md'),
   'worldbook/location.md': readCardFile('worldbook/location.md')
@@ -88,7 +90,7 @@ describe('white album plot direction guide', () => {
     const opening = runWithRandom(0.5);
     const guide = opening.messages.find((msg) => msg.role === 'user');
 
-    expect(guide.content).toContain('当前剧情时间段：2007.10.20: 15:00 星期六 - 2007.10.21: 16:00 星期日');
+    expect(guide.content).toContain('绝对禁止将时间推进到 2007.10.21: 16:00 星期日 之后');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
 
     const wall = runAtSlot('2007.10.21: 16:00 星期日');
@@ -103,7 +105,7 @@ describe('white album plot direction guide', () => {
     const free = runAtSlot('2007.10.21: 18:00 星期日');
     const freeGuide = free.messages.find((msg) => msg.role === 'user');
 
-    expect(freeGuide.content).toContain('当前剧情时间段：2007.10.21: 18:00 星期日 - 2007.10.23: 10:00 星期二');
+    expect(freeGuide.content).toContain('绝对禁止将时间推进到 2007.10.23: 10:00 星期二 之后');
     expect(freeGuide.content).toContain('剧情类型：自由剧情节点');
     expect(freeGuide.content).not.toContain('本轮必须完成该剧情节点');
     ['2007.10.21: 18:00 星期日', '2007.10.23: 12:00 星期二', '2007.10.24: 12:00 星期三'].forEach((time) => {
@@ -160,7 +162,7 @@ describe('white album plot direction guide', () => {
 
     expect(result.state.timeline.currentTime).toBe('2007.10.21: 17:00 星期日');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
-    expect(guide.content).toContain('当前剧情时间段：2007.10.21: 18:00 星期日 - 2007.10.23: 10:00 星期二');
+    expect(guide.content).toContain('绝对禁止将时间推进到 2007.10.23: 10:00 星期二 之后');
     expect(guide.content).not.toContain('隔墙合奏');
   });
 

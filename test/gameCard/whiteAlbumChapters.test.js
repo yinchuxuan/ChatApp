@@ -20,42 +20,34 @@ const fileContents = {
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
   'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js'),
-  'worldbook/characters.md': '# 角色世界书\n## 冬马和纱\n角色：冬马和纱',
+  'worldbook/characters.md': '# 角色世界书',
   'worldbook/index.md': readCardFile('worldbook/index.md'),
-  'worldbook/location.md': [
-    '# 地点世界书',
-    '## 第二音乐教室', '地点：第二音乐教室',
-    '## 第三音乐教室', '地点：第三音乐教室',
-    '## 峰城大附属中学', '地点：峰城大附属中学',
-    '## 冬马家', '地点：冬马家'
-  ].join('\n')
+  'worldbook/location.md': '# 地点世界书'
 };
 
-function applyWithUser(content) {
-  const state = ensureStateDefaults(loadedCard.state.schema, {}).state;
+function runAtTime(currentTime) {
+  const state = ensureStateDefaults(loadedCard.state.schema, { timeline: { currentTime } }).state;
   const init = applyGameCard({ card: loadedCard, phase: 'init', messages: [], state, fileContents });
   return applyGameCard({
     card: loadedCard,
     phase: 'pre_send',
-    messages: [...init.messages, { role: 'user', content }],
+    messages: [...init.messages, { role: 'user', content: '继续' }],
     state: init.state,
     fileContents
   });
 }
 
-describe('white album location worldbook', () => {
-  test('loads location entries from location.md when places are mentioned', () => {
-    const result = applyWithUser('从峰城大附属中学的第二音乐教室去第三音乐室，之后再去冬马家');
-    const worldbook = result.messages.find((msg) => msg._meta?.source === 'wa2_worldbook');
-    const cardText = JSON.stringify(card.rules);
+describe('white album chapters', () => {
+  test('switches to chapter 2 by timeline time and reads chapter 2 plot', () => {
+    const result = runAtTime('2007.10.29: 19:30 星期一');
+    const guide = result.messages.find((msg) => msg.role === 'user');
 
     expect(result.trace.errors).toEqual([]);
-    expect(cardText).toContain('{{file:worldbook.location#第二音乐教室}}');
-    expect(worldbook.content).toContain('地点:');
-    expect(worldbook.content).toContain('第二音乐教室: 传说中音乐科的优等生独占的音乐教室');
-    expect(worldbook.content).toContain('地点：第二音乐教室');
-    expect(worldbook.content).toContain('地点：第三音乐教室');
-    expect(worldbook.content).toContain('地点：峰城大附属中学');
-    expect(worldbook.content).toContain('地点：冬马家');
+    expect(result.state.story.chapter).toBe('chapter_2');
+    expect(result.state.story.progress).toBe('FixedPlot3');
+    expect(result.state.temp.plotFile).toBe('plot.chapter.2');
+    expect(result.state.audio.bgm).toBe('happy');
+    expect(guide.content).toContain('雪菜盛装出席和春希在KTV碰面');
+    expect(guide.content).not.toContain('本轮自由剧情走向');
   });
 });

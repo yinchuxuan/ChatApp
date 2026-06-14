@@ -22,14 +22,14 @@
     },
     "timeline.currentTime": {
       "type": "string",
-      "default": "2007.10.21: 08:00 星期日",
+      "default": "2007.10.20: 15:00 星期六",
       "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X。LLM 每轮用 state.set 写入本轮正文结束时的时间，剧情引导按该时间落入的区间选择。",
       "llmRead": true,
       "llmWrite": true
     },
     "story.chapter": {
       "type": "enum",
-      "values": ["chapter_1"],
+      "values": ["chapter_1", "chapter_2"],
       "default": "chapter_1",
       "description": "当前剧情章节。章节 timeline resolver 根据该值选择对应章节的剧情映射。",
       "llmRead": true,

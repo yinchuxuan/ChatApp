@@ -13,11 +13,13 @@ const fileContents = {
   'first_msg.md': readCardFile('first_msg.md'),
   'roleplay_rules.md': readCardFile('roleplay_rules.md'),
   'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
+  'plot/chapter-2.md': readCardFile('plot/chapter-2.md'),
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
+  'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js'),
   'worldbook/characters.md': readCardFile('worldbook/characters.md'),
   'worldbook/index.md': readCardFile('worldbook/index.md'),
   'worldbook/location.md': readCardFile('worldbook/location.md')

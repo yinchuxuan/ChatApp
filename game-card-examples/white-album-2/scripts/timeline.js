@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
-/* global include, resolveAttitudeSection, resolveChapter1Timeline, resolvePlotMood */
+/* global include, resolveAttitudeSection, resolveChapter1Timeline, resolveChapter2Timeline, resolvePlotMood */
 /* exported run */
 
 include("./timelines/chapter-1.js");
+include("./timelines/chapter-2.js");
 
 function run(ctx) {
   const { state, utils } = ctx;
@@ -11,8 +12,17 @@ function run(ctx) {
     if (!state[path] || typeof state[path] !== 'object') state[path] = {};
   }
 
+  function parseTime(value) {
+    const match = String(value || '').match(/^(\d{4})\.(\d{1,2})\.(\d{1,2}):\s*(\d{1,2}):(\d{2})/);
+    if (!match) return Number.NEGATIVE_INFINITY;
+    const [, year, month, day, hour, minute] = match;
+    return Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+  }
+
   function chapterKey() {
-    return state.story && state.story.chapter ? state.story.chapter : 'chapter_1';
+    const currentTime = state.timeline && state.timeline.currentTime;
+    const chapter2Start = parseTime('2007.10.25: 16:00 星期四');
+    return parseTime(currentTime) > chapter2Start ? 'chapter_2' : 'chapter_1';
   }
 
   function applyFreePlot(result) {
@@ -40,7 +50,7 @@ function run(ctx) {
     state.visual.background = result.background;
   }
 
-  const resolvers = { chapter_1: resolveChapter1Timeline };
+  const resolvers = { chapter_1: resolveChapter1Timeline, chapter_2: resolveChapter2Timeline };
   const resolver = resolvers[chapterKey()] || resolveChapter1Timeline;
   const result = resolver(state);
 

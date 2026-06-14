@@ -28,6 +28,7 @@ const fileContents = {
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
+  'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js'),
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '世界书：北原春希',
     '## 冬马和纱', '世界书：冬马和纱',
@@ -105,7 +106,7 @@ describe('white album 2 game card', () => {
     expect(status.content).toContain('"setsuna.affection"');
     expect(status.content).toContain('"timeline.currentTime"');
     expect(status.content).not.toContain('"audio.bgm"');
-    expect(status.content).toContain('timeline.currentTime: 2007.10.21: 08:00 星期日');
+    expect(status.content).toContain('timeline.currentTime: 2007.10.20: 15:00 星期六');
     expect(status.content).not.toContain('timeline.advanceIntent');
     expect(status.content).toContain('touma.affection: 12');
     expect(status.content).toContain('setsuna.affection: 8');
@@ -126,10 +127,7 @@ describe('white album 2 game card', () => {
 
   test('compresses older assistant summaries and keeps latest user and assistant', () => {
     const first = initWhiteAlbum();
-    const latestAssistant = {
-      role: 'assistant',
-      content: '没有总结标签的回复'
-    };
+    const latestAssistant = { role: 'assistant', content: '没有总结标签的回复' };
     const messages = [
       ...first.messages,
       { role: 'assistant', content: '雪菜站在门口。<summary>雪菜邀请春希排练。</summary>' },
