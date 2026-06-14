@@ -91,11 +91,12 @@ describe('browser game card find runtime', () => {
     const fileContents = {
       'first_msg.md': '开场',
       'roleplay_rules.md': '规则',
-      'plot_guides.md': '# 剧情引导\n## 剧情大纲\n大纲\n## FreePlot1\n自由节点\n## 剧情限制\n限制',
+      'plot/chapter-1.md': '# 剧情引导\n## 剧情大纲\n大纲\n## FreePlot1\n自由节点\n## 剧情限制\n限制',
       'state/schema.json': JSON.stringify(schema),
       'state/llm_schema.json': JSON.stringify(llmSchema),
       'state/state_update_rules.md': '规则',
-      'scripts/timeline.js': 'function run(ctx) { ctx.state.temp = { PlotType: "FreePlot1", plotDirectionRoll: 50 }; ctx.state.audio.bgm = "normal"; return { state: ctx.state }; }',
+      'scripts/timeline.js': 'function run(ctx) { ctx.state.temp = { plotFile: "plot.chapter.1", PlotType: "FreePlot1", plotDirectionRoll: 50, includeFreeGuide: true }; ctx.state.audio.bgm = "normal"; return { state: ctx.state }; }',
+      'scripts/timelines/chapter-1.js': '',
       'worldbook/characters.md': '# 角色',
       'worldbook/index.md': '世界书索引',
       'worldbook/location.md': '# 地点'

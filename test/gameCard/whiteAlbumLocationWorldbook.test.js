@@ -12,11 +12,12 @@ function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, 
 const fileContents = {
   'first_msg.md': '开场',
   'roleplay_rules.md': '规则',
-  'plot_guides.md': readCardFile('plot_guides.md'),
+  'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
+  'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
   'worldbook/characters.md': '# 角色世界书\n## 冬马和纱\n角色：冬马和纱',
   'worldbook/index.md': readCardFile('worldbook/index.md'),
   'worldbook/location.md': [
@@ -49,7 +50,7 @@ describe('white album location worldbook', () => {
     expect(result.trace.errors).toEqual([]);
     expect(cardText).toContain('{{file:worldbook.location#第二音乐教室}}');
     expect(worldbook.content).toContain('地点:');
-    expect(worldbook.content).toContain('第二音乐教室: 冬马独占的音乐教室');
+    expect(worldbook.content).toContain('第二音乐教室: 传说中音乐科的优等生独占的音乐教室');
     expect(worldbook.content).toContain('地点：第二音乐教室');
     expect(worldbook.content).toContain('地点：第三音乐教室');
     expect(worldbook.content).toContain('地点：峰城大附属中学');

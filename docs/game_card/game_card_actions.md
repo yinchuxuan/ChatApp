@@ -128,6 +128,14 @@
 
 `sourceFile` 使用游戏卡目录相对路径，路径安全规则与文本资源一致。平台会在执行前读取脚本内容；脚本本身仍运行在同一个受限 `exec` 上下文中，不获得文件 IO 权限。
 
+`sourceFile` 可以在脚本顶部声明同卡内脚本依赖：
+
+```js
+include("./timelines/chapter-1.js");
+```
+
+平台会在执行前按声明顺序展开 `include(...)`，适合拆出共享 helper 或章节 resolver。
+
 `sourceFile` 文件必须定义 `run(ctx)`，这是普通 JS 文件，不能写裸 `return`：
 
 ```js

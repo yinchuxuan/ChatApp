@@ -169,9 +169,7 @@ function validateAction(action, path, errors) {
     return;
   }
   if (isString(action.type) && action.type.startsWith('state.')) return validateStateAction(action, path, errors);
-  if (!VALID_ACTION_TYPES.includes(action.type)) {
-    return addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));
-  }
+  if (!VALID_ACTION_TYPES.includes(action.type)) return addError(errors, path + '.type', 'must be one of ' + VALID_ACTION_TYPES.join(', '));
   if (action.type === 'exec') {
     const hasSource = isString(action.source) && action.source.length > 0;
     const hasSourceFile = isString(action.sourceFile) && action.sourceFile.length > 0;

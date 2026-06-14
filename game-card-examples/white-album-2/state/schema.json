@@ -27,6 +27,29 @@
       "llmRead": true,
       "llmWrite": true
     },
+    "story.chapter": {
+      "type": "enum",
+      "values": ["chapter_1"],
+      "default": "chapter_1",
+      "description": "当前剧情章节。章节 timeline resolver 根据该值选择对应章节的剧情映射。",
+      "llmRead": true,
+      "llmWrite": true
+    },
+    "story.route": {
+      "type": "enum",
+      "values": ["common"],
+      "default": "common",
+      "description": "当前剧情路线。后续章节可用该值切换不同路线的剧情映射。",
+      "llmRead": true,
+      "llmWrite": true
+    },
+    "story.progress": {
+      "type": "string",
+      "default": "FreePlot1",
+      "description": "当前章节内的剧情节点，由 timeline resolver 写入，供调试和后续章节切换使用。",
+      "llmRead": true,
+      "llmWrite": false
+    },
     "visual.textPanel": {
       "type": "enum",
       "values": ["center", "left", "right"],

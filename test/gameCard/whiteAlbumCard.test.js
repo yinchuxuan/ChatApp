@@ -22,11 +22,12 @@ const fileContents = {
     '<state_patch>[{"type":"state.set","path":"touma.affection","value":0},{"type":"state.set","path":"setsuna.affection","value":0}]</state_patch>'
   ].join('\n'),
   'roleplay_rules.md': '回复时保持白色相簿2的氛围。追加 <state_patch> 并用 state.set 更新 touma.affection 和 setsuna.affection。',
-  'plot_guides.md': readCardFile('plot_guides.md'),
+  'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.json': JSON.stringify(llmStateSchema),
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
+  'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
   'worldbook/characters.md': [
     '# 角色世界书', '## 北原春希', '世界书：北原春希',
     '## 冬马和纱', '世界书：冬马和纱',

@@ -1,7 +1,7 @@
 const { applyGameCard } = require('./engine');
 const { adaptMessagesToProtocol } = require('./protocolAdapter');
 const { decayTTL } = require('./ttl');
-const { collectFileContentPaths } = require('./resourcePreload');
+const { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath } = require('./resourcePreload');
 const { expandCardImports } = require('./cardImportExpander');
 const { loadExternalStateSchema } = require('./stateSchemaLoader');
 const { ensureStateDefaults } = require('./stateSchema');
@@ -24,12 +24,24 @@ async function loadActiveGameCard(api) {
 
 async function loadFileContents(card, api) {
   if (!card?.id || !api || typeof api.readGameCardFile !== 'function') return {};
-  const entries = await Promise.all(collectFileContentPaths(card).map(async (filePath) => {
+  const fileContents = {};
+  async function read(filePath) {
+    if (Object.prototype.hasOwnProperty.call(fileContents, filePath)) return fileContents[filePath];
     const result = await api.readGameCardFile(card.id, filePath);
     if (!result?.success) throw new Error(result?.error || 'failed to read game card file');
-    return [filePath, result.content || ''];
-  }));
-  return Object.fromEntries(entries);
+    fileContents[filePath] = result.content || '';
+    return fileContents[filePath];
+  }
+  await Promise.all(collectFileContentPaths(card).map(read));
+  const queue = collectExecSourcePaths(card);
+  for (let i = 0; i < queue.length; i += 1) {
+    const source = await read(queue[i]);
+    extractExecIncludes(source).forEach((filePath) => {
+      const resolvedPath = resolveExecIncludePath(queue[i], filePath);
+      if (!queue.includes(resolvedPath)) queue.push(resolvedPath);
+    });
+  }
+  return fileContents;
 }
 
 async function loadCardResources(card, api) {

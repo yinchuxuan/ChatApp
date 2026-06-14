@@ -1,6 +1,6 @@
 {
   "first_msg": "first_msg.md",
-  "plot_guides": "plot_guides.md",
+  "plot.chapter.1": "plot/chapter-1.md",
   "roleplay_rules": "roleplay_rules.md",
   "state.llm_schema": "state/llm_schema.json",
   "state.update_rules": "state/state_update_rules.md",

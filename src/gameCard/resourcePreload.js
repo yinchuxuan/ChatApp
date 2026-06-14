@@ -1,3 +1,5 @@
+const { extractExecIncludes, resolveExecIncludePath } = require('./execSource');
+
 function collectContentFilePaths(card, paths) {
   Object.values(card?.files || {}).forEach((filePath) => {
     if (typeof filePath === 'string') paths.add(filePath);
@@ -11,6 +13,12 @@ function collectExecSourceFiles(value, paths) {
   Object.values(value).forEach((item) => collectExecSourceFiles(item, paths));
 }
 
+function collectExecSourcePaths(card) {
+  const paths = new Set();
+  collectExecSourceFiles(card?.rules, paths);
+  return [...paths];
+}
+
 function collectFileContentPaths(card) {
   const paths = new Set();
   collectContentFilePaths(card, paths);
@@ -19,5 +27,5 @@ function collectFileContentPaths(card) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { collectFileContentPaths };
+  module.exports = { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath };
 }
