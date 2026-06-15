@@ -39,7 +39,7 @@
          "predicate":{"role":"user","index":"last"},
          "anchor":"before",
          "role":"system",
-	         "content":"State定义:\n{{file:state.llm_schema}}\n\n当前State:\n- timeline.currentTime: {{state:timeline.currentTime}}\n- touma.affection: {{state:touma.affection}}\n- setsuna.affection: {{state:setsuna.affection}}\n\n{{file:state.update_rules}}",
+	         "content":"State定义:\n{{file:state.llm_schema}}\n\n当前State:\n- timeline.currentTime: {{state:timeline.currentTime}}\n- timeline.currentSlot: {{state:timeline.currentSlot}}\n- timeline.currentSlotEnd: {{state:timeline.currentSlotEnd}}\n- touma.affection: {{state:touma.affection}}\n- setsuna.affection: {{state:setsuna.affection}}\n\n{{file:state.update_rules}}",
          "ttl":1,
          "_meta":{"source":"wa2_state_context",
          "visibility":"llm_only"}

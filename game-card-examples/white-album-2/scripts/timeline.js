@@ -19,6 +19,20 @@ function run(ctx) {
     return Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
   }
 
+  function clampCurrentTimeToSlotEnd() {
+    const currentTime = state.timeline.currentTime;
+    const slotEnd = state.timeline.currentSlotEnd;
+    const currentValue = parseTime(currentTime);
+    const endValue = parseTime(slotEnd);
+    state.temp.timelineTimeClamped = false;
+    state.temp.timelineRequestedTime = '';
+    if (!Number.isFinite(currentValue) || !Number.isFinite(endValue) || currentValue <= endValue) return;
+
+    state.timeline.currentTime = slotEnd;
+    state.temp.timelineTimeClamped = true;
+    state.temp.timelineRequestedTime = currentTime;
+  }
+
   function chapterKey() {
     const currentTime = state.timeline && state.timeline.currentTime;
     const chapter2Start = parseTime('2007.10.25: 16:00 星期四');
@@ -51,14 +65,18 @@ function run(ctx) {
   }
 
   const resolvers = { chapter_1: resolveChapter1Timeline, chapter_2: resolveChapter2Timeline };
-  const resolver = resolvers[chapterKey()] || resolveChapter1Timeline;
-  const result = resolver(state);
-
+  ensureObject('timeline');
   ensureObject('temp');
   ensureObject('audio');
   ensureObject('visual');
   ensureObject('story');
 
+  clampCurrentTimeToSlotEnd();
+  const resolver = resolvers[chapterKey()] || resolveChapter1Timeline;
+  const result = resolver(state);
+
+  state.timeline.currentSlot = result.plotType;
+  state.timeline.currentSlotEnd = result.end;
   state.story.chapter = result.chapter;
   state.story.progress = result.plotType;
   state.temp.plotFile = result.plotFile;

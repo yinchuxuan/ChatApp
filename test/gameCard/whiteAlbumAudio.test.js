@@ -15,7 +15,10 @@ describe('white album 2 audio', () => {
     expect(stateSchema.schema['audio.bgm']).toBeUndefined();
     expect(loadedCard.state.schema.schema['audio.bgm']).toMatchObject({
       type: 'enum',
-      values: ['daily', 'happy', 'normal', 'sad', 'tragic', 'WA_piano', 'WA_3'],
+      values: [
+        'daily', 'happy', 'normal', 'sad', 'tragic', 'WA_piano',
+        'WA_3', 'dream', 'snow_scene', 'bad_woman', 'after_all_piano'
+      ],
       default: 'daily'
     });
     expect(initialized.audio.bgm).toBe('daily');
@@ -27,5 +30,9 @@ describe('white album 2 audio', () => {
     expect(card.audio.bgm.tragic).toBe('audio/WA2_tragic.mp3');
     expect(card.audio.bgm.WA_piano).toBe('audio/WA2_WA_piano.ogg');
     expect(card.audio.bgm.WA_3).toBe('audio/WA2_WA_3.mp3');
+    expect(card.audio.bgm.dream).toBe('audio/WA2_dream.ogg');
+    expect(card.audio.bgm.snow_scene).toBe('audio/WA2_snow_scene.ogg');
+    expect(card.audio.bgm.bad_woman).toBe('audio/WA2_bad_woman.mp3');
+    expect(card.audio.bgm.after_all_piano).toBe('audio/WA2_after_all_piano.mp3');
   });
 });

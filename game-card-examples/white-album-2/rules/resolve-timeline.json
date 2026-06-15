@@ -1,0 +1,7 @@
+[{
+  "id": "wa2-resolve-timeline",
+  "when": { "phase": "pre_send" },
+  "then": [
+    { "type": "exec", "sourceFile": "scripts/timeline.js" }
+  ]
+}]

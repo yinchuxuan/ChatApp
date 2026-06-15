@@ -5,6 +5,11 @@
     "rooftop": "images/Rooftop.png",
     "school": "images/school.png",
     "haiku": "images/haiku.png",
-    "classroom": "images/classroom.png"
+    "classroom": "images/classroom.png",
+    "rooftop2": "images/rooftop2.png",
+    "park": "images/park.png",
+    "touma_hand": "images/touma_hand.png",
+    "ktv": "images/ktv.png"
+
   }
 }

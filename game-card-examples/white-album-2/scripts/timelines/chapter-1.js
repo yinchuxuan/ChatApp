@@ -29,32 +29,52 @@ function inTimelineRange(time, range) {
 
 function resolveChapter1Timeline(state) {
   const slots = [
-    { id: 'FreePlot1', range: { lte: '2007.10.21: 14:00 星期日' } },
+    {
+      id: 'FreePlot1',
+      end: '2007.10.21: 16:00 星期日',
+      range: { lte: '2007.10.21: 14:00 星期日' }
+    },
     {
       id: 'FixedPlot1',
       bgm: 'WA_piano',
       background: 'musical_classroom3',
+      end: '2007.10.21: 18:00 星期日',
       range: { gt: '2007.10.21: 14:00 星期日', lte: '2007.10.21: 16:00 星期日' }
     },
-    { id: 'FreePlot2', range: { gt: '2007.10.21: 16:00 星期日', lte: '2007.10.22: 18:00 星期一' } },
+    {
+      id: 'FreePlot2',
+      end: '2007.10.23: 10:00 星期二',
+      range: { gt: '2007.10.21: 16:00 星期日', lte: '2007.10.22: 18:00 星期一' }
+    },
     {
       id: 'FixedPlot2',
       bgm: 'normal',
       background: 'invite',
+      end: '2007.10.23: 12:00 星期二',
       range: { gt: '2007.10.22: 18:00 星期一', lte: '2007.10.23: 10:00 星期二' }
     },
-    { id: 'FreePlot3', range: { gt: '2007.10.23: 10:00 星期二', lte: '2007.10.24: 18:00 星期三' } },
+    {
+      id: 'FreePlot3',
+      end: '2007.10.25: 10:00 星期四',
+      range: { gt: '2007.10.23: 10:00 星期二', lte: '2007.10.24: 18:00 星期三' }
+    },
     {
       id: 'FixedPlot3',
       bgm: 'sad',
       background: 'haiku',
+      end: '2007.10.25: 12:00 星期四',
       range: { gt: '2007.10.24: 18:00 星期三', lte: '2007.10.25: 10:00 星期四' }
     },
-    { id: 'FreePlot4', range: { gt: '2007.10.25: 10:00 星期四', lte: '2007.10.25: 14:00 星期四' } },
+    {
+      id: 'FreePlot4',
+      end: '2007.10.25: 16:00 星期四',
+      range: { gt: '2007.10.25: 10:00 星期四', lte: '2007.10.25: 14:00 星期四' }
+    },
     {
       id: 'FixedPlot4',
       bgm: 'WA_3',
       background: 'rooftop',
+      end: '2007.10.25: 17:30 星期四',
       range: { gt: '2007.10.25: 14:00 星期四', lte: '2007.10.25: 16:00 星期四' }
     }
   ];
@@ -66,6 +86,7 @@ function resolveChapter1Timeline(state) {
     plotType: slot.id,
     plotKind: slot.bgm ? 'fixed' : 'free',
     bgm: slot.bgm,
-    background: slot.background
+    background: slot.background,
+    end: slot.end
   };
 }

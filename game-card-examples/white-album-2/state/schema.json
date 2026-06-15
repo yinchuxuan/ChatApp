@@ -27,6 +27,20 @@
       "llmRead": true,
       "llmWrite": true
     },
+    "timeline.currentSlot": {
+      "type": "string",
+      "default": "FreePlot1",
+      "description": "当前剧情节点，由 timeline resolver 写入，LLM 只读。",
+      "llmRead": true,
+      "llmWrite": false
+    },
+    "timeline.currentSlotEnd": {
+      "type": "string",
+      "default": "",
+      "description": "当前剧情节点允许推进到的最晚时间，由 timeline resolver 写入，LLM 只读。",
+      "llmRead": true,
+      "llmWrite": false
+    },
     "story.chapter": {
       "type": "enum",
       "values": ["chapter_1", "chapter_2"],

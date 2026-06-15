@@ -6,6 +6,10 @@
     "sad": "audio/WA2_sad.mp3",
     "tragic": "audio/WA2_tragic.mp3",
     "WA_piano": "audio/WA2_WA_piano.ogg",
-    "WA_3": "audio/WA2_WA_3.mp3"
+    "WA_3": "audio/WA2_WA_3.mp3",
+    "dream": "audio/WA2_dream.ogg",
+    "snow_scene": "audio/WA2_snow_scene.ogg",
+    "bad_woman": "audio/WA2_bad_woman.mp3",
+    "after_all_piano": "audio/WA2_after_all_piano.mp3"
   }
 }

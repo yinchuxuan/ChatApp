@@ -39,14 +39,14 @@ function runAtTime(currentTime) {
 
 describe('white album chapters', () => {
   test('switches to chapter 2 by timeline time and reads chapter 2 plot', () => {
-    const result = runAtTime('2007.10.29: 19:30 星期一');
+    const result = runAtTime('2007.10.29: 17:30 星期一');
     const guide = result.messages.find((msg) => msg.role === 'user');
 
     expect(result.trace.errors).toEqual([]);
     expect(result.state.story.chapter).toBe('chapter_2');
     expect(result.state.story.progress).toBe('FixedPlot3');
     expect(result.state.temp.plotFile).toBe('plot.chapter.2');
-    expect(result.state.audio.bgm).toBe('happy');
+    expect(result.state.audio.bgm).toBe('bad_woman');
     expect(guide.content).toContain('雪菜盛装出席和春希在KTV碰面');
     expect(guide.content).not.toContain('本轮自由剧情走向');
   });

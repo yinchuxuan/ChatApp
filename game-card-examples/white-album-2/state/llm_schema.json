@@ -15,6 +15,14 @@
     "timeline.currentTime": {
       "type": "string",
       "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X"
+    },
+    "timeline.currentSlot": {
+      "type": "string",
+      "description": "当前剧情节点，只读，不要在 state_patch 中写入"
+    },
+    "timeline.currentSlotEnd": {
+      "type": "string",
+      "description": "当前剧情节点允许推进到的最晚时间，只读，不要在 state_patch 中写入"
     }
   }
 }

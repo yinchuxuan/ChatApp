@@ -1,7 +1,6 @@
 [{"id":"wa2-tail-timeline-guide",
   "when":{"phase":"pre_send"},
   "then":[
-    {"type":"exec","sourceFile":"scripts/timeline.js"},
     {"type":"replace",
      "predicate":{"role":"user","index":"last"},
      "content":{

@@ -15,6 +15,9 @@
       "$import": "rules/compress-assistant-history.json"
     },
     {
+      "$import": "rules/resolve-timeline.json"
+    },
+    {
       "$import": "rules/insert-turn-context.json"
     },
     {
