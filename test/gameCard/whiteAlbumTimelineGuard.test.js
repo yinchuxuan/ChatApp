@@ -20,7 +20,11 @@ const fileContents = {
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
   'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js'),
-  'worldbook/characters.md': '# 角色世界书',
+  'worldbook/characters.md': [
+    '# 角色世界书',
+    '## 冬马和纱', '角色：冬马和纱',
+    '## 小木曾雪菜', '角色：小木曾雪菜'
+  ].join('\n'),
   'worldbook/index.md': readCardFile('worldbook/index.md'),
   'worldbook/location.md': '# 地点世界书'
 };

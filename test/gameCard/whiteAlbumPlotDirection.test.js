@@ -12,6 +12,7 @@ function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, 
 
 const fileContents = {
   'first_msg.md': readCardFile('first_msg.md'),
+  'system_prompt.md': readCardFile('system_prompt.md'),
   'roleplay_rules.md': readCardFile('roleplay_rules.md'),
   'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
   'plot/chapter-2.md': readCardFile('plot/chapter-2.md'),

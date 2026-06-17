@@ -90,6 +90,7 @@ describe('browser game card find runtime', () => {
     const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema } });
     const fileContents = {
       'first_msg.md': '开场',
+      'system_prompt.md': '系统提示',
       'roleplay_rules.md': '规则',
       'plot/chapter-1.md': '# 剧情引导\n## 剧情大纲\n大纲\n## FreePlot1\n自由节点\n## 剧情限制\n限制',
       'state/schema.json': JSON.stringify(schema),
@@ -97,7 +98,7 @@ describe('browser game card find runtime', () => {
       'state/state_update_rules.md': '规则',
       'scripts/timeline.js': 'function run(ctx) { ctx.state.temp = { plotFile: "plot.chapter.1", PlotType: "FreePlot1", plotDirectionRoll: 50, includeFreeGuide: true }; ctx.state.audio.bgm = "normal"; return { state: ctx.state }; }',
       'scripts/timelines/chapter-1.js': '',
-      'worldbook/characters.md': '# 角色',
+      'worldbook/characters.md': '# 角色\n## 冬马和纱\n冬马\n## 小木曾雪菜\n雪菜',
       'worldbook/index.md': '世界书索引',
       'worldbook/location.md': '# 地点'
     };

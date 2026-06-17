@@ -10,10 +10,8 @@
                 "include":[
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"春希|北原|Kitahara|Haruki"}}},
 	                    "content":"{{file:worldbook.characters#北原春希}}"},
-                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"冬马|冬馬|和纱|和紗|Touma|Kazusa"}}},
-	                    "content":"{{file:worldbook.characters#冬马和纱}}"},
-                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"雪菜|小木曾|小木曽|Ogiso|Setsuna"}}},
-	                    "content":"{{file:worldbook.characters#小木曾雪菜}}"},
+                    {"content":"{{file:worldbook.characters#冬马和纱}}"},
+                    {"content":"{{file:worldbook.characters#小木曾雪菜}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"武也|饭冢|飯塚|Takeya|Iizuka"}}},
 	                    "content":"{{file:worldbook.characters#饭冢武也}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"依绪|依緒|水泽|水沢|Io|Mizusawa"}}},

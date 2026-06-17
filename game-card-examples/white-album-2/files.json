@@ -1,5 +1,6 @@
 {
   "first_msg": "first_msg.md",
+  "system_prompt": "system_prompt.md",
   "plot.chapter.1": "plot/chapter-1.md",
   "plot.chapter.2": "plot/chapter-2.md",
   "roleplay_rules": "roleplay_rules.md",

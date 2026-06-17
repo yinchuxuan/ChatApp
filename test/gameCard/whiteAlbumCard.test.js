@@ -12,6 +12,7 @@ function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, 
 function user(content) { return { role: 'user', content }; }
 
 const fileContents = {
+  'system_prompt.md': readCardFile('system_prompt.md'),
   'first_msg.md': [
     '开场剧情',
     '<summary>开场总结。</summary>',

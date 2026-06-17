@@ -11,6 +11,7 @@ function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, 
 
 const fileContents = {
   'first_msg.md': readCardFile('first_msg.md'),
+  'system_prompt.md': readCardFile('system_prompt.md'),
   'roleplay_rules.md': readCardFile('roleplay_rules.md'),
   'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
   'plot/chapter-2.md': readCardFile('plot/chapter-2.md'),
@@ -57,8 +58,8 @@ describe('white album affection status', () => {
     expect(high.guide).toContain('冬马和纱当前态度');
   });
 
-  test('keeps affection attitudes out of worldbook content', () => {
-    const result = run('和冬马、雪菜一起排练', state({ touma: { affection: 88 }, setsuna: { affection: 90 } }));
+  test('keeps Touma and Setsuna worldbook content permanently in prompt', () => {
+    const result = run('整理今天的值日安排', state({ touma: { affection: 88 }, setsuna: { affection: 90 } }));
 
     expect(result.worldbook).toContain('冬马和纱');
     expect(result.worldbook).toContain('小木曾雪菜');
