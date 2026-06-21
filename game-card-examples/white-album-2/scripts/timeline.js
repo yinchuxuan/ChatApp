@@ -34,6 +34,8 @@ function run(ctx) {
   }
 
   function chapterKey() {
+    if (state.story && state.story.chapter2GameEnd1Reached) return 'chapter_2';
+
     const currentTime = state.timeline && state.timeline.currentTime;
     const chapter2Start = parseTime('2007.10.25: 16:00 星期四');
     return parseTime(currentTime) > chapter2Start ? 'chapter_2' : 'chapter_1';
@@ -75,10 +77,10 @@ function run(ctx) {
   const resolver = resolvers[chapterKey()] || resolveChapter1Timeline;
   const result = resolver(state);
 
-  state.timeline.currentSlot = result.plotType;
+  state.timeline.currentSlot = result.slotId || result.plotType;
   state.timeline.currentSlotEnd = result.end;
   state.story.chapter = result.chapter;
-  state.story.progress = result.plotType;
+  state.story.progress = result.slotId || result.plotType;
   state.temp.plotFile = result.plotFile;
   state.temp.PlotType = result.plotType;
 

@@ -10,6 +10,9 @@
     "dream": "audio/WA2_dream.ogg",
     "snow_scene": "audio/WA2_snow_scene.ogg",
     "bad_woman": "audio/WA2_bad_woman.mp3",
-    "after_all_piano": "audio/WA2_after_all_piano.mp3"
+    "after_all_piano": "audio/WA2_after_all_piano.mp3",
+    "winter_night": "audio/WA2_winter_night.ogg",
+    "things": "audio/WA2_things.mp3",
+    "unstoppable_dream": "audio/WA2_unstoppable_dream.mp3"
   }
 }

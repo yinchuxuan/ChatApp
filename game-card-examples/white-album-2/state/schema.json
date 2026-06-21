@@ -60,8 +60,23 @@
     "story.progress": {
       "type": "string",
       "default": "FreePlot1",
-      "description": "当前章节内的剧情节点，由 timeline resolver 写入，供调试和后续章节切换使用。",
+      "description": "当前章节内的时间轴 slot，由 timeline resolver 写入，供调试和后续章节切换使用。",
       "llmRead": true,
+      "llmWrite": false
+    },
+    "story.chapter2SetsunaBranch": {
+      "type": "enum",
+      "values": ["undecided", "secret", "reserved"],
+      "default": "undecided",
+      "description": "第二章雪菜邀请分支。secret 表示雪菜向春希袒露KTV秘密，reserved 表示雪菜加入同好会但仍保留私人秘密。由 timeline resolver 写入。",
+      "llmRead": false,
+      "llmWrite": false
+    },
+    "story.chapter2GameEnd1Reached": {
+      "type": "boolean",
+      "default": false,
+      "description": "第二章 GameEnd1 结局固定节点是否已经加载。为 true 后后续轮次进入 GameEnd1 日后谈自由剧情。",
+      "llmRead": false,
       "llmWrite": false
     },
     "story.location": {

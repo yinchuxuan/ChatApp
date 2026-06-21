@@ -2,7 +2,114 @@
 /* global inTimelineRange */
 /* exported resolveChapter2Timeline */
 
+function setsunaAffection(state) {
+  const value = state.setsuna && state.setsuna.affection;
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
+function toumaAffection(state) {
+  const value = state.touma && state.touma.affection;
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
+function readStatePath(state, path) {
+  return path.split('.').reduce((target, key) => (target ? target[key] : undefined), state);
+}
+
+function writeStatePath(state, path, value) {
+  const keys = path.split('.');
+  const last = keys.pop();
+  let target = state;
+  keys.forEach((key) => {
+    if (!target[key] || typeof target[key] !== 'object') target[key] = {};
+    target = target[key];
+  });
+  target[last] = value;
+}
+
+const chapter2BranchRules = [
+  {
+    statePath: 'story.chapter2SetsunaBranch',
+    decideOn: ['FixedPlot2', 'FixedPlot3', 'FixedPlot4'],
+    lockedValues: ['secret', 'reserved'],
+    decide: (state) => (setsunaAffection(state) >= 10 ? 'secret' : 'reserved')
+  }
+];
+
+const chapter2SlotPlotOverrides = {
+  FixedPlot2: {
+    'story.chapter2SetsunaBranch': {
+      reserved: { plotType: 'FixedPlot2Low', bgm: 'snow_scene', background: 'park' }
+    }
+  },
+  FixedPlot3: {
+    'story.chapter2SetsunaBranch': {
+      reserved: { plotType: 'FixedPlot3Low', plotKind: 'free', background: 'park' }
+    }
+  }
+};
+
+const chapter2ConditionalSlotPlotOverrides = [
+  {
+    slotId: 'GameEnd1',
+    when: (state) => readStatePath(state, 'story.chapter2SetsunaBranch') === 'secret'
+      && setsunaAffection(state) > 20
+      && toumaAffection(state) > 20,
+    override: {
+      plotType: 'FixedPlot6',
+      bgm: 'things',
+      background: 'agreement',
+      end: '2007.11.4: 22:00 星期日'
+    }
+  }
+];
+
+function resolveBranch(state, slot, rule) {
+  if (rule.decideOn.indexOf(slot.id) === -1) return null;
+
+  const current = readStatePath(state, rule.statePath);
+  const locked = rule.lockedValues.indexOf(current) !== -1;
+  if (locked) return { statePath: rule.statePath, value: current, locked };
+
+  const value = rule.decide(state);
+  writeStatePath(state, rule.statePath, value);
+  return { statePath: rule.statePath, value, locked };
+}
+
+function resolveBranches(state, slot) {
+  return chapter2BranchRules
+    .map((rule) => resolveBranch(state, slot, rule))
+    .filter(Boolean);
+}
+
+function applySlotPlotOverrides(state, slot) {
+  const branches = resolveBranches(state, slot);
+  const branchedSlot = branches.reduce((current, branch) => {
+    const overrides = chapter2SlotPlotOverrides[slot.id] && chapter2SlotPlotOverrides[slot.id][branch.statePath];
+    if (!overrides) return current;
+
+    const lockedKey = `${branch.value}Locked`;
+    const override = (branch.locked && overrides[lockedKey]) || overrides[branch.value];
+    return override ? { ...current, ...override } : current;
+  }, { ...slot, plotType: slot.id, slotId: slot.id });
+  return chapter2ConditionalSlotPlotOverrides.reduce((current, item) => {
+    return item.slotId === slot.id && item.when(state) ? { ...current, ...item.override } : current;
+  }, branchedSlot);
+}
+
 function resolveChapter2Timeline(state) {
+  if (readStatePath(state, 'story.chapter2GameEnd1Reached')) {
+    return {
+      chapter: 'chapter_2',
+      plotFile: 'plot.chapter.2.gameEnd1Afterstory',
+      slotId: 'GameEnd1Afterstory',
+      plotType: 'GameEnd1Afterstory',
+      plotKind: 'free',
+      background: 'GameEnd1',
+      end: '2099.12.31: 23:59 星期四'
+    };
+  }
+
   const slots = [
     {
       id: 'FixedPlot1',
@@ -44,17 +151,34 @@ function resolveChapter2Timeline(state) {
     },
     {
       id: 'FreePlot3',
-      end: '2007.11.4: 15:00 星期日',
-      range: { gt: '2007.10.31: 17:00 星期三', lte: '2007.11.4: 15:00 星期日' }
-    }
+      end: '2007.11.3: 21:00 星期六',
+      range: { gt: '2007.10.31: 17:00 星期三', lte: '2007.11.3: 18:00 星期六' }
+    },
+    {
+      id: 'FixedPlot5',
+      bgm: 'winter_night',
+      background: 'home_party',
+      end: '2007.11.4: 21:00 星期日',
+      range: { gt: '2007.11.3: 18:00 星期六', lte: '2007.11.3: 21:00 星期六' }
+    },
+    {
+      id: 'GameEnd1',
+      bgm: 'unstoppable_dream',
+      background: 'GameEnd1',
+      end: '2012.11.4: 22:00 星期五',
+      range: { gt: '2007.11.3: 21:00 星期六', lte: '2007.11.4: 21:00 星期六' }
+    },
   ];
   const currentTime = state.timeline && state.timeline.currentTime;
-  const slot = slots.find((item) => inTimelineRange(currentTime, item.range)) || slots[0];
+  const rawSlot = slots.find((item) => inTimelineRange(currentTime, item.range)) || slots[0];
+  const slot = applySlotPlotOverrides(state, rawSlot);
+  if (slot.plotType === 'GameEnd1') writeStatePath(state, 'story.chapter2GameEnd1Reached', true);
   return {
     chapter: 'chapter_2',
     plotFile: 'plot.chapter.2',
-    plotType: slot.id,
-    plotKind: slot.bgm ? 'fixed' : 'free',
+    slotId: slot.slotId,
+    plotType: slot.plotType,
+    plotKind: slot.plotKind || (slot.bgm ? 'fixed' : 'free'),
     bgm: slot.bgm,
     background: slot.background,
     end: slot.end

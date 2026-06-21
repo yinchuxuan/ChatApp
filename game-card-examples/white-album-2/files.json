@@ -3,6 +3,7 @@
   "system_prompt": "system_prompt.md",
   "plot.chapter.1": "plot/chapter-1.md",
   "plot.chapter.2": "plot/chapter-2.md",
+  "plot.chapter.2.gameEnd1Afterstory": "plot/chapter-2-game-end1-afterstory.md",
   "roleplay_rules": "roleplay_rules.md",
   "state.llm_schema": "state/llm_schema.json",
   "state.update_rules": "state/state_update_rules.md",

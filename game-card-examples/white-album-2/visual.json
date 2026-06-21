@@ -9,7 +9,9 @@
     "rooftop2": "images/rooftop2.png",
     "park": "images/park.png",
     "touma_hand": "images/touma_hand.png",
-    "ktv": "images/ktv.png"
-
+    "ktv": "images/ktv.png",
+    "home_party": "images/home_party.png",
+    "agreement": "images/agreement.png",
+    "GameEnd1": "images/GameEnd1.png"
   }
 }

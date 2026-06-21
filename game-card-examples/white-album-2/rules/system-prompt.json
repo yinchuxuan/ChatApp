@@ -1,29 +1,39 @@
 [
-    {"id":"wa2-system-prompt",
-     "when":{"phase":"init"},
-     "then":[
-                {"type":"insert",
-                 "role":"system",
-                 "content":"{{file:system_prompt}}",
-                 "_meta":{"source":"wa2_system_prompt","visibility":"llm_only"}
-                },
-                {"type":"insert","role":"system",
-                 "content":"历史对话总结（含时间地点）:\n暂无",
-                 "_meta":{"source":"wa2_summary","visibility":"llm_only"}
-                },
-                {"type":"insert",
-                 "role":"assistant",
-	                 "content":"{{file:first_msg}}",
-                 "_meta":{"source":"wa2_first_msg","visibility":"user_visible"}
-                },
-                {"type":"state.set",
-                 "path":"visual.background",
-                 "value":"musical_classroom3"
-                },
-                {"type":"state.set",
-                 "path":"audio.bgm",
-                 "value":"sad"
-                }
-            ]
-    }
+  {
+    "id": "wa2-system-prompt",
+    "when": { "phase": "init" },
+    "then": [
+      {
+        "type": "insert",
+        "role": "system",
+        "content": "{{file:system_prompt}}",
+        "_meta": { "source": "wa2_system_prompt", "visibility": "llm_only" }
+      },
+      {
+        "type": "insert",
+        "role": "system",
+        "content": "历史对话总结（含时间地点）:\n暂无",
+        "_meta": { "source": "wa2_summary", "visibility": "llm_only" }
+      },
+      {
+        "type": "insert",
+        "role": "assistant",
+        "content": "{{file:first_msg}}",
+        "_meta": { "source": "wa2_first_msg", "visibility": "user_visible" }
+      },
+      { "type": "state.set", "path": "visual.background", "value": "musical_classroom3" },
+      { "type": "state.set", "path": "audio.bgm", "value": "sad" }
+    ]
+  },
+  {
+    "id": "wa2-refresh-system-prompt",
+    "when": { "phase": "pre_send" },
+    "then": [
+      {
+        "type": "replace",
+        "predicate": { "_meta.source": "wa2_system_prompt" },
+        "content": "{{file:system_prompt}}"
+      }
+    ]
+  }
 ]
