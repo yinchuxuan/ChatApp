@@ -25,6 +25,7 @@ const fileContents = {
   'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js'),
   'worldbook/characters.md': [
     '# 角色世界书',
+    '## 北原春希', '角色：北原春希',
     '## 冬马和纱', '角色：冬马和纱',
     '## 小木曾雪菜', '角色：小木曾雪菜'
   ].join('\n'),

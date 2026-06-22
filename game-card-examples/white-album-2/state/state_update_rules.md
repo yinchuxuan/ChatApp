@@ -12,4 +12,4 @@ state更新规则：
 
 3. timeline.currentSlot和timeline.currentSlotEnd由系统维护，不要在state_patch中写入
 
-4. affection根据人物互动情况进行调整，允许增加或者减少，变化幅度不超过5
+4. affection根据人物互动情况进行调整，允许增加或者减少，变化幅度不超过5，需要有较为特殊的互动才改变好感度，一般的人物互动不改变好感度

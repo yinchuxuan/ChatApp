@@ -8,8 +8,7 @@
             "content":{
                 "prefix":"{{file:worldbook.index}}\n",
                 "include":[
-                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"春希|北原|Kitahara|Haruki"}}},
-	                    "content":"{{file:worldbook.characters#北原春希}}"},
+                    {"content":"{{file:worldbook.characters#北原春希}}"},
                     {"content":"{{file:worldbook.characters#冬马和纱}}"},
                     {"content":"{{file:worldbook.characters#小木曾雪菜}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"武也|饭冢|飯塚|Takeya|Iizuka"}}},
