@@ -20,6 +20,17 @@
       "llmRead": true,
       "uiVisible": true
     },
+    "performance.proficiency": {
+      "type": "number",
+      "default": 2,
+      "min": 0,
+      "max": 100,
+      "onInvalid": "clamp",
+      "description": "学园祭演出熟练度。由 LLM 在合奏、练琴、排练、声乐/键盘/吉他磨合等练习剧情中写入。",
+      "llmRead": true,
+      "llmWrite": true,
+      "uiVisible": true
+    },
     "timeline.currentTime": {
       "type": "string",
       "default": "2007.10.20: 15:00 星期六",

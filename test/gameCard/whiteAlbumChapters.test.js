@@ -123,6 +123,7 @@ describe('white album chapters', () => {
     const result = runAtTime('2007.11.4: 20:30 星期日', {
       touma: { affection: 21 },
       setsuna: { affection: 21 },
+      performance: { proficiency: 20 },
       story: { chapter2SetsunaBranch: 'secret' }
     });
     const guide = result.messages.find((msg) => msg.role === 'user');

@@ -12,6 +12,11 @@ function toumaAffection(state) {
   return Number.isFinite(Number(value)) ? Number(value) : 0;
 }
 
+function performanceProficiency(state) {
+  const value = state.performance && state.performance.proficiency;
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
 function readStatePath(state, path) {
   return path.split('.').reduce((target, key) => (target ? target[key] : undefined), state);
 }
@@ -54,7 +59,8 @@ const chapter2ConditionalSlotPlotOverrides = [
     slotId: 'GameEnd1',
     when: (state) => readStatePath(state, 'story.chapter2SetsunaBranch') === 'secret'
       && setsunaAffection(state) > 20
-      && toumaAffection(state) > 20,
+      && toumaAffection(state) > 20
+      && performanceProficiency(state) >= 20,
     override: {
       plotType: 'FixedPlot6',
       bgm: 'things',
@@ -121,14 +127,14 @@ function resolveChapter2Timeline(state) {
     {
       id: 'FreePlot1',
       end: '2007.10.29: 17:00 星期一',
-      range: { gt: '2007.10.25: 17:30 星期五', lte: '2007.10.29: 14:00 星期一' }
+      range: { gt: '2007.10.25: 17:30 星期五', lte: '2007.10.29: 12:00 星期一' }
     },
     {
       id: 'FixedPlot2',
       bgm: 'snow_scene',
       background: 'park',
       end: '2007.10.29: 18:00 星期一',
-      range: { gt: '2007.10.29: 14:00 星期一', lte: '2007.10.29: 17:00 星期一' }
+      range: { gt: '2007.10.29: 12:00 星期一', lte: '2007.10.29: 17:00 星期一' }
     },
     {
       id: 'FixedPlot3',
@@ -140,26 +146,26 @@ function resolveChapter2Timeline(state) {
     {
       id: 'FreePlot2',
       end: '2007.10.31: 17:00 星期三',
-      range: { gt: '2007.10.29: 18:00 星期一', lte: '2007.10.31: 14:00 星期三' }
+      range: { gt: '2007.10.29: 18:00 星期一', lte: '2007.10.31: 12:00 星期三' }
     },
     {
       id: 'FixedPlot4',
       bgm: 'after_all_piano',
       background: 'touma_hand',
       end: '2007.10.31: 17:30 星期三',
-      range: { gt: '2007.10.31: 14:00 星期三', lte: '2007.10.31: 17:00 星期三' }
+      range: { gt: '2007.10.31: 12:00 星期三', lte: '2007.10.31: 17:00 星期三' }
     },
     {
       id: 'FreePlot3',
-      end: '2007.11.3: 21:00 星期六',
-      range: { gt: '2007.10.31: 17:00 星期三', lte: '2007.11.3: 18:00 星期六' }
+      end: '2007.11.2: 21:00 星期五',
+      range: { gt: '2007.10.31: 17:00 星期三', lte: '2007.11.2: 18:00 星期五' }
     },
     {
       id: 'FixedPlot5',
       bgm: 'winter_night',
       background: 'home_party',
       end: '2007.11.4: 21:00 星期日',
-      range: { gt: '2007.11.3: 18:00 星期六', lte: '2007.11.3: 21:00 星期六' }
+      range: { gt: '2007.11.2: 18:00 星期五', lte: '2007.11.3: 21:00 星期六' }
     },
     {
       id: 'GameEnd1',

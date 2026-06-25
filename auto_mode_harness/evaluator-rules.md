@@ -16,7 +16,7 @@ Complete a review using this scorecard after implementation and before formal ac
 - Evaluate the worker's work with the strictest standards; never give a perfect score easily
 - Hold design to a high standard: reject work with messy, inelegant, or unreasonable code
 - The worker is prohibited from performing git commits
-- All files in the repository must not exceed 200 lines
+- All files in the repository must not exceed 200 lines. Files under `game-card-examples/white-album-2/` are game card content assets and are exempt from this line limit.
 
 ## Conclusion
 

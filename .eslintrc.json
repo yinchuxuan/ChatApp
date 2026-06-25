@@ -44,6 +44,12 @@
   },
   "overrides": [
     {
+      "files": ["game-card-examples/white-album-2/**/*.js"],
+      "rules": {
+        "max-lines": "off"
+      }
+    },
+    {
       "files": ["test/**/*.js", "test/**/*.jsx", "**/*.test.js", "**/*.test.jsx", "**/*.spec.js", "**/*.spec.jsx"],
       "env": {
         "jest": true

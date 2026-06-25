@@ -36,7 +36,7 @@ function resolveScene(rawLocation) {
   const locations = [
     { id: 'third_music_room', background: 'musical_classroom3', patterns: ['第三音乐教室', '第三音乐室'] },
     { id: 'classroom', background: 'classroom', patterns: ['教室', '班'] },
-    { id: 'school', background: 'school', patterns: ['峰城大附属', '学校', '校园'] }
+    { id: 'school', background: 'school', patterns: ['峰城大附属', '峰城大付属', '学校', '校园'] }
   ];
   return locations.find((location) => (
     location.patterns.some((pattern) => rawLocation.includes(pattern))

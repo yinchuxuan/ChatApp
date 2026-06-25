@@ -16,4 +16,4 @@ Node.js + Electron + React
 - Solve problems with the minimum amount of code; avoid speculative design
 - Do not delete or weaken tests to make things “look complete”
 - If you add new features, add corresponding tests
-- All files in the repository must not exceed 200 lines; split files if they do
+- All files in the repository must not exceed 200 lines; split files if they do. Files under `game-card-examples/white-album-2/` are game card content assets and are exempt from this line limit.

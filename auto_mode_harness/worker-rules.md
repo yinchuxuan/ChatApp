@@ -9,4 +9,4 @@
 - After completing the work, add evidence to the corresponding feature's `evidence` field in `feature_list.json` (you must NOT modify any other part of `feature_list.json`)
 - Workers are strictly prohibited from modifying the `status` of any feature
 - Workers are strictly prohibited from performing git commits
-- All files in the repository must not exceed 200 lines; split files if they do
+- All files in the repository must not exceed 200 lines; split files if they do. Files under `game-card-examples/white-album-2/` are game card content assets and are exempt from this line limit.

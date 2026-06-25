@@ -12,6 +12,12 @@
       "max": 100,
       "description": "小木曾雪菜对春希当前的好感度"
     },
+    "performance.proficiency": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "description": "学园祭演出熟练度；当本轮剧情包含合奏、练琴、排练、声乐/键盘/吉他磨合等演出练习时可以增加"
+    },
     "timeline.currentTime": {
       "type": "string",
       "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X"

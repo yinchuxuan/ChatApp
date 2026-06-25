@@ -71,7 +71,7 @@ describe('white album plot direction guide', () => {
     expect(guide.role).toBe('user');
     expect(guide.content).toContain('继续');
     expect(guide.content).toContain('<wa2_turn_context>');
-    expect(guide.content).toContain('剧情大纲');
+    expect(guide.content).toContain('剧情目标');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
     expect(guide.content).toContain('本轮自由剧情走向: 极度正面');
     expect(guide.content).toContain('根据 State更新规则写入本轮变化');
