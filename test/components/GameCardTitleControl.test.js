@@ -102,6 +102,8 @@ describe('GameCardTitleControl', () => {
     });
 
     expect(document.querySelector('.chat-session-panel-title')).toHaveTextContent('会话');
+    expect(document.querySelector('[data-gc-part="chat-session-manager"]')).toBeTruthy();
+    expect(document.querySelector('[data-gc-part="chat-session-row"]')).toBeTruthy();
     expect(screen.getByText('默认会话')).toBeInTheDocument();
     expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
   });
@@ -111,6 +113,8 @@ describe('GameCardTitleControl', () => {
 
     await screen.findByText('未加载游戏卡');
     const actions = document.querySelector('.game-card-title-actions');
+    expect(document.querySelector('[data-gc-part="game-card-title"]')).toBeTruthy();
+    expect(actions.dataset.gcPart).toBe('game-card-title-actions');
     expect(actions).toContainElement(screen.getByRole('button', { name: '关闭 BGM' }));
     expect(actions.children[0]).toContainElement(screen.getByRole('button', { name: '关闭 BGM' }));
     expect(actions.children[1].querySelector('.chat-session-btn')).not.toBeNull();

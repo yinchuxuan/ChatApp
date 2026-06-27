@@ -8,7 +8,7 @@ const scripts = [
   'fileSections.js', 'contentFiles.js', 'contentObjects.js', 'contentResolver.js', 'execSource.js', 'execRunner.js',
   'stateSchema.js', 'stateActions.js', 'statePatch.js', 'actions.js',
   'validateStateActions.js', 'validateContent.js', 'validateFind.js',
-  'validatePredicates.js', 'audioConfig.js', 'visualConfig.js', 'validateGameCard.js', 'engine.js'
+  'validatePredicates.js', 'audioConfig.js', 'visualConfig.js', 'uiConfig.js', 'validateGameCard.js', 'engine.js'
 ];
 
 function loadBrowserRuntime() {
@@ -98,7 +98,7 @@ describe('browser game card find runtime', () => {
       'state/state_update_rules.md': '规则',
       'scripts/timeline.js': 'function run(ctx) { ctx.state.temp = { plotFile: "plot.chapter.1", PlotType: "FreePlot1", plotDirectionRoll: 50, includeFreeGuide: true }; ctx.state.audio.bgm = "normal"; return { state: ctx.state }; }',
       'scripts/timelines/chapter-1.js': '',
-      'worldbook/characters.md': '# 角色\n## 冬马和纱\n冬马\n## 小木曾雪菜\n雪菜',
+      'worldbook/characters.md': '# 角色\n## 北原春希\n春希\n## 冬马和纱\n冬马\n## 小木曾雪菜\n雪菜',
       'worldbook/index.md': '世界书索引',
       'worldbook/location.md': '# 地点'
     };

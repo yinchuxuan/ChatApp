@@ -117,12 +117,14 @@ function ChatInputArea({
 
   return C('form', {
     className: `chat-input-area${isVisible ? ' chat-input-area-visible' : ''}`,
+    'data-gc-part': 'chat-input',
     onSubmit: handleSubmit,
     onMouseEnter: () => setIsInputHovered(true),
     onMouseLeave: () => setIsInputHovered(false)
   },
     C('textarea', {
       className: 'chat-input-textarea',
+      'data-gc-part': 'chat-input-textarea',
       value: inputValue,
       onChange: (e) => setInputValue(e.target.value),
       placeholder: '输入您的回答...',
@@ -140,6 +142,7 @@ function ChatInputArea({
     C('button', {
       type: 'submit',
       className: 'md-btn md-btn-icon send-icon-btn',
+      'data-gc-part': 'chat-send-button',
       disabled: !inputValue.trim() || isLoading,
       'aria-label': '发送消息',
       title: '发送消息'

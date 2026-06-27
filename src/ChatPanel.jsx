@@ -88,7 +88,7 @@ function ChatPanel() {
   }, []);
 
   R.useEffect(() => { loadHistory(); }, [loadHistory]);
-  R.useEffect(() => { window.GameCardDisplayStyles?.loadGameCardDisplayStyle(activeGameCard, window.electronAPI); window.GameCardVisualStyles?.loadGameCardVisualStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
+  R.useEffect(() => { window.GameCardDisplayStyles?.loadGameCardDisplayStyle(activeGameCard, window.electronAPI); window.GameCardVisualStyles?.loadGameCardVisualStyle(activeGameCard, window.electronAPI); window.GameCardUiStyles?.loadGameCardUiStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
   const saveCurrentSession = R.useCallback(async () => { if (window.electronAPI && !isLoading) await window.electronAPI.saveChatHistory(messages, { gameState, retryBaseMessages: retryBaseRef.current, retryBaseState: retryBaseStateRef.current }); }, [messages, gameState, isLoading]);
   const handleSessionChanged = R.useCallback(async () => { retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming(); setIsHistoryExpanded(false); await loadHistory(); }, [loadHistory, tw]);
 
@@ -164,11 +164,11 @@ function ChatPanel() {
     return C('div', null, visibleMessages.map((msg, idx) => C('div', { key: idx }, msg.content)));
   };
 
-  return C('div', { className: 'chat-panel' },
+  return C('div', { className: 'chat-panel', 'data-gc-part': 'chat-panel' },
     BackgroundRuntime ? C(BackgroundRuntime, { card: activeGameCard, gameState, defer: isLoading, revealToken: streamContentStartToken }) : null,
-    C('div', { className: 'chat-main' },
-      C('div', { className: 'chat-header-hover-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
-      C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
+    C('div', { className: 'chat-main', 'data-gc-part': 'chat-main' },
+      C('div', { className: 'chat-header-hover-trigger', 'data-gc-part': 'chat-header-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
+      C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, 'data-gc-part': 'chat-header', onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
         showMsgHistory ? C('span', { className: 'material-icons' }, 'history') : null,
         showMsgHistory ? C('span', { className: 'header-title' }, 'msg历史记录') : (GameCardControl ? C(GameCardControl, {
           modelName: modelConfig && modelConfig.apiUrl ? (modelConfig.modelName || '已连接') : '',
@@ -179,12 +179,12 @@ function ChatPanel() {
         }) : C('span', { className: 'header-title' }, '未加载游戏卡'))
       ),
       gameCardActionError && ErrorPanel ? C(ErrorPanel, { error: gameCardActionError, variant: 'import', onClose: () => setGameCardActionError(null) }) : null,
-      C('div', { className: 'chat-history', ref: chatHistoryRef },
-        C('div', { className: 'chat-reading-veil game-card-visual-panel', 'aria-hidden': 'true' }),
+      C('div', { className: 'chat-history', 'data-gc-part': 'chat-history', ref: chatHistoryRef },
+        C('div', { className: 'chat-reading-veil game-card-visual-panel', 'data-gc-part': 'chat-reading-veil', 'aria-hidden': 'true' }),
         gameCardError && ErrorPanel ? C(ErrorPanel, { error: gameCardError }) : null,
         showMsgHistory ? renderMsgHistoryDisplay() : renderMessages()
       ),
-      C('div', { className: 'chat-input-hover-trigger', onMouseEnter: () => setIsInputTriggerHovered(true), onMouseLeave: () => setIsInputTriggerHovered(false) })
+      C('div', { className: 'chat-input-hover-trigger', 'data-gc-part': 'chat-input-trigger', onMouseEnter: () => setIsInputTriggerHovered(true), onMouseLeave: () => setIsInputTriggerHovered(false) })
     ),
     C(InputArea, {
       messages, setMessages, gameState, setGameState, modelConfig, isLoading, setIsLoading, tw,

@@ -16,8 +16,8 @@ const ChatPanelMessageRenderers = {
     const rawHtml = marked ? marked.parse(text) : text;
     const sanitizedHtml = DOMPurify ? DOMPurify.sanitize(rawHtml) : rawHtml;
     const html = highlightQuotes(sanitizedHtml);
-    return R.createElement('div', { className: 'chat-message-bubble' },
-      R.createElement('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
+    return R.createElement('div', { className: 'chat-message-bubble', 'data-gc-part': 'message-bubble' },
+      R.createElement('div', { className: 'chat-bubble-content', 'data-gc-part': 'message-content', dangerouslySetInnerHTML: { __html: html } })
     );
   },
 
@@ -49,9 +49,9 @@ const ChatPanelMessageRenderers = {
       if (isStreaming) { setShowStreamThinking(p => !p); }
       else { toggleThinkingForMessage(idx); }
     } : null;
-    return R.createElement('div', { className: bubbleClass, onClick: handleClick },
-      thinking && showThinking && R.createElement('div', { className: 'chat-thinking-text' }, thinking),
-      R.createElement('div', { className: 'chat-bubble-content', dangerouslySetInnerHTML: { __html: html } })
+    return R.createElement('div', { className: bubbleClass, 'data-gc-part': 'message-bubble', onClick: handleClick },
+      thinking && showThinking && R.createElement('div', { className: 'chat-thinking-text', 'data-gc-part': 'message-thinking' }, thinking),
+      R.createElement('div', { className: 'chat-bubble-content', 'data-gc-part': 'message-content', dangerouslySetInnerHTML: { __html: html } })
     );
   },
 
@@ -88,21 +88,21 @@ const ChatPanelMessageRenderers = {
         const isRetrySource = idx === lastUserIdx;
         const renderIndex = msg._renderIndex ?? idx;
         if (msg.role === 'assistant') {
-          return R.createElement('div', { key: idx, className: 'chat-message-row' },
-              R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+          return R.createElement('div', { key: idx, className: 'chat-message-row', 'data-gc-part': 'message-row', 'data-role': msg.role },
+              R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
               renderAssistantMsg(msg, renderIndex, false)
             )
           );
         }
-        return R.createElement('div', { key: idx, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}` },
-          R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+        return R.createElement('div', { key: idx, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}`, 'data-gc-part': 'message-row', 'data-role': msg.role },
+          R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
             renderMarkdown(msg.content)
           ),
           renderRetryBtn(isRetrySource, isLoading)
         );
       }),
-      isLoading && R.createElement('div', { className: 'chat-message-row streaming-message-row' },
-        R.createElement('div', { className: 'chat-message assistant', style: { flex: 1, minWidth: 0 } },
+      isLoading && R.createElement('div', { className: 'chat-message-row streaming-message-row', 'data-gc-part': 'message-row', 'data-role': 'assistant' },
+        R.createElement('div', { className: 'chat-message assistant', 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
           renderAssistantMsg(tw.streamContent, messages.length, true)
         )
       )

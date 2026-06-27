@@ -83,11 +83,12 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
   const C = R.createElement;
   const icon = enabled ? 'music_note' : 'music_off';
   const title = blocked ? '浏览器需要手动播放 BGM' : (enabled ? '关闭 BGM' : '开启 BGM');
-  return C('div', { className: 'game-card-bgm-player' },
+  return C('div', { className: 'game-card-bgm-player', 'data-gc-part': 'bgm-player' },
     C('audio', { ref: audioRef, src, loop: true }),
     C('button', {
       type: 'button',
       className: `md-btn md-btn-icon game-card-bgm-btn${blocked ? ' blocked' : ''}${!src ? ' no-source' : ''}`,
+      'data-gc-part': 'bgm-button',
       onClick: toggle,
       title,
       'aria-label': title

@@ -177,5 +177,8 @@ describe('ChatPanel Component - Markdown Rendering', () => {
     const userBubble = document.querySelector('.chat-message.user .chat-message-bubble');
     expect(userBubble).toBeTruthy();
     expect(userBubble.classList.contains('md-card')).toBe(false);
+    expect(userBubble.dataset.gcPart).toBe('message-bubble');
+    expect(document.querySelector('[data-gc-part="message-row"]').dataset.role).toBe('user');
+    expect(document.querySelector('[data-gc-part="message-content"]')).toBeTruthy();
   });
 });

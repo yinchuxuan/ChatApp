@@ -42,12 +42,12 @@
   display: block;
   padding: 16px 20px;
   border-radius: var(--md-shape-corner-large);
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: var(--gc-message-font-size, 15px);
+  line-height: var(--gc-message-line-height, 1.7);
   width: 100%;
   word-break: break-word;
   position: relative;
-  font-family: 'Google Sans Text', 'Roboto', sans-serif;
+  font-family: var(--gc-message-font, 'Google Sans Text', 'Roboto', sans-serif);
   transition:
     box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard),
     transform var(--md-motion-duration-medium1) var(--md-motion-easing-emphasized);
@@ -58,8 +58,8 @@
 }
 
 .chat-message.user .chat-message-bubble {
-  background: var(--md-primary-container);
-  color: var(--md-on-primary-container);
+  background: var(--gc-user-bubble-bg, var(--md-primary-container));
+  color: var(--gc-user-bubble-text, var(--md-on-primary-container));
   box-shadow: var(--md-elevation-level-2);
   border-radius: 0;
   padding: 18px 28px;
@@ -70,8 +70,8 @@
 }
 
 .chat-message.assistant .chat-message-bubble {
-  background: transparent;
-  color: var(--md-on-surface);
+  background: var(--gc-assistant-bubble-bg, transparent);
+  color: var(--gc-assistant-bubble-text, var(--md-on-surface));
   box-shadow: none;
   border-radius: 0;
   padding: 8px 0;
@@ -83,8 +83,8 @@
 }
 
 .chat-message.system .chat-message-bubble {
-  background: var(--md-surface-container-highest);
-  color: var(--md-on-surface-variant);
+  background: var(--gc-system-bubble-bg, var(--md-surface-container-highest));
+  color: var(--gc-system-bubble-text, var(--md-on-surface-variant));
   border: 1px solid var(--md-outline-variant);
   border-radius: 0;
   padding: 12px 18px;
@@ -96,8 +96,8 @@
 }
 
 .chat-message.error .chat-message-bubble {
-  background: var(--md-error-container);
-  color: var(--md-on-error-container);
+  background: var(--gc-error-bubble-bg, var(--md-error-container));
+  color: var(--gc-error-bubble-text, var(--md-on-error-container));
   animation: shake var(--md-motion-duration-medium3) var(--md-motion-easing-standard);
   box-shadow: var(--md-elevation-level-2);
 }

@@ -8,12 +8,12 @@
   left: 0;
   right: 0;
   padding: 16px 28px;
-  background: var(--md-surface-container-low);
+  background: var(--gc-input-bg, var(--md-surface-container-low));
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 12px;
-  border-top: 1px solid var(--md-outline-variant);
+  border-top: var(--gc-input-border, 1px solid var(--md-outline-variant));
   z-index: 10;
   /* Hidden by default - show on hover/focus/typing */
   opacity: 0;
@@ -39,10 +39,10 @@
   border: none;
   outline: none;
   background: transparent;
-  color: var(--md-on-surface);
-  font-size: 16px;
-  font-family: 'Google Sans Text', 'Roboto', sans-serif;
-  line-height: 1.5;
+  color: var(--gc-input-text, var(--md-on-surface));
+  font-size: var(--gc-input-font-size, 16px);
+  font-family: var(--gc-input-font, 'Google Sans Text', 'Roboto', sans-serif);
+  line-height: var(--gc-input-line-height, 1.5);
   padding: 4px 0;
   resize: none;
   overflow-y: auto;
@@ -50,7 +50,7 @@
   max-height: 120px;
 }
 .chat-input-textarea::placeholder {
-  color: var(--md-on-surface-variant);
+  color: var(--gc-input-placeholder, var(--md-on-surface-variant));
 }
 .chat-input-textarea:disabled {
   color: var(--md-text-disabled);
@@ -62,7 +62,7 @@
   height: 48px;
   padding: 12px;
   border-radius: var(--md-shape-corner-full);
-  color: var(--md-primary);
+  color: var(--gc-send-button-color, var(--md-primary));
   flex-shrink: 0;
 }
 .send-icon-btn:hover {

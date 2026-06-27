@@ -111,16 +111,16 @@ const MessageCollapseRenderer = {
         const renderIndex = msg._renderIndex ?? i;
         if (msg.role === 'assistant') {
           elements.push(
-            R.createElement('div', { key: 'hist-' + i, className: 'chat-message-row' },
-              R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+          R.createElement('div', { key: 'hist-' + i, className: 'chat-message-row', 'data-gc-part': 'message-row', 'data-role': msg.role },
+              R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
                 renderAssistantMsg(msg, renderIndex, false)
               )
             )
           );
         } else {
           elements.push(
-            R.createElement('div', { key: 'hist-' + i, className: 'chat-message-row' },
-              R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+            R.createElement('div', { key: 'hist-' + i, className: 'chat-message-row', 'data-gc-part': 'message-row', 'data-role': msg.role },
+              R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
                 renderMarkdown(msg.content)
               )
             )
@@ -142,16 +142,16 @@ const MessageCollapseRenderer = {
       const renderIndex = msg._renderIndex ?? i;
       if (msg.role === 'assistant') {
         elements.push(
-          R.createElement('div', { key: 'pinned-' + i, className: 'chat-message-row' },
-            R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+          R.createElement('div', { key: 'pinned-' + i, className: 'chat-message-row', 'data-gc-part': 'message-row', 'data-role': msg.role },
+            R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
               renderAssistantMsg(msg, renderIndex, false)
             )
           )
         );
       } else {
         elements.push(
-          R.createElement('div', { key: 'pinned-' + i, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}` },
-            R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, style: { flex: 1, minWidth: 0 } },
+          R.createElement('div', { key: 'pinned-' + i, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}`, 'data-gc-part': 'message-row', 'data-role': msg.role },
+            R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
               renderMarkdown(msg.content)
             ),
             renderRetryBtn(isRetrySource, isLoading)
@@ -162,8 +162,8 @@ const MessageCollapseRenderer = {
 
     if (isLoading) {
       elements.push(
-        R.createElement('div', { key: 'streaming', className: 'chat-message-row streaming-message-row' },
-          R.createElement('div', { className: 'chat-message assistant', style: { flex: 1, minWidth: 0 } },
+        R.createElement('div', { key: 'streaming', className: 'chat-message-row streaming-message-row', 'data-gc-part': 'message-row', 'data-role': 'assistant' },
+          R.createElement('div', { className: 'chat-message assistant', 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
             renderAssistantMsg(tw.streamContent, messages.length, true)
           )
         )
@@ -185,9 +185,10 @@ const MessageCollapseRenderer = {
 
     return R.createElement('div', {
       className: `collapsed-message-view${isHistoryExpanded ? ' expanded' : ''}`,
+      'data-gc-part': 'collapsed-message-view',
       onWheel: onWheel
     },
-      R.createElement('div', { className: 'collapse-inner-wrapper', style: wrapperStyle }, elements)
+      R.createElement('div', { className: 'collapse-inner-wrapper', 'data-gc-part': 'message-list', style: wrapperStyle }, elements)
     );
   }
 };

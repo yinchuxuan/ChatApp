@@ -77,7 +77,7 @@
 /* Assistant messages: slightly tighter paragraph spacing for novel-like reading */
 .chat-message.assistant .chat-bubble-content p {
   margin: 0 0 1em 0;
-  line-height: 1.8;
+  line-height: var(--gc-assistant-paragraph-line-height, var(--gc-message-line-height, 1.8));
 }
 
 .chat-bubble-content p:last-child {

@@ -114,7 +114,7 @@ describe('Game Card Directory Import', () => {
     ]);
   });
 
-  test('expands imported audio visual display and content file configs', async () => {
+  test('expands imported audio visual display ui and content file configs', async () => {
     const cardDir = path.join(tempDir, 'asset-import-card');
     fs.mkdirSync(cardDir, { recursive: true });
     fs.writeFileSync(path.join(cardDir, 'card.json'), JSON.stringify({
@@ -125,6 +125,7 @@ describe('Game Card Directory Import', () => {
       visual: { $import: 'visual.json' },
       files: { $import: 'files.json' },
       display: { $import: 'display.json' },
+      ui: { $import: 'ui.json' },
       rules: [rule('start')]
     }), 'utf-8');
     fs.writeFileSync(path.join(cardDir, 'audio.json'), JSON.stringify({
@@ -139,6 +140,9 @@ describe('Game Card Directory Import', () => {
     fs.writeFileSync(path.join(cardDir, 'display.json'), JSON.stringify({
       stylesheet: 'display.css'
     }), 'utf-8');
+    fs.writeFileSync(path.join(cardDir, 'ui.json'), JSON.stringify({
+      stylesheet: 'ui.css'
+    }), 'utf-8');
     dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [cardDir] });
 
     const importResult = await ipcMain.handlers['import-game-card-from-directory']();
@@ -149,6 +153,7 @@ describe('Game Card Directory Import', () => {
     expect(activeResult.card.visual.background.school).toBe('images/school.jpg');
     expect(activeResult.card.files.roleplay_rules).toBe('roleplay_rules.md');
     expect(activeResult.card.display.stylesheet).toBe('display.css');
+    expect(activeResult.card.ui.stylesheet).toBe('ui.css');
   });
 
   test('rejects unsafe import paths', async () => {

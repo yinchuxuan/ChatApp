@@ -124,6 +124,8 @@ describe('GameCardBgmPlayer', () => {
     await flushAudioEffects();
 
     const button = screen.getByRole('button', { name: '关闭 BGM' });
+    expect(document.querySelector('[data-gc-part="bgm-player"]')).toBeTruthy();
+    expect(button.dataset.gcPart).toBe('bgm-button');
     expect(button).toHaveTextContent('music_note');
     expect(button).not.toBeDisabled();
 

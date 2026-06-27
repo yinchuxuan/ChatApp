@@ -119,6 +119,7 @@ function App() {
   return (
     <div
       className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}`}
+      data-gc-part="app"
     >
       {backgroundLayers.previous && <div className="app-background-layer app-background-layer-previous" style={getBackgroundStyle(backgroundLayers.previous)} />}
       {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} />}

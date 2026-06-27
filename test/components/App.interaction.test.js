@@ -139,6 +139,7 @@ describe('App Component - Interaction', () => {
 
     await act(async () => { await Promise.resolve(); });
     const appContainer = document.querySelector('.app-container');
+    expect(appContainer.dataset.gcPart).toBe('app');
     expect(appContainer.className).toContain('game-card-visual-position-center');
 
     await act(async () => {

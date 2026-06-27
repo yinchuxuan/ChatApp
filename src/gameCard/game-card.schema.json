@@ -16,7 +16,7 @@
     "state": { "type": "object" },
     "audio": { "$ref": "#/definitions/audio" }, "visual": { "$ref": "#/definitions/visual" },
     "rules": { "type": "array", "items": { "$ref": "#/definitions/rule" } },
-    "display": { "$ref": "#/definitions/display" }
+    "display": { "$ref": "#/definitions/display" }, "ui": { "$ref": "#/definitions/ui" }
   },
   "definitions": {
     "audio": { "type": "object", "additionalProperties": false, "properties": { "bgm": { "$ref": "#/definitions/audioMap" } } },
@@ -24,6 +24,7 @@
     "textFiles": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(md|txt|json)$" } },
     "visual": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.css$" }, "background": { "$ref": "#/definitions/imageMap" } } },
     "imageMap": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(png|jpg|jpeg|webp|gif|bmp)$" } },
+    "ui": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.css$" } } },
     "display": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^[^/\\\\][^\\\\]*$" }, "assistant": { "type": "array", "items": { "$ref": "#/definitions/displayRule" } } } },
     "displayRule": { "type": "object", "additionalProperties": false, "required": ["stage", "type", "pattern"], "properties": { "id": { "type": "string", "minLength": 1 }, "enabled": { "type": "boolean" }, "stage": { "const": "before_markdown" }, "type": { "const": "regex_replace" }, "pattern": { "type": "string", "maxLength": 1000 }, "flags": { "type": "string", "pattern": "^[gimsu]*$" }, "replace": { "type": "string" } } },
     "rule": {

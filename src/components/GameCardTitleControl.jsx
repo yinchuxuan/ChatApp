@@ -39,17 +39,18 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
   const errorTitle = error ? `${error.title || '导入游戏卡失败'}: ${error.message || error.error || ''}` : '';
 
   return (
-    <div className={`game-card-title-control ${card ? 'loaded' : ''}`} title={errorTitle || title}>
-      <div className="game-card-title-main">
-        <span className="material-icons game-card-title-icon">extension</span>
-        <span className="game-card-title-name">{title}</span>
+    <div className={`game-card-title-control ${card ? 'loaded' : ''}`} data-gc-part="game-card-title" title={errorTitle || title}>
+      <div className="game-card-title-main" data-gc-part="game-card-title-main">
+        <span className="material-icons game-card-title-icon" data-gc-part="game-card-title-icon">extension</span>
+        <span className="game-card-title-name" data-gc-part="game-card-title-name">{title}</span>
       </div>
-      {modelName ? <span className="config-status configured game-card-model-status">{modelName}</span> : null}
-      <div className="game-card-title-actions">
+      {modelName ? <span className="config-status configured game-card-model-status" data-gc-part="model-status">{modelName}</span> : null}
+      <div className="game-card-title-actions" data-gc-part="game-card-title-actions">
         {audioControl || null}
         {SessionManager ? <SessionManager onBeforeSessionChange={onBeforeSessionChange} onSessionChanged={onSessionChanged} /> : null}
         <button
           className="game-card-import-btn md-btn md-btn-icon"
+          data-gc-part="game-card-import-button"
           onClick={handleImport}
           disabled={isImporting}
           title="导入游戏卡文件夹"
@@ -58,7 +59,7 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
           <span className="material-icons">{isImporting ? 'hourglass_empty' : 'drive_folder_upload'}</span>
         </button>
         {error ? (
-          <button className="game-card-title-error" type="button" aria-label={errorTitle} onClick={(event) => event.stopPropagation()}>
+          <button className="game-card-title-error" data-gc-part="game-card-title-error" type="button" aria-label={errorTitle} onClick={(event) => event.stopPropagation()}>
             <span className="material-icons">error</span>
           </button>
         ) : null}

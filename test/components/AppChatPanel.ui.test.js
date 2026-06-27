@@ -80,6 +80,11 @@ describe('ChatPanel Component - UI', () => {
 
     const submitBtn = document.querySelector('button[type="submit"]');
     expect(submitBtn.disabled).toBe(true);
+    expect(document.querySelector('[data-gc-part="chat-panel"]')).toBeTruthy();
+    expect(document.querySelector('[data-gc-part="chat-history"]')).toBeTruthy();
+    expect(document.querySelector('form[data-gc-part="chat-input"]')).toBeTruthy();
+    expect(document.querySelector('textarea[data-gc-part="chat-input-textarea"]')).toBeTruthy();
+    expect(submitBtn.dataset.gcPart).toBe('chat-send-button');
   });
 
   test('should enable submit button when input has value', async () => {
