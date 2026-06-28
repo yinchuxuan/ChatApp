@@ -89,6 +89,7 @@ require('../src/gameCard/displayRules.js');
 require('../src/gameCard/displayStyles.js');
 require('../src/gameCard/visualStyles.js');
 require('../src/gameCard/uiStyles.js');
+require('../src/gameCard/uiRuntime.js');
 
 require('../src/components/modelGenerationParams.js');
 

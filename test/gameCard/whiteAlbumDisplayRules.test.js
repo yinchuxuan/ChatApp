@@ -1,5 +1,5 @@
 const React = require('react');
-const { render } = require('@testing-library/react');
+const { fireEvent, render } = require('@testing-library/react');
 const { card } = require('./whiteAlbumTestCard');
 const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/gameCard/displayRules');
 const renderers = require('../../src/components/ChatPanelMessageRenderers');
@@ -42,7 +42,10 @@ describe('white album display rules', () => {
     expect(output).not.toContain('隐藏总结');
     expect(output).not.toContain('<state_patch>');
     expect(output).not.toContain('touma.affection');
+    expect(output).toContain('<button type="button"');
     expect(output).toContain('class="wa2-choice"');
+    expect(output).toContain('data-gc-chat-input-label="A"');
+    expect(output).toContain('data-gc-chat-input-text-selector=".wa2-choice-text"');
     expect(output).toContain('class="wa2-choice-label">A</span>');
     expect(output).toContain('去找冬马确认钢琴声。');
   });
@@ -91,5 +94,37 @@ describe('white album display rules', () => {
     expect(content.textContent).not.toContain('touma.affection');
     expect(content.querySelector('.wa2-scene-meta')).not.toBeNull();
     expect(content.querySelectorAll('.wa2-choice')).toHaveLength(4);
+    expect(content.querySelector('.wa2-choice').tagName).toBe('BUTTON');
+  });
+
+  test('clicking a rendered choice fills chat input through ui runtime event', () => {
+    const events = [];
+    const listener = event => events.push(event.detail);
+    window.addEventListener('game-card-chat-input-action', listener);
+    const element = renderers.renderAssistantMsg(
+      React,
+      { role: 'assistant', content: sample },
+      0,
+      false,
+      null,
+      '',
+      false,
+      jest.fn(),
+      jest.fn(),
+      window.marked,
+      window.DOMPurify,
+      value => value,
+      card.display
+    );
+    const { container } = render(element);
+
+    fireEvent.click(container.querySelector('.wa2-choice'));
+    window.removeEventListener('game-card-chat-input-action', listener);
+
+    expect(events).toEqual([{
+      type: 'chat.input.set',
+      value: 'A. 去找冬马确认钢琴声。',
+      focus: true
+    }]);
   });
 });

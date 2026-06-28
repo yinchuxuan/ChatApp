@@ -47,7 +47,7 @@
       "type": "regex_replace",
       "pattern": "^([A-D])\\.\\s+(.+)$",
       "flags": "gm",
-      "replace": "<div class=\"wa2-choice\"><span class=\"wa2-choice-label\">$1</span><span class=\"wa2-choice-text\">$2</span></div>"
+      "replace": "<button type=\"button\" class=\"wa2-choice\" data-gc-chat-input-label=\"$1\" data-gc-chat-input-text-selector=\".wa2-choice-text\"><span class=\"wa2-choice-label\">$1</span><span class=\"wa2-choice-text\">$2</span></button>"
     }
   ],
   "user": [

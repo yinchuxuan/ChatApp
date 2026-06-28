@@ -19,6 +19,8 @@ describe('browser game card script order', () => {
     const validateFind = scriptIndex(html, '../dist/gameCard/validateFind.js');
     const validatePredicates = scriptIndex(html, '../dist/gameCard/validatePredicates.js');
     const uiConfig = scriptIndex(html, '../dist/gameCard/uiConfig.js');
+    const uiRuntime = scriptIndex(html, '../dist/gameCard/uiRuntime.js');
+    const gameCardUiRoot = scriptIndex(html, '../dist/components/GameCardUIRoot.js');
     const resourcePreload = scriptIndex(html, '../dist/gameCard/resourcePreload.js');
     const cardImportExpander = scriptIndex(html, '../dist/gameCard/cardImportExpander.js');
     const sendPipeline = scriptIndex(html, '../dist/gameCard/sendPipeline.js');
@@ -38,6 +40,8 @@ describe('browser game card script order', () => {
     expect(validatePredicates).toBeGreaterThan(validateContent);
     expect(validatePredicates).toBeGreaterThan(validateFind);
     expect(uiConfig).toBeGreaterThan(validatePredicates);
+    expect(uiRuntime).toBeGreaterThan(scriptIndex(html, '../dist/gameCard/uiStyles.js'));
+    expect(gameCardUiRoot).toBeGreaterThan(uiRuntime);
     expect(scriptIndex(html, '../dist/gameCard/validateGameCard.js')).toBeGreaterThan(uiConfig);
     expect(resourcePreload).toBeGreaterThan(-1);
     expect(cardImportExpander).toBeGreaterThan(resourcePreload);

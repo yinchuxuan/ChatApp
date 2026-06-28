@@ -2,6 +2,32 @@
 // Extracts render functions to reduce ChatPanel.jsx below 200 lines
 
 const ChatPanelMessageRenderers = {
+  handleInputActionClick(e) {
+    const target = e.target?.closest?.('[data-gc-chat-input-value], [data-gc-chat-input-value-from], [data-gc-chat-input-label]');
+    if (!target) return false;
+    const value = this.resolveInputActionValue(target);
+    if (!value) return false;
+    e.preventDefault();
+    e.stopPropagation();
+    window.dispatchEvent(new CustomEvent('game-card-chat-input-action', {
+      detail: { type: 'chat.input.set', value, focus: true }
+    }));
+    return true;
+  },
+
+  resolveInputActionValue(target) {
+    const directValue = target.getAttribute('data-gc-chat-input-value');
+    if (directValue) return directValue;
+    if (target.getAttribute('data-gc-chat-input-value-from') === 'text') {
+      return target.textContent.replace(/\s+/g, ' ').trim();
+    }
+    const label = target.getAttribute('data-gc-chat-input-label');
+    const textSelector = target.getAttribute('data-gc-chat-input-text-selector');
+    const text = textSelector ? target.querySelector(textSelector)?.textContent : target.textContent;
+    if (!label || !text) return '';
+    return `${label}. ${text.replace(/\s+/g, ' ').trim()}`;
+  },
+
   filterDialogueMessages(messages) {
     return (Array.isArray(messages) ? messages : [])
       .map((msg, index) => ({ msg, index: msg?._renderIndex ?? index }))
@@ -17,7 +43,7 @@ const ChatPanelMessageRenderers = {
     const sanitizedHtml = DOMPurify ? DOMPurify.sanitize(rawHtml) : rawHtml;
     const html = highlightQuotes(sanitizedHtml);
     return R.createElement('div', { className: 'chat-message-bubble', 'data-gc-part': 'message-bubble' },
-      R.createElement('div', { className: 'chat-bubble-content', 'data-gc-part': 'message-content', dangerouslySetInnerHTML: { __html: html } })
+      R.createElement('div', { className: 'chat-bubble-content', 'data-gc-part': 'message-content', onClick: (e) => this.handleInputActionClick(e), dangerouslySetInnerHTML: { __html: html } })
     );
   },
 
@@ -51,7 +77,7 @@ const ChatPanelMessageRenderers = {
     } : null;
     return R.createElement('div', { className: bubbleClass, 'data-gc-part': 'message-bubble', onClick: handleClick },
       thinking && showThinking && R.createElement('div', { className: 'chat-thinking-text', 'data-gc-part': 'message-thinking' }, thinking),
-      R.createElement('div', { className: 'chat-bubble-content', 'data-gc-part': 'message-content', dangerouslySetInnerHTML: { __html: html } })
+      R.createElement('div', { className: 'chat-bubble-content', 'data-gc-part': 'message-content', onClick: (e) => this.handleInputActionClick(e), dangerouslySetInnerHTML: { __html: html } })
     );
   },
 

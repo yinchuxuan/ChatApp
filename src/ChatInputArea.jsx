@@ -24,6 +24,7 @@ function ChatInputArea({
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
   const [isFocused, setIsFocused] = R.useState(false);
+  const formRef = R.useRef(null), textareaRef = R.useRef(null);
   const isVisible = isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
   const clone = (value) => JSON.parse(JSON.stringify(value));
   const stripTurnContext = (content) => typeof content === 'string'
@@ -31,21 +32,25 @@ function ChatInputArea({
     : content;
   const normalizeRetryMessages = (msgs) => clone(msgs).filter(msg => msg?.ttl === undefined).map(msg =>
     msg?.role === 'user' ? { ...msg, content: stripTurnContext(msg.content) } : msg);
+  const focusInput = R.useCallback(() => {
+    setIsInputHovered(true);
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  }, [setIsInputHovered]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+  const submitValue = R.useCallback(async (rawValue, formElement) => {
+    const value = String(rawValue || '');
+    if (!value.trim() || isLoading) return;
     if (!modelConfig || !modelConfig.apiUrl || !modelConfig.apiKey) {
-      setMessages(prev => [...prev, { role: 'user', content: inputValue }, { role: 'assistant', content: '请先在右侧设置面板配置模型 API', isError: true }]);
+      setMessages(prev => [...prev, { role: 'user', content: value }, { role: 'assistant', content: '请先在右侧设置面板配置模型 API', isError: true }]);
       setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); return;
     }
     onAudioSubmit?.();
-    const userMessage = { role: 'user', content: inputValue };
+    const userMessage = { role: 'user', content: value };
     const newMessages = [...messages, userMessage];
     if (retryBaseRef) retryBaseRef.current = normalizeRetryMessages(newMessages);
     if (retryBaseStateRef) retryBaseStateRef.current = clone(gameState);
     setMessages(newMessages); setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); setIsLoading(true);
-    const textarea = e.currentTarget.querySelector('textarea');
+    const textarea = formElement?.querySelector('textarea') || textareaRef.current;
     if (textarea) textarea.blur();
     tw.startStreaming(); setShowStreamThinking(true);
     try {
@@ -111,13 +116,44 @@ function ChatInputArea({
       setIsLoading(false); tw.reset();
       setMessages(prev => [...prev, { role: 'assistant', content: `请求失败: ${err.message}`, isError: true }]);
     }
+  }, [gameState, isLoading, messages, modelConfig, retryBaseRef, retryBaseStateRef, setGameState,
+    setIsInputHovered, setIsInputTriggerHovered, setIsLoading, setMessages, setShowStreamThinking,
+    tw, onAudioSubmit, onStreamContentStart, onGameCardError]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await submitValue(inputValue, e.currentTarget);
   };
+
+  R.useEffect(() => {
+    const handler = (e) => {
+      const action = e.detail || {};
+      if (action.type === 'chat.input.set') {
+        setInputValue(String(action.value || ''));
+        if (action.focus) focusInput();
+      } else if (action.type === 'chat.input.append') {
+        setInputValue(prev => prev + String(action.value || ''));
+        if (action.focus) focusInput();
+      } else if (action.type === 'chat.input.clear') {
+        setInputValue('');
+      } else if (action.type === 'chat.input.focus') {
+        focusInput();
+      } else if (action.type === 'chat.input.submit') {
+        formRef.current?.requestSubmit();
+      } else if (action.type === 'chat.send') {
+        submitValue(action.content, formRef.current);
+      }
+    };
+    window.addEventListener('game-card-chat-input-action', handler);
+    return () => window.removeEventListener('game-card-chat-input-action', handler);
+  }, [focusInput, submitValue]);
 
   const C = R.createElement;
 
   return C('form', {
     className: `chat-input-area${isVisible ? ' chat-input-area-visible' : ''}`,
     'data-gc-part': 'chat-input',
+    ref: formRef,
     onSubmit: handleSubmit,
     onMouseEnter: () => setIsInputHovered(true),
     onMouseLeave: () => setIsInputHovered(false)
@@ -125,6 +161,7 @@ function ChatInputArea({
     C('textarea', {
       className: 'chat-input-textarea',
       'data-gc-part': 'chat-input-textarea',
+      ref: textareaRef,
       value: inputValue,
       onChange: (e) => setInputValue(e.target.value),
       placeholder: '输入您的回答...',

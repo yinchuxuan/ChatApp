@@ -1,7 +1,7 @@
-const STYLE_ID = 'game-card-display-style';
+const DISPLAY_STYLE_ID = 'game-card-display-style';
 
 function removeGameCardDisplayStyle(doc = document) {
-  const existing = doc.getElementById(STYLE_ID);
+  const existing = doc.getElementById(DISPLAY_STYLE_ID);
   if (existing) existing.remove();
 }
 
@@ -21,7 +21,7 @@ async function loadGameCardDisplayStyle(card, api, doc = document) {
   const result = await api.readGameCardFile(card.id, stylesheet);
   if (!result?.success || !result.content) return false;
   const style = doc.createElement('style');
-  style.id = STYLE_ID;
+  style.id = DISPLAY_STYLE_ID;
   style.dataset.gameCardId = card.id;
   style.dataset.source = stylesheet;
   style.textContent = result.content;

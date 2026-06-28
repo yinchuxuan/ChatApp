@@ -112,12 +112,8 @@ CSS 只负责视觉，不负责点击逻辑、状态变更和消息发送。
   "ui": {
     "root": {
       "type": "react",
-      "source": "ui/root.jsx",
+      "source": "ui/root.js",
       "style": "ui/root.css"
-    },
-    "scripts": {
-      "battle": "scripts/battle.js",
-      "inventory": "scripts/inventory.js"
     }
   }
 }
@@ -127,6 +123,7 @@ CSS 只负责视觉，不负责点击逻辑、状态变更和消息发送。
 
 ```js
 {
+  React,
   state,
   messages,
   ui,
@@ -136,7 +133,22 @@ CSS 只负责视觉，不负责点击逻辑、状态变更和消息发送。
 }
 ```
 
-组件可以在自己的 root 内任意渲染 React UI：战斗界面、常驻 HUD、物品栏、选项按钮、Canvas、SVG、动画等。
+`source` 是浏览器安全 JS 文件，必须导出或定义名为 `Root` 的 React 组件。当前 runtime 不做 JSX 编译；需要使用 `React.createElement` 或预编译后的 JS。
+
+```js
+function Root({ React, state, props, emit }) {
+  return React.createElement(
+    "button",
+    {
+      style: { pointerEvents: "auto" },
+      onClick: () => emit({ type: "chat.input.set", value: props.choice, focus: true })
+    },
+    props.choice
+  );
+}
+```
+
+组件可以在自己的 root 内渲染 React UI：常驻 HUD、物品栏、选项按钮、Canvas、SVG、动画等。需要交互的区域自行设置 `pointer-events: auto`。
 
 ## 事件与脚本
 
@@ -145,34 +157,21 @@ React 组件不直接修改 `gameState`，只发受控事件：
 ```js
 emit({ type: "chat.input.set", value: "A. 去第三音乐室", focus: true });
 emit({ type: "chat.send", content: "继续" });
-emit({ type: "script.run", script: "battle", action: "attack" });
 ```
 
 平台处理事件：
 
 ```txt
-emit -> script/effects/statePatch -> 更新状态 -> 保存 session -> 重新渲染
+emit -> 平台受控事件 -> 输入框/发送管线 -> 保存 session -> 重新渲染
 ```
 
-脚本只负责规则结算，不直接操作 DOM：
+第一批已支持事件：`chat.input.set`、`chat.input.append`、`chat.input.clear`、`chat.input.focus`、`chat.input.submit`、`chat.send`。
 
-```js
-export function run(ctx) {
-  const damage = ctx.utils.roll("1d8");
-  return {
-    statePatch: [
-      { type: "state.set", path: "battle.enemyHp", value: ctx.state.battle.enemyHp - damage }
-    ],
-    effects: [
-      { type: "ui.log", text: `造成 ${damage} 点伤害` }
-    ]
-  };
-}
-```
+`script.run` 和状态 patch 类交互需要后续接入 script/effects 管线后再开放。
 
 ## 输入框行为
 
-输入框需要平台级 runtime state，而不是游戏规则 state。TODO：设计 `uiRuntimeState` / `chat.input.*` action 机制。
+输入框行为通过平台级 runtime 事件处理，不写入游戏规则 state。
 
 第一批 action：
 

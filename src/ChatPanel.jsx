@@ -1,5 +1,5 @@
 import './ChatInputArea.jsx'; import './components/ChatSessionManager.jsx'; import './components/GameCardTitleControl.jsx';
-import './components/ChatPanelMessageRenderers.js'; import './components/GameCardBgmPlayer.js'; import './components/GameCardBackgroundRuntime.js'; import './components/GameCardErrorPanel.jsx';
+import './components/ChatPanelMessageRenderers.js'; import './components/GameCardBgmPlayer.js'; import './components/GameCardBackgroundRuntime.js'; import './components/GameCardUIRoot.jsx'; import './components/GameCardErrorPanel.jsx';
 
 const RENDERER_POLL_INTERVAL = 100;
 const RENDERER_POLL_TIMEOUT = 5000;
@@ -148,7 +148,7 @@ function ChatPanel() {
   const handleAudioSubmit = R.useCallback(() => setAudioStopToken(value => value + 1), []);
 
   const C = R.createElement;
-  const BgmPlayer = window.GameCardBgmPlayer, BackgroundRuntime = window.GameCardBackgroundRuntime, ErrorPanel = window.GameCardErrorPanel;
+  const BgmPlayer = window.GameCardBgmPlayer, BackgroundRuntime = window.GameCardBackgroundRuntime, UiRoot = window.GameCardUIRoot, ErrorPanel = window.GameCardErrorPanel;
 
   const streamThinking = tw.getThinkingContent(), hasThinking = isLoading && streamThinking && streamThinking.length > 0;
   const currentThinking = hasThinking ? streamThinking : null;
@@ -166,6 +166,7 @@ function ChatPanel() {
 
   return C('div', { className: 'chat-panel', 'data-gc-part': 'chat-panel' },
     BackgroundRuntime ? C(BackgroundRuntime, { card: activeGameCard, gameState, defer: isLoading, revealToken: streamContentStartToken }) : null,
+    UiRoot ? C(UiRoot, { card: activeGameCard, gameState, messages, isLoading }) : null,
     C('div', { className: 'chat-main', 'data-gc-part': 'chat-main' },
       C('div', { className: 'chat-header-hover-trigger', 'data-gc-part': 'chat-header-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, 'data-gc-part': 'chat-header', onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },

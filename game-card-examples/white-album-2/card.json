@@ -7,6 +7,7 @@
   "audio": { "$import": "audio.json" },
   "visual": { "$import": "visual.json" },
   "display": { "$import": "display.json" },
+  "ui": { "$import": "ui.json" },
   "rules": [
     {
       "$import": "rules/system-prompt.json"

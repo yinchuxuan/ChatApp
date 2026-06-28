@@ -21,7 +21,15 @@ function card(ui) {
 describe('game card ui schema', () => {
   test('accepts ui stylesheet config', () => {
     const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
-    const config = { stylesheet: 'ui.css' };
+    const config = {
+      stylesheet: 'ui.css',
+      root: {
+        type: 'react',
+        source: 'ui/root.js',
+        style: 'ui/root.css',
+        props: { label: 'A' }
+      }
+    };
 
     expect(validate(card(config))).toBe(true);
     expect(validateGameCard(card(config))).toEqual({ valid: true, errors: [] });
@@ -34,7 +42,11 @@ describe('game card ui schema', () => {
       { stylesheet: '/tmp/ui.css' },
       { stylesheet: '\\ui.css' },
       { stylesheet: 'ui.txt' },
-      { root: { source: 'ui/root.jsx' } }
+      { root: { source: '../root.js' } },
+      { root: { source: 'ui/root.tsx' } },
+      { root: { type: 'vue', source: 'ui/root.js' } },
+      { root: { source: 'ui/root.js', style: '../root.css' } },
+      { root: { source: 'ui/root.js', props: [] } }
     ];
 
     unsafe.forEach(ui => {

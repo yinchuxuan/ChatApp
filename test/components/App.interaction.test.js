@@ -126,11 +126,13 @@ describe('App Component - Interaction', () => {
       }));
     });
     expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('game-card-bg-url');
+    expect(document.querySelector('[data-gc-part="background-overlay"]').style.opacity).toBe('0.3');
 
     await act(async () => {
       window.dispatchEvent(new CustomEvent('game-card-background-changed', { detail: { url: '' } }));
     });
     expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('settings-bg-url');
+    expect(document.querySelector('[data-gc-part="background-overlay"]').style.opacity).toBe('0.3');
   });
 
   test('should apply visual panel position and scoped game card theme class', async () => {

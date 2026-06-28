@@ -123,7 +123,7 @@ function App() {
     >
       {backgroundLayers.previous && <div className="app-background-layer app-background-layer-previous" style={getBackgroundStyle(backgroundLayers.previous)} />}
       {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} />}
-      {backgroundImageUrl && <div style={getOverlayStyle()} />}
+      {backgroundImageUrl && <div data-gc-part="background-overlay" style={getOverlayStyle()} />}
       <div className="app-content-wrapper">
         {ChatPanel ? <ChatPanel /> : null}
       </div>
