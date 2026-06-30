@@ -68,24 +68,24 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"] {
-  left: clamp(96px, 8vw, 148px);
-  right: clamp(96px, 8vw, 148px);
+  left: clamp(128px, 11vw, 208px);
+  right: clamp(128px, 11vw, 208px);
   bottom: 18px;
   min-height: 52px;
   padding: 6px 10px 6px 52px;
   gap: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.34);
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(235, 246, 254, 0.08)),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.24), rgba(206, 225, 239, 0.14)),
-    rgba(238, 247, 253, 0.18);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(235, 246, 254, 0.05)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14), rgba(206, 225, 239, 0.07)),
+    rgba(238, 247, 253, 0.12);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.62),
-    inset 0 -1px 0 rgba(137, 169, 195, 0.13),
-    0 18px 46px rgba(34, 55, 78, 0.16);
-  backdrop-filter: blur(22px) saturate(1.28);
-  -webkit-backdrop-filter: blur(22px) saturate(1.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -1px 0 rgba(137, 169, 195, 0.06),
+    0 12px 28px rgba(34, 55, 78, 0.08);
+  backdrop-filter: blur(4px) saturate(1.03);
+  -webkit-backdrop-filter: blur(4px) saturate(1.03);
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"]::before {
@@ -225,6 +225,7 @@
   --chat-reading-width: 860px;
   --game-card-panel-edge-gap: 15px;
   --game-card-panel-inner-gap: 0px;
+  --wa2-reading-panel-height: calc(100vh - 30px);
   padding-top: 15px;
   padding-bottom: 15px;
   scrollbar-color: rgba(148, 181, 204, 0.62) transparent;
@@ -235,11 +236,8 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="background-overlay"] {
-  background:
-    radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.16), transparent 38%),
-    radial-gradient(circle at 88% 100%, rgba(170, 205, 229, 0.14), transparent 42%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(223, 239, 249, 0.08) 48%, rgba(74, 104, 132, 0.12)) !important;
-  opacity: 0.18 !important;
+  background: transparent !important;
+  opacity: 0 !important;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-reading-veil"] {
@@ -276,12 +274,16 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"],
-.app-container.game-card-theme-white-album-2 .chat-messages-layer {
+.app-container.game-card-theme-white-album-2 .chat-messages-layer,
+.app-container.game-card-theme-white-album-2 .msg-history-card {
   position: relative;
   overflow-x: hidden;
   overflow-y: hidden;
-  padding: 54px 50px 54px 50px;
-  border: 1px solid rgba(255, 255, 255, 0.54);
+  padding: 54px 64px 30px 64px;
+  height: var(--wa2-reading-panel-height);
+  max-height: var(--wa2-reading-panel-height);
+  min-height: min(560px, var(--wa2-reading-panel-height));
+  border: 1px solid rgba(255, 255, 255, 0.48);
   border-radius: 14px;
   box-sizing: border-box;
   isolation: isolate;
@@ -289,10 +291,10 @@
   color: var(--gc-assistant-bubble-text);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.74),
-    inset 0 -1px 0 rgba(166, 203, 229, 0.13),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
-    inset 0 0 34px rgba(255, 255, 255, 0.18),
-    0 16px 48px rgba(46, 74, 105, 0.12);
+    inset 0 -1px 0 rgba(190, 218, 238, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.20),
+    inset 0 0 34px rgba(255, 255, 255, 0.24),
+    0 18px 54px rgba(71, 104, 134, 0.08);
   backdrop-filter: blur(7px) saturate(1.08) brightness(1);
   -webkit-backdrop-filter: blur(7px) saturate(1.08) brightness(1);
   font-family: var(--gc-message-font);
@@ -302,8 +304,6 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"] {
-  height: auto;
-  max-height: calc(100vh - 30px);
   scrollbar-width: none;
 }
 
@@ -317,7 +317,9 @@
   gap: 10px;
   width: 100%;
   max-width: 100%;
-  max-height: calc(100vh - 140px);
+  height: 100%;
+  min-height: 0;
+  max-height: none;
   overflow-x: hidden;
   overflow-y: auto;
   padding: 0;
@@ -334,26 +336,64 @@
   overflow-y: auto;
 }
 
+.app-container.game-card-theme-white-album-2 .msg-history-card {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: 0;
+  transform: none;
+  scrollbar-width: none;
+}
+
+.app-container.game-card-theme-white-album-2 .msg-history-card::-webkit-scrollbar {
+  display: none;
+}
+
+.app-container.game-card-theme-white-album-2 .msg-history-card:hover {
+  transform: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.74),
+    inset 0 -1px 0 rgba(190, 218, 238, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.20),
+    inset 0 0 34px rgba(255, 255, 255, 0.24),
+    0 18px 54px rgba(71, 104, 134, 0.08);
+}
+
+.app-container.game-card-theme-white-album-2 .msg-history-json {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  overflow: auto;
+  color: var(--gc-assistant-bubble-text);
+  scrollbar-width: none;
+}
+
+.app-container.game-card-theme-white-album-2 .msg-history-json::-webkit-scrollbar {
+  display: none;
+}
+
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"]::before,
-.app-container.game-card-theme-white-album-2 .chat-messages-layer::before {
+.app-container.game-card-theme-white-album-2 .chat-messages-layer::before,
+.app-container.game-card-theme-white-album-2 .msg-history-card::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: rgba(248, 252, 255, 0.40);
+  background: rgba(255, 255, 255, 0.60);
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"]::after,
-.app-container.game-card-theme-white-album-2 .chat-messages-layer::after {
+.app-container.game-card-theme-white-album-2 .chat-messages-layer::after,
+.app-container.game-card-theme-white-album-2 .msg-history-card::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: rgba(248, 252, 255, 0.4167);
+  background: rgba(255, 255, 255, 0.50);
   -webkit-mask:
     linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 10px, rgba(0, 0, 0, 0.16) 15px, rgba(0, 0, 0, 0.32) 20px, rgba(0, 0, 0, 0.50) 25px, rgba(0, 0, 0, 0.68) 30px, rgba(0, 0, 0, 0.84) 35px, rgba(0, 0, 0, 0.94) 40px, rgba(0, 0, 0, 0.99) 45px, #000 50px, #000 calc(100% - 50px), rgba(0, 0, 0, 0.99) calc(100% - 45px), rgba(0, 0, 0, 0.94) calc(100% - 40px), rgba(0, 0, 0, 0.84) calc(100% - 35px), rgba(0, 0, 0, 0.68) calc(100% - 30px), rgba(0, 0, 0, 0.50) calc(100% - 25px), rgba(0, 0, 0, 0.32) calc(100% - 20px), rgba(0, 0, 0, 0.16) calc(100% - 15px), rgba(0, 0, 0, 0.06) calc(100% - 10px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%),
     linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 11px, rgba(0, 0, 0, 0.16) 16px, rgba(0, 0, 0, 0.32) 22px, rgba(0, 0, 0, 0.50) 27px, rgba(0, 0, 0, 0.68) 32px, rgba(0, 0, 0, 0.84) 38px, rgba(0, 0, 0, 0.94) 43px, rgba(0, 0, 0, 0.99) 49px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.99) calc(100% - 49px), rgba(0, 0, 0, 0.94) calc(100% - 43px), rgba(0, 0, 0, 0.84) calc(100% - 38px), rgba(0, 0, 0, 0.68) calc(100% - 32px), rgba(0, 0, 0, 0.50) calc(100% - 27px), rgba(0, 0, 0, 0.32) calc(100% - 22px), rgba(0, 0, 0, 0.16) calc(100% - 16px), rgba(0, 0, 0, 0.06) calc(100% - 11px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%);

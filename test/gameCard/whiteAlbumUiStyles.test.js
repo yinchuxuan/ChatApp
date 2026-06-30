@@ -30,19 +30,22 @@ describe('white album ui styles', () => {
   test('uses winter white and snow themed variables', () => {
     expect(css).toContain('--gc-input-bg: rgba(250, 253, 255');
     expect(css).toContain('[data-gc-part="background-overlay"]');
-    expect(css).toContain('radial-gradient(circle at 12% 0%');
-    expect(css).toContain('opacity: 0.18 !important');
+    expect(css).toContain('background: transparent !important');
+    expect(css).toContain('opacity: 0 !important');
     expect(css).toContain('--game-card-veil-bg: rgba(248, 252, 255, 0.50)');
     expect(css).toContain('--game-card-veil-bg-dark: rgba(248, 252, 255, 0.50)');
     expect(css).toContain('--gc-user-bubble-bg: rgba(248, 252, 255, 0.50)');
   });
 
-  test('styles the input as a hidden floating glass pill', () => {
+  test('styles the input as a default-hidden floating glass pill', () => {
     expect(css).toContain('[data-gc-part="chat-input"]');
-    expect(css).toContain('left: clamp(96px, 8vw, 148px)');
+    expect(css).toContain('left: clamp(128px, 11vw, 208px)');
+    expect(css).toContain('right: clamp(128px, 11vw, 208px)');
     expect(css).toContain('min-height: 52px');
     expect(css).toContain('border-radius: 999px');
-    expect(css).toContain('backdrop-filter: blur(22px) saturate(1.28)');
+    expect(css).toContain('rgba(238, 247, 253, 0.12)');
+    expect(css).toContain('0 12px 28px rgba(34, 55, 78, 0.08)');
+    expect(css).toContain('backdrop-filter: blur(4px) saturate(1.03)');
     expect(css).toContain('-webkit-mask: var(--icon-edit) center / contain no-repeat');
     expect(css).toContain('content: "Enter  发送"');
     expect(css).toContain('[data-gc-part="chat-input-textarea"]');
@@ -50,27 +53,36 @@ describe('white album ui styles', () => {
     expect(css).toContain('width: 42px');
     expect(css).toContain('[data-gc-part="chat-send-button"]:not(:disabled):hover');
     expect(css).toContain('@media (max-width: 720px)');
-    expect(css).not.toContain('.chat-input-area-visible');
+    expect(css).not.toContain('visibility: visible');
   });
 
   test('styles the message list as a unified frosted glass text area', () => {
     expect(css).toContain('[data-gc-part="collapsed-message-view"]::before');
     expect(css).toContain('.chat-messages-layer::before');
+    expect(css).toContain('.msg-history-card::before');
     expect(css).toContain('[data-gc-part="collapsed-message-view"]::after');
     expect(css).toContain('.chat-messages-layer::after');
+    expect(css).toContain('.msg-history-card::after');
     expect(css).toContain('backdrop-filter: blur(7px) saturate(1.08) brightness(1)');
-    expect(css).toContain('padding: 54px 50px 54px 50px');
+    expect(css).toContain('padding: 54px 64px 30px 64px');
+    expect(css).toContain('--wa2-reading-panel-height: calc(100vh - 30px)');
+    expect(css).toContain('height: var(--wa2-reading-panel-height)');
+    expect(css).toContain('max-height: var(--wa2-reading-panel-height)');
+    expect(css).toContain('min-height: min(560px, var(--wa2-reading-panel-height))');
     expect(css).toContain('isolation: isolate');
-    expect(css).toContain('max-height: calc(100vh - 140px)');
+    expect(css).toContain('max-height: none');
+    expect(css).toContain('height: 100%');
+    expect(css).toContain('min-height: 0');
     expect(css).toContain('overflow-y: auto');
-    expect(css).toContain('max-height: calc(100vh - 30px)');
     expect(css).toContain('-webkit-mask-image: none');
     expect(css).toContain('border-radius: 14px');
     expect(css).toContain('[data-gc-part="message-list"]');
     expect(css).toContain('width: 100%');
     expect(css).toContain('[data-gc-part="message-list"]::-webkit-scrollbar');
-    expect(css).toContain('background: rgba(248, 252, 255, 0.40)');
-    expect(css).toContain('background: rgba(248, 252, 255, 0.4167)');
+    expect(css).toContain('.msg-history-json');
+    expect(css).toContain('color: var(--gc-assistant-bubble-text)');
+    expect(css).toContain('background: rgba(255, 255, 255, 0.60)');
+    expect(css).toContain('background: rgba(255, 255, 255, 0.50)');
     expect(css).toContain('linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.01) 5px');
     expect(css).toContain('rgba(0, 0, 0, 0.68) 30px');
     expect(css).toContain('rgba(0, 0, 0, 0.99) 45px');
