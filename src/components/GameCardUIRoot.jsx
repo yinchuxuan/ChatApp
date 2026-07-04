@@ -4,6 +4,12 @@ function getRuntime() {
   return null;
 }
 
+function getStateActions() {
+  if (typeof window !== 'undefined' && window.GameCardUiStateActions) return window.GameCardUiStateActions;
+  if (typeof require !== 'undefined') return require('../gameCard/uiStateActions');
+  return null;
+}
+
 function clone(value) {
   if (value === undefined) return undefined;
   return JSON.parse(JSON.stringify(value));
@@ -26,22 +32,43 @@ function emitInputAction(event) {
   return true;
 }
 
-function handleUiEvent(event) {
+async function emitStateAction(event, options) {
+  const stateActions = getStateActions();
+  if (!stateActions || typeof options?.setGameState !== 'function') return false;
+  const result = await stateActions.applyUiStateActionEvent({
+    event,
+    state: options.stateRef.current,
+    messages: options.messages,
+    card: options.card,
+    api: typeof window !== 'undefined' ? window.electronAPI : null
+  });
+  if (result.trace?.error) throw new Error(result.trace.error);
+  if (result.trace?.reason) return false;
+  options.stateRef.current = result.state;
+  options.setGameState(result.state);
+  return result.applied;
+}
+
+function handleUiEvent(event, options) {
   const type = event?.type;
   const inputTypes = ['chat.input.set', 'chat.input.append', 'chat.input.clear', 'chat.input.focus', 'chat.input.submit', 'chat.send'];
   if (inputTypes.includes(type)) return emitInputAction(event);
+  if (type === 'game.state.apply') return emitStateAction(event, options);
   return false;
 }
 
-function GameCardUIRoot({ card, gameState = {}, messages = [], isLoading = false }) {
+function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isLoading = false }) {
   const R = window.React || React;
   const runtime = getRuntime();
   const [loadedRoot, setLoadedRoot] = R.useState(null);
   const [error, setError] = R.useState(null);
+  const stateRef = R.useRef(gameState || {});
   const cardId = card?.id || '';
   const rootSource = card?.ui?.root?.source || '';
   const rootStyle = card?.ui?.root?.style || '';
   const C = R.createElement;
+
+  R.useEffect(() => { stateRef.current = gameState || {}; }, [gameState]);
 
   R.useEffect(() => {
     let canceled = false;
@@ -67,7 +94,21 @@ function GameCardUIRoot({ card, gameState = {}, messages = [], isLoading = false
 
   const safeState = R.useMemo(() => readonly(gameState || {}), [gameState]);
   const safeMessages = R.useMemo(() => readonly(messages || []), [messages]);
-  const emit = R.useCallback((event) => handleUiEvent(event), []);
+  const emit = R.useCallback((event) => {
+    try {
+      const result = handleUiEvent(event, { card, messages, setGameState, stateRef });
+      if (result && typeof result.catch === 'function') {
+        return result.catch((err) => {
+          setError(err);
+          return false;
+        });
+      }
+      return result;
+    } catch (err) {
+      setError(err);
+      return false;
+    }
+  }, [card, messages, setGameState]);
   const assets = R.useMemo(() => ({
     readFile: (filePath) => window.electronAPI?.readGameCardFile?.(cardId, filePath),
     getImageUrl: (filePath) => window.electronAPI?.getGameCardImageUrl?.(filePath),

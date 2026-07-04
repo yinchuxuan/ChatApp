@@ -32,6 +32,34 @@ function writeStatePath(state, path, value) {
   target[last] = value;
 }
 
+function ensureChapter2EventState(state) {
+  if (!state.events || typeof state.events !== 'object') state.events = {};
+  if (!Array.isArray(state.events.queue)) state.events.queue = [];
+  if (!state.events.fired || typeof state.events.fired !== 'object') state.events.fired = {};
+}
+
+function enqueueChapter2Event(state, eventItem) {
+  ensureChapter2EventState(state);
+  if (state.events.fired[eventItem.id]) return;
+  state.events.queue = [...state.events.queue, eventItem];
+  state.events.fired[eventItem.id] = true;
+}
+
+function enqueueEventsAfterSlotTransition(state, rawSlot) {
+  const previousSlot = readStatePath(state, 'story.progress') || readStatePath(state, 'timeline.currentSlot');
+  if (previousSlot !== 'FixedPlot1' || rawSlot.id === 'FixedPlot1') return;
+  enqueueChapter2Event(state, {
+    id: 'chapter2_after_fixedplot1_rehearsal_memory',
+    title: '脑海中的余音',
+    time: '2007.10.26 星期五 晚上',
+    body: '放学回家后，春希脑海中还在回忆刚才的三人合奏。萦绕在耳边的是：',
+    options: [
+      { id: 'piano', label: '隔壁的钢琴声', effects: { 'touma.affection': 1 } },
+      { id: 'song', label: '天台的歌声', effects: { 'setsuna.affection': 1 } }
+    ]
+  });
+}
+
 const chapter2BranchRules = [
   {
     statePath: 'story.chapter2SetsunaBranch',
@@ -177,6 +205,7 @@ function resolveChapter2Timeline(state) {
   ];
   const currentTime = state.timeline && state.timeline.currentTime;
   const rawSlot = slots.find((item) => inTimelineRange(currentTime, item.range)) || slots[0];
+  enqueueEventsAfterSlotTransition(state, rawSlot);
   const slot = applySlotPlotOverrides(state, rawSlot);
   if (slot.plotType === 'GameEnd1') writeStatePath(state, 'story.chapter2GameEnd1Reached', true);
   return {

@@ -67,6 +67,10 @@
   -webkit-backdrop-filter: blur(16px) saturate(1.12);
 }
 
+.app-container.game-card-theme-white-album-2 [data-gc-part="chat-header"] {
+  z-index: 130;
+}
+
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"] {
   left: clamp(128px, 11vw, 208px);
   right: clamp(128px, 11vw, 208px);
@@ -223,16 +227,16 @@
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-history"] {
   --chat-reading-width: 860px;
-  --game-card-panel-edge-gap: 15px;
+  --game-card-panel-edge-gap: 22px;
   --game-card-panel-inner-gap: 0px;
-  --wa2-reading-panel-height: calc(100vh - 30px);
-  padding-top: 15px;
-  padding-bottom: 15px;
+  --wa2-reading-panel-height: calc(100vh - 44px);
+  padding-top: 22px;
+  padding-bottom: 22px;
   scrollbar-color: rgba(148, 181, 204, 0.62) transparent;
 }
 
 .app-container.game-card-theme-white-album-2.game-card-visual-position-right [data-gc-part="chat-history"] {
-  padding-left: max(320px, calc(44% - var(--game-card-panel-edge-gap)));
+  padding-left: max(352px, calc(46% - var(--game-card-panel-edge-gap)));
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="background-overlay"] {
@@ -241,8 +245,8 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-reading-veil"] {
-  top: 15px;
-  bottom: 15px;
+  top: 22px;
+  bottom: 22px;
   overflow: hidden;
   opacity: 0 !important;
   background: transparent;
@@ -287,7 +291,7 @@
   border-radius: 14px;
   box-sizing: border-box;
   isolation: isolate;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.18);
   color: var(--gc-assistant-bubble-text);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.74),
@@ -361,7 +365,7 @@
 
 .app-container.game-card-theme-white-album-2 .msg-history-json {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   height: 100%;
   overflow: auto;
   color: var(--gc-assistant-bubble-text);
@@ -378,10 +382,40 @@
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   border-radius: inherit;
   pointer-events: none;
-  background: rgba(255, 255, 255, 0.60);
+  background-color: transparent;
+  background-image:
+    radial-gradient(circle at 9% 8%, rgba(255, 255, 255, 0.78) 0 1.7px, rgba(255, 255, 255, 0.30) 1.8px 2.7px, transparent 3px),
+    radial-gradient(circle at 24% 14%, rgba(255, 255, 255, 0.62) 0 1.2px, rgba(255, 255, 255, 0.22) 1.3px 2.1px, transparent 2.4px),
+    radial-gradient(circle at 43% 7%, rgba(255, 255, 255, 0.70) 0 1.5px, rgba(255, 255, 255, 0.24) 1.6px 2.5px, transparent 2.8px),
+    radial-gradient(circle at 67% 13%, rgba(255, 255, 255, 0.64) 0 1.3px, rgba(255, 255, 255, 0.22) 1.4px 2.2px, transparent 2.6px),
+    radial-gradient(circle at 87% 9%, rgba(255, 255, 255, 0.74) 0 1.6px, rgba(255, 255, 255, 0.26) 1.7px 2.6px, transparent 3px),
+    radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.56) 0 1.1px, rgba(255, 255, 255, 0.18) 1.2px 2px, transparent 2.3px),
+    radial-gradient(circle at 35% 31%, rgba(255, 255, 255, 0.66) 0 1.4px, rgba(255, 255, 255, 0.22) 1.5px 2.3px, transparent 2.7px),
+    radial-gradient(circle at 56% 23%, rgba(255, 255, 255, 0.58) 0 1.2px, rgba(255, 255, 255, 0.20) 1.3px 2.1px, transparent 2.4px),
+    radial-gradient(circle at 78% 34%, rgba(255, 255, 255, 0.70) 0 1.5px, rgba(255, 255, 255, 0.24) 1.6px 2.4px, transparent 2.8px),
+    radial-gradient(circle at 93% 27%, rgba(255, 255, 255, 0.54) 0 1.1px, rgba(255, 255, 255, 0.18) 1.2px 2px, transparent 2.3px),
+    radial-gradient(circle at 12% 46%, rgba(255, 255, 255, 0.64) 0 1.3px, rgba(255, 255, 255, 0.22) 1.4px 2.2px, transparent 2.6px),
+    radial-gradient(circle at 31% 55%, rgba(255, 255, 255, 0.58) 0 1.2px, rgba(255, 255, 255, 0.20) 1.3px 2.1px, transparent 2.4px),
+    radial-gradient(circle at 50% 43%, rgba(255, 255, 255, 0.72) 0 1.6px, rgba(255, 255, 255, 0.26) 1.7px 2.6px, transparent 3px),
+    radial-gradient(circle at 70% 52%, rgba(255, 255, 255, 0.60) 0 1.2px, rgba(255, 255, 255, 0.20) 1.3px 2.1px, transparent 2.5px),
+    radial-gradient(circle at 89% 45%, rgba(255, 255, 255, 0.68) 0 1.4px, rgba(255, 255, 255, 0.22) 1.5px 2.4px, transparent 2.8px),
+    radial-gradient(circle at 18% 68%, rgba(255, 255, 255, 0.70) 0 1.5px, rgba(255, 255, 255, 0.24) 1.6px 2.5px, transparent 2.9px),
+    radial-gradient(circle at 40% 73%, rgba(255, 255, 255, 0.56) 0 1.1px, rgba(255, 255, 255, 0.18) 1.2px 2px, transparent 2.3px),
+    radial-gradient(circle at 61% 63%, rgba(255, 255, 255, 0.62) 0 1.3px, rgba(255, 255, 255, 0.20) 1.4px 2.2px, transparent 2.6px),
+    radial-gradient(circle at 81% 71%, rgba(255, 255, 255, 0.58) 0 1.2px, rgba(255, 255, 255, 0.20) 1.3px 2.1px, transparent 2.4px),
+    radial-gradient(circle at 8% 88%, rgba(255, 255, 255, 0.66) 0 1.4px, rgba(255, 255, 255, 0.22) 1.5px 2.3px, transparent 2.7px),
+    radial-gradient(circle at 27% 82%, rgba(255, 255, 255, 0.58) 0 1.2px, rgba(255, 255, 255, 0.20) 1.3px 2.1px, transparent 2.4px),
+    radial-gradient(circle at 48% 92%, rgba(255, 255, 255, 0.74) 0 1.6px, rgba(255, 255, 255, 0.26) 1.7px 2.6px, transparent 3px),
+    radial-gradient(circle at 69% 84%, rgba(255, 255, 255, 0.60) 0 1.2px, rgba(255, 255, 255, 0.20) 1.3px 2.1px, transparent 2.5px),
+    radial-gradient(circle at 91% 91%, rgba(255, 255, 255, 0.68) 0 1.4px, rgba(255, 255, 255, 0.22) 1.5px 2.4px, transparent 2.8px);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.46;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.18));
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"]::after,
@@ -393,7 +427,7 @@
   z-index: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: rgba(255, 255, 255, 0.50);
+  background: rgba(255, 255, 255, 0.70);
   -webkit-mask:
     linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 10px, rgba(0, 0, 0, 0.16) 15px, rgba(0, 0, 0, 0.32) 20px, rgba(0, 0, 0, 0.50) 25px, rgba(0, 0, 0, 0.68) 30px, rgba(0, 0, 0, 0.84) 35px, rgba(0, 0, 0, 0.94) 40px, rgba(0, 0, 0, 0.99) 45px, #000 50px, #000 calc(100% - 50px), rgba(0, 0, 0, 0.99) calc(100% - 45px), rgba(0, 0, 0, 0.94) calc(100% - 40px), rgba(0, 0, 0, 0.84) calc(100% - 35px), rgba(0, 0, 0, 0.68) calc(100% - 30px), rgba(0, 0, 0, 0.50) calc(100% - 25px), rgba(0, 0, 0, 0.32) calc(100% - 20px), rgba(0, 0, 0, 0.16) calc(100% - 15px), rgba(0, 0, 0, 0.06) calc(100% - 10px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%),
     linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 11px, rgba(0, 0, 0, 0.16) 16px, rgba(0, 0, 0, 0.32) 22px, rgba(0, 0, 0, 0.50) 27px, rgba(0, 0, 0, 0.68) 32px, rgba(0, 0, 0, 0.84) 38px, rgba(0, 0, 0, 0.94) 43px, rgba(0, 0, 0, 0.99) 49px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.99) calc(100% - 49px), rgba(0, 0, 0, 0.94) calc(100% - 43px), rgba(0, 0, 0, 0.84) calc(100% - 38px), rgba(0, 0, 0, 0.68) calc(100% - 32px), rgba(0, 0, 0, 0.50) calc(100% - 27px), rgba(0, 0, 0, 0.32) calc(100% - 22px), rgba(0, 0, 0, 0.16) calc(100% - 16px), rgba(0, 0, 0, 0.06) calc(100% - 11px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%);
@@ -402,17 +436,19 @@
     linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 10px, rgba(0, 0, 0, 0.16) 15px, rgba(0, 0, 0, 0.32) 20px, rgba(0, 0, 0, 0.50) 25px, rgba(0, 0, 0, 0.68) 30px, rgba(0, 0, 0, 0.84) 35px, rgba(0, 0, 0, 0.94) 40px, rgba(0, 0, 0, 0.99) 45px, #000 50px, #000 calc(100% - 50px), rgba(0, 0, 0, 0.99) calc(100% - 45px), rgba(0, 0, 0, 0.94) calc(100% - 40px), rgba(0, 0, 0, 0.84) calc(100% - 35px), rgba(0, 0, 0, 0.68) calc(100% - 30px), rgba(0, 0, 0, 0.50) calc(100% - 25px), rgba(0, 0, 0, 0.32) calc(100% - 20px), rgba(0, 0, 0, 0.16) calc(100% - 15px), rgba(0, 0, 0, 0.06) calc(100% - 10px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%),
     linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 11px, rgba(0, 0, 0, 0.16) 16px, rgba(0, 0, 0, 0.32) 22px, rgba(0, 0, 0, 0.50) 27px, rgba(0, 0, 0, 0.68) 32px, rgba(0, 0, 0, 0.84) 38px, rgba(0, 0, 0, 0.94) 43px, rgba(0, 0, 0, 0.99) 49px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.99) calc(100% - 49px), rgba(0, 0, 0, 0.94) calc(100% - 43px), rgba(0, 0, 0, 0.84) calc(100% - 38px), rgba(0, 0, 0, 0.68) calc(100% - 32px), rgba(0, 0, 0, 0.50) calc(100% - 27px), rgba(0, 0, 0, 0.32) calc(100% - 22px), rgba(0, 0, 0, 0.16) calc(100% - 16px), rgba(0, 0, 0, 0.06) calc(100% - 11px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%);
   mask-composite: intersect;
+  -webkit-mask: none;
+  mask: none;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-list"],
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-row"] {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-row"] {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .app-container.game-card-theme-white-album-2 .pinned-divider {
@@ -480,6 +516,18 @@
   text-shadow:
     0 1px 0 rgba(255, 255, 255, 0.78),
     0 0 10px rgba(238, 248, 255, 0.32);
+}
+
+[data-theme="dark"] .app-container.game-card-theme-white-album-2 .chat-message.assistant .chat-bubble-content .quoted-text,
+[data-theme="dark"] .app-container.game-card-theme-white-album-2 .chat-message.user .chat-bubble-content .quoted-text {
+  background: transparent;
+  color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F));
+  border-radius: 0;
+  padding: 0;
+  font-weight: 700;
+  text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F)) 52%, transparent);
+  text-decoration-thickness: 0.06em;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.40);
 }
 
 .app-container.game-card-theme-white-album-2 [data-role="assistant"] .chat-message.assistant [data-gc-part="message-content"],

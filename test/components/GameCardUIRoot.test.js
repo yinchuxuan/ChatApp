@@ -51,4 +51,49 @@ describe('GameCardUIRoot', () => {
     expect(document.getElementById('game-card-ui-root-style').textContent)
       .toContain('choice-button');
   });
+
+  test('applies controlled game state actions from card React root', async () => {
+    const setGameState = jest.fn();
+    window.electronAPI.readGameCardFile.mockResolvedValue({
+      success: true,
+      content: `
+        function Root({ React, state, emit }) {
+          return React.createElement(
+            'button',
+            {
+              style: { pointerEvents: 'auto' },
+              onClick: () => emit({
+                type: 'game.state.apply',
+                actions: [
+                  { type: 'state.set', path: 'score', value: state.score + 5 },
+                  { type: 'state.set', path: 'events.queue', value: state.events.queue.slice(1) }
+                ]
+              })
+            },
+            'consume'
+          );
+        }
+      `
+    });
+    const card = {
+      id: 'event-card',
+      state: { schema: { schema: { score: { type: 'number', min: 0, max: 10, onInvalid: 'clamp' } } } },
+      ui: { root: { source: 'ui/root.js' } }
+    };
+
+    render(React.createElement(GameCardUIRoot, {
+      card,
+      gameState: { score: 8, events: { queue: [{ id: 'a' }, { id: 'b' }] } },
+      setGameState,
+      messages: [],
+      isLoading: false
+    }));
+
+    fireEvent.click(await screen.findByRole('button', { name: 'consume' }));
+
+    await waitFor(() => expect(setGameState).toHaveBeenCalledWith({
+      score: 10,
+      events: { queue: [{ id: 'b' }] }
+    }));
+  });
 });

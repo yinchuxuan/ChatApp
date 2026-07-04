@@ -166,7 +166,7 @@ function ChatPanel() {
 
   return C('div', { className: 'chat-panel', 'data-gc-part': 'chat-panel' },
     BackgroundRuntime ? C(BackgroundRuntime, { card: activeGameCard, gameState, defer: isLoading, revealToken: streamContentStartToken }) : null,
-    UiRoot ? C(UiRoot, { card: activeGameCard, gameState, messages, isLoading }) : null,
+    UiRoot ? C(UiRoot, { card: activeGameCard, gameState, setGameState, messages, isLoading }) : null,
     C('div', { className: 'chat-main', 'data-gc-part': 'chat-main' },
       C('div', { className: 'chat-header-hover-trigger', 'data-gc-part': 'chat-header-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, 'data-gc-part': 'chat-header', onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },

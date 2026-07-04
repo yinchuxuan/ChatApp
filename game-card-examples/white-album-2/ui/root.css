@@ -1,0 +1,277 @@
+.game-card-theme-white-album-2 .wa2-event-root {
+  --wa2-event-trigger-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5h14l-1.25 9H6.25L5 7.5Z' stroke='%2307131f' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M8.2 7.5l1.35-2.2h4.9l1.35 2.2M8.4 12.2h7.2' stroke='%2307131f' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  --wa2-event-time-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19Zm0 2a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15Zm1 3.2h-2v5.5l4.7 2.8 1-1.7-3.7-2.2V7.7Z' fill='%2307131f'/%3E%3C/svg%3E");
+  --wa2-event-panel-top: var(--game-card-panel-edge-gap, 22px);
+  --wa2-event-panel-right: var(--game-card-panel-edge-gap, 22px);
+  --wa2-event-panel-bottom: var(--game-card-panel-edge-gap, 22px);
+  --wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)));
+  --wa2-event-trigger-left: calc(var(--wa2-event-panel-left) + 36px);
+  position: fixed;
+  top: calc(var(--wa2-event-panel-top) + 2px);
+  right: auto;
+  left: var(--wa2-event-trigger-left);
+  z-index: 120;
+  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
+  pointer-events: none;
+}
+
+.game-card-theme-white-album-2 .wa2-event-trigger,
+.game-card-theme-white-album-2 .wa2-event-panel {
+  pointer-events: auto;
+}
+
+.game-card-theme-white-album-2 .wa2-event-trigger {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0;
+  gap: 5px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(3, 10, 18, 0.96);
+  cursor: pointer;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-weight: 300;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+
+.game-card-theme-white-album-2 .wa2-event-trigger:hover,
+.game-card-theme-white-album-2 .wa2-event-trigger:focus-visible,
+.game-card-theme-white-album-2 .wa2-event-root[data-open="true"] .wa2-event-trigger {
+  background: transparent;
+  color: rgba(3, 10, 18, 1);
+  box-shadow: none;
+}
+
+.game-card-theme-white-album-2 .wa2-event-root[data-has-events="true"] .wa2-event-trigger {
+  color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #3f78a8));
+  font-weight: 600;
+}
+
+.game-card-theme-white-album-2 .wa2-event-root[data-has-events="true"] .wa2-event-trigger-text {
+  font-weight: 600;
+}
+
+.game-card-theme-white-album-2 .wa2-event-trigger:focus-visible {
+  outline: 2px solid rgba(119, 156, 188, 0.46);
+  outline-offset: 4px;
+}
+
+.game-card-theme-white-album-2 .wa2-event-trigger-icon {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  background: currentColor;
+  font-size: 0;
+  line-height: 1;
+  -webkit-mask: var(--wa2-event-trigger-icon) center / contain no-repeat;
+  mask: var(--wa2-event-trigger-icon) center / contain no-repeat;
+}
+
+.game-card-theme-white-album-2 .wa2-event-trigger-text {
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) [data-gc-part="collapsed-message-view"],
+.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) .chat-messages-layer,
+.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) .msg-history-card {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.game-card-theme-white-album-2 .wa2-event-panel {
+  position: fixed;
+  top: var(--wa2-event-panel-top);
+  right: var(--wa2-event-panel-right);
+  bottom: var(--wa2-event-panel-bottom);
+  left: var(--wa2-event-panel-left);
+  z-index: 1;
+  padding: 54px 64px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.50);
+  border-radius: 14px;
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(216, 238, 252, 0.08)),
+    rgba(248, 252, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.70),
+    inset 0 -1px 0 rgba(190, 218, 238, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 0 28px rgba(255, 255, 255, 0.12),
+    0 18px 54px rgba(71, 104, 134, 0.10);
+  color: #07131f;
+  backdrop-filter: blur(12px) saturate(1.18) brightness(1.04);
+  -webkit-backdrop-filter: blur(12px) saturate(1.18) brightness(1.04);
+}
+
+.game-card-theme-white-album-2 .wa2-event-panel::before,
+.game-card-theme-white-album-2 .wa2-event-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.game-card-theme-white-album-2 .wa2-event-panel::before {
+  z-index: 1;
+  opacity: 0.72;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.24));
+  background:
+    radial-gradient(circle at 9% 8%, rgba(255, 255, 255, 0.32) 0 1.4px, rgba(255, 255, 255, 0.12) 1.5px 2.2px, transparent 2.6px),
+    radial-gradient(circle at 24% 14%, rgba(255, 255, 255, 0.24) 0 1px, rgba(255, 255, 255, 0.10) 1.1px 1.8px, transparent 2.1px),
+    radial-gradient(circle at 47% 9%, rgba(255, 255, 255, 0.28) 0 1.3px, rgba(255, 255, 255, 0.10) 1.4px 2px, transparent 2.4px),
+    radial-gradient(circle at 82% 17%, rgba(255, 255, 255, 0.30) 0 1.2px, rgba(255, 255, 255, 0.12) 1.3px 2px, transparent 2.4px),
+    radial-gradient(circle at 15% 38%, rgba(255, 255, 255, 0.24) 0 1px, rgba(255, 255, 255, 0.10) 1.1px 1.8px, transparent 2.1px),
+    radial-gradient(circle at 38% 52%, rgba(255, 255, 255, 0.30) 0 1.3px, rgba(255, 255, 255, 0.12) 1.4px 2.1px, transparent 2.5px),
+    radial-gradient(circle at 71% 45%, rgba(255, 255, 255, 0.26) 0 1.1px, rgba(255, 255, 255, 0.10) 1.2px 1.9px, transparent 2.2px),
+    radial-gradient(circle at 91% 58%, rgba(255, 255, 255, 0.28) 0 1.2px, rgba(255, 255, 255, 0.10) 1.3px 2px, transparent 2.4px),
+    radial-gradient(circle at 18% 78%, rgba(255, 255, 255, 0.30) 0 1.3px, rgba(255, 255, 255, 0.12) 1.4px 2.1px, transparent 2.5px),
+    radial-gradient(circle at 52% 88%, rgba(255, 255, 255, 0.26) 0 1.1px, rgba(255, 255, 255, 0.10) 1.2px 1.9px, transparent 2.2px),
+    radial-gradient(circle at 84% 82%, rgba(255, 255, 255, 0.32) 0 1.4px, rgba(255, 255, 255, 0.12) 1.5px 2.2px, transparent 2.6px),
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.28), transparent 34%),
+    radial-gradient(circle at 84% 88%, rgba(200, 226, 244, 0.14), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(236, 248, 255, 0.08));
+}
+
+.game-card-theme-white-album-2 .wa2-event-panel::after {
+  background: rgba(248, 252, 255, 0.24);
+  -webkit-mask:
+    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.18) 16px, rgba(0, 0, 0, 0.40) 24px, rgba(0, 0, 0, 0.68) 34px, rgba(0, 0, 0, 0.90) 44px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.90) calc(100% - 44px), rgba(0, 0, 0, 0.68) calc(100% - 34px), rgba(0, 0, 0, 0.40) calc(100% - 24px), rgba(0, 0, 0, 0.18) calc(100% - 16px), rgba(0, 0, 0, 0.04) calc(100% - 8px), transparent 100%),
+    linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.18) 16px, rgba(0, 0, 0, 0.40) 24px, rgba(0, 0, 0, 0.68) 34px, rgba(0, 0, 0, 0.90) 44px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.90) calc(100% - 44px), rgba(0, 0, 0, 0.68) calc(100% - 34px), rgba(0, 0, 0, 0.40) calc(100% - 24px), rgba(0, 0, 0, 0.18) calc(100% - 16px), rgba(0, 0, 0, 0.04) calc(100% - 8px), transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask:
+    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.18) 16px, rgba(0, 0, 0, 0.40) 24px, rgba(0, 0, 0, 0.68) 34px, rgba(0, 0, 0, 0.90) 44px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.90) calc(100% - 44px), rgba(0, 0, 0, 0.68) calc(100% - 34px), rgba(0, 0, 0, 0.40) calc(100% - 24px), rgba(0, 0, 0, 0.18) calc(100% - 16px), rgba(0, 0, 0, 0.04) calc(100% - 8px), transparent 100%),
+    linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.18) 16px, rgba(0, 0, 0, 0.40) 24px, rgba(0, 0, 0, 0.68) 34px, rgba(0, 0, 0, 0.90) 44px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.90) calc(100% - 44px), rgba(0, 0, 0, 0.68) calc(100% - 34px), rgba(0, 0, 0, 0.40) calc(100% - 24px), rgba(0, 0, 0, 0.18) calc(100% - 16px), rgba(0, 0, 0, 0.04) calc(100% - 8px), transparent 100%);
+  mask-composite: intersect;
+}
+
+.game-card-theme-white-album-2 .wa2-event-content,
+.game-card-theme-white-album-2 .wa2-event-empty {
+  position: relative;
+  z-index: 2;
+}
+
+.game-card-theme-white-album-2 .wa2-event-title {
+  margin: 0 0 6px;
+  color: #07131f;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+.game-card-theme-white-album-2 .wa2-event-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 16px;
+  color: rgba(7, 19, 31, 0.62);
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.game-card-theme-white-album-2 .wa2-event-time-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  background: currentColor;
+  -webkit-mask: var(--wa2-event-time-icon) center / contain no-repeat;
+  mask: var(--wa2-event-time-icon) center / contain no-repeat;
+}
+
+.game-card-theme-white-album-2 .wa2-event-body {
+  margin: 0 0 18px;
+  color: rgba(7, 19, 31, 0.84);
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.game-card-theme-white-album-2 .wa2-event-options {
+  display: grid;
+  gap: 9px;
+}
+
+.game-card-theme-white-album-2 .wa2-event-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 11px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.42);
+  color: #10263a;
+  cursor: pointer;
+  text-align: left;
+}
+
+.game-card-theme-white-album-2 .wa2-event-option:hover,
+.game-card-theme-white-album-2 .wa2-event-option:focus-visible {
+  border-color: rgba(96, 145, 184, 0.46);
+  box-shadow: 0 10px 28px rgba(65, 102, 132, 0.16);
+}
+
+.game-card-theme-white-album-2 .wa2-event-option-label {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.game-card-theme-white-album-2 .wa2-event-option-desc,
+.game-card-theme-white-album-2 .wa2-event-empty-text {
+  color: rgba(32, 58, 80, 0.70);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.game-card-theme-white-album-2 .wa2-event-empty {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-height: 100%;
+  text-align: center;
+}
+
+.game-card-theme-white-album-2 .wa2-event-empty-icon {
+  color: rgba(93, 126, 154, 0.60);
+  font-family: "Material Icons";
+  font-size: 38px;
+  line-height: 1;
+}
+
+.game-card-theme-white-album-2 .wa2-event-empty-title {
+  margin-top: 12px;
+  color: #07131f;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .game-card-theme-white-album-2 .wa2-event-root {
+    --wa2-event-panel-left: 14px;
+    --wa2-event-panel-right: 14px;
+    --wa2-event-panel-top: 15px;
+    --wa2-event-panel-bottom: 15px;
+    --wa2-event-trigger-left: calc(var(--wa2-event-panel-left) + 18px);
+    right: auto;
+  }
+
+  .game-card-theme-white-album-2 .wa2-event-panel {
+    padding: 54px 26px 24px;
+  }
+}

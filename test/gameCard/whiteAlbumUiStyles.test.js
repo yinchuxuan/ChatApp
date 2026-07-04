@@ -11,10 +11,15 @@ const displayCss = fs.readFileSync(
   path.join(__dirname, '../../game-card-examples/white-album-2/display.css'),
   'utf8'
 );
+const eventRootCss = fs.readFileSync(
+  path.join(__dirname, '../../game-card-examples/white-album-2/ui/root.css'),
+  'utf8'
+);
 
 describe('white album ui styles', () => {
   test('declares a dedicated ui stylesheet', () => {
     expect(card.ui.stylesheet).toBe('ui.css');
+    expect(card.ui.root).toMatchObject({ type: 'react', source: 'ui/root.js', style: 'ui/root.css' });
     expect(validateGameCard(card)).toEqual({ valid: true, errors: [] });
   });
 
@@ -65,7 +70,7 @@ describe('white album ui styles', () => {
     expect(css).toContain('.msg-history-card::after');
     expect(css).toContain('backdrop-filter: blur(7px) saturate(1.08) brightness(1)');
     expect(css).toContain('padding: 54px 64px 30px 64px');
-    expect(css).toContain('--wa2-reading-panel-height: calc(100vh - 30px)');
+    expect(css).toContain('--wa2-reading-panel-height: calc(100vh - 44px)');
     expect(css).toContain('height: var(--wa2-reading-panel-height)');
     expect(css).toContain('max-height: var(--wa2-reading-panel-height)');
     expect(css).toContain('min-height: min(560px, var(--wa2-reading-panel-height))');
@@ -81,16 +86,16 @@ describe('white album ui styles', () => {
     expect(css).toContain('[data-gc-part="message-list"]::-webkit-scrollbar');
     expect(css).toContain('.msg-history-json');
     expect(css).toContain('color: var(--gc-assistant-bubble-text)');
-    expect(css).toContain('background: rgba(255, 255, 255, 0.60)');
-    expect(css).toContain('background: rgba(255, 255, 255, 0.50)');
-    expect(css).toContain('linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.01) 5px');
-    expect(css).toContain('rgba(0, 0, 0, 0.68) 30px');
-    expect(css).toContain('rgba(0, 0, 0, 0.99) 45px');
-    expect(css).toContain('linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.01) 5px');
-    expect(css).toContain('rgba(0, 0, 0, 0.84) 38px');
-    expect(css).toContain('rgba(0, 0, 0, 0.99) 49px');
-    expect(css).toContain('-webkit-mask-composite: source-in');
-    expect(css).toContain('mask-composite: intersect');
+    expect(css).toContain('radial-gradient(circle at 9% 8%');
+    expect(css).toContain('radial-gradient(circle at 48% 92%');
+    expect(css).toContain('background-repeat: no-repeat');
+    expect(css).toContain('background-size: 100% 100%');
+    expect(css).toContain('opacity: 0.46');
+    expect(css).toContain('background: rgba(255, 255, 255, 0.18);');
+    expect(css).toContain('background: rgba(255, 255, 255, 0.70);');
+    expect(css).toContain('filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.18))');
+    expect(css).toContain('-webkit-mask: none');
+    expect(css).toContain('mask: none');
     expect(css).not.toContain('content: none');
     expect(css).not.toContain('inset: 54px 50px');
     expect(css).not.toContain('0 0 48px 42px rgba(248, 252, 255, 0.22)');
@@ -101,12 +106,12 @@ describe('white album ui styles', () => {
 
   test('keeps the visual panel close to the right app edge', () => {
     expect(css).toContain('--chat-reading-width: 860px');
-    expect(css).toContain('--game-card-panel-edge-gap: 15px');
+    expect(css).toContain('--game-card-panel-edge-gap: 22px');
     expect(css).toContain('--game-card-panel-inner-gap: 0px');
     expect(css).toContain('game-card-visual-position-right [data-gc-part="chat-history"]');
-    expect(css).toContain('padding-left: max(320px, calc(44% - var(--game-card-panel-edge-gap)))');
-    expect(css).toContain('padding-top: 15px');
-    expect(css).toContain('padding-bottom: 15px');
+    expect(css).toContain('padding-left: max(352px, calc(46% - var(--game-card-panel-edge-gap)))');
+    expect(css).toContain('padding-top: 22px');
+    expect(css).toContain('padding-bottom: 22px');
   });
 
   test('keeps user messages styled inside the unified text area', () => {
@@ -164,10 +169,32 @@ describe('white album ui styles', () => {
     expect(displayCss).not.toContain('.wa2-choice::before');
   });
 
-  test('keeps quoted dialogue from using dark theme blue highlights', () => {
-    expect(css).toContain('.chat-message.assistant .chat-bubble-content .quoted-text');
-    expect(css).toContain('.chat-message.user .chat-bubble-content .quoted-text');
-    expect(css).toContain('color: var(--gc-assistant-bubble-text)');
-    expect(css).toContain('text-decoration-color: color-mix(in srgb, var(--gc-assistant-bubble-text) 36%, transparent)');
+  test('uses the same quoted dialogue highlight in light and dark WA2 modes', () => {
+    expect(css).toContain('[data-theme="dark"] .app-container.game-card-theme-white-album-2 .chat-message.assistant .chat-bubble-content .quoted-text');
+    expect(css).toContain('[data-theme="dark"] .app-container.game-card-theme-white-album-2 .chat-message.user .chat-bubble-content .quoted-text');
+    expect(css).toContain('color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F))');
+    expect(css).toContain('text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F)) 52%, transparent)');
+  });
+
+  test('styles the local event panel as a frosted ui widget', () => {
+    expect(eventRootCss).toContain('.wa2-event-root');
+    expect(eventRootCss).toContain('.wa2-event-trigger');
+    expect(eventRootCss).toContain('.wa2-event-panel');
+    expect(eventRootCss).toContain('--wa2-event-trigger-icon: url("data:image/svg+xml');
+    expect(eventRootCss).toContain('--wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)))');
+    expect(eventRootCss).toContain('--wa2-event-trigger-left: calc(var(--wa2-event-panel-left) + 36px)');
+    expect(eventRootCss).toContain('top: calc(var(--wa2-event-panel-top) + 2px)');
+    expect(eventRootCss).toContain('font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif');
+    expect(eventRootCss).toContain('-webkit-mask: var(--wa2-event-trigger-icon) center / contain no-repeat');
+    expect(eventRootCss).toMatch(/color: rgba\(3, 10, 18, 0\.96\)[\s\S]*width: 22px[\s\S]*font-weight: 600/);
+    expect(eventRootCss).toContain('padding: 54px 64px 30px');
+    expect(eventRootCss).toContain('pointer-events: none');
+    expect(eventRootCss).toContain('pointer-events: auto');
+    expect(eventRootCss).toContain(':has(.wa2-event-root[data-open="true"])');
+    expect(eventRootCss).toContain('[data-gc-part="collapsed-message-view"]');
+    expect(eventRootCss).toContain('opacity: 0');
+    expect(eventRootCss).toMatch(/backdrop-filter: blur\(12px\) saturate\(1\.18\) brightness\(1\.04\)[\s\S]*z-index: 1;[\s\S]*radial-gradient\(circle at 52% 88%[\s\S]*z-index: 2/);
+    expect(eventRootCss).toMatch(/rgba\(248, 252, 255, 0\.24\)[\s\S]*\.wa2-event-time[\s\S]*color: rgba\(7, 19, 31, 0\.62\)/);
+    expect(eventRootCss).toContain('.wa2-event-empty-title');
   });
 });

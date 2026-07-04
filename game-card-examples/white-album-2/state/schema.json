@@ -105,6 +105,21 @@
       "llmRead": true,
       "llmWrite": false
     },
+    "events.queue": {
+      "type": "array",
+      "default": [],
+      "description": "本地 UI 待消费事件队列。事件由游戏卡脚本入队，UI 事件面板异步展示和消费。",
+      "llmRead": false,
+      "llmWrite": false,
+      "uiVisible": true
+    },
+    "events.fired": {
+      "type": "object",
+      "default": {},
+      "description": "本地事件去重标记，防止同一个剧情事件重复入队。",
+      "llmRead": false,
+      "llmWrite": false
+    },
     "visual.textPanel": {
       "type": "enum",
       "values": ["center", "left", "right"],
