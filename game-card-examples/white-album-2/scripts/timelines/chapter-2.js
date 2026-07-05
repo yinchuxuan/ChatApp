@@ -45,14 +45,14 @@ function enqueueChapter2Event(state, eventItem) {
   state.events.fired[eventItem.id] = true;
 }
 
-function enqueueEventsAfterSlotTransition(state, rawSlot) {
+function enqueueEventsAfterSlotTransition(state, rawSlot, ctx) {
   const previousSlot = readStatePath(state, 'story.progress') || readStatePath(state, 'timeline.currentSlot');
   if (previousSlot !== 'FixedPlot1' || rawSlot.id === 'FixedPlot1') return;
   enqueueChapter2Event(state, {
     id: 'chapter2_after_fixedplot1_rehearsal_memory',
-    title: '脑海中的余音',
-    time: '2007.10.26 星期五 晚上',
-    body: '放学回家后，春希脑海中还在回忆刚才的三人合奏。萦绕在耳边的是：',
+    title: '梦中的余音',
+    time: '2007.10.25 星期五 晚上',
+    body: ctx.files.read('event.chapter2.afterFixedPlot1.rehearsalMemory'),
     options: [
       { id: 'piano', label: '隔壁的钢琴声', effects: { 'touma.affection': 1 } },
       { id: 'song', label: '天台的歌声', effects: { 'setsuna.affection': 1 } }
@@ -131,7 +131,7 @@ function applySlotPlotOverrides(state, slot) {
   }, branchedSlot);
 }
 
-function resolveChapter2Timeline(state) {
+function resolveChapter2Timeline(state, ctx) {
   if (readStatePath(state, 'story.chapter2GameEnd1Reached')) {
     return {
       chapter: 'chapter_2',
@@ -205,7 +205,7 @@ function resolveChapter2Timeline(state) {
   ];
   const currentTime = state.timeline && state.timeline.currentTime;
   const rawSlot = slots.find((item) => inTimelineRange(currentTime, item.range)) || slots[0];
-  enqueueEventsAfterSlotTransition(state, rawSlot);
+  enqueueEventsAfterSlotTransition(state, rawSlot, ctx);
   const slot = applySlotPlotOverrides(state, rawSlot);
   if (slot.plotType === 'GameEnd1') writeStatePath(state, 'story.chapter2GameEnd1Reached', true);
   return {

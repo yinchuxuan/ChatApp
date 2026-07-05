@@ -14,6 +14,7 @@ describe('browser game card script order', () => {
     const contentObjects = scriptIndex(html, '../dist/gameCard/contentObjects.js');
     const contentResolver = scriptIndex(html, '../dist/gameCard/contentResolver.js');
     const execSource = scriptIndex(html, '../dist/gameCard/execSource.js');
+    const execFiles = scriptIndex(html, '../dist/gameCard/execFiles.js');
     const execRunner = scriptIndex(html, '../dist/gameCard/execRunner.js');
     const validateContent = scriptIndex(html, '../dist/gameCard/validateContent.js');
     const validateFind = scriptIndex(html, '../dist/gameCard/validateFind.js');
@@ -25,6 +26,7 @@ describe('browser game card script order', () => {
     const cardImportExpander = scriptIndex(html, '../dist/gameCard/cardImportExpander.js');
     const stateSchemaLoader = scriptIndex(html, '../dist/gameCard/stateSchemaLoader.js');
     const uiStateActions = scriptIndex(html, '../dist/gameCard/uiStateActions.js');
+    const uiScripts = scriptIndex(html, '../dist/gameCard/uiScripts.js');
     const sendPipeline = scriptIndex(html, '../dist/gameCard/sendPipeline.js');
 
     expect(statePaths).toBeGreaterThan(-1);
@@ -36,7 +38,8 @@ describe('browser game card script order', () => {
     expect(contentResolver).toBeGreaterThan(contentFiles);
     expect(contentResolver).toBeGreaterThan(findResolver);
     expect(execSource).toBeGreaterThan(contentResolver);
-    expect(execRunner).toBeGreaterThan(execSource);
+    expect(execFiles).toBeGreaterThan(execSource);
+    expect(execRunner).toBeGreaterThan(execFiles);
     expect(validateContent).toBeGreaterThan(-1);
     expect(validateFind).toBeGreaterThan(validateContent);
     expect(validatePredicates).toBeGreaterThan(validateContent);
@@ -48,6 +51,8 @@ describe('browser game card script order', () => {
     expect(resourcePreload).toBeGreaterThan(-1);
     expect(cardImportExpander).toBeGreaterThan(resourcePreload);
     expect(uiStateActions).toBeGreaterThan(stateSchemaLoader);
+    expect(uiScripts).toBeGreaterThan(uiStateActions);
+    expect(gameCardUiRoot).toBeGreaterThan(uiScripts);
     expect(gameCardUiRoot).toBeGreaterThan(uiStateActions);
     expect(sendPipeline).toBeGreaterThan(cardImportExpander);
     expect(sendPipeline).toBeGreaterThan(resourcePreload);

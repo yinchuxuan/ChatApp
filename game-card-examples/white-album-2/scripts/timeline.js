@@ -75,7 +75,7 @@ function run(ctx) {
 
   clampCurrentTimeToSlotEnd();
   const resolver = resolvers[chapterKey()] || resolveChapter1Timeline;
-  const result = resolver(state);
+  const result = resolver(state, ctx);
 
   state.timeline.currentSlot = result.slotId || result.plotType;
   state.timeline.currentSlotEnd = result.end;

@@ -10,6 +10,18 @@ function getStateActions() {
   return null;
 }
 
+function getScriptRunner() {
+  if (typeof window !== 'undefined' && window.GameCardUiScripts) return window.GameCardUiScripts;
+  if (typeof require !== 'undefined') return require('../gameCard/uiScripts');
+  return null;
+}
+
+function getMessageRenderers() {
+  if (typeof window !== 'undefined' && window.ChatPanelMessageRenderers) return window.ChatPanelMessageRenderers;
+  if (typeof require !== 'undefined') return require('./ChatPanelMessageRenderers');
+  return null;
+}
+
 function clone(value) {
   if (value === undefined) return undefined;
   return JSON.parse(JSON.stringify(value));
@@ -49,12 +61,55 @@ async function emitStateAction(event, options) {
   return result.applied;
 }
 
+async function emitScriptRun(event, options) {
+  const scriptRunner = getScriptRunner();
+  if (!scriptRunner || typeof options?.setGameState !== 'function') return false;
+  const result = await scriptRunner.applyUiScriptRunEvent({
+    event,
+    state: options.stateRef.current,
+    messages: options.messages,
+    card: options.card,
+    api: typeof window !== 'undefined' ? window.electronAPI : null
+  });
+  if (result.trace?.error) throw new Error(result.trace.error);
+  if (result.trace?.reason) return false;
+  options.stateRef.current = result.state;
+  options.setGameState(result.state);
+  return result.applied;
+}
+
 function handleUiEvent(event, options) {
   const type = event?.type;
   const inputTypes = ['chat.input.set', 'chat.input.append', 'chat.input.clear', 'chat.input.focus', 'chat.input.submit', 'chat.send'];
   if (inputTypes.includes(type)) return emitInputAction(event);
   if (type === 'game.state.apply') return emitStateAction(event, options);
+  if (type === 'game.script.run') return emitScriptRun(event, options);
   return false;
+}
+
+function renderAssistantMessage(R, content, card, options = {}) {
+  const renderers = getMessageRenderers();
+  if (!renderers?.renderAssistantMsg) return String(content || '');
+  const rowClass = ['chat-message-row', options.rowClassName].filter(Boolean).join(' ');
+  const msgClass = ['chat-message assistant', options.messageClassName].filter(Boolean).join(' ');
+  const bubble = renderers.renderAssistantMsg(
+    R,
+    { role: 'assistant', content: String(content || '') },
+    0,
+    false,
+    null,
+    '',
+    false,
+    () => {},
+    () => {},
+    window.marked,
+    window.DOMPurify,
+    window.highlightQuotes,
+    card?.display
+  );
+  return R.createElement('div', { className: rowClass, 'data-gc-part': 'message-row', 'data-role': 'assistant' },
+    R.createElement('div', { className: msgClass, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } }, bubble)
+  );
 }
 
 function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isLoading = false }) {
@@ -114,6 +169,12 @@ function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isL
     getImageUrl: (filePath) => window.electronAPI?.getGameCardImageUrl?.(filePath),
     getAudioUrl: (filePath) => window.electronAPI?.getGameCardAudioUrl?.(filePath)
   }), [cardId]);
+  const ui = R.useMemo(() => ({
+    cardId,
+    isLoading,
+    root: card?.ui?.root || {},
+    renderAssistantMessage: (content, options) => renderAssistantMessage(R, content, card, options)
+  }), [R, cardId, isLoading, card]);
 
   if (!loadedRoot?.Component) return null;
   return C('div', {
@@ -125,7 +186,7 @@ function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isL
     React: R,
     state: safeState,
     messages: safeMessages,
-    ui: { cardId, isLoading, root: card?.ui?.root || {} },
+    ui,
     props: loadedRoot.props || {},
     assets,
     emit

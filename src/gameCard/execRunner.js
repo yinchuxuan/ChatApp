@@ -1,4 +1,5 @@
 const { resolveExecSource } = require('./execSource');
+const { createExecFiles } = require('./execFiles');
 
 function deepClone(value) {
   if (value === undefined) return undefined;
@@ -89,7 +90,7 @@ function buildInlineSource(source) {
       'use strict';
       ${blockedGlobals()}
       const ctx = __ctx;
-      const { messages, state, config, event, utils } = ctx;
+      const { messages, state, config, event, utils, files } = ctx;
       ${source}
     })()
   `;
@@ -109,7 +110,7 @@ function buildFileSource(source) {
 
 function buildBrowserSource(source, isSourceFile) {
   if (isSourceFile) return `${source}\nif (typeof run !== 'function') throw new Error('exec sourceFile must define function run(ctx)');\nreturn run(__ctx);`;
-  return `'use strict';\nconst ctx = __ctx;\nconst { messages, state, config, event, utils } = ctx;\n${source}`;
+  return `'use strict';\nconst ctx = __ctx;\nconst { messages, state, config, event, utils, files } = ctx;\n${source}`;
 }
 
 function runInNodeVm(source, context, timeoutMs, isSourceFile) {
@@ -154,6 +155,7 @@ function runExecAction(messages, state, action, options = {}) {
     state: deepClone(state),
     config: createConfig(options.card),
     event: deepFreeze(deepClone(options.event || {})),
+    files: createExecFiles(options, state),
     utils: createUtils()
   };
 

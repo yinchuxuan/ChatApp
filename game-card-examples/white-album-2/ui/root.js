@@ -52,13 +52,62 @@ function eventTime(eventItem) {
   return eventItem.time || eventItem.date || eventItem.occurredAt || '';
 }
 
-function Root({ React, state, emit }) {
+function eventBodySegments(body) {
+  return String(body).split(/(“[^”]*”|‘[^’]*’|「[^」]*」|『[^』]*』|"[^"]*"|'[^']*')/g).filter(Boolean);
+}
+
+function isQuotedSegment(segment) {
+  return /^(“[\s\S]*”|‘[\s\S]*’|「[\s\S]*」|『[\s\S]*』|"[\s\S]*"|'[\s\S]*')$/.test(segment);
+}
+
+function eventBodyParagraphs(body) {
+  return String(body).replace(/\r\n/g, '\n').split(/\n{2,}/).map(part => part.trim()).filter(Boolean);
+}
+
+function renderTextSegments(C, text, keyPrefix) {
+  return eventBodySegments(text).map((segment, index) => (
+    isQuotedSegment(segment)
+      ? C('span', { key: `${keyPrefix}-${index}`, className: 'quoted-text' }, segment)
+      : segment
+  ));
+}
+
+function renderParagraph(C, paragraph, index) {
+  const lines = paragraph.split('\n');
+  const children = [];
+  lines.forEach((line, lineIndex) => {
+    if (lineIndex > 0) children.push(C('br', { key: `${index}-br-${lineIndex}` }));
+    children.push(...renderTextSegments(C, line, `${index}-${lineIndex}`));
+  });
+  return C('p', { key: index }, children);
+}
+
+function renderEventBody(C, ui, body) {
+  if (ui && typeof ui.renderAssistantMessage === 'function') {
+    return ui.renderAssistantMessage(body, {
+      rowClassName: 'wa2-event-message-row',
+      messageClassName: 'wa2-event-body'
+    });
+  }
+  return C('div', { className: 'wa2-event-message-row chat-message-row', 'data-gc-part': 'message-row', 'data-role': 'assistant' },
+    C('div', { className: 'wa2-event-body chat-message assistant', 'data-gc-part': 'message' },
+      C('div', { className: 'chat-message-bubble', 'data-gc-part': 'message-bubble' },
+        C('div', { className: 'chat-bubble-content', 'data-gc-part': 'message-content' },
+          eventBodyParagraphs(body).map((paragraph, index) => renderParagraph(C, paragraph, index))
+        )
+      )
+    )
+  );
+}
+
+function Root({ React, state, emit, ui }) {
   const C = React.createElement;
   const queue = queueFromState(state);
   const eventItem = queue[0];
   const eventId = eventItem && eventItem.id ? String(eventItem.id) : '';
   const options = eventItem && Array.isArray(eventItem.options) ? eventItem.options : [];
   const [open, setOpen] = React.useState(false);
+  const contentRef = React.useRef(null);
 
   React.useEffect(() => {
     setOpen(false);
@@ -73,6 +122,13 @@ function Root({ React, state, emit }) {
     else setOpen(false);
   }
 
+  function scrollPanel(event) {
+    const content = contentRef.current;
+    if (!content || event.target.closest?.('.wa2-event-content')) return;
+    if (content.scrollHeight <= content.clientHeight) return;
+    content.scrollTop += event.deltaY;
+  }
+
   function renderEmpty() {
     return C('div', { className: 'wa2-event-empty' },
       C('div', { className: 'material-icons wa2-event-empty-icon', 'aria-hidden': 'true' }, 'inbox'),
@@ -83,13 +139,13 @@ function Root({ React, state, emit }) {
 
   function renderEvent() {
     const time = eventTime(eventItem);
-    return C('div', { className: 'wa2-event-content' },
+    return C('div', { className: 'wa2-event-content', ref: contentRef },
       C('h2', { className: 'wa2-event-title' }, eventTitle(eventItem)),
       time ? C('div', { className: 'wa2-event-time' },
         C('span', { className: 'wa2-event-time-icon', 'aria-hidden': 'true' }),
         C('span', { className: 'wa2-event-time-text' }, String(time))
       ) : null,
-      eventItem.body ? C('p', { className: 'wa2-event-body' }, String(eventItem.body)) : null,
+      eventItem.body ? renderEventBody(C, ui, eventItem.body) : null,
       C('div', { className: 'wa2-event-options' },
         options.map((option, index) => C('button', {
           key: option && option.id ? String(option.id) : String(index),
@@ -117,7 +173,7 @@ function Root({ React, state, emit }) {
     },
     C('span', { className: 'material-icons wa2-event-trigger-icon', 'aria-hidden': 'true' }, 'inbox'),
     C('span', { className: 'wa2-event-trigger-text' }, '事件')),
-    open ? C('section', { className: 'wa2-event-panel', 'aria-label': '事件' },
+    open ? C('section', { className: 'wa2-event-panel', 'aria-label': '事件', onWheel: scrollPanel },
       eventItem ? renderEvent() : renderEmpty()
     ) : null
   );

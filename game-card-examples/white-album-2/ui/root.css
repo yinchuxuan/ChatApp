@@ -7,7 +7,7 @@
   --wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)));
   --wa2-event-trigger-left: calc(var(--wa2-event-panel-left) + 36px);
   position: fixed;
-  top: calc(var(--wa2-event-panel-top) + 2px);
+  top: calc(var(--wa2-event-panel-top) - 2px);
   right: auto;
   left: var(--wa2-event-trigger-left);
   z-index: 120;
@@ -26,10 +26,10 @@
   display: inline-flex;
   align-items: center;
   min-height: 22px;
-  padding: 0;
+  padding: 1px 8px 1px 5px;
   gap: 5px;
-  border: 0;
-  border-radius: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
   background: transparent;
   color: rgba(3, 10, 18, 0.96);
   cursor: pointer;
@@ -52,6 +52,11 @@
 .game-card-theme-white-album-2 .wa2-event-root[data-has-events="true"] .wa2-event-trigger {
   color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #3f78a8));
   font-weight: 600;
+  border-color: color-mix(in srgb, currentColor 48%, rgba(255, 255, 255, 0.82));
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    0 4px 14px rgba(72, 112, 146, 0.12);
 }
 
 .game-card-theme-white-album-2 .wa2-event-root[data-has-events="true"] .wa2-event-trigger-text {
@@ -96,24 +101,24 @@
   bottom: var(--wa2-event-panel-bottom);
   left: var(--wa2-event-panel-left);
   z-index: 1;
+  display: flex;
+  flex-direction: column;
   padding: 54px 64px 30px;
   border: 1px solid rgba(255, 255, 255, 0.50);
   border-radius: 14px;
   box-sizing: border-box;
   overflow: hidden;
   isolation: isolate;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(216, 238, 252, 0.08)),
-    rgba(248, 252, 255, 0.14);
+  background: rgba(255, 255, 255, 0.18);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.70),
-    inset 0 -1px 0 rgba(190, 218, 238, 0.12),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
-    inset 0 0 28px rgba(255, 255, 255, 0.12),
-    0 18px 54px rgba(71, 104, 134, 0.10);
+    inset 0 1px 0 rgba(255, 255, 255, 0.74),
+    inset 0 -1px 0 rgba(190, 218, 238, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.20),
+    inset 0 0 34px rgba(255, 255, 255, 0.24),
+    0 18px 54px rgba(71, 104, 134, 0.08);
   color: #07131f;
-  backdrop-filter: blur(12px) saturate(1.18) brightness(1.04);
-  -webkit-backdrop-filter: blur(12px) saturate(1.18) brightness(1.04);
+  backdrop-filter: blur(7px) saturate(1.08) brightness(1);
+  -webkit-backdrop-filter: blur(7px) saturate(1.08) brightness(1);
 }
 
 .game-card-theme-white-album-2 .wa2-event-panel::before,
@@ -148,21 +153,28 @@
 }
 
 .game-card-theme-white-album-2 .wa2-event-panel::after {
-  background: rgba(248, 252, 255, 0.24);
-  -webkit-mask:
-    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.18) 16px, rgba(0, 0, 0, 0.40) 24px, rgba(0, 0, 0, 0.68) 34px, rgba(0, 0, 0, 0.90) 44px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.90) calc(100% - 44px), rgba(0, 0, 0, 0.68) calc(100% - 34px), rgba(0, 0, 0, 0.40) calc(100% - 24px), rgba(0, 0, 0, 0.18) calc(100% - 16px), rgba(0, 0, 0, 0.04) calc(100% - 8px), transparent 100%),
-    linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.18) 16px, rgba(0, 0, 0, 0.40) 24px, rgba(0, 0, 0, 0.68) 34px, rgba(0, 0, 0, 0.90) 44px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.90) calc(100% - 44px), rgba(0, 0, 0, 0.68) calc(100% - 34px), rgba(0, 0, 0, 0.40) calc(100% - 24px), rgba(0, 0, 0, 0.18) calc(100% - 16px), rgba(0, 0, 0, 0.04) calc(100% - 8px), transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask:
-    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.18) 16px, rgba(0, 0, 0, 0.40) 24px, rgba(0, 0, 0, 0.68) 34px, rgba(0, 0, 0, 0.90) 44px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.90) calc(100% - 44px), rgba(0, 0, 0, 0.68) calc(100% - 34px), rgba(0, 0, 0, 0.40) calc(100% - 24px), rgba(0, 0, 0, 0.18) calc(100% - 16px), rgba(0, 0, 0, 0.04) calc(100% - 8px), transparent 100%),
-    linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.18) 16px, rgba(0, 0, 0, 0.40) 24px, rgba(0, 0, 0, 0.68) 34px, rgba(0, 0, 0, 0.90) 44px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.90) calc(100% - 44px), rgba(0, 0, 0, 0.68) calc(100% - 34px), rgba(0, 0, 0, 0.40) calc(100% - 24px), rgba(0, 0, 0, 0.18) calc(100% - 16px), rgba(0, 0, 0, 0.04) calc(100% - 8px), transparent 100%);
-  mask-composite: intersect;
+  background: rgba(255, 255, 255, 0.70);
+  -webkit-mask: none;
+  mask: none;
 }
 
 .game-card-theme-white-album-2 .wa2-event-content,
 .game-card-theme-white-album-2 .wa2-event-empty {
   position: relative;
   z-index: 2;
+}
+
+.game-card-theme-white-album-2 .wa2-event-content {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: none;
+}
+
+.game-card-theme-white-album-2 .wa2-event-content::-webkit-scrollbar {
+  display: none;
 }
 
 .game-card-theme-white-album-2 .wa2-event-title {
@@ -196,11 +208,34 @@
   mask: var(--wa2-event-time-icon) center / contain no-repeat;
 }
 
-.game-card-theme-white-album-2 .wa2-event-body {
+.game-card-theme-white-album-2 .wa2-event-message-row {
+  max-width: none;
   margin: 0 0 18px;
+}
+
+.game-card-theme-white-album-2 .wa2-event-body {
+  width: 100%;
   color: rgba(7, 19, 31, 0.84);
-  font-size: 14px;
-  line-height: 1.9;
+}
+
+.game-card-theme-white-album-2 .wa2-event-body .chat-message-bubble {
+  padding: 8px 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  color: rgba(7, 19, 31, 0.84);
+  font-family: var(--gc-message-font, "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif);
+  font-size: var(--gc-message-font-size, 14px);
+  line-height: var(--gc-message-line-height, 1.96);
+}
+
+.game-card-theme-white-album-2 .wa2-event-body .chat-bubble-content p {
+  margin: 0 0 1em;
+  line-height: var(--game-card-paragraph-line-height, 2.12);
+}
+
+.game-card-theme-white-album-2 .wa2-event-body .chat-bubble-content p:last-child {
+  margin-bottom: 0;
 }
 
 .game-card-theme-white-album-2 .wa2-event-options {

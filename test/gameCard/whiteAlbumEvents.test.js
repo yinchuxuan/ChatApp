@@ -29,6 +29,10 @@ function runTimeline(currentTime, overrides = {}) {
       id: 'white-album-2',
       name: 'WA2 Timeline',
       state: { schema: stateSchema },
+      files: {
+        'event.chapter2.afterFixedPlot1.rehearsalMemory':
+          'events/chapter2-after-fixedplot1-rehearsal-memory.md'
+      },
       rules: [{ when: { phase: 'pre_send' }, then: [{ type: 'exec', sourceFile: 'scripts/timeline.js' }] }]
     },
     phase: 'pre_send',
@@ -37,7 +41,9 @@ function runTimeline(currentTime, overrides = {}) {
     fileContents: {
       'scripts/timeline.js': readCardFile('scripts/timeline.js'),
       'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
-      'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js')
+      'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js'),
+      'events/chapter2-after-fixedplot1-rehearsal-memory.md':
+        readCardFile('events/chapter2-after-fixedplot1-rehearsal-memory.md')
     }
   });
 }
@@ -89,7 +95,7 @@ describe('white album 2 local events', () => {
           id: 'sample-event',
           title: '雪菜的答复',
           time: '2007.10.26 放学后 星期五',
-          body: '雪菜答应加入同好会之后，春希可以选择如何回应她。',
+          body: '雪菜说“谢谢你”。春希可以选择如何回应她。\n\n第二段里，他又听见「隔壁的钢琴声」。',
           options: [
             { id: 'thank', label: '认真道谢', effects: { 'setsuna.affection': 2, 'touma.affection': -2 } },
             { id: 'light', label: '轻轻带过', effects: { 'setsuna.affection': -1 } }
@@ -110,6 +116,17 @@ describe('white album 2 local events', () => {
     expect(screen.queryByText(/队列/)).not.toBeInTheDocument();
     expect(screen.getByText('2007.10.26 放学后 星期五')).toBeInTheDocument();
     expect(container.querySelector('.wa2-event-time-icon')).not.toBeNull();
+    expect(container.querySelector('.wa2-event-content')).not.toBeNull();
+    expect(container.querySelector('.wa2-event-body .chat-message-bubble')).not.toBeNull();
+    expect(container.querySelector('.wa2-event-body .quoted-text')).toHaveTextContent('“谢谢你”');
+    expect(container.querySelectorAll('.wa2-event-body p')).toHaveLength(2);
+    expect(container.querySelectorAll('.wa2-event-body .quoted-text')[1]).toHaveTextContent('「隔壁的钢琴声」');
+    const panel = container.querySelector('.wa2-event-panel');
+    const content = container.querySelector('.wa2-event-content');
+    Object.defineProperty(content, 'scrollHeight', { configurable: true, value: 1000 });
+    Object.defineProperty(content, 'clientHeight', { configurable: true, value: 320 });
+    fireEvent.wheel(panel, { deltaY: 120 });
+    expect(content.scrollTop).toBe(120);
     fireEvent.click(screen.getByRole('button', { name: '认真道谢' }));
 
     expect(emit).toHaveBeenCalledWith({
@@ -133,14 +150,23 @@ describe('white album 2 local events', () => {
     expect(result.state.story.progress).toBe('FreePlot1');
     expect(eventItem).toMatchObject({
       id: 'chapter2_after_fixedplot1_rehearsal_memory',
-      title: '脑海中的余音',
-      time: '2007.10.26 星期五 晚上',
-      body: '放学回家后，春希脑海中还在回忆刚才的三人合奏。萦绕在耳边的是：',
+      title: '梦中的余音',
+      time: '2007.10.25 星期五 晚上',
       options: [
         { id: 'piano', label: '隔壁的钢琴声', effects: { 'touma.affection': 1 } },
         { id: 'song', label: '天台的歌声', effects: { 'setsuna.affection': 1 } }
       ]
     });
+    expect(eventItem.body).toContain('白天那场合奏的疼');
+    expect(eventItem.body).toContain('冬马坐在靠窗的位置');
+    expect(eventItem.body).toContain('神秘钢琴手');
+    expect(eventItem.body).toContain('武也和依绪的笑声');
+    expect(eventItem.body).toContain('只能看见一双手在光里移动');
+    expect(eventItem.body).toContain('如果我唱得比钢琴更近一点');
+    expect(eventItem.body).toContain('你到底要听哪边');
+    expect(eventItem.body).toContain('身体越过了理智的边界');
+    expect(eventItem.body.length).toBeGreaterThan(2500);
+    expect(eventItem.body.length).toBeLessThan(4500);
     expect(result.state.events.fired.chapter2_after_fixedplot1_rehearsal_memory).toBe(true);
   });
 

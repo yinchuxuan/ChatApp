@@ -158,6 +158,7 @@ React 组件不直接修改 `gameState`，只发受控事件：
 emit({ type: "chat.input.set", value: "A. 去第三音乐室", focus: true });
 emit({ type: "chat.send", content: "继续" });
 emit({ type: "game.state.apply", action: { type: "state.set", path: "score", value: 1 } });
+emit({ type: "game.script.run", sourceFile: "ui/events/pick.js", payload: { optionId: "a" } });
 ```
 
 平台处理事件：
@@ -166,9 +167,9 @@ emit({ type: "game.state.apply", action: { type: "state.set", path: "score", val
 emit -> 平台受控事件 -> 输入框/发送管线 -> 保存 session -> 重新渲染
 ```
 
-第一批已支持事件：`chat.input.set`、`chat.input.append`、`chat.input.clear`、`chat.input.focus`、`chat.input.submit`、`chat.send`、`game.state.apply`。
+第一批已支持事件：`chat.input.set`、`chat.input.append`、`chat.input.clear`、`chat.input.focus`、`chat.input.submit`、`chat.send`、`game.state.apply`、`game.script.run`。
 
-`game.state.apply` 支持单个 `action` 或 `actions` 数组，只允许 `state.*` action；平台会加载卡内 schema、执行校验/clamp、更新并保存 session。UI 组件仍不拿可变 `gameState` 引用。
+`game.state.apply` 支持单个 `action` 或 `actions` 数组，只允许 `state.*` action；`game.script.run` 执行卡内 `sourceFile` 脚本，`payload` 通过 `ctx.event.payload` 传入。平台会加载卡内 schema、执行受控状态更新并保存 session。UI 组件仍不拿可变 `gameState` 引用。
 
 ## 输入框行为
 
