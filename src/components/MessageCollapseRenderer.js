@@ -1,15 +1,8 @@
 // MessageCollapseRenderer - Renders collapsed/pinned message view
 // Last user message is pinned; earlier messages are collapsed; scroll-up expands with pull animation
 
-const PULL_THRESHOLD = 60;
-const PULL_RESISTANCE = 0.4;
-const MAX_PULL = 120;
-
-let pullOffset = 0;
-let pullPhase = 'none';
-let pullAccum = 0;
-let pullTimer = null;
-let onExpandRef = null;
+const PULL_THRESHOLD = 60, PULL_RESISTANCE = 0.4, MAX_PULL = 120;
+let pullOffset = 0, pullPhase = 'none', pullAccum = 0, pullTimer = null, onExpandRef = null;
 
 function setPullOffset(v) { pullOffset = v; }
 function setPullPhase(v) { pullPhase = v; }
@@ -53,6 +46,8 @@ function filterDialogueMessages(messages) {
       msg?._meta?.visibility !== 'debug_only')
     .map(({ msg, index }) => ({ ...msg, _renderIndex: index }));
 }
+
+function renderUserMessage(renderUser, msg, renderIndex) { return renderUser.usesMessageObject ? renderUser(msg, renderIndex) : renderUser(msg.content); }
 
 const MessageCollapseRenderer = {
   findLastAssistantIndex(messages) {
@@ -121,7 +116,7 @@ const MessageCollapseRenderer = {
           elements.push(
             R.createElement('div', { key: 'hist-' + i, className: 'chat-message-row', 'data-gc-part': 'message-row', 'data-role': msg.role },
               R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
-                renderMarkdown(msg.content)
+                renderUserMessage(renderMarkdown, msg, renderIndex)
               )
             )
           );
@@ -152,7 +147,7 @@ const MessageCollapseRenderer = {
         elements.push(
           R.createElement('div', { key: 'pinned-' + i, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}`, 'data-gc-part': 'message-row', 'data-role': msg.role },
             R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
-              renderMarkdown(msg.content)
+              renderUserMessage(renderMarkdown, msg, renderIndex)
             ),
             renderRetryBtn(isRetrySource, isLoading)
           )

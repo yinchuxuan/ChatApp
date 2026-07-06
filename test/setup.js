@@ -78,8 +78,14 @@ global.window.MessageCollapseRenderer = MessageCollapseRenderer;
 const useTypewriter = require('../src/components/useTypewriter.js');
 global.window.useTypewriter = useTypewriter;
 
+const ChatGeneration = require('../src/components/chatGeneration.js');
+global.window.ChatGeneration = ChatGeneration;
+
 const useRetry = require('../src/components/useRetry.js');
 global.window.useRetry = useRetry;
+
+const useLastUserMessageEdit = require('../src/components/useLastUserMessageEdit.js');
+global.window.useLastUserMessageEdit = useLastUserMessageEdit;
 
 const highlightQuotes = require('../src/components/highlightQuotes.js');
 global.window.highlightQuotes = highlightQuotes.highlightQuotes;

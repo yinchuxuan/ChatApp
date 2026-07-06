@@ -9,6 +9,7 @@
 @import url('./components.chat-messages.css');
 @import url('./components.chat-content.css');
 @import url('./components.chat-quotes.css');
+@import url('./components.message-edit.css');
 @import url('./components.collapsed-message.css');
 @import url('./components.dialogs.css');
 @import url('./components.inputs.css');

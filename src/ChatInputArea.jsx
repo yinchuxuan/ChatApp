@@ -1,6 +1,12 @@
 // ChatInputArea Component - Extracted from ChatPanel
 // Encapsulates input textarea, send button, and submission logic
 
+function getChatGeneration() {
+  if (typeof window !== 'undefined' && window.ChatGeneration) return window.ChatGeneration;
+  if (typeof require !== 'undefined') return require('./components/chatGeneration');
+  return null;
+}
+
 function ChatInputArea({
   messages,
   setMessages,
@@ -26,12 +32,7 @@ function ChatInputArea({
   const [isFocused, setIsFocused] = R.useState(false);
   const formRef = R.useRef(null), textareaRef = R.useRef(null);
   const isVisible = isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
-  const clone = (value) => JSON.parse(JSON.stringify(value));
-  const stripTurnContext = (content) => typeof content === 'string'
-    ? content.replace(/\n*---\s*\n\s*<wa2_turn_context>[\s\S]*?<\/wa2_turn_context>\s*$/g, '')
-    : content;
-  const normalizeRetryMessages = (msgs) => clone(msgs).filter(msg => msg?.ttl === undefined).map(msg =>
-    msg?.role === 'user' ? { ...msg, content: stripTurnContext(msg.content) } : msg);
+  const chatGeneration = getChatGeneration();
   const focusInput = R.useCallback(() => {
     setIsInputHovered(true);
     setTimeout(() => textareaRef.current?.focus(), 0);
@@ -47,76 +48,25 @@ function ChatInputArea({
     onAudioSubmit?.();
     const userMessage = { role: 'user', content: value };
     const newMessages = [...messages, userMessage];
-    if (retryBaseRef) retryBaseRef.current = normalizeRetryMessages(newMessages);
-    if (retryBaseStateRef) retryBaseStateRef.current = clone(gameState);
-    setMessages(newMessages); setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); setIsLoading(true);
+    if (retryBaseRef) retryBaseRef.current = chatGeneration.normalizeRetryMessages(newMessages);
+    if (retryBaseStateRef) retryBaseStateRef.current = chatGeneration.cloneChatValue(gameState);
+    setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false);
     const textarea = formElement?.querySelector('textarea') || textareaRef.current;
     if (textarea) textarea.blur();
-    tw.startStreaming(); setShowStreamThinking(true);
-    try {
-      const preparePreSend = window.preparePreSendMessages || (async ({ messages }) => ({ messages }));
-      const toApiMessages = window.toGameCardApiMessages || ((msgs) => msgs.map(msg => ({ role: msg.role, content: msg.content })));
-      const preSend = await preparePreSend({ messages: newMessages, state: gameState });
-      if (preSend.error) {
-        setIsLoading(false); tw.reset();
-        onGameCardError?.(window.normalizeGameCardError?.(preSend) || preSend);
-        return;
-      }
-      onGameCardError?.(null);
-      if (preSend.state && setGameState) setGameState(preSend.state);
-      if (preSend.applied) {
-        setMessages(preSend.messages);
-      }
-      let contentStarted = false;
-      const notifyContentStart = () => {
-        if (contentStarted) return;
-        contentStarted = true;
-        onStreamContentStart?.();
-      };
-      await window.sendChatRequest(
-        {
-          apiUrl: modelConfig.apiUrl,
-          apiKey: modelConfig.apiKey,
-          modelName: modelConfig.modelName,
-          protocol: modelConfig.protocol || 'openai',
-          maxTokens: modelConfig.maxTokens,
-          temperature: modelConfig.temperature,
-          topP: modelConfig.topP,
-          frequencyPenalty: modelConfig.frequencyPenalty,
-          presencePenalty: modelConfig.presencePenalty,
-          messages: toApiMessages(preSend.messages)
-        },
-        {
-          onToken: (text) => { if (tw.pushContent(text)) notifyContentStart(); },
-          onThinkingToken: (text) => tw.pushContent(text, 'reasoning')
-        }
-      );
-      setIsLoading(false); tw.finishStreaming();
-      const content = tw.getAccumulatedContent();
-      const savedThinking = tw.getThinkingContent();
-      if (content) {
-        const assistantMessage = { role: 'assistant', content, _thinking: savedThinking, thinking: savedThinking };
-        const prepareAfterResponse = window.prepareAfterResponseMessages || (async ({ messages }) => ({ messages, applied: false }));
-        const baseMessages = preSend.applied ? preSend.messages : newMessages;
-        const messagesWithAssistant = [...baseMessages, assistantMessage];
-        const afterResponse = await prepareAfterResponse({
-          messages: messagesWithAssistant,
-          state: preSend.state || gameState,
-          card: preSend.card || null
-        });
-        if (afterResponse.state && setGameState) setGameState(afterResponse.state);
-        if (afterResponse.applied) {
-          setMessages(afterResponse.messages);
-        } else {
-          setMessages(prev => [...prev, assistantMessage]);
-        }
-      }
-      tw.clearStreaming();
-    } catch (err) {
-      setIsLoading(false); tw.reset();
-      setMessages(prev => [...prev, { role: 'assistant', content: `请求失败: ${err.message}`, isError: true }]);
-    }
-  }, [gameState, isLoading, messages, modelConfig, retryBaseRef, retryBaseStateRef, setGameState,
+    await chatGeneration.runChatGeneration({
+      messages: newMessages,
+      state: gameState,
+      modelConfig,
+      setMessages,
+      setGameState,
+      setIsLoading,
+      tw,
+      setShowStreamThinking,
+      onStreamContentStart,
+      onGameCardError,
+      appendAssistantWithUpdater: true
+    });
+  }, [chatGeneration, gameState, isLoading, messages, modelConfig, retryBaseRef, retryBaseStateRef, setGameState,
     setIsInputHovered, setIsInputTriggerHovered, setIsLoading, setMessages, setShowStreamThinking,
     tw, onAudioSubmit, onStreamContentStart, onGameCardError]);
 

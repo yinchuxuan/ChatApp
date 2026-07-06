@@ -1,12 +1,9 @@
-import './ChatInputArea.jsx'; import './components/ChatSessionManager.jsx'; import './components/GameCardTitleControl.jsx';
+import './components/chatGeneration.js'; import './ChatInputArea.jsx'; import './components/useLastUserMessageEdit.js'; import './components/ChatSessionManager.jsx'; import './components/GameCardTitleControl.jsx';
 import './components/ChatPanelMessageRenderers.js'; import './components/GameCardBgmPlayer.js'; import './components/GameCardBackgroundRuntime.js'; import './components/GameCardUIRoot.jsx'; import './components/GameCardErrorPanel.jsx';
-
-const RENDERER_POLL_INTERVAL = 100;
-const RENDERER_POLL_TIMEOUT = 5000;
+const RENDERER_POLL_INTERVAL = 100, RENDERER_POLL_TIMEOUT = 5000;
 
 function ChatPanel() {
-  const R = window.React || React;
-  const InputArea = window.ChatInputArea;
+  const R = window.React || React, InputArea = window.ChatInputArea;
   const [messages, setMessages] = R.useState([]), [gameState, setGameState] = R.useState({});
   const [isLoading, setIsLoading] = R.useState(false), [modelConfig, setModelConfig] = R.useState(null);
   const [activeGameCard, setActiveGameCard] = R.useState(null), [gameCardError, setGameCardError] = R.useState(null), [gameCardActionError, setGameCardActionError] = R.useState(null);
@@ -18,7 +15,9 @@ function ChatPanel() {
   const tw = window.useTypewriter(R);
   const handleStreamContentStart = R.useCallback(() => setStreamContentStartToken(value => value + 1), []);
   const retryBaseRef = R.useRef(null), retryBaseStateRef = R.useRef(null);
-  const handleRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, handleStreamContentStart);
+  const editUserMessage = window.useLastUserMessageEdit(R, messages, isLoading);
+  const runRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, handleStreamContentStart);
+  const handleRetry = R.useCallback(async () => { const ok = await runRetry(editUserMessage.isActive ? editUserMessage.content : undefined); if (ok) editUserMessage.finish(); }, [runRetry, editUserMessage]);
   R.useEffect(() => {
     if (window.ChatPanelRenderers) { setRenderersReady(true); return; }
     const checkInterval = setInterval(() => {
@@ -158,7 +157,7 @@ function ChatPanel() {
       (['user', 'assistant'].includes(msg?.role) || msg?._meta?.visibility === 'user_visible') &&
       msg?._meta?.visibility !== 'llm_only' && msg?._meta?.visibility !== 'debug_only');
     if (msgRenderers && renderUserMarkdown && renderAssistantMsg && renderRetryBtn) {
-      return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderUserMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig);
+      return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderUserMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig, editUserMessage);
     }
     if (visibleMessages.length === 0) return C('div', { className: 'chat-empty' }, C('div', null, '加载中...'));
     return C('div', null, visibleMessages.map((msg, idx) => C('div', { key: idx }, msg.content)));

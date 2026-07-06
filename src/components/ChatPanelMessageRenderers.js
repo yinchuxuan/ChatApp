@@ -55,6 +55,31 @@ const ChatPanelMessageRenderers = {
     return this.renderMarkdown(R, content, marked, DOMPurify, highlightQuotes);
   },
 
+  renderEditableUserMsg(R, msg, renderIndex, renderMarkdown, editUserMessage) {
+    if (!editUserMessage?.canEdit?.(renderIndex)) return renderMarkdown(msg.content);
+    if (editUserMessage.isEditing(renderIndex)) {
+      const rows = Math.max(1, String(editUserMessage.content || '').split('\n').length);
+      return R.createElement('div', { className: 'chat-message-bubble chat-message-edit-bubble', 'data-gc-part': 'message-bubble' },
+        R.createElement('textarea', {
+          className: 'chat-message-edit-textarea',
+          'data-gc-part': 'message-edit-textarea',
+          value: editUserMessage.content,
+          rows,
+          autoFocus: true,
+          'aria-label': '编辑用户消息',
+          onChange: (e) => editUserMessage.change(e.target.value),
+          onClick: (e) => e.stopPropagation(),
+          onKeyDown: (e) => { if (e.key === 'Escape') editUserMessage.cancel(); }
+        })
+      );
+    }
+    const bubble = renderMarkdown(msg.content);
+    return R.cloneElement(bubble, {
+      className: `${bubble.props.className || ''} chat-message-editable-bubble`,
+      onClick: (e) => { if (!e.defaultPrevented) editUserMessage.start(renderIndex, msg.content); }
+    });
+  },
+
   getDisplayRules() {
     if (typeof window !== 'undefined' && window.GameCardDisplayRules) return window.GameCardDisplayRules;
     if (typeof require !== 'undefined') return require('../gameCard/displayRules');
@@ -89,7 +114,7 @@ const ChatPanelMessageRenderers = {
     }, R.createElement('span', { className: 'material-icons' }, 'refresh'));
   },
 
-  renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig) {
+  renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig, editUserMessage) {
     messages = this.filterDialogueMessages(messages);
     if (messages.length === 0 && !isLoading) {
       if (!modelConfig?.apiUrl) {
@@ -104,8 +129,10 @@ const ChatPanelMessageRenderers = {
         R.createElement('div', null, '开始对话')
       );
     }
+    const renderUserMessage = (msg, renderIndex) => this.renderEditableUserMsg(R, msg, renderIndex, renderMarkdown, editUserMessage);
+    renderUserMessage.usesMessageObject = true;
     if (collapseRenderer) {
-      return collapseRenderer.render(R, messages, isLoading, tw, renderMarkdown, renderAssistantMsg, renderRetryBtn, isHistoryExpanded, handleExpandHistory);
+      return collapseRenderer.render(R, messages, isLoading, tw, renderUserMessage, renderAssistantMsg, renderRetryBtn, isHistoryExpanded, handleExpandHistory);
     }
 
     const lastUserIdx = messages.map((m, i) => m.role === 'user' ? i : -1).filter(i => i >= 0).pop();
@@ -122,7 +149,7 @@ const ChatPanelMessageRenderers = {
         }
         return R.createElement('div', { key: idx, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}`, 'data-gc-part': 'message-row', 'data-role': msg.role },
           R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
-            renderMarkdown(msg.content)
+            renderUserMessage(msg, renderIndex)
           ),
           renderRetryBtn(isRetrySource, isLoading)
         );

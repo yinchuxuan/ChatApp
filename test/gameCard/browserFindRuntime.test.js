@@ -5,7 +5,7 @@ const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader'
 
 const scripts = [
   'predicate.js', 'statePaths.js', 'findResolver.js', 'contentTransforms.js',
-  'fileSections.js', 'contentFiles.js', 'contentObjects.js', 'contentResolver.js', 'execSource.js', 'execRunner.js',
+  'fileSections.js', 'contentFiles.js', 'contentObjects.js', 'contentResolver.js', 'execSource.js', 'execFiles.js', 'execRunner.js',
   'stateSchema.js', 'stateActions.js', 'statePatch.js', 'actions.js',
   'validateStateActions.js', 'validateContent.js', 'validateFind.js',
   'validatePredicates.js', 'audioConfig.js', 'visualConfig.js', 'uiConfig.js', 'validateGameCard.js', 'engine.js'

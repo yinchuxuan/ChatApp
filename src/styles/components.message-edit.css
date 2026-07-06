@@ -1,0 +1,31 @@
+.chat-message-edit-bubble {
+  cursor: text;
+}
+
+.chat-message-edit-textarea {
+  width: 100%;
+  min-height: 1.7em;
+  padding: 0;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  overflow: hidden;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
+  caret-color: currentColor;
+}
+
+.chat-message-edit-textarea:focus {
+  border: 0;
+  outline: none;
+  box-shadow: none;
+}
+
+.chat-message.user .chat-message-bubble.chat-message-edit-bubble:hover {
+  transform: none;
+}
