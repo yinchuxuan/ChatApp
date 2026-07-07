@@ -49,6 +49,8 @@ function buildRetryMessages(messages, retryBaseMessages, editedContent) {
 
 async function runChatGeneration(options) {
   const { messages, state = {}, modelConfig, setMessages, setGameState, setIsLoading, tw } = options;
+  const abortSignal = options.createAbortSignal?.();
+  let preSend = null;
   setMessages(messages);
   setIsLoading(true);
   tw.clearStreaming?.();
@@ -56,19 +58,21 @@ async function runChatGeneration(options) {
   options.setShowStreamThinking?.(true);
   try {
     const preparePreSend = window.preparePreSendMessages || (async ({ messages: input }) => ({ messages: input }));
-    const preSend = await preparePreSend({ messages, state });
+    preSend = await preparePreSend({ messages, state });
     if (preSend.error) return handleGenerationError(preSend, options);
     options.onGameCardError?.(null);
     if (preSend.state && setGameState) setGameState(preSend.state);
     if (preSend.applied) setMessages(preSend.messages);
-    await sendGenerationRequest(preSend, modelConfig, tw, options.onStreamContentStart);
+    await sendGenerationRequest(preSend, modelConfig, tw, options.onStreamContentStart, abortSignal);
     return finishGeneration(preSend, messages, state, options);
   } catch (err) {
-    return handleGenerationException(err, options);
+    return handleGenerationException(err, options, preSend, messages, abortSignal);
+  } finally {
+    options.clearAbortSignal?.(abortSignal);
   }
 }
 
-async function sendGenerationRequest(preSend, modelConfig, tw, onStreamContentStart) {
+async function sendGenerationRequest(preSend, modelConfig, tw, onStreamContentStart, abortSignal) {
   let contentStarted = false;
   const notifyContentStart = () => {
     if (contentStarted) return;
@@ -86,6 +90,7 @@ async function sendGenerationRequest(preSend, modelConfig, tw, onStreamContentSt
     topP: modelConfig.topP,
     frequencyPenalty: modelConfig.frequencyPenalty,
     presencePenalty: modelConfig.presencePenalty,
+    signal: abortSignal,
     messages: toApiMessages(preSend.messages, modelConfig.protocol || 'openai')
   }, {
     onToken: (text) => { if (tw.pushContent(text)) notifyContentStart(); },
@@ -121,7 +126,25 @@ function handleGenerationError(preSend, options) {
   throw new Error(`游戏卡错误: ${preSend.error}`);
 }
 
-function handleGenerationException(err, options) {
+function isAbortException(err, abortSignal) {
+  return abortSignal?.aborted || err?.name === 'AbortError';
+}
+
+function handleGenerationAbort(options, preSend, baseMessages) {
+  options.setIsLoading(false);
+  options.tw.finishStreaming();
+  const content = options.tw.getAccumulatedContent();
+  if (content) {
+    const assistantMessage = { role: 'assistant', content, _thinking: options.tw.getThinkingContent(), thinking: options.tw.getThinkingContent() };
+    const base = preSend?.applied ? preSend.messages : baseMessages;
+    options.setMessages([...(base || []), assistantMessage]);
+  }
+  options.tw.clearStreaming();
+  return true;
+}
+
+function handleGenerationException(err, options, preSend, baseMessages, abortSignal) {
+  if (isAbortException(err, abortSignal)) return handleGenerationAbort(options, preSend, baseMessages);
   options.setIsLoading(false);
   options.tw.reset();
   options.setMessages(prev => [...prev, { role: 'assistant', content: `请求失败: ${err.message}`, isError: true }]);

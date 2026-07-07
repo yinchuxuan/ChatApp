@@ -6,7 +6,7 @@ function getChatGeneration() {
   return null;
 }
 
-function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState = {}, setGameState, retryBaseStateRef, onStreamContentStart) {
+function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState = {}, setGameState, retryBaseStateRef, onStreamContentStart, generationControl) {
   const handleRetry = R.useCallback(async (editedContent) => {
     if (!modelConfig || !modelConfig.apiUrl || !modelConfig.apiKey) return;
     const helper = getChatGeneration();
@@ -30,9 +30,10 @@ function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retry
       setGameState,
       setIsLoading,
       tw,
-      onStreamContentStart
+      onStreamContentStart,
+      ...generationControl
     });
-  }, [messages, modelConfig, setMessages, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, onStreamContentStart]);
+  }, [messages, modelConfig, setMessages, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, onStreamContentStart, generationControl]);
 
   return handleRetry;
 }

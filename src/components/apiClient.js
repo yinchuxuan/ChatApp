@@ -72,7 +72,9 @@ function adaptMessagesForRequest(messages, protocol) {
 function buildRequest(config) {
   const protocol = config.protocol || 'openai';
   const builder = protocol === 'anthropic' ? buildAnthropicRequest : buildOpenAIRequest;
-  return { protocol, ...builder(config) };
+  const request = builder(config);
+  if (config.signal) request.options.signal = config.signal;
+  return { protocol, ...request };
 }
 
 function parseOpenAIChunk(parsed, callbacks) {

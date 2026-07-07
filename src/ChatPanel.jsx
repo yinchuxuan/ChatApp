@@ -1,4 +1,4 @@
-import './components/chatGeneration.js'; import './ChatInputArea.jsx'; import './components/useLastUserMessageEdit.js'; import './components/ChatSessionManager.jsx'; import './components/GameCardTitleControl.jsx';
+import './components/chatGeneration.js'; import './components/useGenerationAbort.js'; import './ChatInputArea.jsx'; import './components/useLastUserMessageEdit.js'; import './components/ChatSessionManager.jsx'; import './components/GameCardTitleControl.jsx';
 import './components/ChatPanelMessageRenderers.js'; import './components/GameCardBgmPlayer.js'; import './components/GameCardBackgroundRuntime.js'; import './components/GameCardUIRoot.jsx'; import './components/GameCardErrorPanel.jsx';
 const RENDERER_POLL_INTERVAL = 100, RENDERER_POLL_TIMEOUT = 5000;
 
@@ -14,9 +14,9 @@ function ChatPanel() {
   const [audioStopToken, setAudioStopToken] = R.useState(0), [streamContentStartToken, setStreamContentStartToken] = R.useState(0);
   const tw = window.useTypewriter(R);
   const handleStreamContentStart = R.useCallback(() => setStreamContentStartToken(value => value + 1), []);
-  const retryBaseRef = R.useRef(null), retryBaseStateRef = R.useRef(null);
+  const retryBaseRef = R.useRef(null), retryBaseStateRef = R.useRef(null), generationControl = window.useGenerationAbort(R);
   const editUserMessage = window.useLastUserMessageEdit(R, messages, isLoading);
-  const runRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, handleStreamContentStart);
+  const runRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, handleStreamContentStart, generationControl);
   const handleRetry = R.useCallback(async () => { const ok = await runRetry(editUserMessage.isActive ? editUserMessage.content : undefined); if (ok) editUserMessage.finish(); }, [runRetry, editUserMessage]);
   R.useEffect(() => {
     if (window.ChatPanelRenderers) { setRenderersReady(true); return; }
@@ -190,7 +190,7 @@ function ChatPanel() {
       messages, setMessages, gameState, setGameState, modelConfig, isLoading, setIsLoading, tw,
       setShowStreamThinking, isInputHovered, setIsInputHovered, isInputTriggerHovered, setIsInputTriggerHovered,
       retryBaseRef, retryBaseStateRef, onAudioSubmit: handleAudioSubmit, onStreamContentStart: handleStreamContentStart,
-      onGameCardError: setGameCardError
+      onGameCardError: setGameCardError, generationControl
     })
   );
 }

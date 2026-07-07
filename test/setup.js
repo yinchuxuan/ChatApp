@@ -81,6 +81,9 @@ global.window.useTypewriter = useTypewriter;
 const ChatGeneration = require('../src/components/chatGeneration.js');
 global.window.ChatGeneration = ChatGeneration;
 
+const useGenerationAbort = require('../src/components/useGenerationAbort.js');
+global.window.useGenerationAbort = useGenerationAbort;
+
 const useRetry = require('../src/components/useRetry.js');
 global.window.useRetry = useRetry;
 

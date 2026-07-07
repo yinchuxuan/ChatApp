@@ -87,4 +87,21 @@ describe('sendChatRequest - OpenAI protocol', () => {
     expect(body.presence_penalty).toBe(0.4);
     expect(body.top_k).toBeUndefined();
   });
+
+  test('should pass abort signal to fetch options', async () => {
+    const controller = new AbortController();
+    await window.sendChatRequest(
+      {
+        apiUrl: 'https://api.openai.com/v1',
+        apiKey: 'sk-test',
+        modelName: 'gpt-4',
+        signal: controller.signal,
+        messages: [{ role: 'user', content: 'Hi' }]
+      },
+      { onToken: jest.fn() }
+    );
+
+    const [, options] = global.fetch.mock.calls[0];
+    expect(options.signal).toBe(controller.signal);
+  });
 });

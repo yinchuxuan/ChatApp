@@ -25,13 +25,14 @@ function ChatInputArea({
   retryBaseStateRef,
   onAudioSubmit,
   onStreamContentStart,
-  onGameCardError
+  onGameCardError,
+  generationControl
 }) {
   const R = window.React || React;
   const [inputValue, setInputValue] = R.useState('');
   const [isFocused, setIsFocused] = R.useState(false);
   const formRef = R.useRef(null), textareaRef = R.useRef(null);
-  const isVisible = isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
+  const isVisible = isLoading || isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
   const chatGeneration = getChatGeneration();
   const focusInput = R.useCallback(() => {
     setIsInputHovered(true);
@@ -64,14 +65,16 @@ function ChatInputArea({
       setShowStreamThinking,
       onStreamContentStart,
       onGameCardError,
+      ...generationControl,
       appendAssistantWithUpdater: true
     });
   }, [chatGeneration, gameState, isLoading, messages, modelConfig, retryBaseRef, retryBaseStateRef, setGameState,
     setIsInputHovered, setIsInputTriggerHovered, setIsLoading, setMessages, setShowStreamThinking,
-    tw, onAudioSubmit, onStreamContentStart, onGameCardError]);
+    tw, onAudioSubmit, onStreamContentStart, onGameCardError, generationControl]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) { generationControl?.stopGeneration?.(); return; }
     await submitValue(inputValue, e.currentTarget);
   };
 
@@ -130,11 +133,11 @@ function ChatInputArea({
       type: 'submit',
       className: 'md-btn md-btn-icon send-icon-btn',
       'data-gc-part': 'chat-send-button',
-      disabled: !inputValue.trim() || isLoading,
-      'aria-label': '发送消息',
-      title: '发送消息'
+      disabled: isLoading ? false : !inputValue.trim(),
+      'aria-label': isLoading ? '停止生成' : '发送消息',
+      title: isLoading ? '停止生成' : '发送消息'
     },
-      isLoading ? C('span', { className: 'material-icons rotating' }, 'refresh') : C('span', { className: 'material-icons' }, 'send')
+      isLoading ? C('span', { className: 'material-icons' }, 'stop') : C('span', { className: 'material-icons' }, 'send')
     )
   );
 }
