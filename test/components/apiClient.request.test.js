@@ -1,6 +1,7 @@
 /**
  * Tests for apiClient - sendChatRequest with OpenAI protocol
  */
+const { sendChatRequest } = require('../../src/components/apiClient.js');
 
 describe('sendChatRequest - OpenAI protocol', () => {
   beforeEach(() => {
@@ -12,7 +13,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
     const onToken = jest.fn();
     const onThinkingToken = jest.fn();
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://api.openai.com/v1',
         apiKey: 'sk-test-key',
@@ -39,7 +40,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Response'));
     const onToken = jest.fn();
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://api.openai.com/v1',
         apiKey: 'sk-test',
@@ -62,7 +63,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
   test('should include supported OpenAI generation parameters only', async () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Response'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://api.openai.com/v1',
         apiKey: 'sk-test',
@@ -90,7 +91,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
 
   test('should pass abort signal to fetch options', async () => {
     const controller = new AbortController();
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://api.openai.com/v1',
         apiKey: 'sk-test',

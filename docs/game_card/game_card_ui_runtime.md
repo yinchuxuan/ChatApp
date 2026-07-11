@@ -31,9 +31,7 @@ platform 负责状态权威、消息发送、保存和调试
 
 ## 已有 UI 的 CSS 自定义
 
-第一步应扩展当前样式能力，让游戏卡可以安全地风格化所有平台 UI。
-
-第一步新增统一入口：
+已有平台 UI 使用统一样式入口：
 
 ```json
 {
@@ -194,7 +192,7 @@ chat.send
 
 - 游戏卡可以在 `GameCardUIRoot` 内任意渲染 React。
 - 游戏卡不能直接修改平台 DOM、Electron API 或内部 React state。
-- 状态变更必须走 `statePatch`。
+- 状态变更必须通过受控 `state.*` action 或 `game.script.run`，再由聊天 session 持久化。
 - 演出和临时 UI 反馈通过 `effects`。
 
 如果未来需要酒馆式全局魔改，可以单独设计 `trusted_shell` 模式，并在导入时明确提示风险。

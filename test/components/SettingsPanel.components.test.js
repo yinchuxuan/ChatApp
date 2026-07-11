@@ -31,15 +31,6 @@ jest.mock('../../src/components/SettingsModelConfig.jsx', () => ({ __esModule: t
 describe('SettingsPanel Component - Components', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    window.SettingsBackground = mockSettingsBackground;
-    window.SettingsModelConfig = mockSettingsModelConfig;
-    window.useSettingsState = mockUseSettingsState;
-  });
-
-  afterEach(() => {
-    window.SettingsBackground = undefined;
-    window.SettingsModelConfig = undefined;
-    window.useSettingsState = undefined;
   });
 
   test('should render SettingsBackground component when available', async () => {
@@ -71,8 +62,6 @@ describe('SettingsPanel Component - Components', () => {
   });
 
   test('should render SettingsBackground without a global registration', async () => {
-    window.SettingsBackground = undefined;
-
     const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
@@ -87,8 +76,6 @@ describe('SettingsPanel Component - Components', () => {
   });
 
   test('should render SettingsModelConfig without a global registration', async () => {
-    window.SettingsModelConfig = undefined;
-
     const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {

@@ -1,16 +1,23 @@
 # Docs Roadmap
 
-*Only Read the docs you need depends on your task type*
+Read only the documents relevant to the current task.
 
-coding standrads: docs/coding_standards.md
-ui design spec: docs/ui_design_spec.md
-architecture: docs/architecture.md
-chat session design: docs/chat_session_design.md
-build and test: docs/build_and_test.md
-game card design: docs/game_card_design.md
-game card audio: docs/game_card/game_card_audio.md
-game card visual: docs/game_card/game_card_visual.md
-game card visual panel: docs/game_card/game_card_visual_panel.md
-game card ui runtime: docs/game_card/game_card_ui_runtime.md
-game card imports: docs/game_card/game_card_imports.md
-game card schema: docs/game_card/game_card_schema.md
+- [Coding rules](./coding_rules.md)
+- [JavaScript style](./coding_styles/coding_styles_js.md)
+- [React style](./coding_styles/coding_style_react.md)
+- [UI design](./ui_design_spec.md)
+- [Architecture](./architecture.md)
+- [Architecture refactor plan](./architecture_refactor_plan.md)
+- [Build and test](./build_and_test.md)
+- [Chat sessions](./chat_session_design.md)
+- [Platform adapter](./platform_adapter.md)
+- [Game card design](./game_card_design.md)
+- [Game card schema](./game_card/game_card_schema.md)
+- [Game card actions](./game_card/game_card_actions.md)
+- [Game card predicates](./game_card/game_card_predicates.md)
+- [Game card content](./game_card/game_card_content.md)
+- [Game card imports](./game_card/game_card_imports.md)
+- [Game card audio](./game_card/game_card_audio.md)
+- [Game card visual](./game_card/game_card_visual.md)
+- [Game card visual panel](./game_card/game_card_visual_panel.md)
+- [Game card UI runtime](./game_card/game_card_ui_runtime.md)

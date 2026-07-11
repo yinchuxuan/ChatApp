@@ -5,6 +5,8 @@
  * E2E_ANTHROPIC_URL, E2E_ANTHROPIC_KEY, E2E_ANTHROPIC_MODEL from .env
  */
 const { ElectronAppHelper } = require('./electronAppHelper');
+const { revealChatInput } = require('./chatHeaderActions');
+const { expect, test } = require('@playwright/test');
 
 function buildConfig(prefix, protocol) {
   const url = process.env[prefix + '_URL'];
@@ -27,7 +29,6 @@ function skipReason(prefix) {
 
 function setupHooks() {
   let appHelper;
-  const { test } = require('@playwright/test');
 
   test.beforeEach(async () => {
     appHelper = new ElectronAppHelper();
@@ -55,37 +56,44 @@ function setupHooks() {
     },
     async sendThroughPipeline(card, protocol, messages) {
       const win = appHelper.getWindow();
-      const result = await win.evaluate(async ({ card, protocol, inputMsgs }) => {
-        const config = (await window.electronAPI.getModelConfig()).config;
-        const preSend = await window.preparePreSendMessages({ messages: inputMsgs, card, protocol: protocol || config.protocol });
-        const apiMessages = window.toGameCardApiMessages(preSend.messages, protocol || config.protocol);
-        let textResponse = '';
+      const before = await appHelper.getChatHistory();
+      const assistantCount = (before.messages || []).filter(message => message.role === 'assistant').length;
+      let requestBody = null;
+      const captureRequest = request => {
+        if (request.method() !== 'POST' || !request.postData()) return;
         try {
-          await window.sendChatRequest({
-            apiUrl: config.apiUrl, apiKey: config.apiKey,
-            modelName: config.modelName, protocol: protocol || config.protocol,
-            messages: apiMessages
-          }, { onToken: (text) => { textResponse += text; } });
-        } catch (err) {
-          return { error: err.message, preSendMessages: preSend.messages, apiMessages };
-        }
-        const assistantMessage = { role: 'assistant', content: textResponse };
-        const afterResponse = await window.prepareAfterResponseMessages({
-          messages: [...preSend.messages, assistantMessage], card: preSend.card || null
-        });
-        const finalMessages = afterResponse.applied ? afterResponse.messages : [...preSend.messages, assistantMessage];
-        await window.electronAPI.saveChatHistory(finalMessages);
-        return {
-          preSendMessages: preSend.messages, apiMessages,
-          llmResponse: textResponse,
-          afterResponseMessages: afterResponse.applied ? afterResponse.messages : null,
-          applied: afterResponse.applied
-        };
-      }, { card, protocol, inputMsgs: messages });
-      if (result.error) {
-        console.log('sendThroughPipeline ERROR:', result.error);
+          const body = JSON.parse(request.postData());
+          if (Array.isArray(body.messages)) requestBody = body;
+        } catch (_) { /* Ignore unrelated requests. */ }
+      };
+      win.on('request', captureRequest);
+      try {
+        const lastUser = [...messages].reverse().find(message => message.role === 'user');
+        await revealChatInput(appHelper);
+        await win.locator('.chat-input-textarea').fill(lastUser?.content || '');
+        await win.locator('.chat-input-area button[type="submit"]').click();
+        await expect.poll(async () => {
+          const history = await appHelper.getChatHistory();
+          return (history.messages || []).filter(message => message.role === 'assistant').length;
+        }, { timeout: 180000 }).toBeGreaterThan(assistantCount);
+      } finally {
+        win.off('request', captureRequest);
       }
-      return result;
+      const saved = await appHelper.getChatHistory();
+      const finalMessages = saved.messages || [];
+      const lastUserIndex = finalMessages.findLastIndex(message => message.role === 'user');
+      const responseIndex = finalMessages.findIndex((message, index) => (
+        index > lastUserIndex && message.role === 'assistant'
+      ));
+      const assistant = finalMessages[responseIndex] || {};
+      const hasAfterResponse = card?.rules?.some(rule => rule?.when?.phase === 'after_response');
+      return {
+        preSendMessages: finalMessages.slice(0, responseIndex),
+        apiMessages: requestBody?.messages || [],
+        llmResponse: assistant.content || '',
+        afterResponseMessages: hasAfterResponse ? finalMessages : null,
+        applied: hasAfterResponse
+      };
     },
     async getHistory() {
       const result = await appHelper.getChatHistory();

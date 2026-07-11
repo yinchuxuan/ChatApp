@@ -1,6 +1,7 @@
 /**
  * Tests for apiClient - Protocol routing via config.protocol field
  */
+const { sendChatRequest } = require('../../src/components/apiClient.js');
 
 describe('sendChatRequest - protocol routing', () => {
   beforeEach(() => {
@@ -10,7 +11,7 @@ describe('sendChatRequest - protocol routing', () => {
   test('should use OpenAI protocol when config.protocol is "openai"', async () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/v1',
         apiKey: 'sk-test',
@@ -29,7 +30,7 @@ describe('sendChatRequest - protocol routing', () => {
   test('should use Anthropic protocol when config.protocol is "anthropic"', async () => {
     global.fetch.mockResolvedValue(global.createAnthropicStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
@@ -48,7 +49,7 @@ describe('sendChatRequest - protocol routing', () => {
   test('should default to OpenAI protocol when config.protocol is missing', async () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/v1',
         apiKey: 'sk-test',

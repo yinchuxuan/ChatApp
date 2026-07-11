@@ -39,8 +39,6 @@ describe('App Component - Interaction', () => {
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn()
     }));
-    window.ChatPanel = mockChatPanel;
-    window.SettingsPanel = mockSettingsPanel;
     mockCurrentSettingsPanel = mockSettingsPanel;
     chatPanelProps = null;
     electronAPI.getBackgroundConfig.mockResolvedValue({
@@ -51,11 +49,6 @@ describe('App Component - Interaction', () => {
       success: true,
       config: { apiUrl: '', apiKey: '', modelName: '' }
     });
-  });
-
-  afterEach(() => {
-    window.ChatPanel = undefined;
-    window.SettingsPanel = undefined;
   });
 
   test('should handle theme toggle through SettingsPanel', async () => {
@@ -127,8 +120,6 @@ describe('App Component - Interaction', () => {
     _render(React.createElement(App, null));
 
     await act(async () => { await Promise.resolve(); });
-    const appContainer = document.querySelector('.app-container');
-
     _fireEvent.click(_screen.getByText('Set Settings Background'));
     await act(async () => { await Promise.resolve(); });
     expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('settings-bg-url');
@@ -164,8 +155,6 @@ describe('App Component - Interaction', () => {
   });
 
   test('should render ChatPanel without a global registration', async () => {
-    window.ChatPanel = undefined;
-
     const App = require('../../src/App.jsx').default;
     _render(React.createElement(App, null));
 
@@ -175,8 +164,6 @@ describe('App Component - Interaction', () => {
   });
 
   test('should render SettingsPanel without a global registration', async () => {
-    window.SettingsPanel = undefined;
-
     const App = require('../../src/App.jsx').default;
     _render(React.createElement(App, null));
 

@@ -7,6 +7,8 @@ const { render, screen, fireEvent, waitFor, act } = require('@testing-library/re
 
 const electronAPI = global.window.electronAPI;
 const ChatPanel = require('../../src/ChatPanel.jsx').default;
+const generationServices = require('../../src/chat/generationServices.js').default;
+const originalSendChatRequest = generationServices.sendChatRequest;
 
 describe('ChatPanel thinking display', () => {
   beforeEach(() => {
@@ -20,6 +22,7 @@ describe('ChatPanel thinking display', () => {
   });
 
   afterEach(() => {
+    generationServices.sendChatRequest = originalSendChatRequest;
     jest.useRealTimers();
   });
 
@@ -108,7 +111,7 @@ describe('ChatPanel thinking display', () => {
   test('streaming thinking can be reopened by clicking streamed answer text', async () => {
     let callbacks;
     let finishRequest;
-    window.sendChatRequest = jest.fn((_config, cbs) => {
+    generationServices.sendChatRequest = jest.fn((_config, cbs) => {
       callbacks = cbs;
       return new Promise(resolve => { finishRequest = resolve; });
     });
@@ -125,7 +128,7 @@ describe('ChatPanel thinking display', () => {
     fireEvent.click(document.querySelector('button[type="submit"]'));
 
     await waitFor(() => {
-      expect(window.sendChatRequest).toHaveBeenCalled();
+      expect(generationServices.sendChatRequest).toHaveBeenCalled();
     });
 
     await act(async () => {

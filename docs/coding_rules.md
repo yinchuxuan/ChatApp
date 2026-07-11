@@ -16,7 +16,5 @@
 
 ## Reference Docs
 
-*Only Read the docs you need depends on your task type*
-
-javascript coding style: docs/coding_style/coding_style_js.md
-react coding style: docs/coding_style/coding_style_react.md
+- [JavaScript style](./coding_styles/coding_styles_js.md)
+- [React style](./coding_styles/coding_style_react.md)

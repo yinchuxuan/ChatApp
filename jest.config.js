@@ -8,10 +8,10 @@ module.exports = {
   },
   testMatch: ['<rootDir>/test/**/*.test.js'],
   testPathIgnorePatterns: [
-    '<rootDir>/test/integration/',
     '<rootDir>/test/ipc/',
     '<rootDir>/test/e2e/',
-    '<rootDir>/test/e2e-real-api/'
+    '<rootDir>/test/e2e-real-api/',
+    '\\.integration\\.test\\.js$'
   ],
   collectCoverage: true,
   coverageDirectory: 'coverage',

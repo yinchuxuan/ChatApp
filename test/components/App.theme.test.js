@@ -35,8 +35,6 @@ describe('App Component - Theme', () => {
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn()
     }));
-    window.ChatPanel = mockChatPanel;
-    window.SettingsPanel = mockSettingsPanel;
     electronAPI.getBackgroundConfig.mockResolvedValue({
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
@@ -45,11 +43,6 @@ describe('App Component - Theme', () => {
       success: true,
       config: { apiUrl: '', apiKey: '', modelName: '' }
     });
-  });
-
-  afterEach(() => {
-    window.ChatPanel = undefined;
-    window.SettingsPanel = undefined;
   });
 
   test('should initialize theme from localStorage', async () => {

@@ -25,10 +25,6 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    // Debug: verify window.marked is available
-    expect(typeof global.window.marked).toBe('object');
-    expect(typeof global.window.marked.parse).toBe('function');
-
     const ChatPanel = require('../../src/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));

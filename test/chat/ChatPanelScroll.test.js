@@ -8,10 +8,11 @@ const { render: _render, screen: _screen, fireEvent: _fireEvent, waitFor: _waitF
 
 const electronAPI = global.window.electronAPI;
 const chatPanelRenderers = require('../../src/components/ChatPanelRenderers').default;
+const generationServices = require('../../src/chat/generationServices.js').default;
 
 describe('ChatPanel Component - Auto-scroll', () => {
   let ChatPanel;
-  const originalSendChatRequest = window.sendChatRequest;
+  const originalSendChatRequest = generationServices.sendChatRequest;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -25,7 +26,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    window.sendChatRequest = originalSendChatRequest;
+    generationServices.sendChatRequest = originalSendChatRequest;
   });
 
   test('should have chat-history element as scrollable message container', async () => {
@@ -94,7 +95,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
       get() { return this._scrollTop || 0; }
     });
     let finishStream;
-    window.sendChatRequest = jest.fn(async (_payload, callbacks) => {
+    generationServices.sendChatRequest = jest.fn(async (_payload, callbacks) => {
       callbacks.onToken('streaming answer');
       await new Promise(resolve => { finishStream = resolve; });
     });

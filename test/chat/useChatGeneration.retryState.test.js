@@ -1,26 +1,27 @@
 import { act } from '@testing-library/react';
+import generationServices from '../../src/chat/generationServices.js';
 import { renderRetryGeneration } from './useChatGenerationTestHarness.js';
 
 describe('useChatGeneration retry state snapshot', () => {
-  const originalPre = window.preparePreSendMessages;
-  const originalAfter = window.prepareAfterResponseMessages;
-  const originalSend = window.sendChatRequest;
+  const originalPre = generationServices.preparePreSendMessages;
+  const originalAfter = generationServices.prepareAfterResponseMessages;
+  const originalSend = generationServices.sendChatRequest;
   const originalClone = global.structuredClone;
 
   beforeEach(() => {
-    window.sendChatRequest = jest.fn(async (_payload, callbacks) => callbacks.onToken('retry answer'));
-    window.prepareAfterResponseMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false }));
+    generationServices.sendChatRequest = jest.fn(async (_payload, callbacks) => callbacks.onToken('retry answer'));
+    generationServices.prepareAfterResponseMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false }));
   });
   afterEach(() => {
-    window.preparePreSendMessages = originalPre;
-    window.prepareAfterResponseMessages = originalAfter;
-    window.sendChatRequest = originalSend;
+    generationServices.preparePreSendMessages = originalPre;
+    generationServices.prepareAfterResponseMessages = originalAfter;
+    generationServices.sendChatRequest = originalSend;
     global.structuredClone = originalClone;
   });
 
   test('keeps timeline base state but reruns random pre_send rules', async () => {
     const randomValues = [11, 88];
-    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
+    generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
       messages, applied: true, card: { id: 'card' },
       state: { ...state, temp: { plotDirectionRoll: randomValues.shift() } }
     }));
@@ -29,7 +30,7 @@ describe('useChatGeneration retry state snapshot', () => {
       gameState: { timeline: { currentTime: 'advanced-time' } }
     });
     await act(async () => { await result.current.retry(); await result.current.retry(); });
-    expect(window.preparePreSendMessages.mock.calls.map(call => call[0].state)).toEqual([
+    expect(generationServices.preparePreSendMessages.mock.calls.map(call => call[0].state)).toEqual([
       { timeline: { currentTime: 'old-time' } },
       { timeline: { currentTime: 'old-time' } }
     ]);
@@ -37,25 +38,25 @@ describe('useChatGeneration retry state snapshot', () => {
   });
 
   test('does not fall back to advanced current state when retry state is missing', async () => {
-    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
+    generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
     const { result } = renderRetryGeneration({ retryBaseState: null, gameState: { timeline: { currentTime: 'advanced-time' } } });
     await act(async () => { await result.current.retry(); });
-    expect(window.preparePreSendMessages.mock.calls[0][0].state).toEqual({});
+    expect(generationServices.preparePreSendMessages.mock.calls[0][0].state).toEqual({});
   });
 
   test('refreshes retry base from persisted session', async () => {
-    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
+    generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
     const persisted = {
       retryBaseMessages: [{ role: 'user', content: 'Q' }],
       retryBaseState: { timeline: { currentTime: 'persisted-time' } }
     };
     const { result } = renderRetryGeneration({ persisted, retryBaseState: { timeline: { currentTime: 'old-time' } } });
     await act(async () => { await result.current.retry(); });
-    expect(window.preparePreSendMessages.mock.calls[0][0].state).toEqual({ timeline: { currentTime: 'persisted-time' } });
+    expect(generationServices.preparePreSendMessages.mock.calls[0][0].state).toEqual({ timeline: { currentTime: 'persisted-time' } });
   });
 
   test('removes transient turn context before rerunning pre_send', async () => {
-    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
+    generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
     const persisted = {
       retryBaseMessages: [
         { role: 'system', content: 'old state', ttl: 1 },
@@ -65,18 +66,18 @@ describe('useChatGeneration retry state snapshot', () => {
     };
     const { result } = renderRetryGeneration({ persisted });
     await act(async () => { await result.current.retry(); });
-    expect(window.preparePreSendMessages.mock.calls[0][0].messages).toEqual([{ role: 'user', content: '选择A' }]);
+    expect(generationServices.preparePreSendMessages.mock.calls[0][0].messages).toEqual([{ role: 'user', content: '选择A' }]);
   });
 
   test('does not rely on structuredClone for persisted state', async () => {
     global.structuredClone = jest.fn(() => ({}));
-    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
+    generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
     const persisted = {
       retryBaseMessages: [{ role: 'user', content: 'Q' }],
       retryBaseState: { timeline: { currentTime: 'persisted-time' } }
     };
     const { result } = renderRetryGeneration({ persisted });
     await act(async () => { await result.current.retry(); });
-    expect(window.preparePreSendMessages.mock.calls[0][0].state).toEqual({ timeline: { currentTime: 'persisted-time' } });
+    expect(generationServices.preparePreSendMessages.mock.calls[0][0].state).toEqual({ timeline: { currentTime: 'persisted-time' } });
   });
 });

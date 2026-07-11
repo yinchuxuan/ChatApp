@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import generationServices from '../../src/chat/generationServices.js';
 import useChatGeneration from '../../src/chat/useChatGeneration.js';
 
 function createTypewriter() {
@@ -117,27 +118,27 @@ describe('useChatGeneration game card pipeline', () => {
   });
 
   test('passes and updates game state', async () => {
-    const originalPreSend = window.preparePreSendMessages;
-    const originalAfter = window.prepareAfterResponseMessages;
-    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state: { score: state.score + 1 }, applied: false, card: { id: 'state' } }));
-    window.prepareAfterResponseMessages = jest.fn(async ({ messages, state }) => ({ messages, state: { score: state.score + 10 }, applied: false }));
+    const originalPreSend = generationServices.preparePreSendMessages;
+    const originalAfter = generationServices.prepareAfterResponseMessages;
+    generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state: { score: state.score + 1 }, applied: false, card: { id: 'state' } }));
+    generationServices.prepareAfterResponseMessages = jest.fn(async ({ messages, state }) => ({ messages, state: { score: state.score + 10 }, applied: false }));
     const setGameState = jest.fn();
     const { result } = renderGeneration({ gameState: { score: 1 }, setGameState });
     await act(async () => { await result.current.send('hello'); });
-    expect(window.prepareAfterResponseMessages.mock.calls[0][0].state).toEqual({ score: 2 });
+    expect(generationServices.prepareAfterResponseMessages.mock.calls[0][0].state).toEqual({ score: 2 });
     expect(setGameState).toHaveBeenLastCalledWith({ score: 12 });
-    window.preparePreSendMessages = originalPreSend;
-    window.prepareAfterResponseMessages = originalAfter;
+    generationServices.preparePreSendMessages = originalPreSend;
+    generationServices.prepareAfterResponseMessages = originalAfter;
   });
 
   test('reports pre_send game card errors', async () => {
-    const originalPreSend = window.preparePreSendMessages;
-    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, error: '游戏卡状态 schema 校验失败' }));
+    const originalPreSend = generationServices.preparePreSendMessages;
+    generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, error: '游戏卡状态 schema 校验失败' }));
     const setRuntimeError = jest.fn();
     const { result } = renderGeneration({ setRuntimeError });
     await act(async () => { await result.current.send('hello'); });
     expect(setRuntimeError).toHaveBeenCalledWith(expect.objectContaining({ message: '游戏卡状态 schema 校验失败' }));
     expect(global.fetch).not.toHaveBeenCalled();
-    window.preparePreSendMessages = originalPreSend;
+    generationServices.preparePreSendMessages = originalPreSend;
   });
 });

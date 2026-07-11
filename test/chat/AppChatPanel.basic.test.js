@@ -15,14 +15,6 @@ describe('ChatPanel Component - Basic', () => {
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
     global.fetch.mockResolvedValue(global.createStreamingMock('Test response'));
-    window.ChatPanelRenderers = {
-      renderMsgHistoryDisplay: jest.fn(() => null),
-      renderChatHistory: jest.fn(() => null)
-    };
-  });
-
-  afterEach(() => {
-    window.ChatPanelRenderers = undefined;
   });
 
   test('should load model config on mount', async () => {

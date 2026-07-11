@@ -1,6 +1,7 @@
 /**
  * Tests for apiClient - sendChatRequest with Anthropic protocol
  */
+const { sendChatRequest } = require('../../src/components/apiClient.js');
 
 describe('sendChatRequest - Anthropic protocol', () => {
   beforeEach(() => {
@@ -12,7 +13,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
     const onToken = jest.fn();
     const onThinkingToken = jest.fn();
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test-key',
@@ -41,7 +42,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
   test('should use default Anthropic model when not specified', async () => {
     global.fetch.mockResolvedValue(global.createAnthropicStreamingMock('Response'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
@@ -65,7 +66,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
   test('should include supported Anthropic generation parameters only', async () => {
     global.fetch.mockResolvedValue(global.createAnthropicStreamingMock('Response'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
@@ -95,7 +96,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
     const onToken = jest.fn();
     const onThinkingToken = jest.fn();
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
@@ -118,7 +119,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
     const onToken = jest.fn();
     const onThinkingToken = jest.fn();
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
@@ -143,7 +144,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
     });
 
     await expect(
-      window.sendChatRequest(
+      sendChatRequest(
         {
           apiUrl: 'https://proxy.example.com/anthropic',
           apiKey: 'bad-key',

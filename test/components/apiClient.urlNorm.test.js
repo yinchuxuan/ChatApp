@@ -1,6 +1,7 @@
 /**
  * Tests for apiClient - URL normalization
  */
+const { sendChatRequest } = require('../../src/components/apiClient.js');
 describe('sendChatRequest - URL normalization (OpenAI)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -9,7 +10,7 @@ describe('sendChatRequest - URL normalization (OpenAI)', () => {
   test('should append /v1/chat/completions to bare domain URL', async () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://api.deepseek.com',
         apiKey: 'sk-test',
@@ -26,7 +27,7 @@ describe('sendChatRequest - URL normalization (OpenAI)', () => {
   test('should strip trailing /v1 to avoid duplicate in OpenAI path', async () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://api.openai.com/v1',
         apiKey: 'sk-test',
@@ -43,7 +44,7 @@ describe('sendChatRequest - URL normalization (OpenAI)', () => {
   test('should strip trailing /v1/ to avoid duplicate in OpenAI path', async () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://api.openai.com/v1/',
         apiKey: 'sk-test',
@@ -60,7 +61,7 @@ describe('sendChatRequest - URL normalization (OpenAI)', () => {
   test('should strip trailing slash before appending OpenAI path', async () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://api.deepseek.com/',
         apiKey: 'sk-test',
@@ -83,7 +84,7 @@ describe('sendChatRequest - URL normalization (Anthropic)', () => {
   test('should append /v1/messages to URL without /v1', async () => {
     global.fetch.mockResolvedValue(global.createAnthropicStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic',
         apiKey: 'sk-ant-test',
@@ -101,7 +102,7 @@ describe('sendChatRequest - URL normalization (Anthropic)', () => {
   test('should strip trailing /v1 before appending /v1/messages', async () => {
     global.fetch.mockResolvedValue(global.createAnthropicStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic/v1',
         apiKey: 'sk-ant-test',
@@ -119,7 +120,7 @@ describe('sendChatRequest - URL normalization (Anthropic)', () => {
   test('should strip trailing /v1/ before appending /v1/messages', async () => {
     global.fetch.mockResolvedValue(global.createAnthropicStreamingMock('Hello'));
 
-    await window.sendChatRequest(
+    await sendChatRequest(
       {
         apiUrl: 'https://proxy.example.com/anthropic/v1/',
         apiKey: 'sk-ant-test',

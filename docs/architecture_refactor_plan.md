@@ -168,6 +168,8 @@ scriptExecutor.run(source, context, options)
 
 ## 阶段 8：整理样式、测试和文档
 
+状态：已完成（2026-07-11）。
+
 - 只保留一个平台 CSS 入口，由 bundler 管理加载顺序。
 - 游戏卡运行时 CSS 继续独立加载并保持主题作用域。
 - 按 chat、game-card、storage 和 platform adapter 重新组织测试。
@@ -175,6 +177,8 @@ scriptExecutor.run(source, context, options)
 - 更新架构、构建、游戏卡 runtime 和平台适配文档。
 - 修复失效的文档链接。
 - 拆分超过 200 行的非豁免文件，避免通过压缩语句满足行数限制。
+
+实现结果：平台样式统一由 `src/styles/renderer.css` 进入 Vite，旧 `App.css` 聚合链已删除，游戏卡样式继续由 runtime 独立加载。测试按 `chat`、`game-card`、`storage` 和 `platform` 归档，integration 统一使用文件后缀匹配；Jest setup 不再注册 renderer 模块或生成管线到 `window.*`，真实 API E2E 改走聊天 UI 和 preload 边界。架构、构建、UI runtime 与 adapter 文档已按实际调用方向更新，失效链接和超长 action 文档已整理。
 
 验收条件：文档描述与实际目录和调用方向一致，CSS 不再存在两套入口。
 
@@ -186,7 +190,6 @@ scriptExecutor.run(source, context, options)
 - 不在重构提交中修改游戏卡 DSL 或 WA2 剧情内容。
 - 不为尚未实现的 Tauri 后端提前加入平台判断。
 - 新文件继续遵守 200 行限制，WA2 内容资产沿用现有豁免。
-
 ## 完成标准
 
 - Renderer 使用标准模块系统，不依赖脚本加载顺序。

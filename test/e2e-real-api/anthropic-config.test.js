@@ -55,35 +55,28 @@ async function setupApp(config) {
 }
 
 async function runSendChatRequest(win) {
+  const beforeCount = await win.evaluate(async () => {
+    const history = await window.electronAPI.getChatHistory();
+    return (history.messages || []).filter(message => message.role === 'assistant').length;
+  });
+  await win.evaluate(() => {
+    const trigger = document.querySelector('.chat-input-hover-trigger');
+    trigger?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+  });
+  await win.locator('.chat-input-area-visible .chat-input-textarea').fill('say ok');
+  await win.locator('.chat-input-area button[type="submit"]').click();
+  await expect.poll(() => win.evaluate(async () => {
+    const history = await window.electronAPI.getChatHistory();
+    return (history.messages || []).filter(message => message.role === 'assistant').length;
+  }), { timeout: 120000 }).toBeGreaterThan(beforeCount);
   return win.evaluate(async () => {
-    const config = (await window.electronAPI?.getModelConfig())?.config;
-    let textResponse = '';
-    let thinkingResponse = '';
-    let caughtError = null;
-
-    try {
-      await window.sendChatRequest(
-        {
-          apiUrl: config.apiUrl,
-          apiKey: config.apiKey,
-          modelName: config.modelName,
-          protocol: config.protocol,
-          messages: [{ role: 'user', content: 'say ok' }]
-        },
-        {
-          onToken: (text) => { textResponse += text; },
-          onThinkingToken: (text) => { thinkingResponse += text; }
-        }
-      );
-    } catch (e) {
-      caughtError = e.message;
-    }
-
+    const history = await window.electronAPI.getChatHistory();
+    const response = [...history.messages].reverse().find(message => message.role === 'assistant');
     return {
-      error: caughtError,
-      textLength: textResponse.length,
-      textPreview: textResponse.substring(0, 100),
-      thinkingLength: thinkingResponse.length
+      error: response?.isError ? response.content : null,
+      textLength: response?.content?.length || 0,
+      textPreview: response?.content?.substring(0, 100) || '',
+      thinkingLength: response?.thinking?.length || 0
     };
   });
 }

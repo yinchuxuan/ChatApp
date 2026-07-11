@@ -6,7 +6,7 @@ const { OPENAI_CONFIG, ANTHROPIC_CONFIG, skipReason, setupHooks } = require('../
 
 test.describe.configure({ mode: 'serial' });
 
-const { configureAppRealAPI, sendThroughPipeline, getAppHelper } = setupHooks();
+const { configureAppRealAPI, sendThroughPipeline } = setupHooks();
 
 // ---------------------------------------------------------------------------
 // 1. Protocol adapter with real Anthropic API
@@ -89,32 +89,27 @@ test.describe('Exec runtime with real LLM', () => {
     expect(result.llmResponse.length).toBeGreaterThan(0);
   }, 180000);
 
-  test('exec state persists across turns via applyGameCard evaluate', async () => {
+  test('exec state persists across turns through the chat runtime', async () => {
     if (!OPENAI_CONFIG) { test.skip(true, skipReason('E2E_OPENAI')); return; }
 
     const card = {
       version: '1.0', id: 'real_exec_state', name: 'Real Exec State',
-      state: { score: 0 },
       rules: [{
         when: { phase: 'pre_send', any: { content: { contains: 'score' } } },
         then: [{
           type: 'exec',
-          source: 'state.score += 10; messages.push({ role: "system", content: "Current score: " + state.score, ttl: 1, _meta: { visibility: "llm_only" } }); return { messages, state };'
+          source: 'state.score = (state.score || 0) + 10; messages.push({ role: "system", content: "Current score: " + state.score, ttl: 1, _meta: { visibility: "llm_only" } }); return { messages, state };'
         }]
       }]
     };
     await configureAppRealAPI(card, 'openai');
 
-    const first = await getAppHelper().getWindow().evaluate(({ card }) => {
-      return window.applyGameCard({ card, phase: 'pre_send', messages: [{ role: 'user', content: 'score' }], state: { score: 0 } });
-    }, { card });
-    expect(first.state.score).toBe(10);
+    const first = await sendThroughPipeline(card, 'openai', [{ role: 'user', content: 'score' }]);
+    expect(first.preSendMessages.some(message => message.content === 'Current score: 10')).toBe(true);
 
-    const second = await getAppHelper().getWindow().evaluate(({ card, st }) => {
-      return window.applyGameCard({ card, phase: 'pre_send', messages: [{ role: 'user', content: 'score' }], state: st });
-    }, { card, st: first.state });
-    expect(second.state.score).toBe(20);
-  }, 60000);
+    const second = await sendThroughPipeline(card, 'openai', [{ role: 'user', content: 'score' }]);
+    expect(second.preSendMessages.some(message => message.content === 'Current score: 20')).toBe(true);
+  }, 180000);
 });
 
 // ---------------------------------------------------------------------------

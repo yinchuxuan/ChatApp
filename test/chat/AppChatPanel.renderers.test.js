@@ -20,7 +20,6 @@ describe('ChatPanel Component - Renderers', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    window.ChatPanelRenderers = undefined;
   });
 
   test('should render with ChatPanelRenderers', async () => {
@@ -56,8 +55,6 @@ describe('ChatPanel Component - Renderers', () => {
   });
 
   test('should render through imported renderers without globals', async () => {
-    window.ChatPanelRenderers = undefined;
-
     const ChatPanel = require('../../src/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));

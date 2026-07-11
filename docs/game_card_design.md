@@ -8,8 +8,9 @@
 
 详细参考：
 
-- 操作与 Predicate：`docs/GAME_CARD_ACTIONS.md`
-- Content 描述符与 find：`docs/GAME_CARD_CONTENT.md`
+- [操作](./game_card/game_card_actions.md)
+- [Predicate](./game_card/game_card_predicates.md)
+- [Content 描述符与 find](./game_card/game_card_content.md)
 
 ## 消息格式（内部）
 
@@ -188,13 +189,3 @@ messages (含 system) -> adaptToProtocol -> API 请求体
   ]
 }
 ```
-
-## Docs Reference
-
-*Only Read the docs you need depends on your task type*
-
-actions: docs/game_card/game_card_actions.md
-content: docs/game_card/game_card_content.md
-state: docs/game_card/game_card_state.md
-display: docs/game_card/game_card_display.md
-audio: docs/game_card/game_card_audio.md

@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  testMatch: ['<rootDir>/test/integration/**/*.test.js', '<rootDir>/test/ipc/*.integration.test.js'],
+  testMatch: ['<rootDir>/test/**/*.integration.test.js'],
   // Do NOT mock fs for integration tests - use real file system
   moduleNameMapper: {
     '^electron$': '<rootDir>/test/__mocks__/electronMock.js'

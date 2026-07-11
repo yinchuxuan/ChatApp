@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen, act, fireEvent } from '@testing-library/react';
 import ChatPanel from '../../src/ChatPanel.jsx';
+import generationServices from '../../src/chat/generationServices.js';
 
 describe('ChatPanel game card init', () => {
   beforeEach(() => {
@@ -36,13 +37,13 @@ describe('ChatPanel game card init', () => {
   });
 
   test('loads saved gameState and saves init state changes', async () => {
-    const originalPrepareInit = window.prepareInitMessages;
+    const originalPrepareInit = generationServices.prepareInitMessages;
     window.electronAPI.getChatHistory.mockResolvedValue({
       success: true,
       messages: [],
       gameState: { score: 1 }
     });
-    window.prepareInitMessages = jest.fn(async ({ messages, state }) => ({
+    generationServices.prepareInitMessages = jest.fn(async ({ messages, state }) => ({
       messages: [...messages, { role: 'system', content: `score:${state.score}`, _meta: { visibility: 'user_visible' } }],
       state: { score: 2 },
       changed: true
@@ -51,16 +52,16 @@ describe('ChatPanel game card init', () => {
     render(React.createElement(ChatPanel));
 
     await waitFor(() => expect(screen.getByText('score:1')).toBeInTheDocument());
-    expect(window.prepareInitMessages).toHaveBeenCalledWith({ messages: [], state: { score: 1 } });
+    expect(generationServices.prepareInitMessages).toHaveBeenCalledWith({ messages: [], state: { score: 1 } });
     expect(window.electronAPI.saveChatHistory).toHaveBeenCalledWith([
       { role: 'system', content: 'score:1', _meta: { visibility: 'user_visible' } }
     ], { gameState: { score: 2 }, retryBaseMessages: null, retryBaseState: null });
-    window.prepareInitMessages = originalPrepareInit;
+    generationServices.prepareInitMessages = originalPrepareInit;
   });
 
   test('shows active game card load errors in the chat panel', async () => {
-    const originalPrepareInit = window.prepareInitMessages;
-    window.prepareInitMessages = jest.fn(async ({ messages, state }) => ({
+    const originalPrepareInit = generationServices.prepareInitMessages;
+    generationServices.prepareInitMessages = jest.fn(async ({ messages, state }) => ({
       messages,
       state,
       changed: false,
@@ -77,7 +78,7 @@ describe('ChatPanel game card init', () => {
     expect(screen.getByText('阶段: 读取状态 schema')).toBeInTheDocument();
     expect(screen.getAllByText(/state\/schema\.json/).length).toBeGreaterThan(0);
     expect(screen.getByText(/Unexpected token/)).toBeInTheDocument();
-    window.prepareInitMessages = originalPrepareInit;
+    generationServices.prepareInitMessages = originalPrepareInit;
   });
 
   test('renders import errors outside the auto-hidden header', async () => {

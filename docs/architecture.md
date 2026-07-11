@@ -10,6 +10,12 @@
 - **平台适配层 (`src/platform/`)**：定义 renderer 使用的游戏卡平台接口，并提供 Electron 与内存实现。未来 Tauri 前端需实现同一接口，不在 shared core 中增加平台判断。
 - **IPC 处理器 (`ipc/`)**：处理器模块通过 `ipc/storage` 的异步原子 JSON store 读写 `userData`；聊天保存按 session 串行，目录导入使用异步文件 API。
 
+## Renderer 样式
+
+`src/main.jsx` 只导入 `src/styles/renderer.css`。该文件是平台 CSS 的唯一入口，并显式确定颜色、动画、组件和 utility 的加载顺序；`index.html` 不加载平台 CSS。
+
+游戏卡样式不并入平台入口。`display.stylesheet`、`visual.stylesheet` 和 `ui.stylesheet` 通过 `src/gameCard` runtime 从当前卡目录读取，写入带 card id 和资源来源标记的独立 `<style>`，切换游戏卡时替换或清理。游戏卡 CSS 必须使用卡主题 class 或稳定的 `data-gc-part` hook 限定作用域。
+
 ## 交互流程
 
 ```
@@ -41,6 +47,8 @@ scriptExecutor.run(source, context, options)
 ```
 
 `src/platform/electronGameCardPlatform.js` 将这些调用适配到现有 preload API；`sendPipeline` 只接收显式传入的 platform。脚本上下文构造和结果校验属于 shared core，受控 JavaScript 的具体执行环境属于 renderer adapter。
+
+完整 adapter contract、调用方向和未来平台接入要求见 [Platform Adapter](./platform_adapter.md)。
 
 聊天界面中的输入命令和模型配置通知通过 `src/chat` 下的显式 service 传递。游戏卡切换由 `GameCardRuntimeProvider` 与 props 回调协调，背景和视觉面板状态通过组件 props 回传给 `App`；renderer 组件之间不使用 DOM `CustomEvent` 作为内部消息总线。
 
@@ -77,6 +85,16 @@ userData/
 - **异步事件**：主进程通过 `ipcRenderer.on('background-config-changed')` 向渲染进程推送配置变更通知。
 - **安全隔离**：`contextIsolation: true`，`nodeIntegration: false` — 渲染进程不直接访问 Node API。
 - **Renderer 加载**：开发模式加载 Vite dev server，生产和 E2E 加载 `dist/renderer/index.html`；`window.electronAPI` 是 preload 保留的平台边界。
+
+## 测试边界
+
+- `test/chat` 覆盖聊天 hook、生成、retry、渲染和 chat integration。
+- `test/game-card` 覆盖 shared core、renderer runtime 和游戏卡 integration。
+- `test/storage` 覆盖原子 JSON、migration、session 队列和持久化 IPC integration。
+- `test/platform` 覆盖 adapter contract 与本地资源协议。
+- `test/e2e` 只通过 UI 和 preload 边界验证 Electron，不依赖 renderer 内部全局模块。
+
+普通 unit test mock 显式 service 或 memory adapter。`window.electronAPI` 只在 preload 边界和 Electron 组件测试中使用。
 
 ## 本地资源协议
 

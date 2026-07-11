@@ -4,6 +4,7 @@
 
 const React = require('react');
 const { render, screen, fireEvent, act } = require('@testing-library/react');
+const { sendChatRequest } = require('../../src/components/apiClient.js');
 
 const electronAPI = global.window.electronAPI;
 
@@ -100,7 +101,7 @@ describe('ChatPanel - Msg History Display from File', () => {
     });
 
     await expect(
-      window.sendChatRequest(
+      sendChatRequest(
         {
           apiUrl: 'https://api.openai.com/v1',
           apiKey: 'bad-key',
@@ -120,7 +121,7 @@ describe('ChatPanel - Msg History Display from File', () => {
     });
 
     await expect(
-      window.sendChatRequest(
+      sendChatRequest(
         {
           apiUrl: 'https://api.openai.com/v1',
           apiKey: 'test-key',

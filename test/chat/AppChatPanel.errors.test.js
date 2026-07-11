@@ -14,14 +14,6 @@ describe('ChatPanel Component - Error Handling', () => {
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-key', modelName: 'gpt-4' }
     });
-    window.ChatPanelRenderers = {
-      renderMsgHistoryDisplay: jest.fn(() => null),
-      renderChatHistory: jest.fn((R, messages) =>
-        R.createElement('div', null,
-          messages.map(m => R.createElement('div', { key: m.content, className: 'chat-message' }, m.content))
-        )
-      )
-    };
   });
 
   test('should show config error when submitting without model', async () => {

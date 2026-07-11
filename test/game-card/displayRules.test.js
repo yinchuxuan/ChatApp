@@ -1,5 +1,7 @@
 const React = require('react');
 const { render } = require('@testing-library/react');
+const DOMPurify = require('dompurify')(window);
+const { marked } = require('marked');
 const displayRules = require('../../src/gameCard/displayRules');
 const renderers = require('../../src/components/ChatPanelMessageRenderers').default;
 
@@ -57,8 +59,8 @@ describe('game card display rules', () => {
     const element = renderers.renderUserMsg(
       React,
       { role: 'user', content: 'Hello **there**\n<hidden>prompt</hidden>' },
-      window.marked,
-      window.DOMPurify,
+      marked,
+      DOMPurify,
       value => value,
       {
         user: [{
@@ -101,8 +103,8 @@ describe('game card display rules', () => {
       false,
       jest.fn(),
       jest.fn(),
-      window.marked,
-      window.DOMPurify,
+      marked,
+      DOMPurify,
       value => value,
       {
         assistant: [{

@@ -41,15 +41,6 @@ describe('SettingsPanel Component - Basic', () => {
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
     });
-    window.SettingsBackground = mockSettingsBackground;
-    window.SettingsModelConfig = mockSettingsModelConfig;
-    window.useSettingsState = mockUseSettingsState;
-  });
-
-  afterEach(() => {
-    window.SettingsBackground = undefined;
-    window.SettingsModelConfig = undefined;
-    window.useSettingsState = undefined;
   });
 
   test('should render settings trigger zone', async () => {

@@ -1,5 +1,7 @@
 const React = require('react');
 const { fireEvent, render } = require('@testing-library/react');
+const DOMPurify = require('dompurify')(window);
+const { marked } = require('marked');
 const { card } = require('./whiteAlbumTestCard');
 const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/gameCard/displayRules');
 const renderers = require('../../src/components/ChatPanelMessageRenderers').default;
@@ -83,8 +85,8 @@ describe('white album display rules', () => {
       false,
       jest.fn(),
       jest.fn(),
-      window.marked,
-      window.DOMPurify,
+      marked,
+      DOMPurify,
       value => value,
       card.display
     );
@@ -111,8 +113,8 @@ describe('white album display rules', () => {
       false,
       jest.fn(),
       jest.fn(),
-      window.marked,
-      window.DOMPurify,
+      marked,
+      DOMPurify,
       value => value,
       card.display
     );

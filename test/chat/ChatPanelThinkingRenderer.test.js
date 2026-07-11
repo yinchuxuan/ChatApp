@@ -1,5 +1,7 @@
 const React = require('react');
 const { render, fireEvent } = require('@testing-library/react');
+const DOMPurify = require('dompurify')(window);
+const { marked } = require('marked');
 const renderers = require('../../src/components/ChatPanelMessageRenderers').default;
 const MessageCollapseRenderer = require('../../src/components/MessageCollapseRenderer').default;
 
@@ -14,8 +16,8 @@ function renderAssistant(msg, toggle = jest.fn()) {
     false,
     jest.fn(),
     toggle,
-    window.marked,
-    window.DOMPurify,
+    marked,
+    DOMPurify,
     value => value
   ));
 }
@@ -72,13 +74,13 @@ describe('ChatPanel thinking renderer', () => {
       false,
       setShowStreamThinking,
       jest.fn(),
-      window.marked,
-      window.DOMPurify,
+      marked,
+      DOMPurify,
       value => value
     ));
 
     expect(container.querySelector('.chat-thinking-text')).toBeNull();
-    expect(container.querySelector('.chat-bubble-content').textContent).toBe('partial');
+    expect(container.querySelector('.chat-bubble-content').textContent.trim()).toBe('partial');
     fireEvent.click(container.querySelector('.chat-message-bubble.bubble-clickable'));
     expect(setShowStreamThinking).toHaveBeenCalled();
     expect(setShowStreamThinking.mock.calls[0][0](false)).toBe(true);
@@ -88,7 +90,7 @@ describe('ChatPanel thinking renderer', () => {
     const toggle = jest.fn();
     const renderAssistantMsg = (msg, idx, isStreaming) => renderers.renderAssistantMsg(
       React, msg, idx, isStreaming, { displayedCount: 0 }, '', true, jest.fn(),
-      toggle, window.marked, window.DOMPurify, value => value
+      toggle, marked, DOMPurify, value => value
     );
     const result = renderers.renderMessages(
       React,
@@ -110,7 +112,7 @@ describe('ChatPanel thinking renderer', () => {
     const toggle = jest.fn();
     const renderAssistantMsg = (msg, idx, isStreaming) => renderers.renderAssistantMsg(
       React, msg, idx, isStreaming, { displayedCount: 0 }, '', true, jest.fn(),
-      toggle, window.marked, window.DOMPurify, value => value
+      toggle, marked, DOMPurify, value => value
     );
     const result = renderers.renderMessages(
       React,

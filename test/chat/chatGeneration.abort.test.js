@@ -1,4 +1,5 @@
 const ChatGeneration = require('../../src/chat/chatGeneration.js');
+const generationServices = require('../../src/chat/generationServices.js').default;
 
 function makeTypewriter(content = 'partial answer') {
   return {
@@ -15,19 +16,19 @@ function makeTypewriter(content = 'partial answer') {
 describe('ChatGeneration abort handling', () => {
   let originalSendChatRequest, originalAfterResponse;
   beforeEach(() => {
-    originalSendChatRequest = window.sendChatRequest;
-    originalAfterResponse = window.prepareAfterResponseMessages;
+    originalSendChatRequest = generationServices.sendChatRequest;
+    originalAfterResponse = generationServices.prepareAfterResponseMessages;
   });
   afterEach(() => {
-    window.sendChatRequest = originalSendChatRequest;
-    window.prepareAfterResponseMessages = originalAfterResponse;
+    generationServices.sendChatRequest = originalSendChatRequest;
+    generationServices.prepareAfterResponseMessages = originalAfterResponse;
   });
 
   test('passes abort signal and stores partial output without an error message', async () => {
     const signal = { aborted: false };
     const setMessages = jest.fn(), setIsLoading = jest.fn(), tw = makeTypewriter();
-    window.prepareAfterResponseMessages = jest.fn();
-    window.sendChatRequest = jest.fn(async (config, callbacks) => {
+    generationServices.prepareAfterResponseMessages = jest.fn();
+    generationServices.sendChatRequest = jest.fn(async (config, callbacks) => {
       expect(config.signal).toBe(signal);
       callbacks.onToken('partial answer');
       signal.aborted = true;
@@ -53,6 +54,6 @@ describe('ChatGeneration abort handling', () => {
       { role: 'assistant', content: 'partial answer', _thinking: '', thinking: '' }
     ]);
     expect(tw.reset).not.toHaveBeenCalled();
-    expect(window.prepareAfterResponseMessages).not.toHaveBeenCalled();
+    expect(generationServices.prepareAfterResponseMessages).not.toHaveBeenCalled();
   });
 });
