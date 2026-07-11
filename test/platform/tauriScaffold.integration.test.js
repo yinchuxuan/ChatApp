@@ -12,9 +12,9 @@ describe('Tauri desktop scaffold', () => {
     const config = readJson('src-tauri/tauri.conf.json');
 
     expect(config.build).toEqual({
-      beforeDevCommand: 'npm run renderer:dev -- --mode tauri',
+      beforeDevCommand: 'npm run renderer:dev',
       devUrl: 'http://localhost:1420',
-      beforeBuildCommand: 'npm run build -- --mode tauri',
+      beforeBuildCommand: 'npm run renderer:build',
       frontendDist: '../dist/renderer'
     });
     expect(config.app.windows).toEqual([
@@ -34,10 +34,17 @@ describe('Tauri desktop scaffold', () => {
     const config = readJson('src-tauri/tauri.conf.json');
 
     expect(packageJson.scripts).toEqual(expect.objectContaining({
+      dev: 'tauri dev',
+      build: 'tauri build',
+      'renderer:build': 'vite build --config vite.config.mjs',
       'renderer:dev': 'vite --config vite.config.mjs',
-      'tauri:dev': 'tauri dev',
-      'tauri:build': 'tauri build'
+      'tauri:dev': 'npm run dev',
+      'tauri:build': 'npm run build'
     }));
+    expect(packageJson).not.toHaveProperty('main');
+    expect(packageJson.devDependencies).not.toHaveProperty('electron');
+    expect(packageJson.devDependencies).not.toHaveProperty('playwright');
+    expect(packageJson.devDependencies).not.toHaveProperty('@playwright/test');
     config.bundle.icon.forEach(iconPath => {
       expect(fs.existsSync(path.join(rootDir, 'src-tauri', iconPath))).toBe(true);
     });

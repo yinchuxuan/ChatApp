@@ -1,7 +1,7 @@
 const { preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
-const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 
-const platform = createElectronGameCardPlatform(() => window.electronAPI);
+const platform = createTestGameCardPlatform(() => global.platformMock);
 
 function dynamicFileCard() {
   return {
@@ -28,11 +28,11 @@ function dynamicFileCard() {
 
 describe('game card declared content file preload', () => {
   beforeEach(() => {
-    window.electronAPI.readGameCardFile.mockClear();
+    global.platformMock.readGameCardFile.mockClear();
   });
 
   test('preloads declared content files before applying dynamic file rules', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: '## Intro\nloaded dynamic route'
     });
@@ -43,7 +43,7 @@ describe('game card declared content file preload', () => {
       platform
     });
 
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('send-card', 'chapters/chapter-1/plot.md');
     expect(result.messages[0].content).toBe('loaded dynamic route');
   });

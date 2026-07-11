@@ -1,15 +1,15 @@
 const { renderHook, act: hookAct } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('useSettingsState Hook - Utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' }
     });
-    electronAPI.getBackgroundConfig.mockResolvedValue({
+    platformMock.getBackgroundConfig.mockResolvedValue({
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
     });
@@ -79,7 +79,7 @@ describe('useSettingsState Hook - Utilities', () => {
 
   describe('isConfigured', () => {
     test('should return falsy value when no config set', async () => {
-      electronAPI.getModelConfig.mockResolvedValue({
+      platformMock.getModelConfig.mockResolvedValue({
         success: true,
         config: { apiUrl: '', apiKey: '', modelName: '' }
       });
@@ -95,7 +95,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should return truthy value when apiUrl is set', async () => {
-      electronAPI.getModelConfig.mockResolvedValue({
+      platformMock.getModelConfig.mockResolvedValue({
         success: true,
         config: { apiUrl: 'http://api.com', apiKey: '', modelName: '' }
       });
@@ -111,7 +111,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should return truthy value when apiKey is set', async () => {
-      electronAPI.getModelConfig.mockResolvedValue({
+      platformMock.getModelConfig.mockResolvedValue({
         success: true,
         config: { apiUrl: '', apiKey: 'key', modelName: '' }
       });
@@ -127,7 +127,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should return truthy value when modelName is set', async () => {
-      electronAPI.getModelConfig.mockResolvedValue({
+      platformMock.getModelConfig.mockResolvedValue({
         success: true,
         config: { apiUrl: '', apiKey: '', modelName: 'model' }
       });
@@ -143,7 +143,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should return truthy value when all fields are set', async () => {
-      electronAPI.getModelConfig.mockResolvedValue({
+      platformMock.getModelConfig.mockResolvedValue({
         success: true,
         config: { apiUrl: 'http://api.com', apiKey: 'key', modelName: 'model' }
       });

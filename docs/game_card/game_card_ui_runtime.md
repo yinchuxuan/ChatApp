@@ -191,7 +191,7 @@ chat.send
 默认模式下：
 
 - 游戏卡可以在 `GameCardUIRoot` 内任意渲染 React。
-- 游戏卡不能直接修改平台 DOM、Electron API 或内部 React state。
+- 游戏卡不能直接修改平台 DOM、Tauri API 或内部 React state。
 - 状态变更必须通过受控 `state.*` action 或 `game.script.run`，再由聊天 session 持久化。
 - 演出和临时 UI 反馈通过 `effects`。
 

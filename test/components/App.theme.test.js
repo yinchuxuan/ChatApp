@@ -5,7 +5,7 @@
 const React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, act } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 let initialGameCardBackground = '';
 const mockChatPanel = (props) => {
@@ -35,11 +35,11 @@ describe('App Component - Theme', () => {
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn()
     }));
-    electronAPI.getBackgroundConfig.mockResolvedValue({
+    platformMock.getBackgroundConfig.mockResolvedValue({
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
     });
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: '', apiKey: '', modelName: '' }
     });

@@ -5,7 +5,7 @@
 const React = require('react');
 const { render, screen, fireEvent, waitFor, act } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 const ChatPanel = require('../../src/ChatPanel.jsx').default;
 const generationServices = require('../../src/chat/generationServices.js').default;
 const originalSendChatRequest = generationServices.sendChatRequest;
@@ -15,7 +15,7 @@ describe('ChatPanel thinking display', () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
 
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });

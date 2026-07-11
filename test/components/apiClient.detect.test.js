@@ -24,7 +24,7 @@ describe('sendChatRequest - protocol routing', () => {
 
     const [url, options] = global.fetch.mock.calls[0];
     expect(url).toBe('https://proxy.example.com/v1/chat/completions');
-    expect(options.headers['Authorization']).toBe('Bearer sk-test');
+    expect(options.headers['authorization']).toBe('Bearer sk-test');
   });
 
   test('should use Anthropic protocol when config.protocol is "anthropic"', async () => {

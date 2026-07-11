@@ -3,8 +3,8 @@ const {
   prepareInitMessages,
   preparePreSendMessages
 } = require('../../src/gameCard/sendPipeline');
-const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
-const platform = createElectronGameCardPlatform(() => window.electronAPI);
+const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
+const platform = createTestGameCardPlatform(() => global.platformMock);
 const preparePreSend = (options) => preparePreSendMessages({ ...options, platform });
 const prepareAfterResponse = (options) => prepareAfterResponseMessages({ ...options, platform });
 const prepareInit = (options) => prepareInitMessages({ ...options, platform });
@@ -45,8 +45,8 @@ function stateExecCard(phase) {
 
 describe('game card state schema pipeline', () => {
   beforeEach(() => {
-    window.electronAPI.readGameCardFile.mockReset();
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockReset();
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: '{"schema":{"player.hp":{"type":"number","default":100}}}'
     });
@@ -57,7 +57,7 @@ describe('game card state schema pipeline', () => {
       messages: [{ role: 'user', content: 'start' }]
     });
 
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('state-card', 'state/schema.json');
     expect(result.applied).toBe(true);
     expect(result.card.state.schema).toEqual({
@@ -66,7 +66,7 @@ describe('game card state schema pipeline', () => {
     expect(result.messages[0]).toEqual({ role: 'system', content: 'rules' });
   });
   test('reports missing schema files without applying rules', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: false,
       error: 'game card file not found'
     });
@@ -81,7 +81,7 @@ describe('game card state schema pipeline', () => {
     expect(result.messages).toEqual([{ role: 'user', content: 'start' }]);
   });
   test('surfaces safe path rejections for schema files', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: false,
       error: 'game card file path must stay inside game card directory'
     });
@@ -91,14 +91,14 @@ describe('game card state schema pipeline', () => {
       messages: [{ role: 'user', content: 'start' }]
     });
 
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('state-card', '../schema.json');
     expect(result.applied).toBe(false);
     expect(result.error).toContain('game card file path must stay inside game card directory');
   });
 
   test('surfaces absolute path rejections for schema files', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: false,
       error: 'game card file path must be relative'
     });
@@ -119,7 +119,7 @@ describe('game card state schema pipeline', () => {
 
     expect(result.applied).toBe(true);
     expect(result.card).toBe(card);
-    expect(window.electronAPI.readGameCardFile).not.toHaveBeenCalled();
+    expect(global.platformMock.readGameCardFile).not.toHaveBeenCalled();
   });
 
   test('passes through the original state value when no schema exists', async () => {
@@ -153,7 +153,7 @@ describe('game card state schema pipeline', () => {
   });
 
   test('after_response rules receive clamped existing state', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: '{"schema":{"player.hp":{"type":"number","min":0,"max":100,"onInvalid":"clamp"}}}'
     });
@@ -193,8 +193,8 @@ describe('game card state schema pipeline', () => {
       state: {}
     });
 
-    expect(window.electronAPI.readGameCardFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile).toHaveBeenCalledTimes(1);
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('state-card', 'state/schema.json');
   });
 });

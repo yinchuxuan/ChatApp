@@ -5,19 +5,19 @@
 const _React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, waitFor: _waitFor, act } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel Component - Error Handling', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-key', modelName: 'gpt-4' }
     });
   });
 
   test('should show config error when submitting without model', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: '', apiKey: '', modelName: '' }
     });
@@ -133,7 +133,7 @@ describe('ChatPanel Component - Error Handling', () => {
   });
 
   test('should use default model name when not provided', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com', apiKey: 'key', modelName: '' }
     });

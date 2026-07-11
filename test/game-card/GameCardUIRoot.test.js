@@ -11,7 +11,7 @@ describe('GameCardUIRoot', () => {
   test('mounts card React root and emits controlled input events', async () => {
     const emitted = [];
     const unsubscribe = subscribeChatInputCommands(event => emitted.push(event));
-    window.electronAPI.readGameCardFile.mockImplementation(async (_id, filePath) => ({
+    global.platformMock.readGameCardFile.mockImplementation(async (_id, filePath) => ({
       success: true,
       content: filePath.endsWith('.css')
         ? '.choice-button { pointer-events: auto; }'
@@ -56,7 +56,7 @@ describe('GameCardUIRoot', () => {
 
   test('applies controlled game state actions from card React root', async () => {
     const setGameState = jest.fn();
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: `
         function Root({ React, state, emit }) {
@@ -100,7 +100,7 @@ describe('GameCardUIRoot', () => {
   });
 
   test('exposes platform assistant message rendering to card React root', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: `
         function Root({ React, ui }) {
@@ -131,8 +131,8 @@ describe('GameCardUIRoot', () => {
   });
 
   test('resolves visual background keys for card React root assets', async () => {
-    window.electronAPI.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///classroom.png' });
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///classroom.png' });
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: `
         function Root({ React, assets }) {
@@ -153,12 +153,12 @@ describe('GameCardUIRoot', () => {
     render(React.createElement(GameCardUIRoot, { card, gameState: {}, messages: [], isLoading: false }));
 
     await screen.findByText('local:///classroom.png');
-    expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('visual-card', 'images/classroom.png');
+    expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledWith('visual-card', 'images/classroom.png');
   });
 
   test('runs controlled game scripts from card React root', async () => {
     const setGameState = jest.fn();
-    window.electronAPI.readGameCardFile.mockImplementation(async (_id, filePath) => ({
+    global.platformMock.readGameCardFile.mockImplementation(async (_id, filePath) => ({
       success: true,
       content: filePath === 'ui/root.js'
         ? `
@@ -185,7 +185,7 @@ describe('GameCardUIRoot', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'script' }));
 
     await waitFor(() => expect(setGameState).toHaveBeenCalledWith({ score: 5 }));
-    expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('script-card', 'ui/pick.js');
+    expect(global.platformMock.readGameCardFile).toHaveBeenCalledWith('script-card', 'ui/pick.js');
   });
 
 });

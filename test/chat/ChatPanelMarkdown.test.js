@@ -5,12 +5,12 @@
 const _React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, act } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel Component - Markdown Rendering', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
@@ -18,7 +18,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
   });
 
   test('should render user message content as markdown (bold text)', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'Hello **world**' }
@@ -37,7 +37,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
   });
 
   test('should render assistant message content as markdown (bold text)', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'Hi' },
@@ -57,7 +57,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
   });
 
   test('should render markdown code blocks', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'assistant', content: 'Use `console.log()` to debug' }
@@ -77,7 +77,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
   });
 
   test('should render markdown links', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'Check [this link](https://example.com)' }
@@ -96,7 +96,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
   });
 
   test('should render markdown lists', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'assistant', content: '- item one\n- item two\n- item three' }
@@ -118,7 +118,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
   });
 
   test('should render markdown headers', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'assistant', content: '## Section Title' }
@@ -138,7 +138,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
   });
 
   test('should render markdown italic text', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'This is *italic* text' }
@@ -157,7 +157,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
   });
 
   test('should use chat-message-bubble wrapper for non-thinking messages', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'Simple text' }

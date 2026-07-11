@@ -8,13 +8,13 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 
 import ChatPanel from '../../src/ChatPanel.jsx';
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('Msg History Display Card - Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
@@ -30,7 +30,7 @@ describe('Msg History Display Card - Integration', () => {
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi there!' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: sampleMessages
     });
@@ -65,7 +65,7 @@ describe('Msg History Display Card - Integration', () => {
   });
 
   test('should show empty state when no messages in history', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: []
     });
@@ -89,7 +89,7 @@ describe('Msg History Display Card - Integration', () => {
   });
 
   test('msg history card should have consistent styling classes', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [{ role: 'user', content: 'test' }]
     });
@@ -119,7 +119,7 @@ describe('Msg History Display Card - Integration', () => {
   });
 
   test('should show ttl and metadata fields in msg history JSON', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         {

@@ -5,7 +5,7 @@ import '../../src/components/ChatSessionManager.jsx';
 import GameCardTitleControl from '../../src/components/GameCardTitleControl.jsx';
 import { GameCardRuntimeProvider } from '../../src/chat/GameCardRuntimeProvider.jsx';
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 function renderControl(props = {}, parentProps = null) {
   const control = <GameCardRuntimeProvider><GameCardTitleControl {...props} /></GameCardRuntimeProvider>;
@@ -15,19 +15,19 @@ function renderControl(props = {}, parentProps = null) {
 describe('GameCardTitleControl', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });
-    electronAPI.importGameCardFromDirectory.mockResolvedValue({ success: false, canceled: true, card: null });
-    electronAPI.listChatSessions.mockResolvedValue({
+    platformMock.getActiveGameCard.mockResolvedValue({ success: true, card: null });
+    platformMock.importGameCardFromDirectory.mockResolvedValue({ success: false, canceled: true, card: null });
+    platformMock.listChatSessions.mockResolvedValue({
       success: true,
       activeId: 'default',
       sessions: [{ id: 'default', title: '默认会话', preview: '开场', messageCount: 1 }]
     });
-    electronAPI.createChatSession.mockResolvedValue({ success: true, id: 'session-1' });
-    electronAPI.setActiveChatSession.mockResolvedValue({ success: true, id: 'session-1' });
+    platformMock.createChatSession.mockResolvedValue({ success: true, id: 'session-1' });
+    platformMock.setActiveChatSession.mockResolvedValue({ success: true, id: 'session-1' });
   });
 
   test('shows current active game card', async () => {
-    electronAPI.getActiveGameCard.mockResolvedValue({
+    platformMock.getActiveGameCard.mockResolvedValue({
       success: true,
       card: { id: 'quest', name: 'Quest Card', rules: [] }
     });
@@ -46,7 +46,7 @@ describe('GameCardTitleControl', () => {
   test('imports a game card and stops header click propagation', async () => {
     const headerClick = jest.fn();
     const cardChanged = jest.fn();
-    electronAPI.importGameCardFromDirectory.mockResolvedValue({
+    platformMock.importGameCardFromDirectory.mockResolvedValue({
       success: true,
       card: { id: 'new_quest', name: 'New Quest', rules: [] }
     });
@@ -57,7 +57,7 @@ describe('GameCardTitleControl', () => {
       fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
     });
 
-    expect(electronAPI.importGameCardFromDirectory).toHaveBeenCalled();
+    expect(platformMock.importGameCardFromDirectory).toHaveBeenCalled();
     expect(headerClick).not.toHaveBeenCalled();
     expect(cardChanged).toHaveBeenCalledWith({ id: 'new_quest', name: 'New Quest', rules: [] });
     expect(screen.getByText('New Quest')).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe('GameCardTitleControl', () => {
 
   test('shows readable import errors without changing active card', async () => {
     const cardChanged = jest.fn();
-    electronAPI.importGameCardFromDirectory.mockResolvedValue({
+    platformMock.importGameCardFromDirectory.mockResolvedValue({
       success: false,
       error: '游戏卡状态 schema 校验失败',
       stage: 'validate_state_schema',
@@ -123,7 +123,7 @@ describe('GameCardTitleControl', () => {
   test('creates and switches sessions through callbacks', async () => {
     const before = jest.fn();
     const changed = jest.fn();
-    electronAPI.listChatSessions
+    platformMock.listChatSessions
       .mockResolvedValueOnce({ success: true, activeId: 'default', sessions: [{ id: 'default', title: '默认会话' }] })
       .mockResolvedValue({ success: true, activeId: 'session-1', sessions: [{ id: 'session-1', title: '新会话' }] });
 
@@ -134,21 +134,21 @@ describe('GameCardTitleControl', () => {
       fireEvent.click(screen.getByRole('button', { name: '新建会话' }));
     });
 
-    await waitFor(() => expect(electronAPI.createChatSession).toHaveBeenCalledWith('新会话'));
+    await waitFor(() => expect(platformMock.createChatSession).toHaveBeenCalledWith('新会话'));
     expect(before).toHaveBeenCalled();
     expect(changed).toHaveBeenCalledWith('session-1');
   });
 
   test('saves current session from session manager', async () => {
     const before = jest.fn();
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [{ role: 'user', content: 'snapshot' }],
       gameState: { timeline: { currentTime: '10:30' } },
       retryBaseMessages: [{ role: 'user', content: 'base' }],
       retryBaseState: { timeline: { currentTime: '10:00' } }
     });
-    electronAPI.createChatSession.mockResolvedValue({ success: true, id: 'archive-1' });
+    platformMock.createChatSession.mockResolvedValue({ success: true, id: 'archive-1' });
 
     renderControl({ onBeforeSessionChange: before });
     await screen.findByText('未加载游戏卡');
@@ -158,12 +158,12 @@ describe('GameCardTitleControl', () => {
     });
 
     expect(before).toHaveBeenCalledTimes(1);
-    expect(electronAPI.createChatSession).toHaveBeenCalledWith('会话存档');
-    expect(electronAPI.saveChatHistory).toHaveBeenCalledWith([{ role: 'user', content: 'snapshot' }], {
+    expect(platformMock.createChatSession).toHaveBeenCalledWith('会话存档');
+    expect(platformMock.saveChatHistory).toHaveBeenCalledWith([{ role: 'user', content: 'snapshot' }], {
       gameState: { timeline: { currentTime: '10:30' } },
       retryBaseMessages: [{ role: 'user', content: 'base' }],
       retryBaseState: { timeline: { currentTime: '10:00' } }
     });
-    expect(electronAPI.setActiveChatSession).toHaveBeenCalledWith('default');
+    expect(platformMock.setActiveChatSession).toHaveBeenCalledWith('default');
   });
 });

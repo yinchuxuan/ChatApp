@@ -6,7 +6,7 @@
 const _React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, waitFor: _waitFor, act } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 const chatPanelRenderers = require('../../src/components/ChatPanelRenderers').default;
 const generationServices = require('../../src/chat/generationServices.js').default;
 
@@ -16,7 +16,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });

@@ -8,8 +8,17 @@ const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-// Mock window.electronAPI for React components
-global.window.electronAPI = {
+const mockTauriApi = require('./tauriApiMock.js');
+
+jest.mock('@tauri-apps/api/core', () => ({
+  Channel: mockTauriApi.MockChannel,
+  convertFileSrc: mockTauriApi.convertFileSrc,
+  invoke: mockTauriApi.invoke
+}));
+jest.mock('@tauri-apps/api/event', () => ({ listen: mockTauriApi.listen }));
+
+// Mock native commands used through the Tauri renderer adapter.
+global.platformMock = {
   getModelConfig: jest.fn(),
   saveModelConfig: jest.fn(),
   getBackgroundConfig: jest.fn(),

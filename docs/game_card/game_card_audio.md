@@ -142,15 +142,15 @@ gameState.audio.bgm
 
 用户播放偏好属于应用 UI 设置，不属于剧情状态。`enabled`、`volume`、`muted` 不应写入游戏卡 `state.schema`，也不应随 session 剧情进度变化。
 
-## IPC 与资源安全
+## 资源安全
 
-渲染进程不直接读取本地文件。preload 应暴露安全接口，例如：
+渲染进程通过 game card platform contract 请求资源 URL：
 
 ```js
-window.electronAPI.getGameCardAudioUrl("audio/intro.mp3");
+platform.resources.getAudioUrl(card.id, "audio/intro.mp3");
 ```
 
-主进程校验当前 active game card 存在、path 是安全相对路径、解析后的绝对路径仍位于当前游戏卡目录内，且扩展名属于允许的音频类型。
+Tauri 受控资源协议校验当前 active game card、相对路径边界、realpath 和音频扩展名，并支持 byte Range。
 
 返回值应是可供 `<audio>` 加载的安全 URL 或失败结果。
 
@@ -189,7 +189,7 @@ display rules 是 UI-only 文本变换，只作用于消息内容渲染；BGM �
 - game card schema 接受 `audio.bgm` 资源表并拒绝非法路径
 - state schema enum 默认值能初始化 `gameState.audio.bgm`
 - state action 能更新 `audio.bgm`
-- IPC 拒绝路径穿越和非音频扩展名
+- 资源协议拒绝路径穿越和非音频扩展名
 - 组件在 key 变化时切换音频资源
 - 切换游戏卡或 session 时停止或恢复正确 BGM
 - 用户提交时停止播放，正文开始流式输出时按最新 state 播放

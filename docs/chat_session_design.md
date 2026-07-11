@@ -25,7 +25,7 @@ game-cards/
           retry-base.json
 ```
 
-`get-chat-history` 和 `save-chat-history` 始终操作当前 active session。缺少的是显式的 session 列表、创建、切换、重命名和删除机制。
+历史读写和 session 管理均已通过 Tauri renderer service 与 Rust commands 实现。
 
 ## 数据结构
 
@@ -83,36 +83,35 @@ sessions/
 }
 ```
 
-## IPC 接口
+## 平台接口
 
-保留现有接口：
+Renderer 只使用 `rendererServices.sessions`：
 
-- `get-chat-history`
-- `save-chat-history`
+- `loadHistory()`
+- `saveHistory(messages, options)`
+- `list()`
+- `getActive()`
+- `create(title)`
+- `setActive(id)`
+- `rename(id, title)`
+- `delete(id)`
 
-新增 session 管理接口：
+Tauri adapter 分别映射到 Rust commands：
 
-- `list-chat-sessions`
-- `get-active-chat-session`
-- `create-chat-session`
-- `set-active-chat-session`
-- `rename-chat-session`
-- `delete-chat-session`
-
-preload 暴露同名 camelCase 方法：
-
-- `listChatSessions()`
-- `getActiveChatSession()`
-- `createChatSession(title)`
-- `setActiveChatSession(id)`
-- `renameChatSession(id, title)`
-- `deleteChatSession(id)`
+- `get_chat_history`
+- `save_chat_history`
+- `list_chat_sessions`
+- `get_active_chat_session`
+- `create_chat_session`
+- `set_active_chat_session`
+- `rename_chat_session`
+- `delete_chat_session`
 
 ## 行为规则
 
 - session 作用域跟随当前游戏卡；未加载游戏卡时使用 `no-card`。
 - 如果 session root 不存在，自动创建 `default` session。
-- `save-chat-history` 成功后更新当前 session 的 `updatedAt`、`messageCount` 和 `preview`。
+- `save_chat_history` 成功后更新当前 session 的 `updatedAt`、`messageCount` 和 `preview`。
 - 同一 session 的读取和保存进入串行队列；messages、gameState、retry base 和 metadata 按一次保存顺序更新。
 - session JSON 使用临时文件加 `rename` 原子替换，写入失败不会留下不完整 JSON。
 - 新 session 初始包含空 `messages.json` 和空 `retry-base.json`。
@@ -123,7 +122,7 @@ preload 暴露同名 camelCase 方法：
 
 ## 前端集成
 
-`useChatSession` 通过 `getChatHistory()` 和 `saveChatHistory()` 读写当前 session，`useChatPersistence` 管理自动保存和 retry base。session 控件负责管理 active session：
+`useChatSession` 通过 session service 读写当前 session，`useChatPersistence` 管理自动保存和 retry base。session 控件负责管理 active session：
 
 - 显示当前游戏卡名和当前 session 标题。
 - 展开后列出同一游戏卡下的 session。
@@ -134,11 +133,11 @@ session 控件不应该依赖 msg 历史调试面板；msg 历史仍只用于查
 
 ## 测试范围
 
-IPC 测试：
+Rust 测试：
 
 - 创建 session 会写入目录、`messages.json`、`retry-base.json` 和 `index.json`。
-- 切换 active session 后 `get-chat-history` 读取不同内容。
-- `save-chat-history` 会保存 `gameState` 并更新 session metadata。
+- 切换 active session 后 `get_chat_history` 读取不同内容。
+- `save_chat_history` 会保存 `gameState` 并更新 session metadata。
 - no-card session 和不同 game card session 互相隔离。
 - 删除当前 session 后 active session 有合理 fallback。
 
@@ -148,7 +147,7 @@ IPC 测试：
 - 新建 session 会清空当前聊天并重新执行 init。
 - 切换 session 会恢复对应 messages 和 gameState。
 
-E2E 测试：
+Tauri E2E 测试：
 
 - 同一游戏卡下创建两个 session，分别发送消息，切换后历史保持独立。
 - 切换游戏卡后 session 列表跟随游戏卡变化。

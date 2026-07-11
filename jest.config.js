@@ -2,16 +2,11 @@ module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/test/setup.js'],
   moduleNameMapper: {
-    '\\.css$': 'identity-obj-proxy',
-    '^electron$': '<rootDir>/test/__mocks__/electronMock.js',
-    '^fs$': '<rootDir>/test/__mocks__/fsMock.js'
+    '\\.css$': 'identity-obj-proxy'
   },
   testMatch: ['<rootDir>/test/**/*.test.js'],
   testPathIgnorePatterns: [
-    // Removed document-reader IPC tests are retained as an explicit legacy specification.
-    '<rootDir>/test/ipc/fileHandlers.test.js',
-    '<rootDir>/test/e2e/',
-    '<rootDir>/test/e2e-real-api/',
+    '<rootDir>/test/tauri-e2e/',
     '\\.integration\\.test\\.js$'
   ],
   collectCoverage: true,
@@ -29,6 +24,5 @@ module.exports = {
     '^.+\\.jsx?$': 'babel-jest'
   },
   transformIgnorePatterns: ['/node_modules/(?!marked/)'],
-  moduleDirectories: ['node_modules', 'src'],
-  modulePathIgnorePatterns: ['<rootDir>/test/__mocks__/']
+  moduleDirectories: ['node_modules', 'src']
 };

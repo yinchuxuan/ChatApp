@@ -1,4 +1,4 @@
-# Electron UI 设计规范
+# Desktop UI 设计规范
 
 ## 一、配色系统
 | 角色 | 浅色模式 | 深色模式 (data-theme="dark") |

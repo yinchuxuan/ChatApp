@@ -4,16 +4,16 @@
 
 `shared/game-card/schema/game-card.schema.json` 是游戏卡结构协议的唯一事实源。字段、action、predicate、content、资源路径及 UI 配置的增删只修改该文件，不再同步维护手写结构 validator。
 
-平台在两个边界调用同一个 shared Ajv validator：
+协议在两个边界校验：
 
-- Electron 导入：先展开 `$import`，再校验完整游戏卡。
+- Tauri 导入：先展开 `$import`，再使用嵌入的 shared schema 校验完整游戏卡。
 - shared runtime：执行 `init`、`pre_send` 或 `after_response` 前校验。
 
 两处返回同一组格式化错误。结构不合法时不会继续读取资源或执行规则。
 
 ## 跨文件语义
 
-JSON Schema 不负责读取文件。schema 中带 `x-file: true` 的定义会由通用 walker 收集，Electron 导入器随后确认对应文件存在。
+JSON Schema 不负责读取文件。schema 中带 `x-file: true` 的定义会由导入器收集，Tauri backend 随后确认对应文件存在。
 
 以下检查仍属于加载边界，而不是结构 validator：
 
@@ -33,4 +33,4 @@ JSON Schema 不负责读取文件。schema 中带 `x-file: true` 的定义会由
 - minor：向后兼容地增加可选字段、action 或配置类型。
 - patch：不改变有效输入集合的错误信息、注释或约束修正。
 
-当前 schema 使用 Ajv `$data` 表达字段间约束。Electron、未来 Tauri 后端及测试必须复用 shared validator，或使用启用 `$data` 的兼容 Ajv 配置；不得用另一套手写规则替代。
+当前 schema 使用 Ajv `$data` 表达字段间约束。Rust backend 实现等价语义检查，并通过共享 fixture 与 Ajv validator 保持一致；不得维护另一份 schema。

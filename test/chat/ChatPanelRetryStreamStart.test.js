@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 import ChatPanel from '../../src/ChatPanel.jsx';
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 const bgmTokens = [];
 const backgroundTokens = [];
 
@@ -22,15 +22,15 @@ describe('ChatPanel retry stream start runtime token', () => {
     jest.clearAllMocks();
     bgmTokens.length = 0;
     backgroundTokens.length = 0;
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'key', modelName: 'gpt-4' }
     });
-    electronAPI.getActiveGameCard.mockResolvedValue({
+    platformMock.getActiveGameCard.mockResolvedValue({
       success: true,
       card: { version: '1', id: 'card', name: 'Card', rules: [] }
     });
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [{ role: 'user', content: 'Q' }, { role: 'assistant', content: 'old' }],
       retryBaseMessages: [{ role: 'user', content: 'Q' }],

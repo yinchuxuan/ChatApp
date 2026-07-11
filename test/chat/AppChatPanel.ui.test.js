@@ -5,12 +5,12 @@
 const _React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, waitFor: _waitFor, act } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel Component - UI', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
@@ -47,7 +47,7 @@ describe('ChatPanel Component - UI', () => {
   });
 
   test('should show "已连接" when model name is empty but config exists', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com', apiKey: 'key', modelName: '' }
     });
@@ -114,9 +114,9 @@ describe('ChatPanel Component - UI', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  test('should handle no electronAPI gracefully', async () => {
-    const originalElectronAPI = window.electronAPI;
-    window.electronAPI = undefined;
+  test('should handle no platformMock gracefully', async () => {
+    const originalPlatformMock = global.platformMock;
+    global.platformMock = undefined;
 
     const ChatPanel = require('../../src/ChatPanel.jsx').default;
 
@@ -126,11 +126,11 @@ describe('ChatPanel Component - UI', () => {
 
     expect(_screen.getByText('未加载游戏卡')).toBeInTheDocument();
 
-    window.electronAPI = originalElectronAPI;
+    global.platformMock = originalPlatformMock;
   });
 
   test('should handle failed config load', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: false,
       error: 'Config load failed'
     });

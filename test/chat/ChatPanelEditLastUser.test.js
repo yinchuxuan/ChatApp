@@ -3,16 +3,16 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 
 import ChatPanel from '../../src/ChatPanel.jsx';
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel last user message edit resend', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: '原来的选择' },
@@ -48,7 +48,7 @@ describe('ChatPanel last user message edit resend', () => {
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
     expect(body.messages).toEqual([{ role: 'user', content: '修改后的选择' }]);
     await waitFor(() => expect(screen.queryByLabelText('编辑用户消息')).not.toBeInTheDocument());
-    expect(electronAPI.saveChatHistory).toHaveBeenLastCalledWith(expect.any(Array), expect.objectContaining({
+    expect(platformMock.saveChatHistory).toHaveBeenLastCalledWith(expect.any(Array), expect.objectContaining({
       retryBaseMessages: [{ role: 'user', content: '修改后的选择' }],
       retryBaseState: { score: 3 }
     }));

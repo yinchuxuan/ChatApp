@@ -12,7 +12,7 @@ async function flushEffects() {
 describe('GameCardBackgroundRuntime', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    window.electronAPI.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///school.jpg' });
+    global.platformMock.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///school.jpg' });
   });
 
   test('dispatches resolved background url from game state', async () => {
@@ -25,7 +25,7 @@ describe('GameCardBackgroundRuntime', () => {
     }));
     await flushEffects();
 
-    await waitFor(() => expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('', 'images/school.jpg'));
+    await waitFor(() => expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledWith('', 'images/school.jpg'));
     expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
   });
 
@@ -39,12 +39,12 @@ describe('GameCardBackgroundRuntime', () => {
     }));
     await flushEffects();
 
-    expect(window.electronAPI.getGameCardImageUrl).not.toHaveBeenCalled();
+    expect(global.platformMock.getGameCardImageUrl).not.toHaveBeenCalled();
     expect(handler).toHaveBeenCalledWith({ url: '' });
   });
 
   test('resolves again when card changes with the same relative path', async () => {
-    window.electronAPI.getGameCardImageUrl
+    global.platformMock.getGameCardImageUrl
       .mockResolvedValueOnce({ success: true, url: 'local:///a/school.jpg' })
       .mockResolvedValueOnce({ success: true, url: 'local:///b/school.jpg' });
     const state = { visual: { background: 'school' } };
@@ -59,7 +59,7 @@ describe('GameCardBackgroundRuntime', () => {
     rerender(React.createElement(GameCardBackgroundRuntime, { card: second, gameState: state }));
     await flushEffects();
 
-    expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledTimes(2);
+    expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledTimes(2);
   });
 
   test('defers background dispatch until response body starts', async () => {
@@ -74,7 +74,7 @@ describe('GameCardBackgroundRuntime', () => {
     }));
     await flushEffects();
 
-    await waitFor(() => expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('', 'images/school.jpg'));
+    await waitFor(() => expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledWith('', 'images/school.jpg'));
     expect(handler).not.toHaveBeenCalled();
     rerender(React.createElement(GameCardBackgroundRuntime, {
       card: { visual: { background: { school: 'images/school.jpg' } } },
@@ -90,7 +90,7 @@ describe('GameCardBackgroundRuntime', () => {
 
   test('reveals deferred background after the image resolves late', async () => {
     let resolveImage;
-    window.electronAPI.getGameCardImageUrl.mockReturnValue(new Promise(resolve => { resolveImage = resolve; }));
+    global.platformMock.getGameCardImageUrl.mockReturnValue(new Promise(resolve => { resolveImage = resolve; }));
     const handler = jest.fn();
 
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {

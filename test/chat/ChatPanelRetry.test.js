@@ -7,17 +7,17 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 
 import ChatPanel from '../../src/ChatPanel.jsx';
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('Retry Button - Visibility', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: [] });
     global.fetch = jest.fn().mockResolvedValue(global.createStreamingMock('Retry response'));
   });
 
@@ -32,7 +32,7 @@ describe('Retry Button - Visibility', () => {
   });
 
   test('should show retry button for the last user message', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [{ role: 'user', content: 'Hello' }]
     });
@@ -48,7 +48,7 @@ describe('Retry Button - Visibility', () => {
       { role: 'user', content: 'Question 2' },
       { role: 'assistant', content: 'Answer 2', _thinking: 'thinking 2' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
@@ -67,7 +67,7 @@ describe('Retry Button - Visibility', () => {
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
@@ -82,7 +82,7 @@ describe('Retry Button - Visibility', () => {
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi there', _thinking: 'How to respond' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
@@ -96,11 +96,11 @@ describe('Retry Button - Click Behavior', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: [] });
     global.fetch = jest.fn().mockResolvedValue(global.createStreamingMock('New regenerated response'));
   });
 
@@ -113,7 +113,7 @@ describe('Retry Button - Click Behavior', () => {
       { role: 'user', content: 'Question' },
       { role: 'assistant', content: 'Old answer', _thinking: 'old thinking' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
@@ -133,7 +133,7 @@ describe('Retry Button - Click Behavior', () => {
       { role: 'user', content: 'Question' },
       { role: 'assistant', content: 'Answer', _thinking: 'thinking' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });

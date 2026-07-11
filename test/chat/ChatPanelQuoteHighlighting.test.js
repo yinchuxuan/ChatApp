@@ -5,12 +5,12 @@
 const React = require('react');
 const { render: _render, screen: _screen, act } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel Component - Quote Highlighting', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
@@ -18,7 +18,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
   });
 
   test('should highlight text in ASCII double quotes in user message', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'Say "hello world"' }
@@ -38,7 +38,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
   });
 
   test('should highlight text in smart double quotes in assistant message', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'Hi' },
@@ -59,7 +59,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
   });
 
   test('should highlight text in corner brackets', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'He said 「hello」' }
@@ -79,7 +79,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
   });
 
   test('should not highlight text without quotes', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'user', content: 'Just plain text without quotes' }
@@ -98,7 +98,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
   });
 
   test('should highlight multiple quoted sections', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({
+    platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [
         { role: 'assistant', content: 'Say "hello" and "world"' }

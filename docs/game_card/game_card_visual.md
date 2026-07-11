@@ -132,15 +132,15 @@ gameState.visual.background
 - LLM 回复期间的背景变更等到正文第一个 token 开始流式输出时展示。
 - 游戏卡背景只覆盖背景图片，不覆盖用户设置的遮罩透明度；透明度仍使用现有 `backgroundOpacity`。
 
-## IPC 与资源安全
+## 资源安全
 
-渲染进程不直接读取本地文件。preload 应暴露安全接口，例如：
+渲染进程通过 game card platform contract 请求资源 URL：
 
 ```js
-window.electronAPI.getGameCardImageUrl("images/school.jpg");
+platform.resources.getImageUrl(card.id, "images/school.jpg");
 ```
 
-主进程校验当前 active game card 存在、path 是安全相对路径、解析后的绝对路径仍位于当前游戏卡目录内，且扩展名属于允许的图片类型。
+Tauri 受控资源协议校验当前 active game card、相对路径边界、realpath 和图片扩展名。
 
 返回值应是可供 CSS `background-image` 加载的安全 URL 或失败结果。
 
@@ -185,7 +185,7 @@ card.visual.background + gameState.visual.background
 - game card schema 接受 `visual.background` 资源表并拒绝非法路径
 - state schema enum 默认值能初始化 `gameState.visual.background`
 - state action 能更新 `visual.background`
-- IPC 拒绝路径穿越和非图片扩展名
+- 资源协议拒绝路径穿越和非图片扩展名
 - 前端在 key 变化时解析背景资源，并在正文开始流式输出时展示本轮背景
 - 切换游戏卡或 session 时清理或恢复正确背景
 - 游戏卡背景缺失时回落到用户设置背景

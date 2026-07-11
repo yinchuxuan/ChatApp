@@ -175,4 +175,6 @@ async fn session_management_and_card_scopes_match_electron_storage() {
     let card_root = sessions::session_root(&cards_dir).unwrap();
     assert!(card_root.ends_with("cards/quest/sessions"));
     assert_ne!(card_root, no_card_root);
+    write_json(&cards_dir.join("active.json"), &json!({ "id": null })).unwrap();
+    assert_eq!(sessions::session_root(&cards_dir).unwrap(), no_card_root);
 }

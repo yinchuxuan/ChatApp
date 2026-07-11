@@ -5,12 +5,12 @@
 const _React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel Component - Basic', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
@@ -18,17 +18,17 @@ describe('ChatPanel Component - Basic', () => {
   });
 
   test('should load model config on mount', async () => {
-    const result = await electronAPI.getModelConfig();
+    const result = await platformMock.getModelConfig();
     expect(result.success).toBe(true);
     expect(result.config.apiUrl).toBe('http://api.example.com/v1');
   });
 
   test('should handle missing config', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: '', apiKey: '', modelName: '' }
     });
-    const result = await electronAPI.getModelConfig();
+    const result = await platformMock.getModelConfig();
     expect(result.config.apiUrl).toBe('');
   });
 
@@ -150,7 +150,7 @@ describe('ChatPanel Component - Basic', () => {
 
   test('should verify chat-header toggle pattern', async () => {
     const handleToggleShowMsgHistory = jest.fn();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-key', modelName: 'gpt-4' }
     });

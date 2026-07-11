@@ -1,7 +1,7 @@
 const { preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
-const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 
-const platform = createElectronGameCardPlatform(() => window.electronAPI);
+const platform = createTestGameCardPlatform(() => global.platformMock);
 
 function cardWithExec(action) {
   return {
@@ -14,11 +14,11 @@ function cardWithExec(action) {
 
 describe('game card send pipeline exec include scripts', () => {
   beforeEach(() => {
-    window.electronAPI.readGameCardFile.mockClear();
+    global.platformMock.readGameCardFile.mockClear();
   });
 
-  test('preloads script-level exec includes through electronAPI', async () => {
-    window.electronAPI.readGameCardFile.mockImplementation(async (_cardId, filePath) => ({
+  test('preloads script-level exec includes through platformMock', async () => {
+    global.platformMock.readGameCardFile.mockImplementation(async (_cardId, filePath) => ({
       success: true,
       content: filePath === 'scripts/helper.js'
         ? 'function mark(ctx) { ctx.state.loadedHelper = true; }'
@@ -30,8 +30,8 @@ describe('game card send pipeline exec include scripts', () => {
     });
     const result = await preparePreSendMessages({ messages: [], card, platform });
 
-    expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/helper.js');
-    expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/timeline.js');
+    expect(global.platformMock.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/helper.js');
+    expect(global.platformMock.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/timeline.js');
     expect(result.state.loadedHelper).toBe(true);
   });
 });

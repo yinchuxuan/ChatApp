@@ -1,16 +1,6 @@
-import { createElectronGameCardPlatform } from '../../src/platform/electronGameCardPlatform.js';
 import { createMemoryGameCardPlatform } from '../../src/platform/memoryGameCardPlatform.js';
 import { createTauriGameCardPlatform } from '../../src/platform/tauriGameCardPlatform.js';
 import { verifyGameCardPlatform } from './adapterContracts.js';
-
-function electronPlatform() {
-  return createElectronGameCardPlatform({
-    readGameCardFile: async () => ({ success: true, content: 'text' }),
-    getGameCardImageUrl: async () => ({ success: true, url: 'asset://image' }),
-    getGameCardAudioUrl: async () => ({ success: true, url: 'asset://audio' }),
-    getActiveGameCard: async () => ({ success: true, card: { id: 'card' } })
-  });
-}
 
 function tauriPlatform() {
   const values = {
@@ -33,7 +23,6 @@ function memoryPlatform() {
 }
 
 describe.each([
-  ['Electron', electronPlatform],
   ['Tauri', tauriPlatform],
   ['memory', memoryPlatform]
 ])('%s game card adapter', (_name, createPlatform) => {

@@ -4,8 +4,8 @@ const {
   prepareAfterResponseMessages,
   toApiMessages
 } = require('../../src/gameCard/sendPipeline');
-const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
-const platform = createElectronGameCardPlatform(() => window.electronAPI);
+const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
+const platform = createTestGameCardPlatform(() => global.platformMock);
 const preparePreSend = (options) => preparePreSendMessages({ ...options, platform });
 function cardWithInsert(content, files) {
   return {
@@ -29,7 +29,7 @@ function cardWithInsert(content, files) {
 
 describe('game card send pipeline', () => {
   beforeEach(() => {
-    window.electronAPI.readGameCardFile.mockClear();
+    global.platformMock.readGameCardFile.mockClear();
   });
 
   test('returns the original messages object when no card is active', async () => {
@@ -80,8 +80,8 @@ describe('game card send pipeline', () => {
     expect(result.ttlTrace.summary.messages).toMatchObject({ decayed: 1, removed: 1 });
   });
 
-  test('preloads declared files through electronAPI before applying rules', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+  test('preloads declared files through platformMock before applying rules', async () => {
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: 'loaded rules'
     });
@@ -91,13 +91,13 @@ describe('game card send pipeline', () => {
       card: cardWithInsert('{{file:rules}}', { rules: 'worldbook/rules.md' })
     });
 
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('send-card', 'worldbook/rules.md');
     expect(result.messages[0].content).toBe('loaded rules');
   });
 
   test('preloads declared files before resolving markdown sections', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: '# Routes\n## 雪菜线\nloaded route\n## 和纱线\nother'
     });
@@ -106,13 +106,13 @@ describe('game card send pipeline', () => {
       card: cardWithInsert('{{file:routes#雪菜线}}', { routes: 'worldbook/routes.md' })
     });
 
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('send-card', 'worldbook/routes.md');
     expect(result.messages[0].content).toBe('loaded route');
   });
 
-  test('preloads exec sourceFile through electronAPI before applying rules', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+  test('preloads exec sourceFile through platformMock before applying rules', async () => {
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: 'function run(ctx) { ctx.state.loadedScript = true; return { state: ctx.state }; }'
     });
@@ -120,12 +120,12 @@ describe('game card send pipeline', () => {
     card.rules[0].then = [{ type: 'exec', sourceFile: 'scripts/timeline.js' }];
     const result = await preparePreSend({ messages: [], card });
 
-    expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/timeline.js');
+    expect(global.platformMock.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/timeline.js');
     expect(result.state.loadedScript).toBe(true);
   });
 
   test('gracefully returns applied=false when declared file preload fails', async () => {
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: false,
       error: 'blocked path'
     });

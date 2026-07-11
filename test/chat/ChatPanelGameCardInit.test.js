@@ -6,9 +6,9 @@ import generationServices from '../../src/chat/generationServices.js';
 describe('ChatPanel game card init', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    window.electronAPI.getModelConfig.mockResolvedValue({ success: true, config: {} });
-    window.electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
-    window.electronAPI.getActiveGameCard.mockResolvedValue({
+    global.platformMock.getModelConfig.mockResolvedValue({ success: true, config: {} });
+    global.platformMock.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+    global.platformMock.getActiveGameCard.mockResolvedValue({
       success: true,
       card: {
         version: '1',
@@ -31,14 +31,14 @@ describe('ChatPanel game card init', () => {
     render(React.createElement(ChatPanel));
 
     await waitFor(() => expect(screen.getByText('intro')).toBeInTheDocument());
-    expect(window.electronAPI.saveChatHistory).toHaveBeenCalledWith([
+    expect(global.platformMock.saveChatHistory).toHaveBeenCalledWith([
       { role: 'system', content: 'intro', _meta: { source: 'game_card_init', visibility: 'user_visible' } }
     ], { gameState: {}, retryBaseMessages: null, retryBaseState: null });
   });
 
   test('loads saved gameState and saves init state changes', async () => {
     const originalPrepareInit = generationServices.prepareInitMessages;
-    window.electronAPI.getChatHistory.mockResolvedValue({
+    global.platformMock.getChatHistory.mockResolvedValue({
       success: true,
       messages: [],
       gameState: { score: 1 }
@@ -53,7 +53,7 @@ describe('ChatPanel game card init', () => {
 
     await waitFor(() => expect(screen.getByText('score:1')).toBeInTheDocument());
     expect(generationServices.prepareInitMessages).toHaveBeenCalledWith({ messages: [], state: { score: 1 } });
-    expect(window.electronAPI.saveChatHistory).toHaveBeenCalledWith([
+    expect(global.platformMock.saveChatHistory).toHaveBeenCalledWith([
       { role: 'system', content: 'score:1', _meta: { visibility: 'user_visible' } }
     ], { gameState: { score: 2 }, retryBaseMessages: null, retryBaseState: null });
     generationServices.prepareInitMessages = originalPrepareInit;
@@ -82,7 +82,7 @@ describe('ChatPanel game card init', () => {
   });
 
   test('renders import errors outside the auto-hidden header', async () => {
-    window.electronAPI.importGameCardFromDirectory.mockResolvedValue({
+    global.platformMock.importGameCardFromDirectory.mockResolvedValue({
       success: false,
       error: '游戏卡主文件 schema 校验失败',
       stage: 'validate_card',
@@ -105,10 +105,10 @@ describe('ChatPanel game card init', () => {
   });
 
   test('reruns history loading and init after the active game card changes', async () => {
-    window.electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });
+    global.platformMock.getActiveGameCard.mockResolvedValue({ success: true, card: null });
     render(React.createElement(ChatPanel));
 
-    await waitFor(() => expect(window.electronAPI.getChatHistory).toHaveBeenCalled());
+    await waitFor(() => expect(global.platformMock.getChatHistory).toHaveBeenCalled());
     const nextCard = {
       version: '1',
       id: 'init-card',
@@ -118,11 +118,11 @@ describe('ChatPanel game card init', () => {
         then: [{ type: 'insert', role: 'system', content: 'intro', _meta: { visibility: 'user_visible' } }]
       }]
     };
-    window.electronAPI.getActiveGameCard.mockResolvedValue({
+    global.platformMock.getActiveGameCard.mockResolvedValue({
       success: true,
       card: nextCard
     });
-    window.electronAPI.importGameCardFromDirectory.mockResolvedValue({ success: true, card: nextCard });
+    global.platformMock.importGameCardFromDirectory.mockResolvedValue({ success: true, card: nextCard });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
     });

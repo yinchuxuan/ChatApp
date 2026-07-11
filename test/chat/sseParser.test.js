@@ -57,8 +57,8 @@ describe('incremental SSE parser', () => {
     await expect(sendChatRequest({ ...request, protocol: 'anthropic' })).rejects.toThrow('overloaded');
   });
 
-  test('rejects a successful response without a stream body', async () => {
+  test('accepts an empty successful native stream', async () => {
     global.fetch.mockResolvedValue({ ok: true, body: null });
-    await expect(sendChatRequest(request)).rejects.toThrow('API response body is empty');
+    await expect(sendChatRequest(request)).resolves.toBeUndefined();
   });
 });

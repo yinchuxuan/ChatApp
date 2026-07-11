@@ -6,17 +6,17 @@ const React = require('react');
 const { render, screen, fireEvent, act } = require('@testing-library/react');
 const { sendChatRequest } = require('../../src/chat/apiClient.js');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel - Msg History Display from File', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'https://api.openai.com/v1', apiKey: 'test-key', modelName: 'gpt-4' }
     });
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: [] });
     global.fetch.mockResolvedValue(global.createStreamingMock('Test'));
   });
 
@@ -29,7 +29,7 @@ describe('ChatPanel - Msg History Display from File', () => {
       { role: 'user', content: 'test message' },
       { role: 'assistant', content: 'Test' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     const ChatPanel = require('../../src/ChatPanel.jsx').default;
     render(React.createElement(ChatPanel));
@@ -66,7 +66,7 @@ describe('ChatPanel - Msg History Display from File', () => {
       { role: 'user', content: 'hello claude' },
       { role: 'assistant', content: 'Claude response', _thinking: 'How to respond...' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     const ChatPanel = require('../../src/ChatPanel.jsx').default;
     render(React.createElement(ChatPanel));

@@ -159,7 +159,7 @@
 - 在发布构建中验证 CSP、资源协议、日志、窗口生命周期和应用数据路径。
 实现说明：
 - WebdriverIO 只在 `e2e` feature 中启用 embedded driver 和隔离目录；正式包不包含测试插件或权限。
-- Tauri E2E 以真实 commands、资源协议和 Rust 流式网络覆盖关键流程；三个系统的 CI 同时保留 Rust、Jest 和 Electron tests。
+- Tauri E2E 以真实 commands、资源协议和 Rust 流式网络覆盖关键流程；三个系统的 CI 同时保留 Rust 与 Jest tests。
 - bundle 为 macOS app/DMG、Windows NSIS、Linux deb/AppImage；tag draft release 强制要求 macOS 公证和 Windows PFX 签名。
 
 验收条件：
@@ -167,14 +167,14 @@
 - 三个平台的 build、Rust tests、Jest tests 和 Tauri E2E 全部通过。
 - 安装版应用可完成一轮 WA2 主流程并在重启后恢复状态。
 - 安装包签名和分发配置满足目标发布渠道要求。
-## 阶段 9：切换默认 Target 并清理 Electron
+## 阶段 9：切换默认 Target 并清理 Electron（已完成，2026-07-11）
 
 - 将默认开发、测试和发布命令切换到 Tauri。
 - 完成至少一个稳定版本的数据迁移和回归验证。
 - 删除 `main.js`、`preload.js`、Electron adapters、Electron-only IPC 注册代码和依赖。
 - 删除或迁移 Electron Playwright E2E 和 mocks。
 - 更新 architecture、platform adapter、build/test 和开发环境文档。
-
+实现说明：默认开发、构建、测试和 CI 已切换到 Tauri；Electron runtime、IPC、adapter、Playwright 与依赖已删除。旧 userData 导入仅保留在 Rust migration 中。
 验收条件：
 
 - 仓库不再依赖 Electron runtime。

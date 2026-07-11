@@ -6,6 +6,7 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 const runtimeDir = path.join(root, 'test-results', 'tauri-e2e');
 const dataDir = path.join(runtimeDir, 'data');
 const importDir = path.join(runtimeDir, 'card');
+const backgroundPath = path.join(root, 'test', 'fixtures', 'lisa1.jpg');
 const binaryName = process.platform === 'win32' ? 'chatapp-tauri.exe' : 'chatapp-tauri';
 const binaryPath = path.join(root, 'src-tauri', 'target', 'debug', binaryName);
 
@@ -44,7 +45,8 @@ export const config = {
     startTimeout: 30000,
     env: {
       CHATAPP_E2E_DATA_DIR: dataDir,
-      CHATAPP_E2E_IMPORT_DIR: importDir
+      CHATAPP_E2E_IMPORT_DIR: importDir,
+      CHATAPP_E2E_BACKGROUND_PATH: backgroundPath
     }
   }]],
   capabilities: [{ browserName: 'tauri' }],

@@ -1,5 +1,5 @@
 const { applyUiScriptRunEvent, normalizeUiScriptRunEvent } = require('../../src/gameCard/uiScripts');
-const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 
 describe('game card ui scripts', () => {
   test('normalizes sourceFile and named card scripts', () => {
@@ -27,7 +27,7 @@ describe('game card ui scripts', () => {
       state: { score: 1, events: { queue: [{ id: 'a' }, { id: 'b' }] } },
       messages: [{ role: 'user', content: 'x' }],
       card: { id: 'card', ui: { scripts: { pick: 'ui/pick.js' } } },
-      platform: createElectronGameCardPlatform(api)
+      platform: createTestGameCardPlatform(api)
     });
 
     expect(api.readGameCardFile).toHaveBeenCalledWith('card', 'ui/helper.js');
@@ -48,7 +48,7 @@ describe('game card ui scripts', () => {
       state: { score: 1 },
       messages: [],
       card: { id: 'card' },
-      platform: createElectronGameCardPlatform(api)
+      platform: createTestGameCardPlatform(api)
     });
 
     expect(result).toMatchObject({ applied: false, state: { score: 1 }, trace: { reason: 'messages_not_supported' } });
@@ -67,7 +67,7 @@ describe('game card ui scripts', () => {
       event: { type: 'game.script.run', sourceFile: 'ui/read.js' },
       state: {},
       card: { id: 'card', files: { event: 'events/event.md' } },
-      platform: createElectronGameCardPlatform(api)
+      platform: createTestGameCardPlatform(api)
     });
 
     expect(api.readGameCardFile).toHaveBeenCalledWith('card', 'events/event.md');

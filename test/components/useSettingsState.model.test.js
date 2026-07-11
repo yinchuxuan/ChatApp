@@ -4,21 +4,21 @@
 
 const { renderHook, act: hookAct } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('useSettingsState Hook - Model Handlers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' }
     });
-    electronAPI.saveModelConfig.mockResolvedValue({ success: true });
-    electronAPI.getBackgroundConfig.mockResolvedValue({
+    platformMock.saveModelConfig.mockResolvedValue({ success: true });
+    platformMock.getBackgroundConfig.mockResolvedValue({
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
     });
-    electronAPI.saveBackgroundConfig.mockResolvedValue({ success: true });
+    platformMock.saveBackgroundConfig.mockResolvedValue({ success: true });
   });
 
   test('should handle handleChange to update and auto-save config', async () => {
@@ -34,7 +34,7 @@ describe('useSettingsState Hook - Model Handlers', () => {
 
     // Auto-save triggered
     await hookAct(async () => { await Promise.resolve(); });
-    expect(electronAPI.saveModelConfig).toHaveBeenCalled();
+    expect(platformMock.saveModelConfig).toHaveBeenCalled();
   });
 
   test('should handle handleChange for apiKey', async () => {
@@ -78,7 +78,7 @@ describe('useSettingsState Hook - Model Handlers', () => {
 
   test('serializes saves so the latest value is persisted last', async () => {
     let resolveFirst;
-    electronAPI.saveModelConfig
+    platformMock.saveModelConfig
       .mockImplementationOnce(() => new Promise(resolve => { resolveFirst = resolve; }))
       .mockResolvedValue({ success: true });
     const useSettingsState = require('../../src/settings/useSettingsState.js').default;
@@ -89,10 +89,10 @@ describe('useSettingsState Hook - Model Handlers', () => {
       result.current.handleChange('modelName', 'first');
       result.current.handleChange('modelName', 'latest');
     });
-    expect(electronAPI.saveModelConfig).toHaveBeenCalledTimes(1);
+    expect(platformMock.saveModelConfig).toHaveBeenCalledTimes(1);
     await hookAct(async () => { resolveFirst({ success: true }); await Promise.resolve(); });
 
-    expect(electronAPI.saveModelConfig).toHaveBeenLastCalledWith(
+    expect(platformMock.saveModelConfig).toHaveBeenLastCalledWith(
       expect.objectContaining({ modelName: 'latest' })
     );
   });

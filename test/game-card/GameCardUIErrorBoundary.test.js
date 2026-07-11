@@ -7,7 +7,7 @@ describe('game card UI error isolation', () => {
 
   test('isolates render errors and recovers after the card changes', async () => {
     const onError = jest.fn();
-    window.electronAPI.readGameCardFile.mockImplementation(async (cardId) => ({
+    global.platformMock.readGameCardFile.mockImplementation(async (cardId) => ({
       success: true,
       content: cardId === 'broken'
         ? 'function Root() { throw new Error("render failed"); }'
@@ -25,7 +25,7 @@ describe('game card UI error isolation', () => {
 
   test('isolates synchronous card event handler errors', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: 'function Root({ React }) { return React.createElement("button", { onClick: () => { throw new Error("event failed"); } }, "fail"); }'
     });
@@ -38,7 +38,7 @@ describe('game card UI error isolation', () => {
 
   test('isolates card effect errors', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: 'function Root({ React }) { React.useEffect(() => { throw new Error("effect failed"); }, []); return null; }'
     });

@@ -50,7 +50,7 @@ describe('useChatGeneration game card pipeline', () => {
   });
 
   test('sends unmodified messages without an active card', async () => {
-    window.electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });
+    global.platformMock.getActiveGameCard.mockResolvedValue({ success: true, card: null });
     const { result } = renderGeneration();
     await act(async () => { await result.current.send('hello'); });
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
@@ -84,7 +84,7 @@ describe('useChatGeneration game card pipeline', () => {
   });
 
   test('sends pre_send transformed messages', async () => {
-    window.electronAPI.getActiveGameCard.mockResolvedValue({
+    global.platformMock.getActiveGameCard.mockResolvedValue({
       success: true,
       card: {
         version: '1', id: 'active', name: 'Active Card',
@@ -103,7 +103,7 @@ describe('useChatGeneration game card pipeline', () => {
   });
 
   test('applies after_response rules before storing the assistant', async () => {
-    window.electronAPI.getActiveGameCard.mockResolvedValue({
+    global.platformMock.getActiveGameCard.mockResolvedValue({
       success: true,
       card: {
         version: '1', id: 'active', name: 'Active Card',

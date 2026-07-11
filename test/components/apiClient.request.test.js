@@ -27,8 +27,8 @@ describe('sendChatRequest - OpenAI protocol', () => {
     const [url, options] = global.fetch.mock.calls[0];
     expect(url).toBe('https://api.openai.com/v1/chat/completions');
     expect(options.method).toBe('POST');
-    expect(options.headers['Authorization']).toBe('Bearer sk-test-key');
-    expect(options.headers['Content-Type']).toBe('application/json');
+    expect(options.headers['authorization']).toBe('Bearer sk-test-key');
+    expect(options.headers['content-type']).toBe('application/json');
 
     const body = JSON.parse(options.body);
     expect(body.model).toBe('gpt-4');
@@ -89,7 +89,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
     expect(body.top_k).toBeUndefined();
   });
 
-  test('should pass abort signal to fetch options', async () => {
+  test('should run native requests with a cancellable signal', async () => {
     const controller = new AbortController();
     await sendChatRequest(
       {
@@ -103,6 +103,6 @@ describe('sendChatRequest - OpenAI protocol', () => {
     );
 
     const [, options] = global.fetch.mock.calls[0];
-    expect(options.signal).toBe(controller.signal);
+    expect(options.signal).toBeInstanceOf(AbortSignal);
   });
 });

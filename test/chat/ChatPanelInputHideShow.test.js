@@ -7,13 +7,13 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 
 import ChatPanel from '../../src/ChatPanel.jsx';
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel Input Area Hide/Show on Hover', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });

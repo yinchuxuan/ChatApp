@@ -10,7 +10,7 @@ function card(rules) {
 
 describe('legacy e2e game card coverage migrated to Jest', () => {
   beforeEach(() => {
-    window.electronAPI.readGameCardFile.mockClear();
+    global.platformMock.readGameCardFile.mockClear();
   });
 
   test('runs matching rules in order and records message summaries', () => {

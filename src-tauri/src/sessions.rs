@@ -27,6 +27,11 @@ struct ActiveId {
     id: String,
 }
 
+#[derive(Deserialize)]
+struct ActiveCardId {
+    id: Option<String>,
+}
+
 pub struct SessionContext {
     pub id: String,
     pub root: PathBuf,
@@ -44,9 +49,9 @@ pub fn is_safe_id(id: &str) -> bool {
 
 pub fn session_root(game_cards_dir: &Path) -> AppResult<PathBuf> {
     let active_path = game_cards_dir.join("active.json");
-    let active = read_json::<ActiveId>(&active_path)?;
-    if let Some(active) = active.filter(|item| is_safe_id(&item.id)) {
-        let card_dir = game_cards_dir.join("cards").join(active.id);
+    let active = read_json::<ActiveCardId>(&active_path)?;
+    if let Some(id) = active.and_then(|item| item.id).filter(|id| is_safe_id(id)) {
+        let card_dir = game_cards_dir.join("cards").join(id);
         if exists(&card_dir.join("card.json"))? {
             return Ok(card_dir.join("sessions"));
         }

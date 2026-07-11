@@ -4,27 +4,27 @@
 
 const { renderHook, act: hookAct } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('useSettingsState Hook - Initial State', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' }
     });
-    electronAPI.saveModelConfig.mockResolvedValue({ success: true });
-    electronAPI.getBackgroundConfig.mockResolvedValue({
+    platformMock.saveModelConfig.mockResolvedValue({ success: true });
+    platformMock.getBackgroundConfig.mockResolvedValue({
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
     });
-    electronAPI.saveBackgroundConfig.mockResolvedValue({ success: true });
-    electronAPI.selectBackgroundImage.mockResolvedValue({ success: false, canceled: true });
+    platformMock.saveBackgroundConfig.mockResolvedValue({ success: true });
+    platformMock.selectBackgroundImage.mockResolvedValue({ success: false, canceled: true });
   });
 
   test('should initialize with empty config', async () => {
-    electronAPI.getModelConfig.mockResolvedValue({ success: false, error: 'Not found' });
-    electronAPI.getBackgroundConfig.mockResolvedValue({ success: false, error: 'Not found' });
+    platformMock.getModelConfig.mockResolvedValue({ success: false, error: 'Not found' });
+    platformMock.getBackgroundConfig.mockResolvedValue({ success: false, error: 'Not found' });
 
     const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));

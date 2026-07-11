@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { GameCardRuntimeProvider, useGameCardRuntime } from '../../src/chat/GameCardRuntimeProvider.jsx';
-import { createElectronGameCardPlatform } from '../../src/platform/electronGameCardPlatform.js';
+import { createTestGameCardPlatform } from '../platform/tauriTestClient.js';
 
 describe('GameCardRuntimeProvider', () => {
   test('owns the active card, game state, and runtime error', async () => {
@@ -22,7 +22,7 @@ describe('GameCardRuntimeProvider', () => {
 
   test('captures active card loading failures', async () => {
     const api = { getActiveGameCard: jest.fn(async () => ({ success: false, error: 'load failed' })) };
-    const platform = createElectronGameCardPlatform(api);
+    const platform = createTestGameCardPlatform(api);
     const wrapper = ({ children }) => <GameCardRuntimeProvider platform={platform}>{children}</GameCardRuntimeProvider>;
     const { result } = renderHook(() => useGameCardRuntime(), { wrapper });
     await waitFor(() => expect(result.current.runtimeError).toEqual(expect.objectContaining({ message: 'load failed' })));

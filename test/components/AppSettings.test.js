@@ -4,12 +4,12 @@
 
 const _React = require('react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('SettingsPanel Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: {
         apiUrl: 'http://api.example.com/v1',
@@ -17,11 +17,11 @@ describe('SettingsPanel Component', () => {
         modelName: 'gpt-4'
       }
     });
-    electronAPI.saveModelConfig.mockResolvedValue({ success: true });
+    platformMock.saveModelConfig.mockResolvedValue({ success: true });
   });
 
   test('should load config on mount', async () => {
-    const result = await electronAPI.getModelConfig();
+    const result = await platformMock.getModelConfig();
     expect(result.success).toBe(true);
     expect(result.config.apiUrl).toBeDefined();
   });
@@ -32,7 +32,7 @@ describe('SettingsPanel Component', () => {
       apiKey: 'new-key',
       modelName: 'new-model'
     };
-    const result = await electronAPI.saveModelConfig(newConfig);
+    const result = await platformMock.saveModelConfig(newConfig);
     expect(result.success).toBe(true);
   });
 
@@ -54,11 +54,11 @@ describe('App Component Integration', () => {
     jest.clearAllMocks();
   });
 
-  test('should have all required electronAPI methods', () => {
-    expect(electronAPI.getModelConfig).toBeDefined();
-    expect(electronAPI.saveModelConfig).toBeDefined();
-    expect(electronAPI.getBackgroundConfig).toBeDefined();
-    expect(electronAPI.saveBackgroundConfig).toBeDefined();
-    expect(electronAPI.selectBackgroundImage).toBeDefined();
+  test('should have all required platformMock methods', () => {
+    expect(platformMock.getModelConfig).toBeDefined();
+    expect(platformMock.saveModelConfig).toBeDefined();
+    expect(platformMock.getBackgroundConfig).toBeDefined();
+    expect(platformMock.saveBackgroundConfig).toBeDefined();
+    expect(platformMock.selectBackgroundImage).toBeDefined();
   });
 });

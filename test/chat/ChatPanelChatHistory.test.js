@@ -5,18 +5,18 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import ChatPanel from '../../src/ChatPanel.jsx';
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel Chat History Persistence', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
-    electronAPI.saveChatHistory.mockResolvedValue({ success: true });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+    platformMock.saveChatHistory.mockResolvedValue({ success: true });
     global.fetch = jest.fn().mockResolvedValue(global.createStreamingMock('Test response'));
   });
 
@@ -29,7 +29,7 @@ describe('ChatPanel Chat History Persistence', () => {
       { role: 'user', content: 'Previous question' },
       { role: 'assistant', content: 'Previous answer' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
 
@@ -38,14 +38,14 @@ describe('ChatPanel Chat History Persistence', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(electronAPI.getChatHistory).toHaveBeenCalled();
+    expect(platformMock.getChatHistory).toHaveBeenCalled();
     // Messages should be loaded from history
     expect(screen.getByText('Previous question')).toBeInTheDocument();
     expect(screen.getByText('Previous answer')).toBeInTheDocument();
   });
 
   test('should handle empty chat history on mount', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: [] });
 
     render(React.createElement(ChatPanel));
 
@@ -54,7 +54,7 @@ describe('ChatPanel Chat History Persistence', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(electronAPI.getChatHistory).toHaveBeenCalled();
+    expect(platformMock.getChatHistory).toHaveBeenCalled();
     expect(screen.getByText('开始对话')).toBeInTheDocument();
   });
 
@@ -67,7 +67,7 @@ describe('ChatPanel Chat History Persistence', () => {
     });
 
     // Clear save calls from initial load
-    electronAPI.saveChatHistory.mockClear();
+    platformMock.saveChatHistory.mockClear();
 
     // Send a message
     const input = screen.getByPlaceholderText('输入您的回答...');
@@ -86,7 +86,7 @@ describe('ChatPanel Chat History Persistence', () => {
     });
 
     // saveChatHistory should have been called after response completes
-    expect(electronAPI.saveChatHistory).toHaveBeenCalled();
+    expect(platformMock.saveChatHistory).toHaveBeenCalled();
   });
 
   test('should not expose the legacy clear history button after messages save', async () => {
@@ -113,13 +113,13 @@ describe('ChatPanel Chat History Persistence', () => {
       jest.advanceTimersByTime(200);
     });
 
-    expect(electronAPI.saveChatHistory).toHaveBeenCalled();
+    expect(platformMock.saveChatHistory).toHaveBeenCalled();
     expect(screen.queryByTitle('清空聊天历史')).not.toBeInTheDocument();
     expect(document.querySelector('.chat-header-clear-btn')).toBeNull();
   });
 
   test('should handle getChatHistory failure gracefully', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({ success: false, error: 'Read error', messages: [] });
+    platformMock.getChatHistory.mockResolvedValue({ success: false, error: 'Read error', messages: [] });
 
     render(React.createElement(ChatPanel));
 
@@ -128,13 +128,13 @@ describe('ChatPanel Chat History Persistence', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(electronAPI.getChatHistory).toHaveBeenCalled();
+    expect(platformMock.getChatHistory).toHaveBeenCalled();
     // Should still render empty state
     expect(screen.getByText('开始对话')).toBeInTheDocument();
   });
 
   test('should handle saveChatHistory failure gracefully', async () => {
-    electronAPI.saveChatHistory.mockResolvedValue({ success: false, error: 'Save error' });
+    platformMock.saveChatHistory.mockResolvedValue({ success: false, error: 'Save error' });
 
     render(React.createElement(ChatPanel));
 
@@ -160,7 +160,7 @@ describe('ChatPanel Chat History Persistence', () => {
     });
 
     // Should have attempted to save
-    expect(electronAPI.saveChatHistory).toHaveBeenCalled();
+    expect(platformMock.saveChatHistory).toHaveBeenCalled();
     // Response should still be displayed
     expect(screen.getByText('Test response')).toBeInTheDocument();
   });

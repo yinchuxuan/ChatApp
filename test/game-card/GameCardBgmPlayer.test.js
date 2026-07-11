@@ -15,7 +15,7 @@ describe('GameCardBgmPlayer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     playResolvers = [];
-    window.electronAPI.getGameCardAudioUrl.mockResolvedValue({ success: true, url: 'local:///intro.mp3' });
+    global.platformMock.getGameCardAudioUrl.mockResolvedValue({ success: true, url: 'local:///intro.mp3' });
     jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => new Promise(resolve => playResolvers.push(resolve)));
     jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
   });
@@ -32,7 +32,7 @@ describe('GameCardBgmPlayer', () => {
       resumeToken: 0
     }));
     await flushAudioEffects();
-    await waitFor(() => expect(window.electronAPI.getGameCardAudioUrl).toHaveBeenCalledWith('', 'audio/intro.mp3'));
+    await waitFor(() => expect(global.platformMock.getGameCardAudioUrl).toHaveBeenCalledWith('', 'audio/intro.mp3'));
 
     document.querySelector('audio').currentTime = 12;
     rerender(React.createElement(GameCardBgmPlayer, {
@@ -72,7 +72,7 @@ describe('GameCardBgmPlayer', () => {
 
   test('waits for the latest bgm url before playing after resume', async () => {
     let resolveSad;
-    window.electronAPI.getGameCardAudioUrl
+    global.platformMock.getGameCardAudioUrl
       .mockResolvedValueOnce({ success: true, url: 'local:///intro.mp3' })
       .mockReturnValueOnce(new Promise(resolve => { resolveSad = resolve; }));
     const card = { audio: { bgm: { intro: 'audio/intro.mp3', sad: 'audio/sad.mp3' } } };
@@ -99,7 +99,7 @@ describe('GameCardBgmPlayer', () => {
   });
 
   test('plays immediately when game state changes outside generation', async () => {
-    window.electronAPI.getGameCardAudioUrl.mockImplementation(async (_cardId, path) => ({
+    global.platformMock.getGameCardAudioUrl.mockImplementation(async (_cardId, path) => ({
       success: true,
       url: `local:///${path.split('/').pop()}`
     }));
@@ -121,7 +121,7 @@ describe('GameCardBgmPlayer', () => {
   });
 
   test('defers state-driven bgm changes while generation is active', async () => {
-    window.electronAPI.getGameCardAudioUrl.mockImplementation(async (_cardId, path) => ({
+    global.platformMock.getGameCardAudioUrl.mockImplementation(async (_cardId, path) => ({
       success: true,
       url: `local:///${path.split('/').pop()}`
     }));

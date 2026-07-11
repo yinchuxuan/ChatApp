@@ -5,7 +5,7 @@
 const React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, act } = require('@testing-library/react');
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 const mockSettingsBackground = (_props) =>
   React.createElement('div', { className: 'settings-background-mock' }, 'SettingsBackground Mock');
@@ -33,11 +33,11 @@ jest.mock('../../src/components/SettingsModelConfig.jsx', () => ({ __esModule: t
 describe('SettingsPanel Component - Basic', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' }
     });
-    electronAPI.getBackgroundConfig.mockResolvedValue({
+    platformMock.getBackgroundConfig.mockResolvedValue({
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
     });

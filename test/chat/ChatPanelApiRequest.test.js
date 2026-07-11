@@ -7,17 +7,17 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 
 import ChatPanel from '../../src/ChatPanel.jsx';
 
-const electronAPI = global.window.electronAPI;
+const platformMock = global.platformMock;
 
 describe('ChatPanel Msg History Display', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    electronAPI.getModelConfig.mockResolvedValue({
+    platformMock.getModelConfig.mockResolvedValue({
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: [] });
     global.fetch = jest.fn().mockResolvedValue(global.createStreamingMock('Test response'));
   });
 
@@ -30,7 +30,7 @@ describe('ChatPanel Msg History Display', () => {
       { role: 'user', content: 'test question' },
       { role: 'assistant', content: 'Test response', _thinking: 'thinking content' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
 
@@ -48,7 +48,7 @@ describe('ChatPanel Msg History Display', () => {
     });
 
     expect(screen.getByText('msg历史记录')).toBeInTheDocument();
-    expect(electronAPI.getChatHistory).toHaveBeenCalled();
+    expect(platformMock.getChatHistory).toHaveBeenCalled();
 
     // Verify the card is rendered with msgs JSON structure
     const card = document.querySelector('.msg-history-card');
@@ -63,7 +63,7 @@ describe('ChatPanel Msg History Display', () => {
   });
 
   test('should show empty state when no msg history', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: [] });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: [] });
 
     render(React.createElement(ChatPanel));
 
@@ -99,7 +99,7 @@ describe('ChatPanel Msg History Display', () => {
       { role: 'user', content: 'Hello', isError: false },
       { role: 'assistant', content: 'Hi there', _thinking: 'How to respond...' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
 
@@ -127,7 +127,7 @@ describe('ChatPanel Msg History Display', () => {
   });
 
   test('should handle getChatHistory failure gracefully', async () => {
-    electronAPI.getChatHistory.mockResolvedValue({ success: false, error: 'Read error', messages: [] });
+    platformMock.getChatHistory.mockResolvedValue({ success: false, error: 'Read error', messages: [] });
 
     render(React.createElement(ChatPanel));
 
@@ -153,7 +153,7 @@ describe('ChatPanel Msg History Display', () => {
       { role: 'user', content: 'test question' },
       { role: 'assistant', content: 'Test response', _thinking: 'thinking content' }
     ];
-    electronAPI.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
+    platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
     render(React.createElement(ChatPanel));
 
@@ -171,11 +171,11 @@ describe('ChatPanel Msg History Display', () => {
       const responses = screen.getAllByText('Test response');
       expect(responses.length).toBeGreaterThan(0);
     });
-    electronAPI.getChatHistory.mockClear();
+    platformMock.getChatHistory.mockClear();
     const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
     fireEvent.click(chatHeader);
     await act(async () => { await Promise.resolve(); jest.advanceTimersByTime(100); });
-    expect(electronAPI.getChatHistory).toHaveBeenCalled();
+    expect(platformMock.getChatHistory).toHaveBeenCalled();
     const card = document.querySelector('.msg-history-card');
     expect(card).toBeTruthy();
     const jsonPre = document.querySelector('.msg-history-json');

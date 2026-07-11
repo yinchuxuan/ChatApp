@@ -1,7 +1,7 @@
 const { preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
-const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 
-const platform = createElectronGameCardPlatform(() => window.electronAPI);
+const platform = createTestGameCardPlatform(() => global.platformMock);
 
 function visualCard() {
   return {
@@ -19,8 +19,8 @@ function visualCard() {
 
 describe('game card visual state schema', () => {
   beforeEach(() => {
-    window.electronAPI.readGameCardFile.mockReset();
-    window.electronAPI.readGameCardFile.mockResolvedValue({
+    global.platformMock.readGameCardFile.mockReset();
+    global.platformMock.readGameCardFile.mockResolvedValue({
       success: true,
       content: '{"schema":{"player.hp":{"type":"number","default":100}}}'
     });

@@ -19,7 +19,7 @@ function normalizeUiRootSource(source) {
   if (/\bimport\s*(?:[\w*{]|['"])/.test(source) || /\brequire\s*\(/.test(source)) {
     throw new Error('ui root source cannot use import or require');
   }
-  if (/\b(process|window|document|fetch|ipcRenderer|electronAPI|localStorage|sessionStorage|globalThis|Function|eval)\b/.test(source)) {
+  if (/\b(process|window|document|fetch|ipcRenderer|localStorage|sessionStorage|globalThis|Function|eval)\b/.test(source)) {
     throw new Error('ui root source contains blocked browser runtime token');
   }
   const defaultNames = [];
@@ -68,7 +68,6 @@ function compileGameCardUiRootSource(source, ReactRef) {
     'document',
     'fetch',
     'ipcRenderer',
-    'electronAPI',
     'localStorage',
     'sessionStorage',
     'globalThis',

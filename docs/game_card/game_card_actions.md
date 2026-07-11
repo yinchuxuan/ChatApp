@@ -156,7 +156,7 @@ function run(ctx) {
 | `event` | 当前触发事件 |
 | `utils` | `randomInt`、`roll`、`clamp`、`uuid` |
 
-返回值固定为 `{ messages?, state?, effects? }`。不提供 `require` / `import` / `process` / `window` / `document` / `fetch` / `ipcRenderer` / Node.js / Electron API。
+返回值固定为 `{ messages?, state?, effects? }`。不提供 `require` / `import` / `process` / `window` / `document` / `fetch` / `ipcRenderer` / Node.js / native API。
 
 推荐优先让 `exec` 只返回 `{ state }`，用于时间线、随机分支、audio/background 等派生状态；只有声明式 action 无法表达消息变换时，再返回 `{ messages, state }` 作为高级逃生口。
 

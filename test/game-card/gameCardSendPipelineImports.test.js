@@ -1,7 +1,7 @@
 const { prepareInitMessages, preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
-const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 
-const platform = createElectronGameCardPlatform(() => window.electronAPI);
+const platform = createTestGameCardPlatform(() => global.platformMock);
 
 function readGameCardFile(cardId, filePath) {
   const files = {
@@ -22,7 +22,7 @@ function readGameCardFile(cardId, filePath) {
 
 describe('game card send pipeline imports', () => {
   beforeEach(() => {
-    window.electronAPI.readGameCardFile.mockImplementation(readGameCardFile);
+    global.platformMock.readGameCardFile.mockImplementation(readGameCardFile);
   });
 
   test('expands imported files before applying pre_send replacements', async () => {
@@ -42,9 +42,9 @@ describe('game card send pipeline imports', () => {
 
     expect(result.trace.errors).toEqual([]);
     expect(result.messages[0].content).toBe('go\nloaded guide');
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('send-card', 'files.json');
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('send-card', 'plot_guides.md');
   });
 
@@ -62,7 +62,7 @@ describe('game card send pipeline imports', () => {
     });
 
     expect(result.card.files.plot_guides).toBe('plot_guides.md');
-    expect(window.electronAPI.readGameCardFile)
+    expect(global.platformMock.readGameCardFile)
       .toHaveBeenCalledWith('send-card', 'files.json');
   });
 });

@@ -30,7 +30,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
     expect(options.method).toBe('POST');
     expect(options.headers['x-api-key']).toBe('sk-ant-test-key');
     expect(options.headers['anthropic-version']).toBe('2023-06-01');
-    expect(options.headers['Content-Type']).toBe('application/json');
+    expect(options.headers['content-type']).toBe('application/json');
 
     const body = JSON.parse(options.body);
     expect(body.model).toBe('claude-sonnet-4-20250514');

@@ -2,48 +2,27 @@
 
 ## 组成部分
 
-- **Tauri 桌面壳 (`src-tauri/`)**：复用 Vite renderer，并通过构建期 target 使用 Tauri renderer adapter；Rust 后端实现配置、聊天历史、Session、游戏卡仓库 commands 和受控图片/音频资源协议。
-- **主进程 (`main.js`)**：Electron 主进程，创建 `BrowserWindow`，管理应用生命周期，注册 IPC 处理器处理文件 I/O（模型配置、背景配置、聊天历史）。
-- **预加载脚本 (`preload.js`)**：通过 `contextBridge` 桥接主进程与渲染进程，暴露 `window.electronAPI` 供渲染进程调用。
-- **渲染进程 (`src/`)**：Vite 构建的 React 单页应用。`main.jsx` 是唯一入口，`App.jsx` 为根组件；平台模块通过 ESM `import/export` 连接，不依赖 HTML 脚本顺序或 `window.*` 模块注册。
-- **聊天运行时 (`src/chat/`)**：通过独立 hook 管理 session、持久化、生成、重试、中止和滚动；`GameCardRuntimeProvider` 管理当前游戏卡、gameState 与运行时错误。
-- **设置运行时 (`src/settings/`)**：管理模型与背景配置的加载、latest-wins 保存队列及设置页状态；`src/components` 只保留可渲染 UI。
-- **游戏卡核心 (`shared/game-card/`)**：平台无关的规则、content、state、schema 与协议适配逻辑。只处理普通数据，并通过显式依赖接入文件读取和脚本执行。
-- **平台适配层 (`src/platform/`)**：定义 renderer 使用的游戏卡与配置、背景、会话、卡片仓库接口，并提供 Electron、Tauri 与内存实现。Vite 在构建期选择桌面 adapter，不在业务组件或 shared core 中判断平台。
-- **模型传输 (`src/platform/modelFetch.js`)**：Electron 复用 browser `fetch`；Tauri 将 Rust HTTP Channel 适配为 `ReadableStream` 响应，聊天层继续使用平台无关 SSE parser。
-- **IPC 处理器 (`ipc/`)**：处理器模块通过 `ipc/storage` 的异步原子 JSON store 读写 `userData`；聊天保存按 session 串行，目录导入使用异步文件 API。
+- **Tauri 桌面壳 (`src-tauri/`)**：创建桌面窗口，管理应用生命周期，通过 Rust commands 提供配置、Session、游戏卡仓库和模型网络能力。
+- **渲染进程 (`src/`)**：Vite 构建的 React 单页应用。`main.jsx` 是唯一入口，`App.jsx` 为根组件。
+- **聊天运行时 (`src/chat/`)**：管理 session、持久化、生成、重试、中止和滚动。
+- **游戏卡核心 (`shared/game-card/`)**：平台无关的规则、content、state、schema 与协议逻辑，只处理普通数据和显式依赖。
+- **平台适配层 (`src/platform/`)**：将 renderer contract 映射为 Tauri `invoke`、event、Channel 和受控资源 URL；memory adapter 只用于测试。
+- **模型传输 (`src/platform/tauriModelFetch.js`)**：将 Rust HTTP Channel 适配为 `ReadableStream`，聊天层继续复用同一套 SSE parser。
 
-## Renderer 样式
+Tauri 是唯一桌面生产 target。renderer 和 shared core 不做桌面平台判断，也不直接使用文件系统、dialog 或任意 native API。
 
-`src/main.jsx` 只导入 `src/styles/renderer.css`。该文件是平台 CSS 的唯一入口，并显式确定颜色、动画、组件和 utility 的加载顺序；`index.html` 不加载平台 CSS。
+## 调用方向
 
-游戏卡样式不并入平台入口。`display.stylesheet`、`visual.stylesheet` 和 `ui.stylesheet` 通过 `src/gameCard` runtime 从当前卡目录读取，写入带 card id 和资源来源标记的独立 `<style>`，切换游戏卡时替换或清理。游戏卡 CSS 必须使用卡主题 class 或稳定的 `data-gc-part` hook 限定作用域。
-
-Tauri CSP 明确允许游戏卡动态组件需要的受控 `Function`、Blob Worker 和运行时样式，并只允许受控 `local` 协议加载图片和音频。模型外网连接由 Rust command 完成；WebView CSP 与 `core:default` capability 不提供文件系统、shell 或任意外网权限。平台字体由 Vite 本地打包，不加载远程 CSS 或字体。
-
-## 交互流程
-
-```
-渲染进程 (React)
-    |  invoke('get-model-config') / invoke('save-chat-history') / ...
-    v
-预加载脚本 (contextBridge)
-    |  转发至 ipcRenderer.invoke()
-    v
-主进程 (ipcMain)
-    |  委托给 ipc/{config,background,chatHistory}Handlers
-    |  读写 app.getPath('userData') 下的 JSON 文件
-    v
-文件系统 (JSON)
+```txt
+React / src/gameCard runtime
+  -> renderer services / game card platform contract
+    -> Tauri renderer adapter
+      -> invoke / listen / Channel / convertFileSrc
+        -> Rust commands / controlled resource protocol
+          -> app_data_dir / model endpoint
 ```
 
-游戏卡调用方向为 `src/gameCard` renderer 适配层或 `ipc/` Electron 适配层指向 `shared/game-card`。Shared core 不依赖 DOM、React、Electron、Node 文件系统或本地绝对路径。
-
-`src/gameCard` 不提供 shared core 的重导出。纯规则、content、state、schema 和 protocol 调用必须直接导入 `shared/game-card` 下的所有者模块；`src/gameCard` 只暴露 renderer 资源预载、受控脚本、runtime 样式和 UI 适配行为。
-
-游戏卡结构协议由 `shared/game-card/schema/game-card.schema.json` 唯一定义。Electron 导入复用 shared Ajv validator；Tauri 直接嵌入同一 schema，并补充标准 Draft 7 validator 不支持的 Ajv `$data` 跨字段语义。两个后端都处理 import 循环、schema 注解声明的文件存在性及 state schema 内容，并通过共享 fixture 校验结果一致性。
-
-Renderer 中的游戏卡运行时通过以下接口访问平台能力：
+Renderer 使用以下窄接口：
 
 ```js
 resources.readText(cardId, relativePath)
@@ -53,76 +32,49 @@ repository.getActiveCard()
 scriptExecutor.run(source, context, options)
 ```
 
-`src/platform/electronGameCardPlatform.js` 将这些调用适配到现有 preload API；`sendPipeline` 只接收显式传入的 platform。脚本上下文构造和结果校验属于 shared core，受控 JavaScript 的具体执行环境属于 renderer adapter。
+配置、背景、会话和导入通过 `rendererServices` 的 `config`、`background`、`sessions`、`cards` 接口访问。组件不直接调用 Tauri API。
 
-`src/platform/tauriGameCardPlatform.js` 和 `tauriRendererServices.js` 将相同 contract 映射为 Tauri `invoke` 与 event `listen`。Tauri 配置以 `--mode tauri` 注入构建常量；普通 Vite、Electron 和 Jest 构建默认选择 Electron adapter。
+## 样式
 
-完整 adapter contract、调用方向和未来平台接入要求见 [Platform Adapter](./platform_adapter.md)。
+`src/main.jsx` 只导入 `src/styles/renderer.css`。游戏卡的 `display.stylesheet`、`visual.stylesheet` 和 `ui.stylesheet` 由 runtime 从当前卡目录读取，写入独立 `<style>`，切卡时替换或清理。
 
-聊天界面中的输入命令和模型配置通知通过 `src/chat` 下的显式 service 传递。游戏卡切换由 `GameCardRuntimeProvider` 与 props 回调协调，背景和视觉面板状态通过组件 props 回传给 `App`；renderer 组件之间不使用 DOM `CustomEvent` 作为内部消息总线。
+Tauri CSP 只开放动态游戏卡组件所需的受控 `Function`、Blob Worker 和运行时样式。图片与音频只能通过 `local` 受控协议加载，模型外网连接由 Rust command 完成。
 
-## userData 结构
+## 数据与迁移
 
-默认应用名为 `ChatApp`，因此 Electron 默认数据目录会使用该名称。业务数据结构如下：
+业务数据位于 Tauri `app_data_dir`：
 
-```
-userData/
-  config/
-    model.json
-    background.json
-  game-cards/
-    active.json
-    no-card/
-      sessions/
-        active.json
-        <session-id>/
-          messages.json
-    cards/
-      <card-id>/
-        card.json
-        sessions/
-          active.json
-          <session-id>/
-            messages.json
+```txt
+config/{model,background}.json
+game-cards/active.json
+game-cards/no-card/sessions/
+game-cards/cards/<card-id>/{card.json,sessions/}
+migration/electron-user-data-v1.json
 ```
 
-旧版本根目录下的 `model-config.json`、`background-config.json`、`chat/history.json`、`chat-histories/chat-history.json` 会在启动阶段迁移到当前卡或 `no-card` session；旧 `cards/<id>.json` 会迁移为 `cards/<id>/card.json`。migration 在 IPC handler 注册之外集中执行，并在窗口创建前完成。
+所有业务 JSON 使用同目录临时文件和 rename 原子替换；同一 session 的写入串行执行。
 
-Tauri 首次启动时会在 `AppStorage` 初始化前查找 Electron 的 `ChatApp` 与 `harness_lab` userData。已知业务数据先复制到同级临时目录，在其中执行相同的 config、flat card、chat history 和背景 URL 升级，再原子安装到 Tauri `app_data_dir`。迁移报告位于 `migration/electron-user-data-v1.json`；完成标记和现有 Tauri 业务数据都会阻止后续启动覆盖当前数据。失效的旧背景只产生 warning 并清空背景，其他迁移失败会记录阶段和文件且不安装临时目录。
+首次启动会查找旧 Electron `ChatApp` 与 `harness_lab` userData。迁移在临时目录完成并原子安装；完成标记或已有 Tauri 业务数据会阻止重复覆盖。该兼容导入属于 Tauri backend，不代表仓库仍依赖 Electron runtime。
 
-所有业务 JSON 写入先写入目标文件同目录的临时文件，再通过 `rename` 替换目标文件。配置、背景、游戏卡、session messages、retry base 和 metadata 共用该存储边界；同一 session 的聊天读写进入同一串行队列，避免并发保存交叉覆盖。
+## 游戏卡协议
 
-- **同步调用**：渲染进程调用 `ipcRenderer.invoke()` → 主进程通过 `ipcMain.handle()` 处理 → 返回结果。
-- **异步事件**：主进程通过 `ipcRenderer.on('background-config-changed')` 向渲染进程推送配置变更通知。
-- **安全隔离**：`contextIsolation: true`，`nodeIntegration: false` — 渲染进程不直接访问 Node API。
-- **Renderer 加载**：开发模式加载 Vite dev server，生产和 E2E 加载 `dist/renderer/index.html`；`window.electronAPI` 是 preload 保留的平台边界。
+`shared/game-card/schema/game-card.schema.json` 是唯一结构事实源。Rust 导入器嵌入该 schema，处理 `$import`、路径边界、引用文件存在性和 Ajv `$data` 等价语义；共享 fixture 保证 JS runtime 与 Rust 导入校验一致。
+
+Shared core 不依赖 DOM、React、Tauri、Node 文件系统或本地绝对路径。脚本上下文与返回值校验属于 shared core，Worker 执行属于 renderer adapter。
 
 ## 测试边界
 
-- `test/chat` 覆盖聊天 hook、生成、retry、渲染和 chat integration。
-- `test/game-card` 覆盖 shared core、renderer runtime 和游戏卡 integration。
-- `test/storage` 覆盖原子 JSON、migration、session 队列和持久化 IPC integration。
-- `test/platform` 覆盖 adapter contract 与本地资源协议。
-- `test/e2e` 只通过 UI 和 preload 边界验证 Electron，不依赖 renderer 内部全局模块。
-- `test/tauri-e2e` 通过 WebdriverIO embedded driver 验证真实 Tauri command、资源协议、网络中止和进程重启恢复；测试数据与用户目录隔离。
+- `test/chat`、`test/game-card`、`test/components`：Jest renderer 和 shared core 测试。
+- `test/platform`：Tauri/memory adapter contract 与 WebView 配置测试。
+- `src-tauri/src/*tests*`：存储、迁移、导入、资源协议和模型网络 Rust 测试。
+- `test/tauri-e2e`：真实 Tauri commands、资源协议、流式网络和进程重启恢复。
 
-普通 unit test mock 显式 service 或 memory adapter。`window.electronAPI` 只在 preload 边界和 Electron 组件测试中使用。
+正式 build 只加载 `default` capability。WebDriver 插件、增强 capability、固定导入目录和隔离数据目录只在 `e2e` feature/config 中启用。
 
-Tauri WebDriver 的 Rust 插件、renderer 插件、增强 capability、固定导入目录和数据目录覆盖全部受 `e2e` feature/config 限制。正式 build 只加载 `default` capability，不包含 WebDriver command 或测试路径覆盖。
+## 本地资源
 
-renderer 业务组件通过 `rendererServices` 使用 `config`、`background`、`sessions` 和 `cards` 窄接口。Electron adapter 负责解包 IPC result 并将失败统一转换为异常；组件不直接访问 preload API。
-
-shared core 测试直接导入 `shared/game-card`。只有需要受控 Worker、Electron 资源、预载文件、DOM 样式或动态 UI 编译的测试才导入 `src/gameCard` renderer wrapper。
-
-平台 React 组件使用 PropTypes，并由 ESLint 的 `react/prop-types` 规则检查；平台 service 与游戏卡 adapter 的公共形状由 `src/platform/contracts.js` 中的 JSDoc contract 定义。静态平台 UI 使用 JSX，`GameCardUIRoot` 动态挂载游戏卡组件时保留显式 `React.createElement`。
-
-## 本地资源协议
-
-renderer 只能通过受控的 `local://` URL 加载本地图片和音频：
-
-- `local://game-card/<card-id>/<image|audio>/<relative-path>` 只解析当前活动且已安装游戏卡目录内的资源。
-- `local://user-background/current` 只解析当前背景配置记录的用户背景文件。
-- 主进程在每次请求时校验资源类型、扩展名和 `realpath`；路径穿越、符号链接逃逸及其它 `local://` URL 均被拒绝。
-- 游戏卡资源 IPC 和背景配置 IPC 不向 renderer 返回真实绝对路径。用户背景的绝对路径只保存在主进程读取的配置字段中。
-- Tauri adapter 使用 `convertFileSrc` 将相同虚拟路径转换为各系统实际 URL；Windows 使用 `http://local.localhost/...`，macOS/Linux 使用 `local://localhost/...`。
-- Tauri 音频响应支持 byte Range，并限制单次开放区间的读取大小；自定义协议设置 `no-store`，避免 active card 切换后复用旧授权缓存。
+- `local://game-card/<card-id>/<image|audio>/<relative-path>` 只解析当前活动卡内的受支持资源。
+- `local://user-background/current` 只解析背景配置授权的用户图片。
+- Rust 在每次请求校验 card id、资源类型、扩展名、规范化路径和 realpath。
+- 音频响应支持 byte Range；协议响应使用 `no-store`，避免切卡后复用旧授权缓存。
+- adapter 使用 `convertFileSrc` 适配 Windows 与 macOS/Linux 的协议 URL 形式。

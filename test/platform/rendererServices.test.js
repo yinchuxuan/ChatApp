@@ -1,4 +1,3 @@
-import { createElectronRendererServices } from '../../src/platform/electronRendererServices.js';
 import { createMemoryRendererServices } from '../../src/platform/memoryRendererServices.js';
 import { createTauriRendererServices } from '../../src/platform/tauriRendererServices.js';
 import { verifyRendererServices } from './adapterContracts.js';
@@ -31,45 +30,7 @@ describe('renderer service contract', () => {
     }));
   });
 
-  test('Electron adapter unwraps IPC results and subscriptions', async () => {
-    const unsubscribe = jest.fn();
-    window.electronAPI.getModelConfig.mockResolvedValue({ success: true, config: {} });
-    window.electronAPI.saveModelConfig.mockResolvedValue({ success: true, config: { modelName: 'model' } });
-    window.electronAPI.getBackgroundConfig.mockResolvedValue({ success: true, config: {} });
-    window.electronAPI.saveBackgroundConfig.mockResolvedValue({ success: true, config: {} });
-    window.electronAPI.listChatSessions.mockResolvedValue({ success: true, sessions: [], activeId: null });
-    window.electronAPI.onBackgroundConfigChanged.mockReturnValue(unsubscribe);
-    window.electronAPI.selectBackgroundImage.mockResolvedValue({ success: true, localUrl: 'asset://background' });
-    window.electronAPI.importGameCardFromDirectory.mockResolvedValue({ success: true, card: null });
-    await verifyRendererServices(createElectronRendererServices());
-    expect(window.electronAPI.onBackgroundConfigChanged).toHaveBeenCalled();
-  });
-
   test('Tauri adapter implements the same renderer services', async () => {
     await verifyRendererServices(createTauriRendererServices(mockTauriClient()));
-  });
-
-  test('Electron adapter standardizes IPC failures as errors', async () => {
-    window.electronAPI.getModelConfig.mockResolvedValue({ success: false, error: 'broken' });
-    await expect(createElectronRendererServices().config.load()).rejects.toThrow('broken');
-  });
-
-  test('Electron card import matches the direct CardRepository result', async () => {
-    const card = { id: 'imported-card' };
-    window.electronAPI.importGameCardFromDirectory.mockResolvedValue({ success: true, card });
-
-    await expect(createElectronRendererServices().cards.importDirectory()).resolves.toBe(card);
-  });
-
-  test('Electron adapter allows the desktop shell to mount before a bridge is available', () => {
-    const originalApi = window.electronAPI;
-    window.electronAPI = undefined;
-
-    try {
-      const unsubscribe = createElectronRendererServices().background.subscribe(() => {});
-      expect(unsubscribe).toEqual(expect.any(Function));
-    } finally {
-      window.electronAPI = originalApi;
-    }
   });
 });
