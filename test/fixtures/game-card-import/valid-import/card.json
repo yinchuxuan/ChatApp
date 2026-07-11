@@ -1,0 +1,7 @@
+{
+  "version": "1.0",
+  "id": "fixture_valid",
+  "name": "Valid fixture",
+  "files": { "intro": "content.md" },
+  "rules": [{ "$import": "rules/main.json" }]
+}

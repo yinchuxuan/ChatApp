@@ -1,0 +1,6 @@
+{
+  "version": "1.0",
+  "id": "fixture_unsafe",
+  "name": "Unsafe fixture",
+  "rules": [{ "$import": "../outside.json" }]
+}

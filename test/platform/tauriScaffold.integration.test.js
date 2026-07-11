@@ -42,4 +42,23 @@ describe('Tauri desktop scaffold', () => {
       expect(fs.existsSync(path.join(rootDir, 'src-tauri', iconPath))).toBe(true);
     });
   });
+
+  test('registers the game card repository and native directory picker', () => {
+    const cargo = fs.readFileSync(path.join(rootDir, 'src-tauri/Cargo.toml'), 'utf8');
+    const lib = fs.readFileSync(path.join(rootDir, 'src-tauri/src/lib.rs'), 'utf8');
+    const schema = fs.readFileSync(path.join(rootDir, 'src-tauri/src/game_card_schema.rs'), 'utf8');
+
+    expect(cargo).toContain('tauri-plugin-dialog = "2"');
+    expect(lib).toContain('.plugin(tauri_plugin_dialog::init())');
+    [
+      'get_game_cards',
+      'get_game_card',
+      'save_game_card',
+      'import_game_card_from_directory',
+      'set_active_game_card',
+      'get_active_game_card',
+      'read_game_card_file'
+    ].forEach(command => expect(lib).toContain(`game_card_commands::${command}`));
+    expect(schema).toContain('include_str!("../../shared/game-card/schema/game-card.schema.json")');
+  });
 });

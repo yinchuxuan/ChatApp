@@ -1,0 +1,6 @@
+{
+  "version": "1.0",
+  "id": "fixture_cycle",
+  "name": "Cycle fixture",
+  "rules": [{ "$import": "rules/a.json" }]
+}

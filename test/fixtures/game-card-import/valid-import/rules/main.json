@@ -1,0 +1,7 @@
+[
+  {
+    "id": "start",
+    "when": { "phase": "pre_send" },
+    "then": [{ "type": "state.set", "path": "started", "value": true }]
+  }
+]

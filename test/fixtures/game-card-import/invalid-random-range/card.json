@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "id": "fixture_invalid_range",
+  "name": "Invalid range fixture",
+  "rules": [
+    {
+      "when": { "phase": "pre_send" },
+      "then": [{ "type": "state.randomInt", "path": "roll", "min": 5, "max": 1 }]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "1.0",
+  "id": "fixture_invalid_state",
+  "name": "Invalid state schema fixture",
+  "stateSchema": "state/schema.json",
+  "rules": []
+}

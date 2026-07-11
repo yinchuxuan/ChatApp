@@ -1,0 +1,6 @@
+{
+  "version": "1.0",
+  "id": "fixture_invalid_schema",
+  "name": "Invalid schema fixture",
+  "rules": [{ "when": { "phase": "unknown" }, "then": [] }]
+}

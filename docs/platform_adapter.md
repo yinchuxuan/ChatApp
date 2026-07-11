@@ -34,7 +34,7 @@
 
 `tauriGameCardPlatform.js` 和 `tauriRendererServices.js` 通过 Tauri `invoke` 调用业务 command，并通过 `listen` 订阅背景配置变更。adapter 接受 Rust `Result` 的直接 payload 和迁移期 `{ success, ... }` envelope，并将取消、业务错误、文件及校验详情归一化为 JavaScript `Error`。
 
-Tauri Rust 后端已实现 model/background config 与完整 session/history command。数据写入使用同目录原子替换，同一配置或 session 的并发操作通过按路径异步锁串行化；游戏卡仓库和本地资源 commands 仍由后续迁移阶段提供。
+Tauri Rust 后端已实现 model/background config、完整 session/history command，以及游戏卡仓库、目录导入和文本资源 command。游戏卡导入由 Rust dialog 选择目录，在临时目录校验后替换并保留同 id 卡片的 session。图片、音频和用户背景资源协议仍由后续迁移阶段提供。
 
 `memoryGameCardPlatform.js` 是测试 adapter。它从内存中的 card、文本、图片 URL 和音频 URL 读取资源，并复用受控脚本执行器。聊天管线和 shared core 测试应优先使用它，只有 Electron 边界测试才直接 mock preload API。
 

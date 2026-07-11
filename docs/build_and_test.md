@@ -15,13 +15,13 @@ Vite requires Node.js `^20.19.0` or `>=22.12.0` for local build and development 
 | `npm run lint` | Run ESLint on all `.js`/`.jsx` files |
 | `npm run lint:fix` | Run ESLint with auto-fix |
 
-Tauri commands require the stable Rust toolchain and the platform prerequisites from the Tauri 2 documentation. The Rust backend currently provides configuration, chat history, and session storage; game card repository and local resource commands remain pending until later migration phases.
+Tauri commands require the stable Rust toolchain and the platform prerequisites from the Tauri 2 documentation. The Rust backend currently provides configuration, chat history, session storage, game card repository and directory import; image, audio and user background resource protocols remain pending until later migration phases.
 
 ## Testing
 
 The test suite has three layers, run in order by `npm test`:
 
-Tauri Rust storage tests run separately with `cargo test --manifest-path src-tauri/Cargo.toml`. They cover atomic JSON replacement, configuration persistence, session isolation, retry state, metadata, and concurrent save ordering.
+Tauri Rust tests run separately with `cargo test --manifest-path src-tauri/Cargo.toml`. They cover atomic JSON replacement, configuration persistence, session isolation, retry state, concurrent saves, game card imports, schema parity, path safety and session-preserving card replacement.
 
 ### Unit Tests (`test/**/*.test.js`, excluding `*.integration.test.js`)
 - **Framework**: Jest + jsdom + Testing Library

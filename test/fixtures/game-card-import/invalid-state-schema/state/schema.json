@@ -1,0 +1,5 @@
+{
+  "schema": {
+    "timeline.currentTime": { "type": "string", "default": 0 }
+  }
+}

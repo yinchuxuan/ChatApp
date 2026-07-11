@@ -92,7 +92,7 @@
 - latest-wins 配置保存和 session 并发保存测试通过。
 - JSON 写入中断不会破坏最后一份有效数据。
 
-## 阶段 4：迁移游戏卡仓库与导入
+## 阶段 4：迁移游戏卡仓库与导入（已完成，2026-07-11）
 
 - 实现游戏卡列表、读取、保存、active card 和文本资源 commands。
 - 使用桌面目录选择器实现游戏卡目录导入。
@@ -102,6 +102,14 @@
 - 后端嵌入并使用 shared JSON Schema，不复制一份 Tauri schema。
 - 对 schema 中 Ajv `$data` 的跨字段约束增加等价语义检查。
 - 建立 JS 与 Rust 导入校验的共享 fixture corpus，验证成功和错误结果一致。
+
+实现说明：
+
+- Tauri 后端提供列表、单卡读取、保存、切换、active card、文本资源和目录导入 commands。
+- 目录导入使用 Tauri dialog 插件在 Rust 边界选择目录；renderer 不获得任意文件系统权限。
+- shared schema 通过 `include_str!` 直接嵌入 Rust，`x-file` 注解驱动资源存在性检查；Ajv `$data` 的随机数上下界约束由 Rust 语义检查补齐。
+- 导入先在 cards 目录内的临时目录复制并复检，再通过备份、替换和失败回滚安装；同 id 卡片原有 `sessions/` 会合并到临时副本。
+- JS 与 Rust 共用 `test/fixtures/game-card-import/`，覆盖有效 import、schema 错误、跨字段错误、缺失文件、路径穿越和循环 import。
 
 验收条件：
 

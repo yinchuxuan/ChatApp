@@ -1,0 +1,87 @@
+use crate::game_card_error::{CardResult, GameCardError};
+use std::fs;
+use std::path::{Path, PathBuf};
+use uuid::Uuid;
+
+fn copy_tree(source: &Path, target: &Path) -> CardResult<()> {
+    let metadata = fs::symlink_metadata(source)?;
+    if metadata.file_type().is_symlink() {
+        return Err(GameCardError::new(
+            "game card import cannot contain symbolic links",
+        ));
+    }
+    if metadata.is_file() {
+        if let Some(parent) = target.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        fs::copy(source, target)?;
+        return Ok(());
+    }
+    if !metadata.is_dir() {
+        return Err(GameCardError::new(
+            "game card import contains an unsupported file type",
+        ));
+    }
+    fs::create_dir_all(target)?;
+    for entry in fs::read_dir(source)? {
+        let entry = entry?;
+        copy_tree(&entry.path(), &target.join(entry.file_name()))?;
+    }
+    Ok(())
+}
+
+pub fn prepare(source: &Path, target: &Path) -> CardResult<PathBuf> {
+    let parent = target
+        .parent()
+        .ok_or_else(|| GameCardError::new("Invalid game card target directory"))?;
+    fs::create_dir_all(parent)?;
+    let temp = parent.join(format!(
+        ".{}-import-{}",
+        target
+            .file_name()
+            .and_then(|value| value.to_str())
+            .unwrap_or("card"),
+        Uuid::new_v4()
+    ));
+    if let Err(error) = copy_tree(source, &temp) {
+        let _ = fs::remove_dir_all(&temp);
+        return Err(error);
+    }
+    let sessions = target.join("sessions");
+    if sessions.exists() {
+        let temp_sessions = temp.join("sessions");
+        let _ = fs::remove_dir_all(&temp_sessions);
+        if let Err(error) = copy_tree(&sessions, &temp_sessions) {
+            let _ = fs::remove_dir_all(&temp);
+            return Err(error);
+        }
+    }
+    Ok(temp)
+}
+
+pub fn replace(temp: &Path, target: &Path) -> CardResult<()> {
+    if !target.exists() {
+        fs::rename(temp, target)?;
+        return Ok(());
+    }
+    let parent = target.parent().unwrap_or_else(|| Path::new("."));
+    let backup = parent.join(format!(
+        ".{}-backup-{}",
+        target
+            .file_name()
+            .and_then(|value| value.to_str())
+            .unwrap_or("card"),
+        Uuid::new_v4()
+    ));
+    fs::rename(target, &backup)?;
+    if let Err(error) = fs::rename(temp, target) {
+        let rollback = fs::rename(&backup, target);
+        let message = rollback.map_or_else(
+            |rollback| format!("Failed to install game card: {error}; rollback failed: {rollback}"),
+            |_| format!("Failed to install game card: {error}"),
+        );
+        return Err(GameCardError::new(message));
+    }
+    let _ = fs::remove_dir_all(backup);
+    Ok(())
+}

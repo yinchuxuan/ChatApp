@@ -1,0 +1,7 @@
+{
+  "version": "1.0",
+  "id": "fixture_missing_resource",
+  "name": "Missing resource fixture",
+  "visual": { "background": { "school": "images/missing.jpg" } },
+  "rules": []
+}
