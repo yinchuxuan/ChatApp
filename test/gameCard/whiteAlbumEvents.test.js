@@ -78,7 +78,7 @@ describe('white album 2 local events', () => {
       title: '事件：梦中的声音',
       time: '2007.10.25 星期五 晚上',
       background: 'event1',
-      bgm: 'dream',
+      bgm: 'love_dream',
       options: [
         { id: 'piano', label: '隔壁的钢琴声', effects: { 'touma.affection': 1 } },
         { id: 'song', label: '天台的歌声', effects: { 'setsuna.affection': 1 } }

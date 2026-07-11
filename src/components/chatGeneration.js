@@ -91,7 +91,7 @@ async function sendGenerationRequest(preSend, modelConfig, tw, onStreamContentSt
     frequencyPenalty: modelConfig.frequencyPenalty,
     presencePenalty: modelConfig.presencePenalty,
     signal: abortSignal,
-    messages: toApiMessages(preSend.messages, modelConfig.protocol || 'openai')
+    messages: toApiMessages(preSend.messages)
   }, {
     onToken: (text) => { if (tw.pushContent(text)) notifyContentStart(); },
     onThinkingToken: (text) => tw.pushContent(text, 'reasoning')

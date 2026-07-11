@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 import ChatPanel from '../../src/ChatPanel.jsx';
 
@@ -29,7 +29,10 @@ describe('ChatPanel retry stream start runtime token', () => {
       success: true,
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'key', modelName: 'gpt-4' }
     });
-    electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: { id: 'card' } });
+    electronAPI.getActiveGameCard.mockResolvedValue({
+      success: true,
+      card: { version: '1', id: 'card', name: 'Card', rules: [] }
+    });
     electronAPI.getChatHistory.mockResolvedValue({
       success: true,
       messages: [{ role: 'user', content: 'Q' }, { role: 'assistant', content: 'old' }],
@@ -48,12 +51,12 @@ describe('ChatPanel retry stream start runtime token', () => {
 
   test('increments audio and background tokens when retry body starts', async () => {
     render(React.createElement(ChatPanel));
-    await act(async () => { await Promise.resolve(); });
+    await screen.findByText('gpt-4');
 
     fireEvent.click(screen.getByRole('button', { name: '重新生成回复' }));
-    await act(async () => { await Promise.resolve(); await Promise.resolve(); });
-
-    expect(Math.max(...bgmTokens)).toBeGreaterThan(0);
-    expect(Math.max(...backgroundTokens)).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(Math.max(...bgmTokens)).toBeGreaterThan(0);
+      expect(Math.max(...backgroundTokens)).toBeGreaterThan(0);
+    });
   });
 });

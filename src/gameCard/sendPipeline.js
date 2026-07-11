@@ -85,8 +85,10 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
   }
   const prepared = prepareState(resources.card, state);
   const ttl = decayTTL(messages);
+  const result = applyGameCard({ card: resources.card, phase: 'pre_send', messages: ttl.messages, state: prepared.state, event, fileContents: resources.fileContents });
   return {
-    ...applyGameCard({ card: resources.card, phase: 'pre_send', messages: ttl.messages, state: prepared.state, event, fileContents: resources.fileContents }),
+    ...result,
+    ...(result.trace.errors.length ? { error: result.trace.errors.join('\n') } : {}),
     ttlTrace: ttl.trace,
     stateTrace: prepared.trace,
     applied: true,
@@ -171,8 +173,8 @@ async function prepareInitMessages({ messages = [], state = {}, event = {}, card
   return { ...result, ttlTrace: null, stateTrace: prepared.trace, applied: true, changed, card: resources.card };
 }
 
-function toApiMessages(messages, protocol = 'openai') {
-  return adaptMessagesToProtocol(messages, protocol).messages;
+function toApiMessages(messages) {
+  return adaptMessagesToProtocol(messages, 'openai').messages;
 }
 
 if (typeof window !== 'undefined') {
