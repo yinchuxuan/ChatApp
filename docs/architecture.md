@@ -88,6 +88,8 @@ userData/
 
 旧版本根目录下的 `model-config.json`、`background-config.json`、`chat/history.json`、`chat-histories/chat-history.json` 会在启动阶段迁移到当前卡或 `no-card` session；旧 `cards/<id>.json` 会迁移为 `cards/<id>/card.json`。migration 在 IPC handler 注册之外集中执行，并在窗口创建前完成。
 
+Tauri 首次启动时会在 `AppStorage` 初始化前查找 Electron 的 `ChatApp` 与 `harness_lab` userData。已知业务数据先复制到同级临时目录，在其中执行相同的 config、flat card、chat history 和背景 URL 升级，再原子安装到 Tauri `app_data_dir`。迁移报告位于 `migration/electron-user-data-v1.json`；完成标记和现有 Tauri 业务数据都会阻止后续启动覆盖当前数据。失效的旧背景只产生 warning 并清空背景，其他迁移失败会记录阶段和文件且不安装临时目录。
+
 所有业务 JSON 写入先写入目标文件同目录的临时文件，再通过 `rename` 替换目标文件。配置、背景、游戏卡、session messages、retry base 和 metadata 共用该存储边界；同一 session 的聊天读写进入同一串行队列，避免并发保存交叉覆盖。
 
 - **同步调用**：渲染进程调用 `ipcRenderer.invoke()` → 主进程通过 `ipcMain.handle()` 处理 → 返回结果。

@@ -21,7 +21,7 @@ Tauri commands require the stable Rust toolchain and the platform prerequisites 
 
 The test suite has three layers, run in order by `npm test`:
 
-Tauri Rust tests run separately with `cargo test --manifest-path src-tauri/Cargo.toml`. They cover atomic JSON replacement, configuration persistence, session isolation, retry state, concurrent saves, game card imports, schema parity, path safety, session-preserving card replacement, resource authorization, MIME and audio Range responses, plus model request validation, streaming bytes and cancellation.
+Tauri Rust tests run separately with `cargo test --manifest-path src-tauri/Cargo.toml`. They cover atomic JSON replacement, configuration persistence, session isolation, retry state, concurrent saves, Electron user data migration and rollback, game card imports, schema parity, path safety, session-preserving card replacement, resource authorization, MIME and audio Range responses, plus model request validation, streaming bytes and cancellation.
 
 ### Unit Tests (`test/**/*.test.js`, excluding `*.integration.test.js`)
 - **Framework**: Jest + jsdom + Testing Library

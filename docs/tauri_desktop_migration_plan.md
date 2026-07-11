@@ -166,13 +166,21 @@
 - WA2 timeline、事件 effects、动态 UI 和 game script 在三个系统行为一致。
 - capability 和 CSP 不开放任意文件系统、shell 或未使用的 native 权限。
 
-## 阶段 7：迁移 Electron 用户数据
+## 阶段 7：迁移 Electron 用户数据（已完成，2026-07-11）
 
 - 首次启动时查找各桌面系统的旧 Electron `userData` 目录。
 - 复用当前目录结构迁移 config、game cards、active card 和所有 sessions。
 - 保留现有 legacy flat card、旧 chat history 和背景配置迁移规则。
 - 使用迁移版本或完成标记保证迁移可重复执行且不会覆盖新数据。
 - 旧背景文件不存在或无权限时给出可恢复错误，不影响其它数据启动。
+
+实现说明：
+
+- Tauri 在建立 `AppStorage` 前按系统从 Electron 的 `ChatApp` 和早期 `harness_lab` userData 目录发现业务数据；Linux 使用 config 根，macOS/Windows 使用 data 根。
+- 只复制 config、game cards、active card、sessions 和旧聊天文件，不复制 Electron 的 Chromium cache。复制和旧布局升级全部在同级临时目录完成，成功后通过 rename 原子安装。
+- 迁移继续支持根目录旧 config、flat card、三种旧 chat history 路径和 legacy `local://` 背景 URL；失效背景会被清空并作为 warning 记录，不阻断其它数据。
+- `migration/electron-user-data-v1.json` 记录迁移版本、来源、状态、warning 或失败阶段及文件。完成后重复启动直接跳过；已有 Tauri 业务数据时写入保护标记且不覆盖。
+- 非背景迁移错误会清理临时目录、记录可重试的失败报告并继续启动空或原有 Tauri 数据目录。
 
 验收条件：
 
