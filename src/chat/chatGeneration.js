@@ -1,4 +1,5 @@
 import generationServices from './generationServices.js';
+import { createChatMessage } from './messageIds.js';
 
 function cloneChatValue(value) {
   return JSON.parse(JSON.stringify(value));
@@ -95,7 +96,7 @@ async function finishGeneration(preSend, baseMessages, baseState, options) {
   tw.finishStreaming();
   const content = tw.getAccumulatedContent();
   if (!content) return true;
-  const assistantMessage = { role: 'assistant', content, _thinking: tw.getThinkingContent(), thinking: tw.getThinkingContent() };
+  const assistantMessage = createChatMessage({ role: 'assistant', content, _thinking: tw.getThinkingContent(), thinking: tw.getThinkingContent() });
   const base = preSend.applied ? preSend.messages : baseMessages;
   const after = await generationServices.prepareAfterResponseMessages({
     messages: [...base, assistantMessage],
@@ -129,7 +130,7 @@ function handleGenerationAbort(options, preSend, baseMessages) {
   options.tw.finishStreaming();
   const content = options.tw.getAccumulatedContent();
   if (content) {
-    const assistantMessage = { role: 'assistant', content, _thinking: options.tw.getThinkingContent(), thinking: options.tw.getThinkingContent() };
+    const assistantMessage = createChatMessage({ role: 'assistant', content, _thinking: options.tw.getThinkingContent(), thinking: options.tw.getThinkingContent() });
     const base = preSend?.applied ? preSend.messages : baseMessages;
     options.setMessages([...(base || []), assistantMessage]);
   }
@@ -141,7 +142,7 @@ function handleGenerationException(err, options, preSend, baseMessages, abortSig
   if (isAbortException(err, abortSignal)) return handleGenerationAbort(options, preSend, baseMessages);
   options.setIsLoading(false);
   options.tw.reset();
-  options.setMessages(prev => [...prev, { role: 'assistant', content: `请求失败: ${err.message}`, isError: true }]);
+  options.setMessages(prev => [...prev, createChatMessage({ role: 'assistant', content: `请求失败: ${err.message}`, isError: true })]);
   return false;
 }
 

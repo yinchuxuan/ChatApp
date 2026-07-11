@@ -25,7 +25,7 @@ describe('GameCardBackgroundRuntime', () => {
     }));
     await flushEffects();
 
-    await waitFor(() => expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('images/school.jpg'));
+    await waitFor(() => expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('', 'images/school.jpg'));
     expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
   });
 
@@ -74,7 +74,7 @@ describe('GameCardBackgroundRuntime', () => {
     }));
     await flushEffects();
 
-    await waitFor(() => expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('images/school.jpg'));
+    await waitFor(() => expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('', 'images/school.jpg'));
     expect(handler).not.toHaveBeenCalled();
     rerender(React.createElement(GameCardBackgroundRuntime, {
       card: { visual: { background: { school: 'images/school.jpg' } } },

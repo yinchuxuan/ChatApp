@@ -7,7 +7,7 @@ module.exports = {
   },
   collectCoverage: false,
   transform: {
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.jsx?$': 'babel-jest'
   },
   modulePathIgnorePatterns: ['<rootDir>/test/__mocks__/']
 };

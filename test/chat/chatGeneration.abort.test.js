@@ -51,7 +51,7 @@ describe('ChatGeneration abort handling', () => {
     expect(setIsLoading).toHaveBeenLastCalledWith(false);
     expect(setMessages).toHaveBeenLastCalledWith([
       { role: 'user', content: 'hello' },
-      { role: 'assistant', content: 'partial answer', _thinking: '', thinking: '' }
+      expect.objectContaining({ role: 'assistant', content: 'partial answer', _thinking: '', thinking: '' })
     ]);
     expect(tw.reset).not.toHaveBeenCalled();
     expect(generationServices.prepareAfterResponseMessages).not.toHaveBeenCalled();

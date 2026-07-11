@@ -13,10 +13,12 @@ Predicate 是声明式消息匹配条件，用于 `insert` 定位锚点、`repla
 | `{ "role": { "nin": ["system"] } }` | 非集合成员 |
 | `{ "index": 0 }` | `i === 0` |
 | `{ "index": "last" }` | `i === len - 1` |
+| `{ "role": "assistant", "occurrence": "not_last" }` | 匹配除最后一条之外的该角色消息 |
 | `{ "all": true }` | 所有消息 |
-| `{ "exec": "(msg, i, msgs) => ..." }` | JS 函数匹配 |
 
 多个字段使用隐式 AND。`{ "role": "user", "_meta.source": "game_card" }` 表示 role 为 user 且 `_meta.source` 为 game_card。
+
+`occurrence` 必须和字符串形式的 `role` 一起使用，用于相对该角色的最后一条消息进行匹配。
 
 ## 逻辑组合
 

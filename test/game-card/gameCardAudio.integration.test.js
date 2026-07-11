@@ -30,7 +30,7 @@ describe('Game Card Audio IPC', () => {
   });
 
   test('returns a local URL for active card audio', async () => {
-    const result = await ipcMain.handlers['get-game-card-audio-url']({}, 'audio/intro.mp3');
+    const result = await ipcMain.handlers['get-game-card-audio-url']({}, 'audio-card', 'audio/intro.mp3');
 
     expect(result.success).toBe(true);
     expect(result.url).toBe('local://game-card/audio-card/audio/audio/intro.mp3');
@@ -40,8 +40,8 @@ describe('Game Card Audio IPC', () => {
   test('rejects traversal and non-audio paths', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const traversal = await ipcMain.handlers['get-game-card-audio-url']({}, '../secret.mp3');
-    const nonAudio = await ipcMain.handlers['get-game-card-audio-url']({}, 'audio/note.txt');
+    const traversal = await ipcMain.handlers['get-game-card-audio-url']({}, 'audio-card', '../secret.mp3');
+    const nonAudio = await ipcMain.handlers['get-game-card-audio-url']({}, 'audio-card', 'audio/note.txt');
 
     expect(traversal.success).toBe(false);
     expect(traversal.error).toContain('stay inside game card directory');

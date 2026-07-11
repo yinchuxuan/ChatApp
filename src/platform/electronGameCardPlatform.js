@@ -22,15 +22,9 @@ function unwrapResult(result, field, fallback) {
   return value;
 }
 
-function extractActiveCard(result) {
-  if (!result || result.success === false) return null;
-  if (result.rules) return result;
-  return result.card || result.gameCard || result.activeGameCard || null;
-}
-
 function unwrapActiveCard(result) {
   if (result?.success === false) throw new Error(result.error || 'failed to load active game card');
-  return extractActiveCard(result);
+  return result?.card || null;
 }
 
 function createElectronGameCardPlatform(apiSource = currentElectronApi) {
@@ -40,13 +34,13 @@ function createElectronGameCardPlatform(apiSource = currentElectronApi) {
         const invoke = requireApiMethod(apiSource, 'readGameCardFile');
         return unwrapResult(await invoke(cardId, relativePath), 'content', 'failed to read game card file');
       },
-      async getImageUrl(_cardId, relativePath) {
+      async getImageUrl(cardId, relativePath) {
         const invoke = requireApiMethod(apiSource, 'getGameCardImageUrl');
-        return unwrapResult(await invoke(relativePath), 'url', 'failed to resolve game card image');
+        return unwrapResult(await invoke(cardId, relativePath), 'url', 'failed to resolve game card image');
       },
-      async getAudioUrl(_cardId, relativePath) {
+      async getAudioUrl(cardId, relativePath) {
         const invoke = requireApiMethod(apiSource, 'getGameCardAudioUrl');
-        return unwrapResult(await invoke(relativePath), 'url', 'failed to resolve game card audio');
+        return unwrapResult(await invoke(cardId, relativePath), 'url', 'failed to resolve game card audio');
       }
     },
     repository: {
@@ -59,4 +53,4 @@ function createElectronGameCardPlatform(apiSource = currentElectronApi) {
   });
 }
 
-export { createElectronGameCardPlatform, extractActiveCard, unwrapActiveCard };
+export { createElectronGameCardPlatform, unwrapActiveCard };

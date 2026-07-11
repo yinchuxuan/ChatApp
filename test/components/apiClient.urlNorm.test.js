@@ -1,7 +1,7 @@
 /**
  * Tests for apiClient - URL normalization
  */
-const { sendChatRequest } = require('../../src/components/apiClient.js');
+const { sendChatRequest } = require('../../src/chat/apiClient.js');
 describe('sendChatRequest - URL normalization (OpenAI)', () => {
   beforeEach(() => {
     jest.clearAllMocks();

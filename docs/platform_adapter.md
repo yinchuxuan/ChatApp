@@ -34,6 +34,8 @@
 
 `controlledScriptExecutor.js` 属于 renderer adapter：它提供受控 JavaScript 执行环境。脚本上下文和返回值协议位于 `shared/game-card/exec`，不属于具体平台。
 
+Electron renderer 中的 `scriptExecutor.run()` 返回 Promise，并在独立 Worker 中执行；超时会终止 Worker。聊天运行时因此使用 `applyGameCardAsync()`。同步 `applyGameCard()` 只用于 Node `vm` 环境和不含异步 executor 的 core 调用。
+
 ## 调用方向
 
 ```txt
@@ -48,6 +50,8 @@ React / src/gameCard runtime tests
 ```
 
 `sendPipeline`、样式加载、背景、BGM 和自定义 UI 资源读取都接收或使用 platform contract。Shared core 不选择 Electron 或 Tauri adapter。
+
+图片和音频 URL 只允许为当前活动卡解析，adapter 和 IPC 都必须校验 `cardId`。`readText` 可读取指定的已安装卡，用于导入展开和加载卡资源，但仍受游戏卡目录路径校验约束。
 
 ## 新平台
 

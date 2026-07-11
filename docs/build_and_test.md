@@ -18,7 +18,7 @@ The test suite has three layers, run in order by `npm test`:
 ### Unit Tests (`test/**/*.test.js`, excluding `*.integration.test.js`)
 - **Framework**: Jest + jsdom + Testing Library
 - **Config**: `jest.config.js` — mocks `electron` and `fs`, collects coverage on `src/`
-- **Thresholds**: 15% branches, 20% functions/lines/statements
+- **Thresholds**: 70% branches, 80% functions, 85% lines, 82% statements
 - **Run**: `npx jest`
 
 ### Integration Tests (`test/**/*.integration.test.js`)
@@ -33,7 +33,7 @@ Unit and integration tests are grouped by ownership:
 - `test/storage/`: JSON storage, migrations and IPC persistence.
 - `test/platform/`: platform adapters and local resource protocol.
 - `test/components/`: platform UI components outside the chat runtime.
-- `test/ipc/`: retained legacy handler tests that are not part of the active suites.
+- `test/ipc/`: active handler unit tests. `fileHandlers.test.js` is explicitly archived because PDF/DOCX/image document IPC was removed from the product.
 
 ### E2E Tests (`test/e2e/**`)
 - **Framework**: Playwright for Electron

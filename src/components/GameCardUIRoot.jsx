@@ -8,22 +8,8 @@ import { applyUiScriptRunEvent } from '../gameCard/uiScripts.js';
 import { applyUiStateActionEvent } from '../gameCard/uiStateActions.js';
 import { gameCardPlatform } from '../platform/index.js';
 import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
-
-function clone(value) {
-  if (value === undefined) return undefined;
-  return JSON.parse(JSON.stringify(value));
-}
-
-function freeze(value) {
-  if (!value || typeof value !== 'object') return value;
-  Object.freeze(value);
-  Object.keys(value).forEach(key => freeze(value[key]));
-  return value;
-}
-
-function readonly(value) {
-  return freeze(clone(value));
-}
+import GameCardUIErrorBoundary from './GameCardUIErrorBoundary.jsx';
+import { readonly } from './uiReadonly.js';
 
 async function resourceResult(field, load) {
   try {
@@ -103,7 +89,7 @@ function renderAssistantMessage(R, content, card, options = {}) {
   );
 }
 
-function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isLoading = false }) {
+function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = [], isLoading = false, onError }) {
   const R = React;
   const [loadedRoot, setLoadedRoot] = R.useState(null);
   const [error, setError] = R.useState(null);
@@ -126,7 +112,10 @@ function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isL
         const root = await runtime.loadGameCardUiRoot(card, gameCardPlatform.resources, R);
         if (!canceled) setLoadedRoot(root);
       } catch (err) {
-        if (!canceled) setError(err);
+        if (!canceled) {
+          setError(err);
+          onError?.(err);
+        }
       }
     }
     loadRoot();
@@ -184,6 +173,15 @@ function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isL
     assets,
     emit
   }));
+}
+
+function GameCardUIRoot(props) {
+  const root = props.card?.ui?.root;
+  if (!root?.source) return null;
+  const resetKey = `${props.card?.id || ''}:${root?.source || ''}:${root?.style || ''}`;
+  return <GameCardUIErrorBoundary key={resetKey} onError={props.onError}>
+    <GameCardUIRootContent {...props} />
+  </GameCardUIErrorBoundary>;
 }
 
 export default GameCardUIRoot;

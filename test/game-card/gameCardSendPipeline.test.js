@@ -1,5 +1,4 @@
 const {
-  extractActiveCard,
   loadActiveGameCard,
   preparePreSendMessages,
   prepareAfterResponseMessages,
@@ -31,15 +30,6 @@ function cardWithInsert(content, files) {
 describe('game card send pipeline', () => {
   beforeEach(() => {
     window.electronAPI.readGameCardFile.mockClear();
-  });
-  test('extracts supported active card response shapes', () => {
-    const card = cardWithInsert('rules');
-
-    expect(extractActiveCard(card)).toBe(card);
-    expect(extractActiveCard({ success: true, card })).toBe(card);
-    expect(extractActiveCard({ success: true, gameCard: card })).toBe(card);
-    expect(extractActiveCard({ success: true, activeGameCard: card })).toBe(card);
-    expect(extractActiveCard({ success: false, card })).toBeNull();
   });
 
   test('returns the original messages object when no card is active', async () => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import ChatPanel from './ChatPanel.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
+import { rendererServices } from './platform/index.js';
 
 // App Component
 function App() {
@@ -41,11 +42,7 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    if (window.electronAPI) {
-      window.electronAPI.onBackgroundConfigChanged((config) => {
-        setBackgroundConfig(config);
-      });
-    }
+    return rendererServices.background.subscribe(setBackgroundConfig);
   }, []);
 
   const handleGameCardBackgroundChange = React.useCallback((detail) => {

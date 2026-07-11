@@ -1,4 +1,4 @@
-const { sendChatRequest } = require('../../src/components/apiClient.js');
+const { sendChatRequest } = require('../../src/chat/apiClient.js');
 const { runChatGeneration } = require('../../src/chat/chatGeneration.js');
 const generationServices = require('../../src/chat/generationServices.js').default;
 

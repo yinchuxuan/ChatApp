@@ -7,7 +7,7 @@ Read only the documents relevant to the current task.
 - [React style](./coding_styles/coding_style_react.md)
 - [UI design](./ui_design_spec.md)
 - [Architecture](./architecture.md)
-- [Architecture refactor plan](./architecture_refactor_plan.md)
+- [Code quality improvement plan](./code_quality_improvement_plan.md)
 - [Build and test](./build_and_test.md)
 - [Chat sessions](./chat_session_design.md)
 - [Platform adapter](./platform_adapter.md)

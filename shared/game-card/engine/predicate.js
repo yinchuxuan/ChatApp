@@ -91,6 +91,16 @@ function matchesIndex(index, length, expected) {
   return index === expected;
 }
 
+function matchesOccurrence(messages, index, role, expected) {
+  if (typeof role !== 'string') return false;
+  const last = messages.reduce((found, message, current) => (
+    message?.role === role ? current : found
+  ), -1);
+  if (expected === 'last') return index === last;
+  if (expected === 'not_last') return index !== last;
+  return false;
+}
+
 function matchesPredicate(predicate, message, index, messages) {
   if (!predicate || typeof predicate !== 'object') return false;
   const entries = Object.entries(predicate);
@@ -103,14 +113,7 @@ function matchesPredicate(predicate, message, index, messages) {
     }
     if (key === 'not') return !matchesPredicate(expected, message, index, messages);
     if (key === 'index') return matchesIndex(index, messages.length, expected);
-    if (key === 'exec') {
-      try {
-        const fn = new Function('msg', 'i', 'msgs', expected);
-        return !!fn(message, index, messages);
-      } catch {
-        return false;
-      }
-    }
+    if (key === 'occurrence') return matchesOccurrence(messages, index, predicate.role, expected);
     if (key === 'role' || key === 'content' || key === 'thinking' || key === '_meta.source' || key === '_meta.visibility') {
       return matchesString(getValue(message, key), expected);
     }

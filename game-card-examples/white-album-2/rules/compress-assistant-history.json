@@ -4,7 +4,7 @@
         "phase":"pre_send",
         "any":{"role":"assistant",
                "content":{"regex":"<summary>[\\s\\S]*?</summary>"},
-               "exec":"return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"}
+               "occurrence":"not_last"}
             },
      "then":[
         {"type":"replace",
@@ -13,7 +13,7 @@
             {"name":"summaryMsgs",
              "from":{"role":"assistant",
                      "content":{"regex":"<summary>[\\s\\S]*?</summary>"},
-                     "exec":"return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"},
+                     "occurrence":"not_last"},
                      "match":{"regex":"<summary>([\\s\\S]*?)</summary>","group":1},
                      "many":true
             }
@@ -22,7 +22,7 @@
         {"type":"remove",
          "predicate":{"role":"assistant",
                       "content":{"regex":"<summary>[\\s\\S]*?</summary>"},
-                      "exec":"return i !== msgs.reduce((last, msg, index) => msg.role === 'assistant' ? index : last, -1);"}
+                      "occurrence":"not_last"}
                      }
      ]
     },

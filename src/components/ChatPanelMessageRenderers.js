@@ -1,5 +1,7 @@
 import * as displayRules from '../gameCard/displayRules.js';
 import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
+import { findLastRoleIndex, selectVisibleMessages } from '../chat/messageSelection.js';
+import { MessageList, StreamingMessageRow } from './MessageList.jsx';
 
 // ChatPanelMessageRenderers - Message rendering helpers for ChatPanel
 // Extracts render functions to reduce ChatPanel.jsx below 200 lines
@@ -30,13 +32,7 @@ const ChatPanelMessageRenderers = {
   },
 
   filterDialogueMessages(messages) {
-    return (Array.isArray(messages) ? messages : [])
-      .map((msg, index) => ({ msg, index: msg?._renderIndex ?? index }))
-      .filter(({ msg }) =>
-        (['user', 'assistant'].includes(msg?.role) || msg?._meta?.visibility === 'user_visible') &&
-        msg?._meta?.visibility !== 'llm_only' &&
-        msg?._meta?.visibility !== 'debug_only')
-      .map(({ msg, index }) => ({ ...msg, _renderIndex: index }));
+    return selectVisibleMessages(messages);
   },
 
   renderMarkdown(R, text, marked, DOMPurify, highlightQuotes) {
@@ -134,30 +130,18 @@ const ChatPanelMessageRenderers = {
       return collapseRenderer.render(R, messages, isLoading, tw, renderUserMessage, renderAssistantMsg, renderRetryBtn, isHistoryExpanded, handleExpandHistory);
     }
 
-    const lastUserIdx = messages.map((m, i) => m.role === 'user' ? i : -1).filter(i => i >= 0).pop();
+    const lastUserIdx = findLastRoleIndex(messages, 'user');
     return R.createElement('div', { className: 'chat-messages-layer' },
-      messages.map((msg, idx) => {
-        const isRetrySource = idx === lastUserIdx;
-        const renderIndex = msg._renderIndex ?? idx;
-        if (msg.role === 'assistant') {
-          return R.createElement('div', { key: idx, className: 'chat-message-row', 'data-gc-part': 'message-row', 'data-role': msg.role },
-              R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
-              renderAssistantMsg(msg, renderIndex, false)
-            )
-          );
-        }
-        return R.createElement('div', { key: idx, className: `chat-message-row${isRetrySource ? ' retry-source-row' : ''}`, 'data-gc-part': 'message-row', 'data-role': msg.role },
-          R.createElement('div', { className: `chat-message ${msg.role} ${msg.isError ? 'error' : ''}`, 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
-            renderUserMessage(msg, renderIndex)
-          ),
-          renderRetryBtn(isRetrySource, isLoading)
-        );
+      R.createElement(MessageList, {
+        messages,
+        lastUserIndex: lastUserIdx,
+        renderUser: renderUserMessage,
+        renderAssistant: renderAssistantMsg,
+        renderRetryButton: isRetrySource => renderRetryBtn(isRetrySource, isLoading)
       }),
-      isLoading && R.createElement('div', { className: 'chat-message-row streaming-message-row', 'data-gc-part': 'message-row', 'data-role': 'assistant' },
-        R.createElement('div', { className: 'chat-message assistant', 'data-gc-part': 'message', style: { flex: 1, minWidth: 0 } },
-          renderAssistantMsg(tw.streamContent, messages.length, true)
-        )
-      )
+      isLoading && R.createElement(StreamingMessageRow, {
+        content: renderAssistantMsg(tw.streamContent, messages.length, true)
+      })
     );
   }
 };

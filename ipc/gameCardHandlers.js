@@ -125,23 +125,23 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, options = {
     }
   });
 
-  ipcMain.handle('get-game-card-audio-url', async (event, relativePath) => {
+  ipcMain.handle('get-game-card-audio-url', async (event, cardId, relativePath) => {
     try {
       const active = await store.readJson(activePath, { id: null });
-      if (!active?.id) throw new Error('No active game card');
-      getCardAudioPath(fs, cardsDir, active.id, relativePath);
-      return { success: true, url: createGameCardResourceUrl(active.id, 'audio', relativePath) };
+      if (!active?.id || active.id !== cardId) throw new Error('Game card is not active');
+      getCardAudioPath(fs, cardsDir, cardId, relativePath);
+      return { success: true, url: createGameCardResourceUrl(cardId, 'audio', relativePath) };
     } catch (err) {
       return asErrorResult(err, { url: '' });
     }
   });
 
-  ipcMain.handle('get-game-card-image-url', async (event, relativePath) => {
+  ipcMain.handle('get-game-card-image-url', async (event, cardId, relativePath) => {
     try {
       const active = await store.readJson(activePath, { id: null });
-      if (!active?.id) throw new Error('No active game card');
-      getCardImagePath(fs, cardsDir, active.id, relativePath);
-      return { success: true, url: createGameCardResourceUrl(active.id, 'image', relativePath) };
+      if (!active?.id || active.id !== cardId) throw new Error('Game card is not active');
+      getCardImagePath(fs, cardsDir, cardId, relativePath);
+      return { success: true, url: createGameCardResourceUrl(cardId, 'image', relativePath) };
     } catch (err) {
       return asErrorResult(err, { url: '' });
     }

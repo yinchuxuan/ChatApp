@@ -135,3 +135,27 @@ test('runs exec in the real chat pipeline and persists transformed messages', as
   expect(saved.map(msg => msg.content)).toEqual(['[exec] move', 'done', 'exec after']);
   expect(saved[2].ttl).toBe(2);
 });
+
+test('terminates a non-returning browser exec without sending the request', async () => {
+  const card = {
+    version: '1.0',
+    id: 'e2e_exec_timeout',
+    name: 'Exec Timeout',
+    rules: [{
+      when: { phase: 'pre_send' },
+      then: [{ type: 'exec', source: 'while (true) {}' }]
+    }]
+  };
+  await activateCard(card);
+  await appHelper.relaunch();
+  let requestCount = 0;
+  await appHelper.window.route('https://game-card.local/**', async route => {
+    requestCount += 1;
+    await route.fulfill({ status: 200, contentType: 'text/event-stream', body: stream('bad') });
+  });
+
+  await send('start');
+
+  await expect(appHelper.window.locator('.chat-history')).toContainText('Script execution timed out');
+  expect(requestCount).toBe(0);
+});

@@ -153,7 +153,7 @@ describe('GameCardUIRoot', () => {
     render(React.createElement(GameCardUIRoot, { card, gameState: {}, messages: [], isLoading: false }));
 
     await screen.findByText('local:///classroom.png');
-    expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('images/classroom.png');
+    expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('visual-card', 'images/classroom.png');
   });
 
   test('runs controlled game scripts from card React root', async () => {
@@ -187,4 +187,5 @@ describe('GameCardUIRoot', () => {
     await waitFor(() => expect(setGameState).toHaveBeenCalledWith({ score: 5 }));
     expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('script-card', 'ui/pick.js');
   });
+
 });

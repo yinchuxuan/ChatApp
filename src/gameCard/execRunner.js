@@ -9,6 +9,29 @@ function summarizeState(before, after) {
   return [...keys].filter((key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]));
 }
 
+function finishExecAction(result, beforeMessages, beforeState, action, timeoutMs, startedAt) {
+  validateExecResult(result);
+  const nextMessages = result.messages === undefined ? beforeMessages : cloneJson(result.messages);
+  const nextState = result.state === undefined ? beforeState : cloneJson(result.state);
+  return {
+    messages: nextMessages,
+    state: nextState,
+    trace: {
+      type: 'exec', sourceFile: action.sourceFile, applied: true, matched: 1, timeoutMs,
+      durationMs: Date.now() - startedAt,
+      effects: result.effects === undefined ? undefined : cloneJson(result.effects),
+      summary: {
+        messages: {
+          before: beforeMessages.length, after: nextMessages.length,
+          inserted: Math.max(nextMessages.length - beforeMessages.length, 0),
+          removed: Math.max(beforeMessages.length - nextMessages.length, 0), replaced: 0
+        },
+        state: { changedKeys: summarizeState(beforeState, nextState) }
+      }
+    }
+  };
+}
+
 function runExecAction(messages, state, action, options = {}) {
   const beforeMessages = cloneJson(messages);
   const beforeState = cloneJson(state);
@@ -29,33 +52,8 @@ function runExecAction(messages, state, action, options = {}) {
     timeoutMs,
     isSourceFile: typeof action.sourceFile === 'string'
   });
-  validateExecResult(result);
-
-  const nextMessages = result.messages === undefined ? beforeMessages : cloneJson(result.messages);
-  const nextState = result.state === undefined ? beforeState : cloneJson(result.state);
-  return {
-    messages: nextMessages,
-    state: nextState,
-    trace: {
-      type: 'exec',
-      sourceFile: action.sourceFile,
-      applied: true,
-      matched: 1,
-      timeoutMs,
-      durationMs: Date.now() - startedAt,
-      effects: result.effects === undefined ? undefined : cloneJson(result.effects),
-      summary: {
-        messages: {
-          before: beforeMessages.length,
-          after: nextMessages.length,
-          inserted: Math.max(nextMessages.length - beforeMessages.length, 0),
-          removed: Math.max(beforeMessages.length - nextMessages.length, 0),
-          replaced: 0
-        },
-        state: { changedKeys: summarizeState(beforeState, nextState) }
-      }
-    }
-  };
+  const finish = value => finishExecAction(value, beforeMessages, beforeState, action, timeoutMs, startedAt);
+  return result && typeof result.then === 'function' ? result.then(finish) : finish(result);
 }
 
 export { runExecAction, validateExecResult };

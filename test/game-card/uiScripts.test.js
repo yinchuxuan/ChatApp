@@ -53,4 +53,24 @@ describe('game card ui scripts', () => {
 
     expect(result).toMatchObject({ applied: false, state: { score: 1 }, trace: { reason: 'messages_not_supported' } });
   });
+
+  test('preloads declared files for isolated ui scripts', async () => {
+    const api = {
+      readGameCardFile: jest.fn(async (_id, filePath) => ({
+        success: true,
+        content: filePath.endsWith('.md')
+          ? 'event body'
+          : 'function run(ctx) { ctx.state.body = ctx.files.read("event"); return { state: ctx.state }; }'
+      }))
+    };
+    const result = await applyUiScriptRunEvent({
+      event: { type: 'game.script.run', sourceFile: 'ui/read.js' },
+      state: {},
+      card: { id: 'card', files: { event: 'events/event.md' } },
+      platform: createElectronGameCardPlatform(api)
+    });
+
+    expect(api.readGameCardFile).toHaveBeenCalledWith('card', 'events/event.md');
+    expect(result.state.body).toBe('event body');
+  });
 });

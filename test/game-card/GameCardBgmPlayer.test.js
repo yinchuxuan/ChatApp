@@ -32,7 +32,7 @@ describe('GameCardBgmPlayer', () => {
       resumeToken: 0
     }));
     await flushAudioEffects();
-    await waitFor(() => expect(window.electronAPI.getGameCardAudioUrl).toHaveBeenCalledWith('audio/intro.mp3'));
+    await waitFor(() => expect(window.electronAPI.getGameCardAudioUrl).toHaveBeenCalledWith('', 'audio/intro.mp3'));
 
     document.querySelector('audio').currentTime = 12;
     rerender(React.createElement(GameCardBgmPlayer, {
@@ -99,7 +99,7 @@ describe('GameCardBgmPlayer', () => {
   });
 
   test('plays immediately when game state changes outside generation', async () => {
-    window.electronAPI.getGameCardAudioUrl.mockImplementation(async (path) => ({
+    window.electronAPI.getGameCardAudioUrl.mockImplementation(async (_cardId, path) => ({
       success: true,
       url: `local:///${path.split('/').pop()}`
     }));
@@ -121,7 +121,7 @@ describe('GameCardBgmPlayer', () => {
   });
 
   test('defers state-driven bgm changes while generation is active', async () => {
-    window.electronAPI.getGameCardAudioUrl.mockImplementation(async (path) => ({
+    window.electronAPI.getGameCardAudioUrl.mockImplementation(async (_cardId, path) => ({
       success: true,
       url: `local:///${path.split('/').pop()}`
     }));

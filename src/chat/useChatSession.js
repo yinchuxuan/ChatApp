@@ -1,6 +1,7 @@
 import React from 'react';
 import generationServices from './generationServices.js';
 import { normalizeGameCardError } from '../components/GameCardErrorPanel.jsx';
+import { rendererServices } from '../platform/index.js';
 
 function useChatSession({
   setMessages,
@@ -10,11 +11,11 @@ function useChatSession({
   persistence,
   typewriter,
   onResetView,
-  api = window.electronAPI
+  repository = rendererServices.sessions
 }) {
   const load = React.useCallback(async () => {
-    const result = await api?.getChatHistory?.();
-    if (result?.success) {
+    try {
+      const result = await repository.loadHistory();
       persistence.hydrate(result);
       const loadedMessages = result.messages || [];
       const loadedState = result.gameState || {};
@@ -25,12 +26,16 @@ function useChatSession({
       setMessages(nextMessages);
       setGameState(nextState);
       if (init.changed) await persistence.save(nextMessages, nextState);
+      return result;
+    } catch (error) {
+      setRuntimeError(normalizeGameCardError(error));
+      return null;
+    } finally {
+      persistence.markLoaded();
     }
-    persistence.markLoaded();
-    return result;
-  }, [api, persistence, setGameState, setMessages, setRuntimeError]);
+  }, [persistence, repository, setGameState, setMessages, setRuntimeError]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => { void load(); }, [load]);
 
   const saveCurrent = React.useCallback(async () => {
     if (isLoading) return null;
@@ -46,10 +51,10 @@ function useChatSession({
 
   const switchSession = React.useCallback(async (id) => {
     await saveCurrent();
-    const result = await api?.setActiveChatSession?.(id);
-    if (result?.success) await reload();
-    return result;
-  }, [api, reload, saveCurrent]);
+    const result = await repository.setActive(id);
+    await reload();
+    return { success: true, ...result };
+  }, [reload, repository, saveCurrent]);
 
   return { load, reload, saveCurrent, switchSession };
 }

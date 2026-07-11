@@ -1,4 +1,5 @@
 const React = require('react');
+const { render } = require('@testing-library/react');
 const ChatPanelRenderers = require('../../src/components/ChatPanelRenderers').default;
 const MessageRenderers = require('../../src/components/ChatPanelMessageRenderers').default;
 
@@ -77,10 +78,10 @@ describe('ChatPanelMessageRenderers streaming layout', () => {
       { apiUrl: 'http://api.example.com' }
     );
 
-    const streamingRow = result.props.children.at(-1);
-    expect(streamingRow.props.className).toBe('chat-message-row streaming-message-row');
-    expect(streamingRow.props.children.props.className).toBe('chat-message assistant');
-    expect(streamingRow.props.children.props.style).toEqual({ flex: 1, minWidth: 0 });
+    const { container } = render(result);
+    const streamingRow = container.querySelector('.streaming-message-row');
+    expect(streamingRow).not.toBeNull();
+    expect(streamingRow.querySelector('.chat-message.assistant')).toHaveStyle({ flex: '1', minWidth: '0' });
   });
 
   test('uses collapse renderer while loading', () => {

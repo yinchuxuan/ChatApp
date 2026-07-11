@@ -73,11 +73,13 @@ describe('useChatGeneration game card pipeline', () => {
     const setMessages = jest.fn();
     const { result } = renderGeneration({ setMessages });
     await act(async () => { await result.current.send('hello'); });
-    expect(setMessages.mock.calls[0][0]).toEqual([{ role: 'user', content: 'hello' }]);
+    expect(setMessages.mock.calls[0][0]).toEqual([
+      expect.objectContaining({ role: 'user', content: 'hello' })
+    ]);
     const updater = setMessages.mock.calls.at(-1)[0];
     expect(updater([{ role: 'user', content: 'hello' }])).toEqual([
       { role: 'user', content: 'hello' },
-      { role: 'assistant', content: 'ok', _thinking: '', thinking: '' }
+      expect.objectContaining({ role: 'assistant', content: 'ok', _thinking: '', thinking: '' })
     ]);
   });
 
@@ -96,7 +98,7 @@ describe('useChatGeneration game card pipeline', () => {
     expect(body.messages).toEqual([{ role: 'system', content: 'rules' }, { role: 'user', content: 'hello' }]);
     expect(setMessages).toHaveBeenCalledWith([
       { role: 'system', content: 'rules' },
-      { role: 'user', content: 'hello' }
+      expect.objectContaining({ role: 'user', content: 'hello' })
     ]);
   });
 
@@ -112,8 +114,8 @@ describe('useChatGeneration game card pipeline', () => {
     const { result } = renderGeneration({ setMessages });
     await act(async () => { await result.current.send('hello'); });
     expect(setMessages).toHaveBeenLastCalledWith([
-      { role: 'user', content: 'hello' },
-      { role: 'assistant', content: 'cleaned', _thinking: '', thinking: '' }
+      expect.objectContaining({ role: 'user', content: 'hello' }),
+      expect.objectContaining({ role: 'assistant', content: 'cleaned', _thinking: '', thinking: '' })
     ]);
   });
 

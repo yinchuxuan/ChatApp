@@ -8,7 +8,8 @@ module.exports = {
   },
   testMatch: ['<rootDir>/test/**/*.test.js'],
   testPathIgnorePatterns: [
-    '<rootDir>/test/ipc/',
+    // Removed document-reader IPC tests are retained as an explicit legacy specification.
+    '<rootDir>/test/ipc/fileHandlers.test.js',
     '<rootDir>/test/e2e/',
     '<rootDir>/test/e2e-real-api/',
     '\\.integration\\.test\\.js$'
@@ -22,7 +23,7 @@ module.exports = {
     '!**/node_modules/**'
   ],
   coverageThreshold: {
-    global: { branches: 15, functions: 20, lines: 20, statements: 20 }
+    global: { branches: 70, functions: 80, lines: 85, statements: 82 }
   },
   transform: {
     '^.+\\.jsx?$': 'babel-jest'

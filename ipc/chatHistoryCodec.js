@@ -1,6 +1,9 @@
+const { randomUUID } = require('node:crypto');
+
 function cleanMessages(messages) {
   return messages.map(msg => {
     const cleaned = { role: msg.role, content: msg.content };
+    if (msg.id) cleaned.id = msg.id;
     if (msg.thinking) cleaned.thinking = msg.thinking;
     if (msg._meta) cleaned._meta = msg._meta;
     if (msg.ttl !== undefined) cleaned.ttl = msg.ttl;
@@ -18,7 +21,7 @@ function cleanGameState(gameState) {
 
 function restoreMessages(messages) {
   return messages.map(msg => {
-    const restored = { ...msg };
+    const restored = { ...msg, id: msg.id || randomUUID() };
     if (msg.thinking) restored._thinking = msg.thinking;
     return restored;
   });

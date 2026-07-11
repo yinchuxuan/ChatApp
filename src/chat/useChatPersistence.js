@@ -1,7 +1,8 @@
 import React from 'react';
 import { cloneChatValue, normalizeRetryMessages } from './chatGeneration.js';
+import { rendererServices } from '../platform/index.js';
 
-function useChatPersistence({ messages, gameState, isLoading, api = window.electronAPI }) {
+function useChatPersistence({ messages, gameState, isLoading, repository = rendererServices.sessions }) {
   const retryBaseRef = React.useRef(null);
   const retryBaseStateRef = React.useRef(null);
   const loadedRef = React.useRef(false);
@@ -26,23 +27,26 @@ function useChatPersistence({ messages, gameState, isLoading, api = window.elect
   }, []);
 
   const save = React.useCallback(async (nextMessages, nextState) => {
-    if (!api?.saveChatHistory) return null;
-    return api.saveChatHistory(nextMessages ?? messagesRef.current, {
+    return repository.saveHistory(nextMessages ?? messagesRef.current, {
       gameState: nextState ?? gameStateRef.current,
       retryBaseMessages: retryBaseRef.current,
       retryBaseState: retryBaseStateRef.current
     });
-  }, [api]);
+  }, [repository]);
 
   const refreshRetryBase = React.useCallback(async () => {
-    const result = await api?.getChatHistory?.();
-    if (result?.success) hydrate(result);
-    return result?.success ? result : null;
-  }, [api, hydrate]);
+    try {
+      const result = await repository.loadHistory();
+      hydrate(result);
+      return result;
+    } catch {
+      return null;
+    }
+  }, [hydrate, repository]);
 
   React.useEffect(() => {
     if (!loadedRef.current || isLoading) return;
-    save();
+    void save().catch(() => {});
   }, [messages, gameState, isLoading, save]);
 
   const markLoaded = React.useCallback(() => { loadedRef.current = true; }, []);

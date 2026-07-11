@@ -57,9 +57,9 @@ describe('Game Card Import Sessions', () => {
     const asset = await ipcMain.handlers['read-game-card-file']({}, card.id, 'plot/chapter-2.md');
 
     expect(importResult.success).toBe(true);
-    expect(history.messages).toEqual([{ role: 'user', content: 'chapter one save' }]);
+    expect(history.messages).toEqual([expect.objectContaining({ role: 'user', content: 'chapter one save' })]);
     expect(history.gameState).toEqual({ story: { chapter: 'chapter_1' } });
-    expect(history.retryBaseMessages).toEqual([{ role: 'user', content: 'retry point' }]);
+    expect(history.retryBaseMessages).toEqual([expect.objectContaining({ role: 'user', content: 'retry point' })]);
     expect(history.retryBaseState).toEqual({ story: { chapter: 'chapter_1' } });
     expect(asset).toEqual({ success: true, content: 'chapter two' });
   });

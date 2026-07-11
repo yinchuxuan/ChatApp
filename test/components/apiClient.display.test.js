@@ -4,7 +4,7 @@
 
 const React = require('react');
 const { render, screen, fireEvent, act } = require('@testing-library/react');
-const { sendChatRequest } = require('../../src/components/apiClient.js');
+const { sendChatRequest } = require('../../src/chat/apiClient.js');
 
 const electronAPI = global.window.electronAPI;
 

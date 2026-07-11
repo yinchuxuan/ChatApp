@@ -75,4 +75,25 @@ describe('useSettingsState Hook - Model Handlers', () => {
     expect(listener).toHaveBeenCalledWith(expect.objectContaining({ apiUrl: 'http://saved-api.com' }));
     unsubscribe();
   });
+
+  test('serializes saves so the latest value is persisted last', async () => {
+    let resolveFirst;
+    electronAPI.saveModelConfig
+      .mockImplementationOnce(() => new Promise(resolve => { resolveFirst = resolve; }))
+      .mockResolvedValue({ success: true });
+    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const { result } = renderHook(() => useSettingsState(jest.fn()));
+    await hookAct(async () => { await Promise.resolve(); });
+
+    hookAct(() => {
+      result.current.handleChange('modelName', 'first');
+      result.current.handleChange('modelName', 'latest');
+    });
+    expect(electronAPI.saveModelConfig).toHaveBeenCalledTimes(1);
+    await hookAct(async () => { resolveFirst({ success: true }); await Promise.resolve(); });
+
+    expect(electronAPI.saveModelConfig).toHaveBeenLastCalledWith(
+      expect.objectContaining({ modelName: 'latest' })
+    );
+  });
 });

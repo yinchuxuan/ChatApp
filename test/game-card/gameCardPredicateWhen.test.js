@@ -126,14 +126,14 @@ describe('predicate and when condition edge cases', () => {
     }, 'pre_send', [msg])).toBe(false);
   });
 
-  test('exec predicate returns truthy result', () => {
-    const messages = [{ role: 'user', content: 'hello' }];
-    expect(matchesPredicate({ exec: 'return msg.content.includes("hello");' }, messages[0], 0, messages)).toBe(true);
-    expect(matchesPredicate({ exec: 'return i > 5;' }, messages[0], 0, messages)).toBe(false);
+  test('matches role-relative occurrence without executing scripts', () => {
+    const messages = [
+      { role: 'assistant', content: 'old' },
+      { role: 'user', content: 'next' },
+      { role: 'assistant', content: 'latest' }
+    ];
+    expect(matchesPredicate({ role: 'assistant', occurrence: 'not_last' }, messages[0], 0, messages)).toBe(true);
+    expect(matchesPredicate({ role: 'assistant', occurrence: 'last' }, messages[2], 2, messages)).toBe(true);
   });
 
-  test('exec predicate catches errors and returns false', () => {
-    const msg = { role: 'user', content: 'x' };
-    expect(matchesPredicate({ exec: 'throw new Error("boom");' }, msg, 0, [msg])).toBe(false);
-  });
 });

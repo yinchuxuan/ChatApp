@@ -9,14 +9,14 @@ import GameCardBgmPlayer from '../components/GameCardBgmPlayer.js';
 import GameCardErrorPanel from '../components/GameCardErrorPanel.jsx';
 import GameCardTitleControl from '../components/GameCardTitleControl.jsx';
 import GameCardUIRoot from '../components/GameCardUIRoot.jsx';
-import MessageCollapseRenderer from '../components/MessageCollapseRenderer.js';
+import MessageCollapseRenderer from '../components/MessageCollapseRenderer.jsx';
 import { highlightQuotes } from '../components/highlightQuotes.js';
 import useLastUserMessageEdit from './useLastUserMessageEdit.js';
 import useTypewriter from './useTypewriter.js';
 import { loadGameCardDisplayStyle } from '../gameCard/displayStyles.js';
 import { loadGameCardUiStyle } from '../gameCard/uiStyles.js';
 import { loadGameCardVisualStyle } from '../gameCard/visualStyles.js';
-import { gameCardPlatform } from '../platform/index.js';
+import { gameCardPlatform, rendererServices } from '../platform/index.js';
 import { useGameCardRuntime } from './GameCardRuntimeProvider.jsx';
 import useChatGeneration from './useChatGeneration.js';
 import useChatPersistence from './useChatPersistence.js';
@@ -93,9 +93,9 @@ function ChatRuntime({
   const toggleHistory = () => {
     const next = !showMsgHistory;
     setShowMsgHistory(next);
-    if (next) window.electronAPI?.getChatHistory?.().then(result => {
-      if (result?.success) setMsgHistoryMessages(result.messages);
-    });
+    if (next) rendererServices.sessions.loadHistory()
+      .then(result => setMsgHistoryMessages(result.messages))
+      .catch(error => setActionError(error));
   };
   const toggleThinking = (index) => setMessages(prev => prev.map((msg, current) => (
     current === index ? { ...msg, _thinkingVisible: !msg._thinkingVisible } : msg
@@ -117,7 +117,7 @@ function ChatRuntime({
 
   return <div className="chat-panel" data-gc-part="chat-panel">
     <BackgroundRuntime card={runtime.activeCard} gameState={runtime.gameState} defer={isLoading} revealToken={streamStartToken} onBackgroundChange={onBackgroundChange} onVisualPanelChange={onVisualPanelChange} />
-    <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState} setGameState={runtime.setGameState} messages={messages} isLoading={isLoading} />
+    <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState} setGameState={runtime.setGameState} messages={messages} isLoading={isLoading} onError={runtime.setRuntimeError} />
     <div className="chat-main" data-gc-part="chat-main">
       <div className="chat-header-hover-trigger" data-gc-part="chat-header-trigger" onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)} />
       <div className={`chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`} data-gc-part="chat-header" onClick={toggleHistory} onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)}>

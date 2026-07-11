@@ -1,5 +1,6 @@
 import {
   applyGameCard as applyCoreGameCard,
+  applyGameCardAsync as applyCoreGameCardAsync,
   cloneMessages
 } from '../../shared/game-card/engine/engine.js';
 import { runExecAction } from './execRunner.js';
@@ -29,4 +30,21 @@ function applyGameCard(options = {}) {
   });
 }
 
-export { applyGameCard, cloneMessages };
+function applyGameCardAsync(options = {}) {
+  const { contentBaseDir, dependencies = {}, fs, path, ...coreOptions } = options;
+  const platformOptions = { baseDir: contentBaseDir, fs, path };
+  const readFile = dependencies.readFile || createPlatformFileReader(platformOptions);
+  const execute = dependencies.runExecAction || ((messages, state, action, runtimeOptions) => (
+    runExecAction(messages, state, action, {
+      ...runtimeOptions,
+      ...platformOptions,
+      scriptExecutor: dependencies.scriptExecutor
+    })
+  ));
+  return applyCoreGameCardAsync({
+    ...coreOptions,
+    dependencies: { readFile, runExecAction: execute }
+  });
+}
+
+export { applyGameCard, applyGameCardAsync, cloneMessages };

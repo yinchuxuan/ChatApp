@@ -1,7 +1,7 @@
 /**
  * Tests for apiClient - Protocol routing via config.protocol field
  */
-const { sendChatRequest } = require('../../src/components/apiClient.js');
+const { sendChatRequest } = require('../../src/chat/apiClient.js');
 
 describe('sendChatRequest - protocol routing', () => {
   beforeEach(() => {

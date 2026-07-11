@@ -1,5 +1,5 @@
 import { expandCardImports } from './cardImportExpander.js';
-import { applyGameCard } from './engine.js';
+import { applyGameCardAsync } from './engine.js';
 import { adaptMessagesToProtocol } from './protocolAdapter.js';
 import { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath } from './resourcePreload.js';
 import { ensureStateDefaults } from './stateSchema.js';
@@ -7,16 +7,10 @@ import { loadExternalStateSchema } from './stateSchemaLoader.js';
 import { applyLatestAssistantStatePatch } from './statePatch.js';
 import { decayTTL } from './ttl.js';
 
-function extractActiveCard(result) {
-  if (!result || result.success === false) return null;
-  if (result.rules) return result;
-  return result.card || result.gameCard || result.activeGameCard || null;
-}
-
 async function loadActiveGameCard(platform) {
   if (typeof platform?.repository?.getActiveCard !== 'function') return null;
   try {
-    return extractActiveCard(await platform.repository.getActiveCard());
+    return await platform.repository.getActiveCard();
   } catch (_) {
     return null;
   }
@@ -91,7 +85,7 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
   }
   const prepared = prepareState(resources.card, state);
   const ttl = decayTTL(messages);
-  const result = applyGameCard({ card: resources.card, phase: 'pre_send', messages: ttl.messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
+  const result = await applyGameCardAsync({ card: resources.card, phase: 'pre_send', messages: ttl.messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   return {
     ...result,
     ...(result.trace.errors.length ? { error: result.trace.errors.join('\n') } : {}),
@@ -117,7 +111,7 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
     return { messages, state, trace: null, ttlTrace: null, stateTrace: null, applied: false, card: null, error: error.message };
   }
   const prepared = prepareState(resources.card, state);
-  const result = applyGameCard({ card: resources.card, phase: 'after_response', messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
+  const result = await applyGameCardAsync({ card: resources.card, phase: 'after_response', messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   const patched = applyLatestAssistantStatePatch(result.messages, result.state, {
     messages: result.messages,
     schema: resources.card?.state?.schema
@@ -172,7 +166,7 @@ async function prepareInitMessages({ messages = [], state = {}, event = {}, card
   }
   const prepared = prepareState(resources.card, state);
 
-  const result = applyGameCard({ card: resources.card, phase: 'init', messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
+  const result = await applyGameCardAsync({ card: resources.card, phase: 'init', messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   const changed = hasMessageChanges(messages, result.messages) || prepared.trace.changed;
   return { ...result, ttlTrace: null, stateTrace: prepared.trace, applied: true, changed, card: resources.card };
 }
@@ -183,7 +177,6 @@ function toApiMessages(messages) {
 
 export {
   adaptMessagesToProtocol,
-  extractActiveCard,
   loadActiveGameCard,
   loadCardResources,
   prepareAfterResponseMessages,

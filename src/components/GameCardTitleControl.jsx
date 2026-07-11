@@ -2,28 +2,30 @@ import React from 'react';
 import ChatSessionManager from './ChatSessionManager.jsx';
 import GameCardErrorPanel, { normalizeGameCardError } from './GameCardErrorPanel.jsx';
 import { useGameCardRuntime } from '../chat/GameCardRuntimeProvider.jsx';
+import { rendererServices } from '../platform/index.js';
 
-function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged, onSwitchSession, onActiveCardChanged, audioControl, onImportError }) {
+function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged, onSwitchSession, onActiveCardChanged, audioControl, onImportError, cardRepository = rendererServices.cards }) {
   const { activeCard: card, changeActiveCard } = useGameCardRuntime();
   const [error, setError] = React.useState(null);
   const [isImporting, setIsImporting] = React.useState(false);
 
   const handleImport = async (event) => {
     event.stopPropagation();
-    if (!window.electronAPI?.importGameCardFromDirectory) return;
     setIsImporting(true);
     setError(null);
-    const result = await window.electronAPI.importGameCardFromDirectory();
-    if (result.success) {
+    try {
+      const result = await cardRepository.importDirectory();
       changeActiveCard(result.card || null);
       onImportError?.(null);
       await onActiveCardChanged?.(result.card || null);
-    } else if (!result.canceled) {
-      const nextError = normalizeGameCardError(result, { title: '导入游戏卡失败' });
+    } catch (nextFailure) {
+      if (nextFailure.canceled) return;
+      const nextError = normalizeGameCardError(nextFailure, { title: '导入游戏卡失败' });
       setError(nextError);
       onImportError?.(nextError);
+    } finally {
+      setIsImporting(false);
     }
-    setIsImporting(false);
   };
 
   const title = card ? (card.name || card.id) : '未加载游戏卡';

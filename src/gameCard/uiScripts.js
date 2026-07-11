@@ -78,6 +78,16 @@ async function loadRuntimeCard(card, resources) {
   return loadExternalStateSchema(expandedCard, resources);
 }
 
+async function loadDeclaredFiles(card, resources, fileContents) {
+  const paths = Object.values(card?.files || {});
+  await Promise.all(paths.map(async (filePath) => {
+    if (!Object.prototype.hasOwnProperty.call(fileContents, filePath)) {
+      fileContents[filePath] = await resources.readText(card.id, filePath);
+    }
+  }));
+  return fileContents;
+}
+
 async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = null, platform = null } = {}) {
   const normalized = normalizeUiScriptRunEvent(event, card);
   if (!normalized.ok) return fail(normalized.reason, state);
@@ -85,7 +95,8 @@ async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = 
   try {
     const runtimeCard = await loadRuntimeCard(card, platform?.resources);
     const fileContents = await loadScriptFileContents(card?.id, normalized.sourceFile, platform?.resources);
-    const result = runExecAction(messages, state, { type: 'exec', sourceFile: normalized.sourceFile }, {
+    await loadDeclaredFiles(runtimeCard, platform?.resources, fileContents);
+    const result = await runExecAction(messages, state, { type: 'exec', sourceFile: normalized.sourceFile }, {
       card: runtimeCard,
       event: { type: 'game.script.run', name: normalized.name, sourceFile: normalized.sourceFile, payload: normalized.payload },
       fileContents,

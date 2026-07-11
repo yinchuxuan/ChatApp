@@ -1,0 +1,62 @@
+const scriptWorkerSource = String.raw`
+function section(content, heading) {
+  const lines = String(content).split(/\r?\n/);
+  const escaped = String(heading).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+  const headingPattern = new RegExp('^(#{1,6})\\s+' + escaped + '\\s*$');
+  const start = lines.findIndex(line => headingPattern.test(line));
+  if (start < 0) throw new Error('file section not found: ' + heading);
+  const level = lines[start].match(/^#+/)[0].length;
+  let end = lines.length;
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const match = lines[index].match(/^(#{1,6})\s+/);
+    if (match && match[1].length <= level) { end = index; break; }
+  }
+  return lines.slice(start + 1, end).join('\n').trim();
+}
+function createFiles(entries, state) {
+  return Object.freeze({ read(ref) {
+    const marker = String(ref).indexOf('#');
+    const rawFile = marker < 0 ? String(ref) : String(ref).slice(0, marker);
+    const rawSection = marker < 0 ? '' : String(ref).slice(marker + 1);
+    const resolve = value => value.trim().startsWith('$')
+      ? value.trim().slice(1).replace(/^state\./, '').split('.').reduce((item, key) => item?.[key], state)
+      : value.trim();
+    const fileId = resolve(rawFile);
+    if (!Object.prototype.hasOwnProperty.call(entries, fileId)) throw new Error('unknown content file id: ' + fileId);
+    return rawSection ? section(entries[fileId], resolve(rawSection)) : entries[fileId];
+  }});
+}
+function createUtils() {
+  return Object.freeze({
+    clamp: (value, min, max) => Math.min(Math.max(value, min), max),
+    randomInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+    roll: dice => {
+      const match = String(dice).match(/^(\d*)d(\d+)$/i);
+      if (!match) throw new Error('invalid dice expression');
+      const count = Number(match[1] || 1), sides = Number(match[2]);
+      return Array.from({ length: count }).reduce(sum => sum + Math.floor(Math.random() * sides) + 1, 0);
+    },
+    uuid: () => crypto.randomUUID()
+  });
+}
+function buildSource(source, isSourceFile) {
+  if (isSourceFile) return source + '\nif (typeof run !== "function") throw new Error("exec sourceFile must define function run(ctx)");\nreturn run(__ctx);';
+  return '"use strict";\nconst ctx = __ctx;\nconst { messages, state, config, event, utils, files } = ctx;\n' + source;
+}
+self.onmessage = event => {
+  try {
+    const data = event.data;
+    const context = { ...data.context, files: createFiles(data.files, data.context.state), utils: createUtils() };
+    const execute = Function('__ctx', 'self', 'globalThis', 'fetch', 'XMLHttpRequest', 'WebSocket',
+      'EventSource', 'BroadcastChannel', 'Worker', 'SharedWorker', 'navigator', 'location', 'caches',
+      'importScripts', 'postMessage', 'close', 'indexedDB', buildSource(data.source, data.isSourceFile));
+    const result = execute(context, undefined, undefined, undefined, undefined, undefined,
+      undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+      undefined, undefined, undefined, undefined);
+    self.postMessage({ result });
+  } catch (error) {
+    self.postMessage({ error: error.message || String(error) });
+  }
+};`;
+
+export { scriptWorkerSource };

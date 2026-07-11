@@ -29,7 +29,7 @@ describe('IPC chat history state persistence', () => {
     const result = await handlers['get-chat-history']();
 
     expect(result.success).toBe(true);
-    expect(result.messages).toEqual(messages);
+    expect(result.messages).toEqual(messages.map(message => expect.objectContaining(message)));
     expect(result.gameState).toEqual({});
   });
 
@@ -43,7 +43,7 @@ describe('IPC chat history state persistence', () => {
     const result = await handlers['get-chat-history']();
 
     expect(result.success).toBe(true);
-    expect(result.messages).toEqual(history.messages);
+    expect(result.messages).toEqual(history.messages.map(message => expect.objectContaining(message)));
     expect(result.gameState).toEqual(history.gameState);
   });
 

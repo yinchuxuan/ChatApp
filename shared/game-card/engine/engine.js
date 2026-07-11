@@ -1,4 +1,5 @@
 import { applyActions } from './actions.js';
+import { applyActionsAsync } from './asyncActions.js';
 import { withFindState } from './findResolver.js';
 import { matchesWhen } from './predicate.js';
 import { validateGameCard } from '../schema/validateGameCard.js';
@@ -55,6 +56,27 @@ function applyMatchingRule(messages, state, rule, index, options) {
       ruleId: rule.id,
       matched: true,
       actions: applied.trace,
+      summary: {
+        messages: summarizeActionMessages(applied.trace, messages, applied.messages),
+        state: summarizeState(state, finalState)
+      }
+    }
+  };
+}
+
+async function applyMatchingRuleAsync(messages, state, rule, index, options) {
+  const found = rule.find ? withFindState(state, rule.find, messages) : null;
+  const applied = await applyActionsAsync(messages, rule.then || [], {
+    ...options,
+    state: found?.state || state,
+    find: found && !Array.isArray(rule.find) ? { ...options.find, ...rule.find } : options.find
+  });
+  const finalState = found ? found.restore(applied.state) : applied.state;
+  return {
+    messages: applied.messages,
+    state: finalState,
+    trace: {
+      ruleIndex: index, ruleId: rule.id, matched: true, actions: applied.trace,
       summary: {
         messages: summarizeActionMessages(applied.trace, messages, applied.messages),
         state: summarizeState(state, finalState)
@@ -129,4 +151,40 @@ function applyGameCard({ card, phase, messages = [], state = {}, event = {}, fil
   };
 }
 
-export { applyGameCard, cloneMessages };
+async function applyGameCardAsync(options = {}) {
+  const { card, phase, messages = [], state = {}, event = {}, fileContents, dependencies = {} } = options;
+  const validation = validateGameCard(card);
+  let result = {
+    messages: cloneMessages(messages),
+    state: cloneState(state),
+    trace: { phase, rules: [], errors: validation.errors }
+  };
+  if (!validation.valid) return result;
+
+  for (let index = 0; index < card.rules.length; index += 1) {
+    const rule = card.rules[index];
+    try {
+      if (!matchesWhen(rule.when, phase, result.messages, result.state)) continue;
+      const applied = await applyMatchingRuleAsync(result.messages, result.state, rule, index, {
+        card,
+        event: { ...event, phase },
+        fileContents,
+        readFile: dependencies.readFile,
+        runExecAction: dependencies.runExecAction
+      });
+      result = {
+        messages: applied.messages,
+        state: applied.state,
+        trace: { ...result.trace, rules: [...result.trace.rules, applied.trace] }
+      };
+    } catch (error) {
+      result = {
+        ...result,
+        trace: { ...result.trace, errors: [...result.trace.errors, formatRuleError(index, 'then', error)] }
+      };
+    }
+  }
+  return result;
+}
+
+export { applyGameCard, applyGameCardAsync, cloneMessages };

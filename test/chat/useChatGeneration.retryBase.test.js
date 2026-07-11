@@ -33,5 +33,8 @@ test('useChatGeneration saves retry base without transient context', async () =>
   }));
 
   await act(async () => { await result.current.send('新选择'); });
-  expect(setRetryBase).toHaveBeenCalledWith([...messages, { role: 'user', content: '新选择' }], { score: 1 });
+  expect(setRetryBase).toHaveBeenCalledWith([
+    ...messages,
+    expect.objectContaining({ role: 'user', content: '新选择' })
+  ], { score: 1 });
 });

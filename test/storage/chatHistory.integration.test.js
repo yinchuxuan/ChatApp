@@ -41,8 +41,8 @@ describe('IPC Chat History Operations', () => {
     const getResult = await handlers['get-chat-history']();
     expect(getResult.success).toBe(true);
     expect(getResult.messages).toEqual([
-      { role: 'user', content: 'Hello' },
-      { role: 'assistant', content: 'Hi there!', thinking: 'Let me think...', _thinking: 'Let me think...' }
+      expect.objectContaining({ role: 'user', content: 'Hello' }),
+      expect.objectContaining({ role: 'assistant', content: 'Hi there!', thinking: 'Let me think...', _thinking: 'Let me think...' })
     ]);
   });
 
@@ -59,7 +59,7 @@ describe('IPC Chat History Operations', () => {
     const raw = JSON.parse(fs.readFileSync(chatHistoryPath, 'utf-8'));
     const result = await handlers['get-chat-history']();
     expect(raw).toEqual({ messages, gameState: {} });
-    expect(result.messages).toEqual(messages);
+    expect(result.messages).toEqual(messages.map(message => expect.objectContaining(message)));
   });
 
   test('should save and retrieve retry base messages and state', async () => {
@@ -76,7 +76,7 @@ describe('IPC Chat History Operations', () => {
     const rawRetryBase = JSON.parse(fs.readFileSync(retryBasePath, 'utf-8'));
     const result = await handlers['get-chat-history']();
     expect(rawRetryBase).toEqual({ messages: retryBaseMessages, gameState: retryBaseState });
-    expect(result.retryBaseMessages).toEqual(retryBaseMessages);
+    expect(result.retryBaseMessages).toEqual(retryBaseMessages.map(message => expect.objectContaining(message)));
     expect(result.retryBaseState).toEqual(retryBaseState);
   });
 
@@ -88,7 +88,7 @@ describe('IPC Chat History Operations', () => {
     fs.writeFileSync(retryBasePath, JSON.stringify(retryBaseMessages), 'utf-8');
 
     const result = await handlers['get-chat-history']();
-    expect(result.retryBaseMessages).toEqual(retryBaseMessages);
+    expect(result.retryBaseMessages).toEqual(retryBaseMessages.map(message => expect.objectContaining(message)));
     expect(result.retryBaseState).toBeUndefined();
   });
 
@@ -103,7 +103,7 @@ describe('IPC Chat History Operations', () => {
     await handlers['save-chat-history']({}, secondMessages);
 
     const result = await handlers['get-chat-history']();
-    expect(result.messages).toEqual(secondMessages);
+    expect(result.messages).toEqual(secondMessages.map(message => expect.objectContaining(message)));
   });
 
   test('should handle saving empty messages (clear history)', async () => {

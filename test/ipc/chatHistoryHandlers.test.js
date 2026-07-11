@@ -43,7 +43,8 @@ describe('Chat History IPC Handlers', () => {
 
       const result = await handler();
       expect(result.success).toBe(true);
-      expect(result.messages).toEqual(testMessages);
+      expect(result.messages).toEqual(testMessages.map(message => expect.objectContaining(message)));
+      expect(result.messages.every(message => typeof message.id === 'string')).toBe(true);
       expect(result.gameState).toEqual({});
       expect(result.messages.length).toBe(2);
     });
@@ -130,22 +131,11 @@ describe('Chat History IPC Handlers', () => {
       const handlers = electronMock._registeredHandlers;
       const handler = handlers['save-chat-history'];
 
-      // First call: dir exists
-      mockFs.existsSync.mockReturnValueOnce(true);
-      // Second call in save handler: file doesn't exist (dir check)
-      // Actually the handler checks dir existence then file for read, but for save it checks dir
-      // Let me re-read the handler... it checks chatHistoryDir exists.
-
-      // Actually, the handler's flow for save is:
-      // 1. Check if dir exists (call to existsSync) -> need to allow 2 calls
-      mockFs.existsSync.mockReset();
-
-      // The handler calls existsSync for dir check, then writeFileSync
-      // We just need to test that writeFileSync is called
-      mockFs.existsSync.mockReturnValue(true);
+      mockFs.existsSync.mockReturnValue(false);
 
       await handler({}, [{ role: 'user', content: 'test' }]);
       expect(mockFs.writeFileSync).toHaveBeenCalled();
+      expect(mockFs.mkdirSync).toHaveBeenCalled();
     });
 
     test('should handle save error', async () => {

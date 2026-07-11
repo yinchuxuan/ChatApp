@@ -21,7 +21,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setActiveGameCard: (id) => ipcRenderer.invoke('set-active-game-card', id),
   getActiveGameCard: () => ipcRenderer.invoke('get-active-game-card'),
   readGameCardFile: (id, relativePath) => ipcRenderer.invoke('read-game-card-file', id, relativePath),
-  getGameCardAudioUrl: (relativePath) => ipcRenderer.invoke('get-game-card-audio-url', relativePath),
-  getGameCardImageUrl: (relativePath) => ipcRenderer.invoke('get-game-card-image-url', relativePath),
-  onBackgroundConfigChanged: (callback) => ipcRenderer.on('background-config-changed', (event, config) => callback(config))
+  getGameCardAudioUrl: (cardId, relativePath) => ipcRenderer.invoke('get-game-card-audio-url', cardId, relativePath),
+  getGameCardImageUrl: (cardId, relativePath) => ipcRenderer.invoke('get-game-card-image-url', cardId, relativePath),
+  onBackgroundConfigChanged: (callback) => {
+    const listener = (event, config) => callback(config);
+    ipcRenderer.on('background-config-changed', listener);
+    return () => ipcRenderer.removeListener('background-config-changed', listener);
+  }
 });

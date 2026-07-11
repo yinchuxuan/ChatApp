@@ -112,3 +112,16 @@
   color: currentColor;
   animation: none;
 }
+.game-card-ui-error {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  z-index: 120;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 10px 14px;
+  color: var(--md-sys-color-on-error-container);
+  background: var(--md-sys-color-error-container);
+  border-radius: 6px;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}

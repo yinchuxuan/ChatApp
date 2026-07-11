@@ -140,7 +140,7 @@ test.describe('Multi-turn round trip', () => {
   test('exec state persists across turns', async () => {
     const card = {
       version: '1.0', id: 'state_persist', name: 'State Persist',
-      state: { score: 0 },
+      state: { schema: { score: { type: 'number', default: 0 } } },
       rules: [
         { when: { phase: 'pre_send', any: { content: { contains: 'score' } } }, then: [{ type: 'exec', source: 'state.score += 10; messages.push({ role: "system", content: "score: " + state.score, ttl: 1, _meta: { visibility: "llm_only" } }); return { messages, state };' }] },
         { when: { phase: 'after_response', last: { role: 'assistant' } }, then: [{ type: 'exec', source: 'state.score += 5; return { messages, state };' }] }
@@ -154,14 +154,9 @@ test.describe('Multi-turn round trip', () => {
     });
     await send('score check');
     await expect.poll(() => requests.length).toBe(1);
-
-    const { applyGameCard } = await import('../../../src/gameCard/engine.js');
-    const stateResult = applyGameCard({
-      card,
-      phase: 'pre_send',
-      messages: [{ role: 'user', content: 'score' }],
-      state: { score: 0 }
-    });
-    expect(stateResult.state.score).toBe(10);
+    await expect.poll(async () => (await getAppHelper().getChatHistory()).gameState.score).toBe(15);
+    await send('score again');
+    await expect.poll(() => requests.length).toBe(2);
+    await expect.poll(async () => (await getAppHelper().getChatHistory()).gameState.score).toBe(30);
   });
 });

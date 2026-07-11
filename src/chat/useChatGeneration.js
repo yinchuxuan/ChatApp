@@ -1,6 +1,7 @@
 import React from 'react';
 import * as chatGeneration from './chatGeneration.js';
 import useGenerationAbort from './useGenerationAbort.js';
+import { createChatMessage } from './messageIds.js';
 
 function useChatGeneration({
   messages,
@@ -43,13 +44,13 @@ function useChatGeneration({
     if (!modelConfig?.apiUrl || !modelConfig?.apiKey) {
       setMessages(prev => [
         ...prev,
-        { role: 'user', content: value },
-        { role: 'assistant', content: '请先在右侧设置面板配置模型 API', isError: true }
+        createChatMessage({ role: 'user', content: value }),
+        createChatMessage({ role: 'assistant', content: '请先在右侧设置面板配置模型 API', isError: true })
       ]);
       return true;
     }
     onAudioSubmit?.();
-    const nextMessages = [...messages, { role: 'user', content: value }];
+    const nextMessages = [...messages, createChatMessage({ role: 'user', content: value })];
     persistence.setRetryBase(nextMessages, gameState);
     await run(nextMessages, gameState, true);
     return true;

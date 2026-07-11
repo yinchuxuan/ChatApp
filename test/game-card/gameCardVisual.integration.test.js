@@ -30,7 +30,7 @@ describe('Game Card Visual IPC', () => {
   });
 
   test('returns a local URL for active card image', async () => {
-    const result = await ipcMain.handlers['get-game-card-image-url']({}, 'images/school.jpg');
+    const result = await ipcMain.handlers['get-game-card-image-url']({}, 'visual-card', 'images/school.jpg');
 
     expect(result.success).toBe(true);
     expect(result.url).toBe('local://game-card/visual-card/image/images/school.jpg');
@@ -40,13 +40,20 @@ describe('Game Card Visual IPC', () => {
   test('rejects traversal and non-image paths', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const traversal = await ipcMain.handlers['get-game-card-image-url']({}, '../secret.jpg');
-    const nonImage = await ipcMain.handlers['get-game-card-image-url']({}, 'images/note.txt');
+    const traversal = await ipcMain.handlers['get-game-card-image-url']({}, 'visual-card', '../secret.jpg');
+    const nonImage = await ipcMain.handlers['get-game-card-image-url']({}, 'visual-card', 'images/note.txt');
 
     expect(traversal.success).toBe(false);
     expect(traversal.error).toContain('stay inside game card directory');
     expect(nonImage.success).toBe(false);
     expect(nonImage.error).toContain('image path must use');
+    errorSpy.mockRestore();
+  });
+
+  test('rejects resources requested for a non-active card', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const result = await ipcMain.handlers['get-game-card-image-url']({}, 'other-card', 'images/school.jpg');
+    expect(result).toMatchObject({ success: false, error: 'Game card is not active' });
     errorSpy.mockRestore();
   });
 });

@@ -40,8 +40,8 @@ describe('IPC Chat Sessions', () => {
     await handlers['set-active-chat-session']({}, created.id);
     const secondHistory = await handlers['get-chat-history']();
 
-    expect(defaultHistory.messages).toEqual([{ role: 'user', content: 'default turn' }]);
-    expect(secondHistory.messages).toEqual([{ role: 'user', content: 'second turn' }]);
+    expect(defaultHistory.messages).toEqual([expect.objectContaining({ role: 'user', content: 'default turn' })]);
+    expect(secondHistory.messages).toEqual([expect.objectContaining({ role: 'user', content: 'second turn' })]);
   });
 
   test('save updates session metadata and preserves game state', async () => {
@@ -70,8 +70,8 @@ describe('IPC Chat Sessions', () => {
     await handlers['set-active-game-card']({}, null);
     const noCardHistory = await handlers['get-chat-history']();
 
-    expect(questHistory.messages).toEqual([{ role: 'user', content: 'quest card' }]);
-    expect(noCardHistory.messages).toEqual([{ role: 'user', content: 'no card' }]);
+    expect(questHistory.messages).toEqual([expect.objectContaining({ role: 'user', content: 'quest card' })]);
+    expect(noCardHistory.messages).toEqual([expect.objectContaining({ role: 'user', content: 'no card' })]);
   });
 
   test('deleting active session falls back to another session', async () => {
@@ -84,6 +84,6 @@ describe('IPC Chat Sessions', () => {
 
     expect(deleted.success).toBe(true);
     expect(active.session.id).toBe('default');
-    expect(history.messages).toEqual([{ role: 'user', content: 'default turn' }]);
+    expect(history.messages).toEqual([expect.objectContaining({ role: 'user', content: 'default turn' })]);
   });
 });

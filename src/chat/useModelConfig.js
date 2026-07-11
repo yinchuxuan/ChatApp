@@ -1,16 +1,17 @@
 import React from 'react';
 import { subscribeModelConfig } from './modelConfigService.js';
+import { rendererServices } from '../platform/index.js';
 
-function useModelConfig(api = window.electronAPI) {
+function useModelConfig(configService = rendererServices.config) {
   const [modelConfig, setModelConfig] = React.useState(null);
 
   React.useEffect(() => {
     let canceled = false;
-    api?.getModelConfig?.().then(result => {
-      if (!canceled && result?.success) setModelConfig(result.config);
-    });
+    configService.load()
+      .then(config => { if (!canceled) setModelConfig(config); })
+      .catch(() => { if (!canceled) setModelConfig(null); });
     return () => { canceled = true; };
-  }, [api]);
+  }, [configService]);
 
   React.useEffect(() => subscribeModelConfig(setModelConfig), []);
   return modelConfig;

@@ -1,15 +1,20 @@
 import React from 'react';
+import { rendererServices } from '../platform/index.js';
 
-function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, onSwitchSession }) {
+function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, onSwitchSession, repository = rendererServices.sessions }) {
   const R = React;
   const [open, setOpen] = R.useState(false), [sessions, setSessions] = R.useState([]), [activeId, setActiveId] = R.useState(null);
   const [panelMounted, setPanelMounted] = R.useState(false);
   const [editingId, setEditingId] = R.useState(null), [draftTitle, setDraftTitle] = R.useState(''), [busy, setBusy] = R.useState(false);
+  const [error, setError] = R.useState(null);
 
   const loadSessions = R.useCallback(async () => {
-    const result = await window.electronAPI?.listChatSessions?.();
-    if (result?.success) { setSessions(result.sessions || []); setActiveId(result.activeId || null); }
-  }, []);
+    try {
+      const result = await repository.list();
+      setSessions(result.sessions || []);
+      setActiveId(result.activeId || null);
+    } catch (nextError) { setError(nextError); }
+  }, [repository]);
 
   R.useEffect(() => { loadSessions(); }, [cardId, loadSessions]);
   R.useEffect(() => {
@@ -21,65 +26,81 @@ function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, o
   const activate = async (id) => {
     if (id === activeId || busy) return;
     setBusy(true);
-    let result;
-    if (onSwitchSession) result = await onSwitchSession(id);
-    else {
-      await onBeforeSessionChange?.();
-      result = await window.electronAPI?.setActiveChatSession?.(id);
-      if (result?.success) await onSessionChanged?.(id);
+    setError(null);
+    try {
+      if (onSwitchSession) await onSwitchSession(id);
+      else {
+        await onBeforeSessionChange?.();
+        await repository.setActive(id);
+        await onSessionChanged?.(id);
+      }
+      await loadSessions();
+      setOpen(false);
+    } catch (nextError) {
+      setError(nextError);
+    } finally {
+      setBusy(false);
     }
-    if (result?.success) { await loadSessions(); setOpen(false); }
-    setBusy(false);
   };
 
   const createSession = async (event) => {
     event.stopPropagation();
     if (busy) return;
     setBusy(true);
-    await onBeforeSessionChange?.();
-    const result = await window.electronAPI?.createChatSession?.('新会话');
-    if (result?.success) { await onSessionChanged?.(result.id); await loadSessions(); }
-    setBusy(false);
+    setError(null);
+    try {
+      await onBeforeSessionChange?.();
+      const result = await repository.create('新会话');
+      await onSessionChanged?.(result.id);
+      await loadSessions();
+    } catch (nextError) { setError(nextError); }
+    finally { setBusy(false); }
   };
 
   const saveSession = async (event) => {
     event.stopPropagation();
     if (busy) return;
     setBusy(true);
-    await onBeforeSessionChange?.();
-    const snapshot = await window.electronAPI?.getChatHistory?.();
-    const currentId = activeId;
-    const created = await window.electronAPI?.createChatSession?.('会话存档');
-    if (created?.success) {
-      if (snapshot?.success) {
-        await window.electronAPI?.saveChatHistory?.(snapshot.messages || [], {
+    setError(null);
+    try {
+      await onBeforeSessionChange?.();
+      const snapshot = await repository.loadHistory();
+      const currentId = activeId;
+      const created = await repository.create('会话存档');
+      await repository.saveHistory(snapshot.messages || [], {
           gameState: snapshot.gameState || {},
           retryBaseMessages: snapshot.retryBaseMessages || [],
           retryBaseState: snapshot.retryBaseState || {}
-        });
-      }
-      if (currentId && currentId !== created.id) await window.electronAPI?.setActiveChatSession?.(currentId);
-    }
-    await loadSessions();
-    setBusy(false);
+      });
+      if (currentId && currentId !== created.id) await repository.setActive(currentId);
+      await loadSessions();
+    } catch (nextError) { setError(nextError); }
+    finally { setBusy(false); }
   };
 
   const renameSession = async (event, id) => {
     event.stopPropagation();
     const title = draftTitle.trim();
     if (!title) return;
-    const result = await window.electronAPI?.renameChatSession?.(id, title);
-    if (result?.success) { setEditingId(null); await loadSessions(); }
+    try {
+      await repository.rename(id, title);
+      setEditingId(null);
+      await loadSessions();
+    } catch (nextError) { setError(nextError); }
   };
 
   const deleteSession = async (event, id) => {
     event.stopPropagation();
     if (busy || (window.confirm && !window.confirm('删除这个会话？'))) return;
     setBusy(true);
-    await onBeforeSessionChange?.();
-    const result = await window.electronAPI?.deleteChatSession?.(id);
-    if (result?.success) { await onSessionChanged?.(result.id); await loadSessions(); }
-    setBusy(false);
+    setError(null);
+    try {
+      await onBeforeSessionChange?.();
+      const result = await repository.delete(id);
+      await onSessionChanged?.(result.id);
+      await loadSessions();
+    } catch (nextError) { setError(nextError); }
+    finally { setBusy(false); }
   };
 
   const C = R.createElement;
@@ -104,7 +125,7 @@ function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, o
     C('button', { className: 'chat-session-action danger', 'data-gc-part': 'chat-session-action', onClick: (event) => deleteSession(event, session.id), title: '删除会话', 'aria-label': '删除会话' }, C('span', { className: 'material-icons' }, 'delete'))
   );
 
-  return C('div', { className: 'chat-session-manager', 'data-gc-part': 'chat-session-manager' },
+  return C('div', { className: 'chat-session-manager', 'data-gc-part': 'chat-session-manager', title: error?.message || '' },
     C('button', { className: 'chat-session-btn', 'data-gc-part': 'chat-session-button', onClick: togglePanel, title: '管理聊天会话', 'aria-label': '管理聊天会话', 'aria-expanded': open ? 'true' : 'false', 'aria-controls': 'chat-session-panel' }, C('span', { className: 'material-icons' }, 'inventory_2')),
     panelMounted ? C('div', { id: 'chat-session-panel', className: 'chat-session-panel', 'data-gc-part': 'chat-session-panel', 'data-state': open ? 'open' : 'closing', 'aria-hidden': open ? 'false' : 'true', onClick: (event) => event.stopPropagation() },
       C('div', { className: 'chat-session-panel-head', 'data-gc-part': 'chat-session-panel-head' },
@@ -114,6 +135,7 @@ function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, o
           C('button', { className: 'chat-session-text-action', onClick: createSession, disabled: busy, title: '新建会话', 'aria-label': '新建会话' }, C('span', { className: 'material-icons' }, 'add'), C('span', null, '新建'))
         )
       ),
+      error ? C('div', { className: 'chat-session-error', role: 'alert' }, error.message) : null,
       C('div', { className: 'chat-session-list', 'data-gc-part': 'chat-session-list' }, sessions.map(renderSession))
     ) : null
   );
