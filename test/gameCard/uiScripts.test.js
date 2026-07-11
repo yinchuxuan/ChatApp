@@ -1,4 +1,5 @@
 const { applyUiScriptRunEvent, normalizeUiScriptRunEvent } = require('../../src/gameCard/uiScripts');
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
 
 describe('game card ui scripts', () => {
   test('normalizes sourceFile and named card scripts', () => {
@@ -26,7 +27,7 @@ describe('game card ui scripts', () => {
       state: { score: 1, events: { queue: [{ id: 'a' }, { id: 'b' }] } },
       messages: [{ role: 'user', content: 'x' }],
       card: { id: 'card', ui: { scripts: { pick: 'ui/pick.js' } } },
-      api
+      platform: createElectronGameCardPlatform(api)
     });
 
     expect(api.readGameCardFile).toHaveBeenCalledWith('card', 'ui/helper.js');
@@ -47,7 +48,7 @@ describe('game card ui scripts', () => {
       state: { score: 1 },
       messages: [],
       card: { id: 'card' },
-      api
+      platform: createElectronGameCardPlatform(api)
     });
 
     expect(result).toMatchObject({ applied: false, state: { score: 1 }, trace: { reason: 'messages_not_supported' } });

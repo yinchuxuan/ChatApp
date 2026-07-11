@@ -15,41 +15,40 @@ function hasImportObject(value) {
   return Object.values(value).some(hasImportObject);
 }
 
-async function readImport(cardId, importPath, api) {
-  if (!cardId || !api || typeof api.readGameCardFile !== 'function') {
-    throw new Error('game card import requires readGameCardFile');
+async function readImport(cardId, importPath, resources) {
+  if (!cardId || typeof resources?.readText !== 'function') {
+    throw new Error('game card import requires resources.readText');
   }
-  const result = await api.readGameCardFile(cardId, importPath);
-  if (!result?.success) throw new Error(result?.error || 'failed to read game card import');
+  const content = await resources.readText(cardId, importPath);
   try {
-    return JSON.parse(result.content || 'null');
+    return JSON.parse(content || 'null');
   } catch (error) {
     throw new Error(`game card import must be valid JSON: ${error.message}`);
   }
 }
 
-async function expandValue(cardId, value, api, stack) {
+async function expandValue(cardId, value, resources, stack) {
   if (isImportObject(value)) {
     if (stack.includes(value.$import)) throw new Error(`circular game card import: ${value.$import}`);
     if (stack.length >= MAX_IMPORT_DEPTH) throw new Error('game card import depth limit exceeded');
-    const imported = await readImport(cardId, value.$import, api);
-    return expandValue(cardId, imported, api, [...stack, value.$import]);
+    const imported = await readImport(cardId, value.$import, resources);
+    return expandValue(cardId, imported, resources, [...stack, value.$import]);
   }
   if (Array.isArray(value)) {
-    const items = await Promise.all(value.map((item) => expandValue(cardId, item, api, stack)));
+    const items = await Promise.all(value.map((item) => expandValue(cardId, item, resources, stack)));
     return items.flatMap((item) => (Array.isArray(item) ? item : [item]));
   }
   if (!isPlainObject(value)) return value;
   const entries = await Promise.all(
-    Object.entries(value).map(async ([key, child]) => [key, await expandValue(cardId, child, api, stack)])
+    Object.entries(value).map(async ([key, child]) => [key, await expandValue(cardId, child, resources, stack)])
   );
   return Object.fromEntries(entries);
 }
 
-async function expandCardImports(card, api) {
+async function expandCardImports(card, resources) {
   if (!card || !card.id) return card;
   if (!hasImportObject(card)) return card;
-  return expandValue(card.id, card, api, []);
+  return expandValue(card.id, card, resources, []);
 }
 
 export { expandCardImports };

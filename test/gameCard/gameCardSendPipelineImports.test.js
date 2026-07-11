@@ -1,4 +1,7 @@
 const { prepareInitMessages, preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+
+const platform = createElectronGameCardPlatform(() => window.electronAPI);
 
 function readGameCardFile(cardId, filePath) {
   const files = {
@@ -33,7 +36,8 @@ describe('game card send pipeline imports', () => {
 
     const result = await preparePreSendMessages({
       messages: [{ role: 'user', content: 'go' }],
-      card
+      card,
+      platform
     });
 
     expect(result.trace.errors).toEqual([]);
@@ -53,7 +57,8 @@ describe('game card send pipeline imports', () => {
         name: 'Send Card',
         files: { $import: 'files.json' },
         rules: []
-      }
+      },
+      platform
     });
 
     expect(result.card.files.plot_guides).toBe('plot_guides.md');

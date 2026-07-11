@@ -1,4 +1,7 @@
 const { preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+
+const platform = createElectronGameCardPlatform(() => window.electronAPI);
 
 function visualCard() {
   return {
@@ -27,7 +30,8 @@ describe('game card visual state schema', () => {
     const result = await preparePreSendMessages({
       card: visualCard(),
       messages: [{ role: 'user', content: 'start' }],
-      state: {}
+      state: {},
+      platform
     });
 
     expect(result.card.state.schema.schema['visual.background']).toMatchObject({

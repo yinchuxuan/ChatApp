@@ -1,4 +1,7 @@
 const { preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+
+const platform = createElectronGameCardPlatform(() => window.electronAPI);
 
 function audioCard() {
   return {
@@ -27,7 +30,8 @@ describe('game card audio state schema', () => {
     const result = await preparePreSendMessages({
       card: audioCard(),
       messages: [{ role: 'user', content: 'start' }],
-      state: {}
+      state: {},
+      platform
     });
 
     expect(result.card.state.schema.schema['audio.bgm']).toMatchObject({

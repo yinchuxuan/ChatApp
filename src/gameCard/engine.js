@@ -16,7 +16,11 @@ function applyGameCard(options = {}) {
   const platformOptions = { baseDir: contentBaseDir, fs, path };
   const readFile = dependencies.readFile || createPlatformFileReader(platformOptions);
   const execute = dependencies.runExecAction || ((messages, state, action, runtimeOptions) => (
-    runExecAction(messages, state, action, { ...runtimeOptions, ...platformOptions })
+    runExecAction(messages, state, action, {
+      ...runtimeOptions,
+      ...platformOptions,
+      scriptExecutor: dependencies.scriptExecutor
+    })
   ));
 
   return applyCoreGameCard({

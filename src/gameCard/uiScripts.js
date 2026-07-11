@@ -47,52 +47,49 @@ function normalizeUiScriptRunEvent(event, card = null) {
   };
 }
 
-async function readCardScript(cardId, filePath, api) {
-  if (!cardId || typeof api?.readGameCardFile !== 'function') {
-    throw new Error('game.script.run requires readGameCardFile');
+async function readCardScript(cardId, filePath, resources) {
+  if (!cardId || typeof resources?.readText !== 'function') {
+    throw new Error('game.script.run requires resources.readText');
   }
-  const result = await api.readGameCardFile(cardId, filePath);
-  if (!result?.success || typeof result.content !== 'string') {
-    throw new Error(result?.error || `failed to read script file: ${filePath}`);
-  }
-  return result.content;
+  return resources.readText(cardId, filePath);
 }
 
-async function loadScriptFileContents(cardId, sourceFile, api, fileContents = {}, stack = []) {
+async function loadScriptFileContents(cardId, sourceFile, resources, fileContents = {}, stack = []) {
   const normalizedPath = normalizeScriptPath(sourceFile);
   if (!normalizedPath) throw new Error('invalid script sourceFile');
   if (stack.includes(normalizedPath)) throw new Error(`circular exec include: ${normalizedPath}`);
   if (stack.length > 20) throw new Error('exec include depth exceeded');
   if (Object.prototype.hasOwnProperty.call(fileContents, normalizedPath)) return fileContents;
 
-  const source = await readCardScript(cardId, normalizedPath, api);
+  const source = await readCardScript(cardId, normalizedPath, resources);
   fileContents[normalizedPath] = source;
   const includes = extractExecIncludes(source).map((includePath) => {
     return resolveExecIncludePath(normalizedPath, includePath);
   });
   for (const includePath of includes) {
-    await loadScriptFileContents(cardId, includePath, api, fileContents, [...stack, normalizedPath]);
+    await loadScriptFileContents(cardId, includePath, resources, fileContents, [...stack, normalizedPath]);
   }
   return fileContents;
 }
 
-async function loadRuntimeCard(card, api) {
+async function loadRuntimeCard(card, resources) {
   if (!card) return null;
-  const expandedCard = await expandCardImports(card, api);
-  return loadExternalStateSchema(expandedCard, api);
+  const expandedCard = await expandCardImports(card, resources);
+  return loadExternalStateSchema(expandedCard, resources);
 }
 
-async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = null, api = null } = {}) {
+async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = null, platform = null } = {}) {
   const normalized = normalizeUiScriptRunEvent(event, card);
   if (!normalized.ok) return fail(normalized.reason, state);
 
   try {
-    const runtimeCard = await loadRuntimeCard(card, api);
-    const fileContents = await loadScriptFileContents(card?.id, normalized.sourceFile, api);
+    const runtimeCard = await loadRuntimeCard(card, platform?.resources);
+    const fileContents = await loadScriptFileContents(card?.id, normalized.sourceFile, platform?.resources);
     const result = runExecAction(messages, state, { type: 'exec', sourceFile: normalized.sourceFile }, {
       card: runtimeCard,
       event: { type: 'game.script.run', name: normalized.name, sourceFile: normalized.sourceFile, payload: normalized.payload },
-      fileContents
+      fileContents,
+      scriptExecutor: platform?.scriptExecutor
     });
     if (JSON.stringify(result.messages) !== JSON.stringify(messages)) return fail('messages_not_supported', state);
     const changedKeys = result.trace?.summary?.state?.changedKeys || [];

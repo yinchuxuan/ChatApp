@@ -13,27 +13,29 @@ function extractActiveCard(result) {
   return result.card || result.gameCard || result.activeGameCard || null;
 }
 
-async function loadActiveGameCard(api) {
-  if (!api || typeof api.getActiveGameCard !== 'function') return null;
+async function loadActiveGameCard(platform) {
+  if (typeof platform?.repository?.getActiveCard !== 'function') return null;
   try {
-    return extractActiveCard(await api.getActiveGameCard());
+    return extractActiveCard(await platform.repository.getActiveCard());
   } catch (_) {
     return null;
   }
 }
 
-async function loadFileContents(card, api) {
-  if (!card?.id || !api || typeof api.readGameCardFile !== 'function') return {};
+async function loadFileContents(card, resources) {
+  if (!card?.id) return {};
+  const contentPaths = collectFileContentPaths(card);
+  const execPaths = collectExecSourcePaths(card);
+  if (contentPaths.length === 0 && execPaths.length === 0) return {};
+  if (typeof resources?.readText !== 'function') throw new Error('game card files require resources.readText');
   const fileContents = {};
   async function read(filePath) {
     if (Object.prototype.hasOwnProperty.call(fileContents, filePath)) return fileContents[filePath];
-    const result = await api.readGameCardFile(card.id, filePath);
-    if (!result?.success) throw new Error(result?.error || 'failed to read game card file');
-    fileContents[filePath] = result.content || '';
+    fileContents[filePath] = await resources.readText(card.id, filePath) || '';
     return fileContents[filePath];
   }
-  await Promise.all(collectFileContentPaths(card).map(read));
-  const queue = collectExecSourcePaths(card);
+  await Promise.all(contentPaths.map(read));
+  const queue = [...execPaths];
   for (let i = 0; i < queue.length; i += 1) {
     const source = await read(queue[i]);
     extractExecIncludes(source).forEach((filePath) => {
@@ -44,13 +46,18 @@ async function loadFileContents(card, api) {
   return fileContents;
 }
 
-async function loadCardResources(card, api) {
-  const expandedCard = await expandCardImports(card, api);
-  const cardWithSchema = await loadExternalStateSchema(expandedCard, api);
+async function loadCardResources(card, platform) {
+  const resources = platform?.resources;
+  const expandedCard = await expandCardImports(card, resources);
+  const cardWithSchema = await loadExternalStateSchema(expandedCard, resources);
   return {
     card: cardWithSchema,
-    fileContents: await loadFileContents(cardWithSchema, api)
+    fileContents: await loadFileContents(cardWithSchema, resources)
   };
+}
+
+function runtimeDependencies(platform) {
+  return platform?.scriptExecutor ? { scriptExecutor: platform.scriptExecutor } : {};
 }
 
 function prepareState(card, state) {
@@ -69,9 +76,8 @@ function prepareState(card, state) {
   };
 }
 
-async function preparePreSendMessages({ messages = [], state = {}, event = {}, card, protocol = 'openai' } = {}) {
-  const api = typeof window !== 'undefined' ? window.electronAPI : null;
-  const activeCard = card === undefined ? await loadActiveGameCard(api) : card;
+async function preparePreSendMessages({ messages = [], state = {}, event = {}, card, protocol = 'openai', platform } = {}) {
+  const activeCard = card === undefined ? await loadActiveGameCard(platform) : card;
 
   if (!activeCard) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null };
@@ -79,13 +85,13 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
 
   let resources;
   try {
-    resources = await loadCardResources(activeCard, api);
+    resources = await loadCardResources(activeCard, platform);
   } catch (error) {
     return { messages, state, trace: null, ttlTrace: null, stateTrace: null, applied: false, card: null, error: error.message };
   }
   const prepared = prepareState(resources.card, state);
   const ttl = decayTTL(messages);
-  const result = applyGameCard({ card: resources.card, phase: 'pre_send', messages: ttl.messages, state: prepared.state, event, fileContents: resources.fileContents });
+  const result = applyGameCard({ card: resources.card, phase: 'pre_send', messages: ttl.messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   return {
     ...result,
     ...(result.trace.errors.length ? { error: result.trace.errors.join('\n') } : {}),
@@ -97,9 +103,8 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
   };
 }
 
-async function prepareAfterResponseMessages({ messages = [], state = {}, event = {}, card } = {}) {
-  const api = typeof window !== 'undefined' ? window.electronAPI : null;
-  const activeCard = card === undefined ? await loadActiveGameCard(api) : card;
+async function prepareAfterResponseMessages({ messages = [], state = {}, event = {}, card, platform } = {}) {
+  const activeCard = card === undefined ? await loadActiveGameCard(platform) : card;
 
   if (!activeCard) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, card: null };
@@ -107,12 +112,12 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
 
   let resources;
   try {
-    resources = await loadCardResources(activeCard, api);
+    resources = await loadCardResources(activeCard, platform);
   } catch (error) {
     return { messages, state, trace: null, ttlTrace: null, stateTrace: null, applied: false, card: null, error: error.message };
   }
   const prepared = prepareState(resources.card, state);
-  const result = applyGameCard({ card: resources.card, phase: 'after_response', messages, state: prepared.state, event, fileContents: resources.fileContents });
+  const result = applyGameCard({ card: resources.card, phase: 'after_response', messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   const patched = applyLatestAssistantStatePatch(result.messages, result.state, {
     messages: result.messages,
     schema: resources.card?.state?.schema
@@ -132,9 +137,8 @@ function hasMessageChanges(before, after) {
   return JSON.stringify(before) !== JSON.stringify(after);
 }
 
-async function prepareInitMessages({ messages = [], state = {}, event = {}, card } = {}) {
-  const api = typeof window !== 'undefined' ? window.electronAPI : null;
-  const activeCard = card === undefined ? await loadActiveGameCard(api) : card;
+async function prepareInitMessages({ messages = [], state = {}, event = {}, card, platform } = {}) {
+  const activeCard = card === undefined ? await loadActiveGameCard(platform) : card;
 
   if (!activeCard) {
     return { messages, state, trace: null, ttlTrace: null, applied: false, changed: false, card: activeCard || null };
@@ -142,8 +146,8 @@ async function prepareInitMessages({ messages = [], state = {}, event = {}, card
 
   if (messages.length > 0) {
     try {
-      const expandedCard = await expandCardImports(activeCard, api);
-      const cardWithSchema = await loadExternalStateSchema(expandedCard, api);
+      const expandedCard = await expandCardImports(activeCard, platform?.resources);
+      const cardWithSchema = await loadExternalStateSchema(expandedCard, platform?.resources);
       const prepared = prepareState(cardWithSchema, state);
       return {
         messages,
@@ -162,13 +166,13 @@ async function prepareInitMessages({ messages = [], state = {}, event = {}, card
 
   let resources;
   try {
-    resources = await loadCardResources(activeCard, api);
+    resources = await loadCardResources(activeCard, platform);
   } catch (error) {
     return { messages, state, trace: null, ttlTrace: null, stateTrace: null, applied: false, changed: false, card: null, error: error.message };
   }
   const prepared = prepareState(resources.card, state);
 
-  const result = applyGameCard({ card: resources.card, phase: 'init', messages, state: prepared.state, event, fileContents: resources.fileContents });
+  const result = applyGameCard({ card: resources.card, phase: 'init', messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   const changed = hasMessageChanges(messages, result.messages) || prepared.trace.changed;
   return { ...result, ttlTrace: null, stateTrace: prepared.trace, applied: true, changed, card: resources.card };
 }

@@ -52,21 +52,20 @@ describe('game card ui runtime', () => {
   });
 
   test('loads ui root source and optional style from card resources', async () => {
-    const api = {
-      readGameCardFile: jest.fn(async (_id, filePath) => ({
-        success: true,
-        content: filePath.endsWith('.css')
+    const resources = {
+      readText: jest.fn(async (_id, filePath) => (
+        filePath.endsWith('.css')
           ? '.choice { pointer-events: auto; }'
           : 'function Root() { return null; }'
-      }))
+      ))
     };
     const card = {
       id: 'choice-card',
       ui: { root: { source: 'ui/root.js', style: 'ui/root.css', props: { label: 'A' } } }
     };
 
-    await expect(loadGameCardUiRootStyle(card, api, document)).resolves.toBe(true);
-    const root = await loadGameCardUiRoot(card, api, React);
+    await expect(loadGameCardUiRootStyle(card, resources, document)).resolves.toBe(true);
+    const root = await loadGameCardUiRoot(card, resources, React);
 
     expect(root.Component).toEqual(expect.any(Function));
     expect(root.props).toEqual({ label: 'A' });

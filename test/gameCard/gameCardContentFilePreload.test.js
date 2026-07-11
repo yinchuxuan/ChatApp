@@ -1,4 +1,7 @@
 const { preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+
+const platform = createElectronGameCardPlatform(() => window.electronAPI);
 
 function dynamicFileCard() {
   return {
@@ -36,7 +39,8 @@ describe('game card declared content file preload', () => {
 
     const result = await preparePreSendMessages({
       messages: [{ role: 'user', content: 'start' }],
-      card: dynamicFileCard()
+      card: dynamicFileCard(),
+      platform
     });
 
     expect(window.electronAPI.readGameCardFile)

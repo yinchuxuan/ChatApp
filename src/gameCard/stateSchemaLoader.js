@@ -7,22 +7,24 @@ function hasSchemaFile(card) {
   return typeof card?.stateSchema === 'string' && card.stateSchema.length > 0;
 }
 
-async function loadExternalStateSchema(card, api) {
-  if (!hasSchemaFile(card)) return mergeRuntimeStateSchema(card);
-  if (!card?.id || !api || typeof api.readGameCardFile !== 'function') {
-    throw new Error('state schema requires readGameCardFile');
-  }
-
-  const result = await api.readGameCardFile(card.id, card.stateSchema);
-  if (!result?.success) throw new Error(result?.error || 'failed to read state schema file');
-
-  let schema;
+function parseStateSchema(content) {
   try {
-    schema = JSON.parse(result.content || '{}');
+    return JSON.parse(content || '{}');
   } catch (error) {
     throw new Error(`state schema file must be valid JSON: ${error.message}`);
   }
+}
 
+async function readExternalStateSchema(card, resources) {
+  if (!hasSchemaFile(card)) return null;
+  if (!card?.id || typeof resources?.readText !== 'function') {
+    throw new Error('state schema requires resources.readText');
+  }
+  return parseStateSchema(await resources.readText(card.id, card.stateSchema));
+}
+
+function mergeExternalStateSchema(card, schema) {
+  if (schema === null) return mergeRuntimeStateSchema(card);
   return mergeRuntimeStateSchema({
     ...card,
     state: {
@@ -32,4 +34,16 @@ async function loadExternalStateSchema(card, api) {
   });
 }
 
-export { loadExternalStateSchema, mergeAudioStateSchema, mergeRuntimeStateSchema };
+async function loadExternalStateSchema(card, resources) {
+  const schema = await readExternalStateSchema(card, resources);
+  return mergeExternalStateSchema(card, schema);
+}
+
+export {
+  loadExternalStateSchema,
+  mergeAudioStateSchema,
+  mergeExternalStateSchema,
+  mergeRuntimeStateSchema,
+  parseStateSchema,
+  readExternalStateSchema
+};

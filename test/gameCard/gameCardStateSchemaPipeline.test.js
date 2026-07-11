@@ -3,7 +3,11 @@ const {
   prepareInitMessages,
   preparePreSendMessages
 } = require('../../src/gameCard/sendPipeline');
-
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+const platform = createElectronGameCardPlatform(() => window.electronAPI);
+const preparePreSend = (options) => preparePreSendMessages({ ...options, platform });
+const prepareAfterResponse = (options) => prepareAfterResponseMessages({ ...options, platform });
+const prepareInit = (options) => prepareInitMessages({ ...options, platform });
 function schemaCard(schemaFile = 'state/schema.json') {
   return {
     version: '1',
@@ -47,9 +51,8 @@ describe('game card state schema pipeline', () => {
       content: '{"schema":{"player.hp":{"type":"number","default":100}}}'
     });
   });
-
   test('loads an external schema file before applying pre_send rules', async () => {
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       card: schemaCard(),
       messages: [{ role: 'user', content: 'start' }]
     });
@@ -62,14 +65,13 @@ describe('game card state schema pipeline', () => {
     });
     expect(result.messages[0]).toEqual({ role: 'system', content: 'rules' });
   });
-
   test('reports missing schema files without applying rules', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,
       error: 'game card file not found'
     });
 
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       card: schemaCard(),
       messages: [{ role: 'user', content: 'start' }]
     });
@@ -78,14 +80,13 @@ describe('game card state schema pipeline', () => {
     expect(result.error).toContain('game card file not found');
     expect(result.messages).toEqual([{ role: 'user', content: 'start' }]);
   });
-
   test('surfaces safe path rejections for schema files', async () => {
     window.electronAPI.readGameCardFile.mockResolvedValue({
       success: false,
       error: 'game card file path must stay inside game card directory'
     });
 
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       card: schemaCard('../schema.json'),
       messages: [{ role: 'user', content: 'start' }]
     });
@@ -102,7 +103,7 @@ describe('game card state schema pipeline', () => {
       error: 'game card file path must be relative'
     });
 
-    const result = await prepareAfterResponseMessages({
+    const result = await prepareAfterResponse({
       card: schemaCard('/tmp/schema.json'),
       messages: [{ role: 'assistant', content: 'done' }]
     });
@@ -114,7 +115,7 @@ describe('game card state schema pipeline', () => {
   test('allows cards without state to run unchanged', async () => {
     const card = schemaCard();
     delete card.stateSchema;
-    const result = await prepareInitMessages({ card, messages: [] });
+    const result = await prepareInit({ card, messages: [] });
 
     expect(result.applied).toBe(true);
     expect(result.card).toBe(card);
@@ -125,7 +126,7 @@ describe('game card state schema pipeline', () => {
     const card = schemaCard();
     delete card.stateSchema;
     const state = { route: 'alice' };
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       card,
       messages: [{ role: 'user', content: 'start' }],
       state
@@ -136,7 +137,7 @@ describe('game card state schema pipeline', () => {
   });
 
   test('pre_send rules receive state after schema defaults are applied', async () => {
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       card: stateExecCard('pre_send'),
       messages: [{ role: 'user', content: 'start' }],
       state: {}
@@ -157,7 +158,7 @@ describe('game card state schema pipeline', () => {
       content: '{"schema":{"player.hp":{"type":"number","min":0,"max":100,"onInvalid":"clamp"}}}'
     });
 
-    const result = await prepareAfterResponseMessages({
+    const result = await prepareAfterResponse({
       card: stateExecCard('after_response'),
       messages: [{ role: 'assistant', content: 'done' }],
       state: { player: { hp: 150 } }
@@ -168,7 +169,7 @@ describe('game card state schema pipeline', () => {
   });
 
   test('init with existing messages only applies schema defaults', async () => {
-    const result = await prepareInitMessages({
+    const result = await prepareInit({
       card: stateExecCard('init'),
       messages: [{ role: 'user', content: 'loaded' }],
       state: {}
@@ -186,7 +187,7 @@ describe('game card state schema pipeline', () => {
     card.files = { rules: 'worldbook/rules.md' };
     card.rules[0].then = [{ type: 'insert', role: 'system', content: '{{file:rules}}' }];
 
-    await prepareInitMessages({
+    await prepareInit({
       card,
       messages: [{ role: 'user', content: 'loaded' }],
       state: {}

@@ -33,19 +33,19 @@ function normalizeUiStateActions(event) {
   return { ok: true, actions: cloneJson(rawActions) };
 }
 
-async function loadUiStateActionCard(card, api) {
+async function loadUiStateActionCard(card, resources) {
   if (!card) return null;
-  const expandedCard = await expandCardImports(card, api);
-  return loadExternalStateSchema(expandedCard, api);
+  const expandedCard = await expandCardImports(card, resources);
+  return loadExternalStateSchema(expandedCard, resources);
 }
 
-async function applyUiStateActionEvent({ event, state = {}, messages = [], card = null, api = null } = {}) {
+async function applyUiStateActionEvent({ event, state = {}, messages = [], card = null, platform = null } = {}) {
   const normalized = normalizeUiStateActions(event);
   if (!normalized.ok) return fail(normalized.reason, state);
 
   let runtimeCard;
   try {
-    runtimeCard = await loadUiStateActionCard(card, api);
+    runtimeCard = await loadUiStateActionCard(card, platform?.resources);
   } catch (error) {
     return fail('load_card_failed', state, { error: error.message });
   }

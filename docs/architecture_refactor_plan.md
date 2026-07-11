@@ -98,6 +98,8 @@ ipc/                          Electron 主进程适配
 
 ## 阶段 4：建立平台接口与适配器
 
+状态：已完成（2026-07-11）。
+
 定义最小平台接口：
 
 ```js
@@ -114,6 +116,8 @@ scriptExecutor.run(source, context, options)
 - Electron adapter 调用现有 preload API。
 - 为未来 Tauri adapter 保留同一接口，但本轮不实现 Tauri 后端。
 - 禁止在 Shared 中通过运行时判断选择 Electron 或 Tauri。
+
+实现结果：`src/platform` 提供统一 contract、Electron adapter 和测试用内存 adapter。消息管线、游戏卡文本资源、自定义 UI 样式、背景和 BGM 均通过该接口访问平台能力；Electron adapter 负责解析 preload IPC 返回值。exec 上下文和结果校验位于 `shared/game-card/exec`，renderer 只保留受控脚本执行环境。state schema 的读取、解析和合并已拆分为独立步骤。
 
 验收条件：测试可以传入内存 adapter 运行完整 pre-send、after-response 和 init 管线。
 

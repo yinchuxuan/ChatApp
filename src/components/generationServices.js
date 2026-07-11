@@ -6,12 +6,17 @@ import {
   preparePreSendMessages,
   toApiMessages as toGameCardApiMessages
 } from '../gameCard/sendPipeline.js';
+import { gameCardPlatform } from '../platform/index.js';
+
+function withPlatform(prepare) {
+  return (options = {}) => prepare({ ...options, platform: gameCardPlatform });
+}
 
 const generationServices = {
   normalizeGameCardError,
-  prepareAfterResponseMessages,
-  prepareInitMessages,
-  preparePreSendMessages,
+  prepareAfterResponseMessages: withPlatform(prepareAfterResponseMessages),
+  prepareInitMessages: withPlatform(prepareInitMessages),
+  preparePreSendMessages: withPlatform(preparePreSendMessages),
   sendChatRequest,
   toGameCardApiMessages
 };

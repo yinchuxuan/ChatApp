@@ -1,4 +1,7 @@
 const { preparePreSendMessages } = require('../../src/gameCard/sendPipeline');
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+
+const platform = createElectronGameCardPlatform(() => window.electronAPI);
 
 function cardWithExec(action) {
   return {
@@ -25,7 +28,7 @@ describe('game card send pipeline exec include scripts', () => {
       type: 'exec',
       sourceFile: 'scripts/timeline.js'
     });
-    const result = await preparePreSendMessages({ messages: [], card });
+    const result = await preparePreSendMessages({ messages: [], card, platform });
 
     expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/helper.js');
     expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/timeline.js');

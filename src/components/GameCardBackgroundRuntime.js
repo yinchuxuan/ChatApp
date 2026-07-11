@@ -1,5 +1,6 @@
 import React from 'react';
 import { normalizeTextPanel } from '../gameCard/visualConfig.js';
+import { gameCardPlatform } from '../platform/index.js';
 
 function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, revealToken = 0 }) {
   const R = React;
@@ -25,7 +26,7 @@ function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, reveal
     let canceled = false;
     async function resolveImageUrl() {
       if (defer) { pendingUrlRef.current = null; revealRequestedRef.current = false; }
-      if (!relativePath || !window.electronAPI?.getGameCardImageUrl) {
+      if (!relativePath) {
         lastSourceRef.current = '';
         if (defer) pendingUrlRef.current = '';
         else dispatchBackground('');
@@ -33,21 +34,24 @@ function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, reveal
       }
       if (sourceKey === lastSourceRef.current) return;
       lastSourceRef.current = sourceKey;
-      const result = await window.electronAPI.getGameCardImageUrl(relativePath);
+      let nextUrl = '';
+      try {
+        nextUrl = await gameCardPlatform.resources.getImageUrl(card?.id || '', relativePath);
+      } catch (error) {
+        console.error('Failed to load game card background:', error.message);
+      }
       if (canceled) return;
-      const nextUrl = result?.success && result.url ? result.url : '';
       if (nextUrl) {
         if (defer && !revealRequestedRef.current) pendingUrlRef.current = nextUrl;
         else dispatchBackground(nextUrl);
       } else {
-        console.error('Failed to load game card background:', result?.error || 'unknown error');
         if (defer) pendingUrlRef.current = '';
         else dispatchBackground('');
       }
     }
     resolveImageUrl();
     return () => { canceled = true; };
-  }, [relativePath, sourceKey, defer, dispatchBackground]);
+  }, [card?.id, relativePath, sourceKey, defer, dispatchBackground]);
 
   R.useEffect(() => {
     if (!defer || revealToken <= 0) return;

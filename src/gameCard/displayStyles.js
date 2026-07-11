@@ -12,19 +12,20 @@ function isSafeStylesheetPath(path) {
     !path.split(/[\\/]+/).includes('..');
 }
 
-async function loadGameCardDisplayStyle(card, api, doc = document) {
+async function loadGameCardDisplayStyle(card, resources, doc = document) {
   removeGameCardDisplayStyle(doc);
   const stylesheet = card?.display?.stylesheet;
-  if (!card?.id || !isSafeStylesheetPath(stylesheet) || typeof api?.readGameCardFile !== 'function') {
+  if (!card?.id || !isSafeStylesheetPath(stylesheet) || typeof resources?.readText !== 'function') {
     return false;
   }
-  const result = await api.readGameCardFile(card.id, stylesheet);
-  if (!result?.success || !result.content) return false;
+  let content;
+  try { content = await resources.readText(card.id, stylesheet); } catch (_) { return false; }
+  if (!content) return false;
   const style = doc.createElement('style');
   style.id = DISPLAY_STYLE_ID;
   style.dataset.gameCardId = card.id;
   style.dataset.source = stylesheet;
-  style.textContent = result.content;
+  style.textContent = content;
   doc.head.appendChild(style);
   return true;
 }

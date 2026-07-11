@@ -1,4 +1,5 @@
 import React from 'react';
+import { gameCardPlatform } from '../platform/index.js';
 
 function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 0, defer = false }) {
   const R = React;
@@ -47,25 +48,26 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
       stop();
       setBlocked(false);
       pendingResumeRef.current = !deferRef.current;
-      if (!relativePath || !window.electronAPI?.getGameCardAudioUrl) {
+      if (!relativePath) {
         setAudioSource({ path: '', url: '' });
         lastPathRef.current = '';
         pendingResumeRef.current = false;
         return;
       }
       lastPathRef.current = relativePath;
-      const result = await window.electronAPI.getGameCardAudioUrl(relativePath);
-      if (canceled) return;
-      if (result?.success && result.url) setAudioSource({ path: relativePath, url: result.url });
-      else {
-        console.error('Failed to load game card audio:', result?.error || 'unknown error');
+      try {
+        const url = await gameCardPlatform.resources.getAudioUrl(card?.id || '', relativePath);
+        if (!canceled) setAudioSource({ path: relativePath, url });
+      } catch (error) {
+        if (canceled) return;
+        console.error('Failed to load game card audio:', error.message);
         setAudioSource({ path: relativePath, url: '' });
         pendingResumeRef.current = false;
       }
     }
     resolveAudioUrl();
     return () => { canceled = true; };
-  }, [relativePath, stop]);
+  }, [card?.id, relativePath, stop]);
 
   R.useEffect(() => { pendingResumeRef.current = false; stop(); }, [stopToken, stop]);
   R.useEffect(() => {

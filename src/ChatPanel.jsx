@@ -19,6 +19,7 @@ import useTypewriter from './components/useTypewriter.js';
 import { loadGameCardDisplayStyle } from './gameCard/displayStyles.js';
 import { loadGameCardUiStyle } from './gameCard/uiStyles.js';
 import { loadGameCardVisualStyle } from './gameCard/visualStyles.js';
+import { gameCardPlatform } from './platform/index.js';
 
 function ChatPanel({ BgmPlayer = GameCardBgmPlayer, BackgroundRuntime = GameCardBackgroundRuntime } = {}) {
   const R = React;
@@ -93,7 +94,7 @@ function ChatPanel({ BgmPlayer = GameCardBgmPlayer, BackgroundRuntime = GameCard
   }, []);
 
   R.useEffect(() => { loadHistory(); }, [loadHistory]);
-  R.useEffect(() => { loadGameCardDisplayStyle(activeGameCard, window.electronAPI); loadGameCardVisualStyle(activeGameCard, window.electronAPI); loadGameCardUiStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
+  R.useEffect(() => { loadGameCardDisplayStyle(activeGameCard, gameCardPlatform.resources); loadGameCardVisualStyle(activeGameCard, gameCardPlatform.resources); loadGameCardUiStyle(activeGameCard, gameCardPlatform.resources); }, [activeGameCard]);
   const saveCurrentSession = R.useCallback(async () => { if (window.electronAPI && !isLoading) await window.electronAPI.saveChatHistory(messages, { gameState, retryBaseMessages: retryBaseRef.current, retryBaseState: retryBaseStateRef.current }); }, [messages, gameState, isLoading]);
   const handleSessionChanged = R.useCallback(async () => { retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming(); setIsHistoryExpanded(false); await loadHistory(); }, [loadHistory, tw]);
 

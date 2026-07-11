@@ -1,4 +1,5 @@
 const { applyUiStateActionEvent, normalizeUiStateActions } = require('../../src/gameCard/uiStateActions');
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
 
 describe('game card ui state actions', () => {
   test('normalizes single action and action arrays', () => {
@@ -34,7 +35,7 @@ describe('game card ui state actions', () => {
       state: { score: 1, events: { queue: [{ id: 'first' }] } },
       messages: [],
       card: { id: 'card', stateSchema: 'state/schema.json' },
-      api
+      platform: createElectronGameCardPlatform(api)
     });
 
     expect(result.state).toEqual({ score: 10, events: { queue: [{ id: 'next' }] } });

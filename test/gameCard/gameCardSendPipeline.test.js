@@ -5,7 +5,9 @@ const {
   prepareAfterResponseMessages,
   toApiMessages
 } = require('../../src/gameCard/sendPipeline');
-
+const { createElectronGameCardPlatform } = require('../../src/platform/electronGameCardPlatform');
+const platform = createElectronGameCardPlatform(() => window.electronAPI);
+const preparePreSend = (options) => preparePreSendMessages({ ...options, platform });
 function cardWithInsert(content, files) {
   return {
     version: '1',
@@ -30,7 +32,6 @@ describe('game card send pipeline', () => {
   beforeEach(() => {
     window.electronAPI.readGameCardFile.mockClear();
   });
-
   test('extracts supported active card response shapes', () => {
     const card = cardWithInsert('rules');
 
@@ -43,7 +44,7 @@ describe('game card send pipeline', () => {
 
   test('returns the original messages object when no card is active', async () => {
     const messages = [{ role: 'user', content: 'hello' }];
-    const result = await preparePreSendMessages({ messages, card: null });
+    const result = await preparePreSend({ messages, card: null });
 
     expect(result.applied).toBe(false);
     expect(result.messages).toBe(messages);
@@ -52,13 +53,13 @@ describe('game card send pipeline', () => {
 
   test('loads no card when IPC is unavailable or fails', async () => {
     await expect(loadActiveGameCard(null)).resolves.toBeNull();
-    await expect(loadActiveGameCard({ getActiveGameCard: jest.fn().mockRejectedValue(new Error('x')) }))
+    await expect(loadActiveGameCard({ repository: { getActiveCard: jest.fn().mockRejectedValue(new Error('x')) } }))
       .resolves.toBeNull();
   });
 
   test('applies pre_send rules only when a card is active', async () => {
     const messages = [{ role: 'user', content: 'start' }];
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       messages,
       card: cardWithInsert('system rules')
     });
@@ -76,7 +77,7 @@ describe('game card send pipeline', () => {
       { role: 'system', content: 'kept', ttl: 2 },
       { role: 'user', content: 'start' }
     ];
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       messages,
       card: cardWithInsert('system rules')
     });
@@ -95,7 +96,7 @@ describe('game card send pipeline', () => {
       content: 'loaded rules'
     });
     const messages = [{ role: 'user', content: 'start' }];
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       messages,
       card: cardWithInsert('{{file:rules}}', { rules: 'worldbook/rules.md' })
     });
@@ -110,7 +111,7 @@ describe('game card send pipeline', () => {
       success: true,
       content: '# Routes\n## 雪菜线\nloaded route\n## 和纱线\nother'
     });
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       messages: [{ role: 'user', content: 'start' }],
       card: cardWithInsert('{{file:routes#雪菜线}}', { routes: 'worldbook/routes.md' })
     });
@@ -127,7 +128,7 @@ describe('game card send pipeline', () => {
     });
     const card = cardWithInsert('unused');
     card.rules[0].then = [{ type: 'exec', sourceFile: 'scripts/timeline.js' }];
-    const result = await preparePreSendMessages({ messages: [], card });
+    const result = await preparePreSend({ messages: [], card });
 
     expect(window.electronAPI.readGameCardFile).toHaveBeenCalledWith('send-card', 'scripts/timeline.js');
     expect(result.state.loadedScript).toBe(true);
@@ -139,7 +140,7 @@ describe('game card send pipeline', () => {
       error: 'blocked path'
     });
 
-    const result = await preparePreSendMessages({
+    const result = await preparePreSend({
       messages: [{ role: 'user', content: 'start' }],
       card: cardWithInsert('{{file:rules}}', { rules: '../secret.md' })
     });

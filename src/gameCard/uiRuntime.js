@@ -87,31 +87,32 @@ function compileGameCardUiRootSource(source, ReactRef) {
   return component;
 }
 
-async function loadGameCardUiRoot(card, api, ReactRef) {
+async function loadGameCardUiRoot(card, resources, ReactRef) {
   const root = card?.ui?.root;
-  if (!card?.id || !root || !isSafeUiRootSourcePath(root.source) || typeof api?.readGameCardFile !== 'function') {
+  if (!card?.id || !root || !isSafeUiRootSourcePath(root.source) || typeof resources?.readText !== 'function') {
     return null;
   }
-  const result = await api.readGameCardFile(card.id, root.source);
-  if (!result?.success || !result.content) throw new Error(result?.error || 'failed to read ui root source');
+  const content = await resources.readText(card.id, root.source);
+  if (!content) throw new Error('failed to read ui root source');
   return {
-    Component: compileGameCardUiRootSource(result.content, ReactRef),
+    Component: compileGameCardUiRootSource(content, ReactRef),
     props: root.props || {},
     source: root.source
   };
 }
 
-async function loadGameCardUiRootStyle(card, api, doc = document) {
+async function loadGameCardUiRootStyle(card, resources, doc = document) {
   removeGameCardUiRootStyle(doc);
   const stylePath = card?.ui?.root?.style;
-  if (!card?.id || !isSafeUiRootStylePath(stylePath) || typeof api?.readGameCardFile !== 'function') return false;
-  const result = await api.readGameCardFile(card.id, stylePath);
-  if (!result?.success || !result.content) return false;
+  if (!card?.id || !isSafeUiRootStylePath(stylePath) || typeof resources?.readText !== 'function') return false;
+  let content;
+  try { content = await resources.readText(card.id, stylePath); } catch (_) { return false; }
+  if (!content) return false;
   const style = doc.createElement('style');
   style.id = UI_ROOT_STYLE_ID;
   style.dataset.gameCardId = card.id;
   style.dataset.source = stylePath;
-  style.textContent = result.content;
+  style.textContent = content;
   doc.head.appendChild(style);
   return true;
 }

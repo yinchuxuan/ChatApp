@@ -6,6 +6,7 @@ import { highlightQuotes } from './highlightQuotes.js';
 import * as runtime from '../gameCard/uiRuntime.js';
 import { applyUiScriptRunEvent } from '../gameCard/uiScripts.js';
 import { applyUiStateActionEvent } from '../gameCard/uiStateActions.js';
+import { gameCardPlatform } from '../platform/index.js';
 
 function clone(value) {
   if (value === undefined) return undefined;
@@ -23,6 +24,15 @@ function readonly(value) {
   return freeze(clone(value));
 }
 
+async function resourceResult(field, load) {
+  try {
+    const value = await load();
+    return { success: true, [field]: value };
+  } catch (error) {
+    return { success: false, [field]: '', error: error.message };
+  }
+}
+
 function emitInputAction(event) {
   if (typeof window === 'undefined') return false;
   window.dispatchEvent(new CustomEvent('game-card-chat-input-action', { detail: event }));
@@ -36,7 +46,7 @@ async function emitStateAction(event, options) {
     state: options.stateRef.current,
     messages: options.messages,
     card: options.card,
-    api: typeof window !== 'undefined' ? window.electronAPI : null
+    platform: gameCardPlatform
   });
   if (result.trace?.error) throw new Error(result.trace.error);
   if (result.trace?.reason) return false;
@@ -52,7 +62,7 @@ async function emitScriptRun(event, options) {
     state: options.stateRef.current,
     messages: options.messages,
     card: options.card,
-    api: typeof window !== 'undefined' ? window.electronAPI : null
+    platform: gameCardPlatform
   });
   if (result.trace?.error) throw new Error(result.trace.error);
   if (result.trace?.reason) return false;
@@ -113,8 +123,8 @@ function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isL
     async function loadRoot() {
       if (!runtime) return;
       try {
-        await runtime.loadGameCardUiRootStyle(card, window.electronAPI, document);
-        const root = await runtime.loadGameCardUiRoot(card, window.electronAPI, R);
+        await runtime.loadGameCardUiRootStyle(card, gameCardPlatform.resources, document);
+        const root = await runtime.loadGameCardUiRoot(card, gameCardPlatform.resources, R);
         if (!canceled) setLoadedRoot(root);
       } catch (err) {
         if (!canceled) setError(err);
@@ -146,10 +156,12 @@ function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isL
     }
   }, [card, messages, setGameState]);
   const assets = R.useMemo(() => ({
-    readFile: (filePath) => window.electronAPI?.readGameCardFile?.(cardId, filePath),
-    getBackgroundUrl: (key) => card?.visual?.background?.[key] ? window.electronAPI?.getGameCardImageUrl?.(card.visual.background[key]) : Promise.resolve({ success: false }),
-    getImageUrl: (filePath) => window.electronAPI?.getGameCardImageUrl?.(filePath),
-    getAudioUrl: (filePath) => window.electronAPI?.getGameCardAudioUrl?.(filePath)
+    readFile: (filePath) => resourceResult('content', () => gameCardPlatform.resources.readText(cardId, filePath)),
+    getBackgroundUrl: (key) => card?.visual?.background?.[key]
+      ? resourceResult('url', () => gameCardPlatform.resources.getImageUrl(cardId, card.visual.background[key]))
+      : Promise.resolve({ success: false }),
+    getImageUrl: (filePath) => resourceResult('url', () => gameCardPlatform.resources.getImageUrl(cardId, filePath)),
+    getAudioUrl: (filePath) => resourceResult('url', () => gameCardPlatform.resources.getAudioUrl(cardId, filePath))
   }), [cardId, card]);
   const ui = R.useMemo(() => ({
     cardId,
