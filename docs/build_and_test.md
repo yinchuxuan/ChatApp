@@ -11,6 +11,9 @@ Vite requires Node.js `^20.19.0` or `>=22.12.0` for local build and development 
 | `npm run renderer:dev` | Start only the Vite renderer on fixed port `1420` |
 | `npm run tauri:dev` | Start the Vite renderer and Tauri desktop debug app |
 | `npm run tauri:build` | Build the renderer and native Tauri desktop bundle |
+| `npm run tauri:e2e:build` | Build an isolated debug Tauri binary with test-only WebDriver plugins |
+| `npm run test:tauri-e2e` | Run WebdriverIO against an existing Tauri E2E binary |
+| `npm run test:tauri` | Build and run the complete Tauri desktop E2E suite |
 | `cargo test --manifest-path src-tauri/Cargo.toml` | Run Tauri Rust backend tests |
 | `npm run lint` | Run ESLint on all `.js`/`.jsx` files |
 | `npm run lint:fix` | Run ESLint with auto-fix |
@@ -55,6 +58,13 @@ Unit and integration tests are grouped by ownership:
 - **Env**: Loads `.env` when present; uses `E2E_OPENAI_*` and `E2E_ANTHROPIC_*`
 - **Run**: `npm run test:e2e-real-api`
 
+### Tauri Desktop E2E (`test/tauri-e2e/**`)
+- **Framework**: WebdriverIO with the embedded Tauri WebDriver provider.
+- **Isolation**: the `e2e` Cargo feature enables test plugins, a temporary app data directory and a fixed fixture import directory. Production builds contain none of these permissions.
+- **Scope**: settings, sessions, retry, stream abort, real directory import, dynamic React UI, controlled image/audio URLs and process restart persistence.
+- **Network**: a local streaming endpoint drives the real Rust HTTP Channel and cancellation commands.
+- **Run**: `npm run test:tauri`.
+
 ## Pre-test Hook
 
 `npm test` automatically runs `npm run build` first via `pretest`, so Electron E2E tests use the current Vite production output.
@@ -75,6 +85,14 @@ Unit and integration tests are grouped by ownership:
 - The preload boundary remains available as `window.electronAPI`; platform modules are imported with standard ESM syntax.
 - Game card `display`, `visual` and `ui` styles are loaded at runtime and scoped independently from platform CSS.
 - ESLint 显式扫描 `.js` 和 `.jsx`，并要求所有识别出的 React 组件声明 PropTypes。
+
+## Desktop Bundles and CI
+- `.github/workflows/tauri-ci.yml` runs the JavaScript/Electron suite and a macOS, Windows and Linux Tauri matrix.
+- Every desktop target runs Rust formatting, clippy, tests and Tauri E2E before creating a native installer artifact.
+- Platform configs produce macOS app/DMG, Windows NSIS and Linux deb/AppImage. AppImage includes GStreamer media support for game card BGM.
+- `.github/workflows/tauri-release.yml` creates a draft release for `app-v*` tags and builds macOS arm64/x64 plus Windows/Linux artifacts.
+- macOS release jobs require `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `KEYCHAIN_PASSWORD`, `APPLE_ID`, `APPLE_PASSWORD` and `APPLE_TEAM_ID`.
+- Windows release jobs require `WINDOWS_CERTIFICATE` and `WINDOWS_CERTIFICATE_PASSWORD`; CI artifacts remain unsigned.
 
 ## Git Hooks
 

@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "id": "tauri-e2e-card",
+  "name": "Tauri E2E Card",
+  "audio": { "bgm": { "test": "audio/silence.wav" } },
+  "visual": { "background": { "test": "images/scene.jpg" } },
+  "ui": { "root": { "source": "ui/root.js" } },
+  "rules": [
+    {
+      "id": "initialize",
+      "when": { "phase": "init" },
+      "then": [
+        { "type": "insert", "role": "assistant", "content": "Tauri 测试开场" },
+        { "type": "state.set", "path": "visual.background", "value": "test" },
+        { "type": "state.set", "path": "audio.bgm", "value": "test" },
+        { "type": "state.set", "path": "score", "value": 1 }
+      ]
+    }
+  ]
+}

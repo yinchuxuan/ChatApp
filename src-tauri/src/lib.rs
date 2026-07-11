@@ -28,9 +28,22 @@ use app_storage::AppStorage;
 use model_commands::ModelNetworkState;
 use tauri::Manager;
 
+fn storage_dir(app: &tauri::App) -> tauri::Result<std::path::PathBuf> {
+    #[cfg(feature = "e2e")]
+    if let Some(path) = std::env::var_os("CHATAPP_E2E_DATA_DIR") {
+        return Ok(path.into());
+    }
+    app.path().app_data_dir()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default();
+    #[cfg(feature = "e2e")]
+    let builder = builder
+        .plugin(tauri_plugin_wdio::init())
+        .plugin(tauri_plugin_wdio_webdriver::init());
+    builder
         .plugin(tauri_plugin_dialog::init())
         .register_asynchronous_uri_scheme_protocol("local", |context, request, responder| {
             let storage = context.app_handle().state::<AppStorage>().inner().clone();
@@ -41,21 +54,23 @@ pub fn run() {
             });
         })
         .setup(|app| {
-            let data_dir = app.path().app_data_dir()?;
-            let config_base = app.path().config_dir()?;
-            let data_base = app.path().data_dir()?;
-            let electron_roots =
-                electron_migration::roots_for(std::env::consts::OS, &config_base, &data_base);
-            match electron_migration::run(&data_dir, &electron_roots) {
-                Ok(report) => {
-                    for warning in report.warnings {
-                        eprintln!(
-                            "Electron data migration warning at {} ({}): {}",
-                            warning.stage, warning.path, warning.message
-                        );
+            let data_dir = storage_dir(app)?;
+            if !cfg!(feature = "e2e") {
+                let config_base = app.path().config_dir()?;
+                let data_base = app.path().data_dir()?;
+                let electron_roots =
+                    electron_migration::roots_for(std::env::consts::OS, &config_base, &data_base);
+                match electron_migration::run(&data_dir, &electron_roots) {
+                    Ok(report) => {
+                        for warning in report.warnings {
+                            eprintln!(
+                                "Electron data migration warning at {} ({}): {}",
+                                warning.stage, warning.path, warning.message
+                            );
+                        }
                     }
+                    Err(error) => eprintln!("{error}"),
                 }
-                Err(error) => eprintln!("{error}"),
             }
             std::fs::create_dir_all(&data_dir)?;
             app.manage(AppStorage::new(data_dir));

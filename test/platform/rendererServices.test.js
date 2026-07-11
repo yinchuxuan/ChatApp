@@ -54,6 +54,13 @@ describe('renderer service contract', () => {
     await expect(createElectronRendererServices().config.load()).rejects.toThrow('broken');
   });
 
+  test('Electron card import matches the direct CardRepository result', async () => {
+    const card = { id: 'imported-card' };
+    window.electronAPI.importGameCardFromDirectory.mockResolvedValue({ success: true, card });
+
+    await expect(createElectronRendererServices().cards.importDirectory()).resolves.toBe(card);
+  });
+
   test('Electron adapter allows the desktop shell to mount before a bridge is available', () => {
     const originalApi = window.electronAPI;
     window.electronAPI = undefined;

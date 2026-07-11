@@ -16,10 +16,10 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
     setIsImporting(true);
     setError(null);
     try {
-      const result = await cardRepository.importDirectory();
-      changeActiveCard(result.card || null);
+      const importedCard = await cardRepository.importDirectory();
+      changeActiveCard(importedCard || null);
       onImportError?.(null);
-      await onActiveCardChanged?.(result.card || null);
+      await onActiveCardChanged?.(importedCard || null);
     } catch (nextFailure) {
       if (nextFailure.canceled) return;
       const nextError = normalizeGameCardError(nextFailure, { title: '导入游戏卡失败' });

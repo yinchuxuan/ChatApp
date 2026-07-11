@@ -1,0 +1,14 @@
+{
+  "bundle": {
+    "targets": ["nsis"],
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com",
+      "signCommand": "powershell -NoProfile -ExecutionPolicy Bypass -File sign-windows.ps1 %1",
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["SimpChinese", "English"]
+      }
+    }
+  }
+}

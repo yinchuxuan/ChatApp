@@ -6,7 +6,7 @@ const host = process.env.TAURI_DEV_HOST;
 const { createDevModelProxyPlugin } = modelProxy;
 
 export default defineConfig(({ command, mode }) => {
-  const desktopTarget = mode === 'tauri' ? 'tauri' : 'electron';
+  const desktopTarget = mode.startsWith('tauri') ? 'tauri' : 'electron';
   return {
     root: 'src',
     base: './',
@@ -14,6 +14,7 @@ export default defineConfig(({ command, mode }) => {
     clearScreen: false,
     define: {
       __CHATAPP_DESKTOP_TARGET__: JSON.stringify(desktopTarget),
+      __CHATAPP_TAURI_E2E__: JSON.stringify(mode === 'tauri-e2e'),
       'globalThis.__CHATAPP_DEV_MODEL_PROXY__': JSON.stringify(command === 'serve' && desktopTarget === 'electron')
     },
     plugins: [react(), createDevModelProxyPlugin()],

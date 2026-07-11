@@ -1,0 +1,47 @@
+const fs = require('fs');
+const path = require('path');
+
+const root = path.join(__dirname, '../..');
+const readJson = relative => JSON.parse(fs.readFileSync(path.join(root, relative), 'utf8'));
+const readText = relative => fs.readFileSync(path.join(root, relative), 'utf8');
+
+describe('Tauri desktop release configuration', () => {
+  test('keeps WebdriverIO permissions out of production builds', () => {
+    const base = readJson('src-tauri/tauri.conf.json');
+    const e2e = readJson('src-tauri/tauri.e2e.conf.json');
+    const capability = readJson('src-tauri/capabilities/default.json');
+
+    expect(base.app.security.capabilities).toEqual(['default']);
+    expect(e2e.app.security.capabilities[0].identifier).toBe('e2e');
+    expect(e2e.app.security.capabilities[0].permissions).toContain('wdio:default');
+    expect(capability.permissions).toEqual(['core:default']);
+  });
+
+  test('builds the intended installer types on every desktop platform', () => {
+    const macos = readJson('src-tauri/tauri.macos.conf.json');
+    const windows = readJson('src-tauri/tauri.windows.conf.json');
+    const linux = readJson('src-tauri/tauri.linux.conf.json');
+
+    expect(macos.bundle.targets).toEqual(['app', 'dmg']);
+    expect(windows.bundle.targets).toEqual(['nsis']);
+    expect(linux.bundle.targets).toEqual(['deb', 'appimage']);
+    expect(linux.bundle.linux.appimage.bundleMediaFramework).toBe(true);
+  });
+
+  test('runs Tauri E2E and bundles on the three-platform CI matrix', () => {
+    const workflow = readText('.github/workflows/tauri-ci.yml');
+
+    expect(workflow).toContain('[macos-latest, ubuntu-22.04, windows-latest]');
+    expect(workflow).toContain('npm run test:tauri');
+    expect(workflow).toContain('npm run tauri:build');
+  });
+
+  test('retains the controlled resource CSP in release builds', () => {
+    const csp = readJson('src-tauri/tauri.conf.json').app.security.csp;
+
+    expect(csp['img-src']).toContain('local:');
+    expect(csp['media-src']).toContain('local:');
+    expect(csp['object-src']).toBe("'none'");
+    expect(csp['connect-src']).not.toMatch(/https?:\/\/\*/);
+  });
+});

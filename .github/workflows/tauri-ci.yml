@@ -1,0 +1,65 @@
+name: Tauri desktop CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  javascript:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install Electron test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgtk-3-0 libnss3 libasound2 libgbm1
+      - run: npm ci
+      - run: npm run lint
+      - name: Jest, integration and Electron E2E
+        run: xvfb-run -a npm test
+
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux desktop dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libfuse2 xvfb
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+      - run: npm ci
+      - run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
+      - run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+      - run: cargo test --manifest-path src-tauri/Cargo.toml
+      - name: Tauri E2E
+        if: runner.os != 'Linux'
+        run: npm run test:tauri
+      - name: Tauri E2E on Linux
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm run test:tauri
+      - name: Build desktop installer
+        run: npm run tauri:build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chatapp-${{ runner.os }}
+          path: src-tauri/target/release/bundle/**
+          if-no-files-found: error

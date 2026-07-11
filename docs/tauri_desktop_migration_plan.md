@@ -80,12 +80,6 @@
 - 使用按 session key 的异步锁保证同一 session 串行保存。
 - 保持现有 command payload 和 renderer contract 的数据形状。
 
-实现说明：
-
-- Tauri 后端通过 `AppStorage` 统一管理 `app_data_dir`、原子 JSON 写入和按路径异步锁。
-- model/background config、session metadata、messages、game state 和 retry base 已接入 Rust commands。
-- 背景图片目录选择及 `local://` 资源授权仍按计划留在阶段 5，本阶段不开放任意本地路径。
-
 验收条件：
 
 - Tauri 下配置和聊天记录重启后仍然存在。
@@ -103,14 +97,6 @@
 - 对 schema 中 Ajv `$data` 的跨字段约束增加等价语义检查。
 - 建立 JS 与 Rust 导入校验的共享 fixture corpus，验证成功和错误结果一致。
 
-实现说明：
-
-- Tauri 后端提供列表、单卡读取、保存、切换、active card、文本资源和目录导入 commands。
-- 目录导入使用 Tauri dialog 插件在 Rust 边界选择目录；renderer 不获得任意文件系统权限。
-- shared schema 通过 `include_str!` 直接嵌入 Rust，`x-file` 注解驱动资源存在性检查；Ajv `$data` 的随机数上下界约束由 Rust 语义检查补齐。
-- 导入先在 cards 目录内的临时目录复制并复检，再通过备份、替换和失败回滚安装；同 id 卡片原有 `sessions/` 会合并到临时副本。
-- JS 与 Rust 共用 `test/fixtures/game-card-import/`，覆盖有效 import、schema 错误、跨字段错误、缺失文件、路径穿越和循环 import。
-
 验收条件：
 
 - WA2 游戏卡可导入、覆盖、切换并读取全部章节资源。
@@ -125,15 +111,6 @@
 - 返回正确的图片和音频 MIME type。
 - 为音频实现 Range 请求、`Content-Range` 和 `Accept-Ranges`，保证播放和 seek。
 - 在 Tauri adapter 内处理各系统自定义协议 URL 形式差异。
-
-实现说明：
-
-- Tauri 注册异步 `local` 协议，文件读取在独立线程执行；协议不启用 asset scope，也不接受任意绝对路径。
-- 游戏卡资源请求逐次校验 active card、card id、资源类型、允许扩展名、安全相对路径、规范化卡目录和资源 realpath。
-- renderer adapter 使用 Tauri `convertFileSrc` 生成 macOS/Linux 与 Windows 对应的协议 URL；游戏卡路径和真实本地路径不会通过 command 返回。
-- 用户背景由 Rust 文件选择器选择并暂存，保存配置后才授权；持久化配置只使用 `local://user-background/current` 标记，绝对路径不会返回 renderer。
-- 图片和音频响应返回固定允许表对应的 MIME；音频支持 `HEAD`、单段 byte Range、`206`、`416`、`Content-Range` 和 `Accept-Ranges`。
-- 开放式音频 Range 每次最多读取 `1000 KiB`，WebView 可以继续请求后续区间，无需一次将大音频读入 renderer。
 
 验收条件：
 
@@ -151,15 +128,6 @@
 - 保持 native commands 的参数校验，不能依赖 CSP 代替后端授权。
 - 将 Google Fonts 等平台 UI 远程静态资源本地化，保证离线和 CSP 一致性。
 
-实现说明：
-
-- Electron 保持现有 browser `fetch`；Tauri 使用 Rust `reqwest` 发起模型 POST，并通过 Tauri Channel 将原始响应字节逐块转换为 renderer `ReadableStream`。
-- OpenAI-compatible 与 Anthropic-compatible 继续共用现有 SSE parser；Rust 不解析 provider 协议。停止请求通过 renderer request id 调用 native cancel command，并终止对应响应流。
-- Tauri CSP 只为现有能力开放 `unsafe-eval`、Blob Worker、运行时样式和受控 `local` 图片/音频；模型网络由 native command 完成，WebView 不开放任意外网 `connect-src`。
-- native model command 校验 HTTP(S)、POST、请求大小、request id 和允许的模型 header；capability 仍只有 `core:default`，未增加文件系统或 shell 权限。
-- Roboto 与 Roboto Mono 的拉丁字符子集随 Vite renderer 打包；中文继续使用系统字体，不再启动时访问 Google Fonts。
-- 单元与集成测试覆盖 Channel 到 SSE、request-id 中止、Worker 超时、动态 React UI 编译及 CSP 静态约束。三个桌面系统的安装包 WebDriver 回归仍由阶段 8 的 build matrix 执行。
-
 验收条件：
 
 - OpenAI-compatible 和 Anthropic-compatible 流式生成、思考内容和停止请求正常。
@@ -174,21 +142,13 @@
 - 使用迁移版本或完成标记保证迁移可重复执行且不会覆盖新数据。
 - 旧背景文件不存在或无权限时给出可恢复错误，不影响其它数据启动。
 
-实现说明：
-
-- Tauri 在建立 `AppStorage` 前按系统从 Electron 的 `ChatApp` 和早期 `harness_lab` userData 目录发现业务数据；Linux 使用 config 根，macOS/Windows 使用 data 根。
-- 只复制 config、game cards、active card、sessions 和旧聊天文件，不复制 Electron 的 Chromium cache。复制和旧布局升级全部在同级临时目录完成，成功后通过 rename 原子安装。
-- 迁移继续支持根目录旧 config、flat card、三种旧 chat history 路径和 legacy `local://` 背景 URL；失效背景会被清空并作为 warning 记录，不阻断其它数据。
-- `migration/electron-user-data-v1.json` 记录迁移版本、来源、状态、warning 或失败阶段及文件。完成后重复启动直接跳过；已有 Tauri 业务数据时写入保护标记且不覆盖。
-- 非背景迁移错误会清理临时目录、记录可重试的失败报告并继续启动空或原有 Tauri 数据目录。
-
 验收条件：
 
 - 使用真实 Electron 数据启动 Tauri 后，当前卡、session、消息和 state 保持一致。
 - 重复启动不会重复复制或回滚较新的 Tauri 数据。
 - 迁移失败可记录具体阶段和文件，不留下半完成目录。
 
-## 阶段 8：测试、构建与桌面发布
+## 阶段 8：测试、构建与桌面发布（已完成，2026-07-11）
 
 - 保留 Jest unit/integration tests，增加 Tauri adapter tests。
 - 增加 Rust storage、path、import、migration、resource protocol 单元和集成测试。
@@ -197,13 +157,16 @@
 - 建立 macOS、Windows、Linux CI build matrix。
 - 配置 macOS bundle/DMG、Windows installer、Linux AppImage 或 deb。
 - 在发布构建中验证 CSP、资源协议、日志、窗口生命周期和应用数据路径。
+实现说明：
+- WebdriverIO 只在 `e2e` feature 中启用 embedded driver 和隔离目录；正式包不包含测试插件或权限。
+- Tauri E2E 以真实 commands、资源协议和 Rust 流式网络覆盖关键流程；三个系统的 CI 同时保留 Rust、Jest 和 Electron tests。
+- bundle 为 macOS app/DMG、Windows NSIS、Linux deb/AppImage；tag draft release 强制要求 macOS 公证和 Windows PFX 签名。
 
 验收条件：
 
 - 三个平台的 build、Rust tests、Jest tests 和 Tauri E2E 全部通过。
 - 安装版应用可完成一轮 WA2 主流程并在重启后恢复状态。
 - 安装包签名和分发配置满足目标发布渠道要求。
-
 ## 阶段 9：切换默认 Target 并清理 Electron
 
 - 将默认开发、测试和发布命令切换到 Tauri。

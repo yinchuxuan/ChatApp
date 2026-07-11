@@ -26,6 +26,10 @@ pub async fn import_game_card_from_directory(
     app: AppHandle,
     state: State<'_, AppStorage>,
 ) -> CardResult<Value> {
+    #[cfg(feature = "e2e")]
+    if let Some(path) = std::env::var_os("CHATAPP_E2E_IMPORT_DIR") {
+        return game_card_repository::import(&state, std::path::Path::new(&path)).await;
+    }
     let selected = app
         .dialog()
         .file()

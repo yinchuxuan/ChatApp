@@ -1,0 +1,23 @@
+{
+  "build": {
+    "beforeBuildCommand": "npm run build -- --mode tauri-e2e"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "security": {
+      "capabilities": [
+        {
+          "identifier": "e2e",
+          "description": "Test-only WebdriverIO permissions for the main window",
+          "windows": ["main"],
+          "permissions": [
+            "core:default",
+            "core:window:default",
+            "wdio:default",
+            "wdio-webdriver:default"
+          ]
+        }
+      ]
+    }
+  }
+}

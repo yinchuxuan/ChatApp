@@ -49,7 +49,7 @@ function createElectronRendererServices() {
       delete: id => invoke('deleteChatSession', [id])
     }),
     cards: Object.freeze({
-      importDirectory: () => invoke('importGameCardFromDirectory')
+      importDirectory: () => invoke('importGameCardFromDirectory', [], 'card')
     })
   });
 }

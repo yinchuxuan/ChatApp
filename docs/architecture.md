@@ -104,8 +104,11 @@ Tauri 首次启动时会在 `AppStorage` 初始化前查找 Electron 的 `ChatAp
 - `test/storage` 覆盖原子 JSON、migration、session 队列和持久化 IPC integration。
 - `test/platform` 覆盖 adapter contract 与本地资源协议。
 - `test/e2e` 只通过 UI 和 preload 边界验证 Electron，不依赖 renderer 内部全局模块。
+- `test/tauri-e2e` 通过 WebdriverIO embedded driver 验证真实 Tauri command、资源协议、网络中止和进程重启恢复；测试数据与用户目录隔离。
 
 普通 unit test mock 显式 service 或 memory adapter。`window.electronAPI` 只在 preload 边界和 Electron 组件测试中使用。
+
+Tauri WebDriver 的 Rust 插件、renderer 插件、增强 capability、固定导入目录和数据目录覆盖全部受 `e2e` feature/config 限制。正式 build 只加载 `default` capability，不包含 WebDriver command 或测试路径覆盖。
 
 renderer 业务组件通过 `rendererServices` 使用 `config`、`background`、`sessions` 和 `cards` 窄接口。Electron adapter 负责解包 IPC result 并将失败统一转换为异常；组件不直接访问 preload API。
 
