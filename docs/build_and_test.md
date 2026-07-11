@@ -8,8 +8,13 @@ Vite requires Node.js `^20.19.0` or `>=22.12.0` for local build and development 
 |---|---|
 | `npm run build` | Build the React renderer to `dist/renderer/` with Vite |
 | `npm run dev` | Start the Vite dev server and launch Electron against it |
+| `npm run renderer:dev` | Start only the Vite renderer on fixed port `1420` |
+| `npm run tauri:dev` | Start the Vite renderer and Tauri desktop debug app |
+| `npm run tauri:build` | Build the renderer and native Tauri desktop bundle |
 | `npm run lint` | Run ESLint on all `.js`/`.jsx` files |
 | `npm run lint:fix` | Run ESLint with auto-fix |
+
+Tauri commands require the stable Rust toolchain and the platform prerequisites from the Tauri 2 documentation. Stage 1 provides the desktop shell only; native services remain on the Electron target until the later migration phases.
 
 ## Testing
 
@@ -57,7 +62,9 @@ Unit and integration tests are grouped by ownership:
 - `src/styles/renderer.css` is the single platform CSS entry and owns platform style order.
 - `src/index.html` contains one module script; Vite resolves the complete JavaScript and CSS dependency graph.
 - Development uses Vite React refresh through `scripts/dev.js`.
+- Tauri development uses the same Vite config at `http://localhost:1420`; the fixed port prevents the native shell from loading a different server.
 - Production and Electron E2E load `dist/renderer/index.html`.
+- Tauri production bundles the same `dist/renderer/` output through `src-tauri/tauri.conf.json`.
 - The preload boundary remains available as `window.electronAPI`; platform modules are imported with standard ESM syntax.
 - Game card `display`, `visual` and `ui` styles are loaded at runtime and scoped independently from platform CSS.
 - ESLint 显式扫描 `.js` 和 `.jsx`，并要求所有识别出的 React 组件声明 PropTypes。

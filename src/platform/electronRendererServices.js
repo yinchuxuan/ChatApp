@@ -8,6 +8,12 @@ function requireApi(method) {
   return api;
 }
 
+function subscribeToBackground(listener) {
+  const api = electronApi();
+  if (typeof api?.onBackgroundConfigChanged !== 'function') return () => {};
+  return api.onBackgroundConfigChanged(listener);
+}
+
 async function invoke(method, args = [], field) {
   const result = await requireApi(method)[method](...args);
   if (!result?.success) {
@@ -35,7 +41,7 @@ function createElectronRendererServices() {
       load: () => invoke('getBackgroundConfig', [], 'config'),
       save: config => invoke('saveBackgroundConfig', [config], 'config'),
       selectImage: () => invoke('selectBackgroundImage', [], 'localUrl'),
-      subscribe: listener => requireApi('onBackgroundConfigChanged').onBackgroundConfigChanged(listener)
+      subscribe: subscribeToBackground
     }),
     sessions: Object.freeze({
       loadHistory: () => invoke('getChatHistory'),

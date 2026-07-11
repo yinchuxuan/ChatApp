@@ -32,4 +32,16 @@ describe('renderer service contract', () => {
     window.electronAPI.getModelConfig.mockResolvedValue({ success: false, error: 'broken' });
     await expect(createElectronRendererServices().config.load()).rejects.toThrow('broken');
   });
+
+  test('Electron adapter allows the desktop shell to mount before a bridge is available', () => {
+    const originalApi = window.electronAPI;
+    window.electronAPI = undefined;
+
+    try {
+      const unsubscribe = createElectronRendererServices().background.subscribe(() => {});
+      expect(unsubscribe).toEqual(expect.any(Function));
+    } finally {
+      window.electronAPI = originalApi;
+    }
+  });
 });

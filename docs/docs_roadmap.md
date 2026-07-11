@@ -9,6 +9,7 @@ Read only the documents relevant to the current task.
 - [Architecture](./architecture.md)
 - [Code quality improvement plan](./code_quality_improvement_plan.md)
 - [Build and test](./build_and_test.md)
+- [Tauri desktop migration plan](./tauri_desktop_migration_plan.md)
 - [Chat sessions](./chat_session_design.md)
 - [Platform adapter](./platform_adapter.md)
 - [Game card design](./game_card_design.md)

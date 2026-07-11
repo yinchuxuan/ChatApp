@@ -2,7 +2,7 @@
   "name": "chatapp",
   "productName": "ChatApp",
   "version": "1.0.0",
-  "description": "Electron knowledge base application",
+  "description": "AI roleplay game desktop application",
   "main": "main.js",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
@@ -10,6 +10,10 @@
   "scripts": {
     "build": "vite build",
     "dev": "node scripts/dev.js",
+    "renderer:dev": "vite --config vite.config.mjs",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
     "lint": "eslint . --ext .js,.jsx",
     "lint:fix": "eslint . --ext .js,.jsx --fix",
     "pretest": "npm run build",
@@ -39,6 +43,7 @@
     "@babel/preset-env": "^7.23.0",
     "@babel/preset-react": "^7.23.0",
     "@playwright/test": "^1.59.1",
+    "@tauri-apps/cli": "^2.11.4",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
     "@vitejs/plugin-react": "^5.2.0",
