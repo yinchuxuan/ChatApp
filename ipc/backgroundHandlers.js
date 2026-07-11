@@ -1,5 +1,6 @@
 const { IMAGE_EXTENSIONS } = require('./gameCardAssets');
 const { USER_BACKGROUND_URL } = require('./localResourceProtocol');
+const { createJsonStore } = require('./storage/jsonStore');
 
 const MIME_TYPES = {
   '.png': 'image/png',
@@ -9,17 +10,6 @@ const MIME_TYPES = {
   '.webp': 'image/webp',
   '.bmp': 'image/bmp'
 };
-
-function ensureParentDir(fs, pathLib, filePath) {
-  const dir = pathLib.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
-
-function findExistingPath(fs, paths) {
-  return paths.find(filePath => filePath && fs.existsSync(filePath));
-}
 
 function validateBackgroundPath(fs, pathLib, filePath) {
   if (typeof filePath !== 'string' || !pathLib.isAbsolute(filePath)) {
@@ -52,31 +42,13 @@ function publicConfig(config) {
   return result;
 }
 
-function readConfig(fs, pathLib, configPath, legacyConfigPath) {
-  let config;
-  let shouldPersist = false;
-  if (fs.existsSync(configPath)) {
-    config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-  } else {
-    const legacyPath = findExistingPath(fs, [].concat(legacyConfigPath || []));
-    if (!legacyPath) return { backgroundImageUrl: '', backgroundOpacity: 0.5 };
-    config = JSON.parse(fs.readFileSync(legacyPath, 'utf-8'));
-    shouldPersist = true;
-  }
-  const migrated = migrateLegacyLocalUrl(fs, pathLib, config);
-  if (migrated !== config || shouldPersist) {
-    ensureParentDir(fs, pathLib, configPath);
-    fs.writeFileSync(configPath, JSON.stringify(migrated, null, 2), 'utf-8');
-  }
-  return migrated;
-}
-
-function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dialog, legacyBackgroundConfigPath) {
+function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dialog, options = {}) {
+  const store = options.store || createJsonStore(fs);
   let selectedBackgroundPath = null;
 
-  ipcMain.handle('get-background-config', () => {
+  ipcMain.handle('get-background-config', async () => {
     try {
-      const config = readConfig(fs, path, backgroundConfigPath, legacyBackgroundConfigPath);
+      const config = await store.readJson(backgroundConfigPath, { backgroundImageUrl: '', backgroundOpacity: 0.5 });
       return { success: true, config: publicConfig(config) };
     } catch (err) {
       console.error('Error reading background config:', err);
@@ -84,11 +56,11 @@ function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dia
     }
   });
 
-  ipcMain.handle('save-background-config', (event, config) => {
+  ipcMain.handle('save-background-config', async (event, config) => {
     try {
       const storedConfig = { ...config };
       if (storedConfig.backgroundImageUrl === USER_BACKGROUND_URL) {
-        const existing = readConfig(fs, path, backgroundConfigPath, legacyBackgroundConfigPath);
+        const existing = await store.readJson(backgroundConfigPath, {});
         const filePath = selectedBackgroundPath || existing.backgroundImagePath;
         storedConfig.backgroundImagePath = validateBackgroundPath(fs, path, filePath);
       } else {
@@ -97,8 +69,7 @@ function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dia
         }
         delete storedConfig.backgroundImagePath;
       }
-      ensureParentDir(fs, path, backgroundConfigPath);
-      fs.writeFileSync(backgroundConfigPath, JSON.stringify(storedConfig, null, 2), 'utf-8');
+      await store.writeJson(backgroundConfigPath, storedConfig);
       selectedBackgroundPath = null;
       const visibleConfig = publicConfig(storedConfig);
       try {
@@ -137,4 +108,4 @@ function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dia
   });
 }
 
-module.exports = { registerBackgroundHandlers };
+module.exports = { migrateLegacyLocalUrl, registerBackgroundHandlers, validateBackgroundPath };

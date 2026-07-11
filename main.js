@@ -9,15 +9,14 @@ const { registerChatHistoryHandlers } = require('./ipc/chatHistoryHandlers');
 const { registerGameCardHandlers } = require('./ipc/gameCardHandlers');
 const { registerLocalResourceProtocol } = require('./ipc/localResourceProtocol');
 const { getUserDataPaths } = require('./ipc/userDataPaths');
+const { createJsonStore } = require('./ipc/storage/jsonStore');
+const { createKeyedQueue } = require('./ipc/storage/keyedQueue');
+const { runStorageMigrations } = require('./ipc/storage/storageMigrations');
 
 // Data directory path
-let configPath;
-let legacyConfigPath;
-let backgroundConfigPath;
-let legacyBackgroundConfigPath;
-let legacyChatHistoryPath;
-let gameCardsDir;
-let legacyGameCardsDir;
+let userDataPaths;
+let storage;
+const chatSessionQueue = createKeyedQueue();
 
 app.setName('ChatApp');
 
@@ -47,32 +46,31 @@ function createWindow() {
 
 // Register all IPC handlers
 function registerAllHandlers() {
-  registerConfigHandlers(ipcMain, configPath, fs, legacyConfigPath);
-  registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dialog, legacyBackgroundConfigPath);
-  registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameCardsDir);
-  registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, legacyChatHistoryPath);
+  const options = { store: storage };
+  registerConfigHandlers(ipcMain, userDataPaths.modelConfigPath, fs, options);
+  registerBackgroundHandlers(ipcMain, userDataPaths.backgroundConfigPath, fs, path, dialog, options);
+  registerGameCardHandlers(ipcMain, userDataPaths.gameCardsDir, fs, dialog, options);
+  registerChatHistoryHandlers(ipcMain, userDataPaths.gameCardsDir, fs, {
+    ...options,
+    queue: chatSessionQueue
+  });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   const userDataDir = app.getPath('userData');
-  const paths = getUserDataPaths(userDataDir, customUserDataDir ? null : undefined);
-  configPath = paths.modelConfigPath;
-  legacyConfigPath = paths.legacy.modelConfigPaths;
-  backgroundConfigPath = paths.backgroundConfigPath;
-  legacyBackgroundConfigPath = paths.legacy.backgroundConfigPaths;
-  legacyChatHistoryPath = paths.legacy.chatHistoryPaths;
-  gameCardsDir = paths.gameCardsDir;
-  legacyGameCardsDir = paths.legacyGameCardsDir;
+  userDataPaths = getUserDataPaths(userDataDir, customUserDataDir ? null : undefined);
+  storage = createJsonStore(fs);
 
   registerLocalResourceProtocol(protocol, {
     fs,
-    cardsDir: path.join(gameCardsDir, 'cards'),
-    activePath: path.join(gameCardsDir, 'active.json'),
-    backgroundConfigPath
+    cardsDir: path.join(userDataPaths.gameCardsDir, 'cards'),
+    activePath: path.join(userDataPaths.gameCardsDir, 'active.json'),
+    backgroundConfigPath: userDataPaths.backgroundConfigPath
   });
 
   // Register all IPC handlers
   registerAllHandlers();
+  await runStorageMigrations({ store: storage, fs, pathLib: path, paths: userDataPaths });
 
   createWindow();
 

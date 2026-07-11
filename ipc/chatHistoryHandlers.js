@@ -1,198 +1,102 @@
-const path = require('path');
 const sessions = require('./chatSessionStore');
+const { createHistory, createRetryBase, parseHistory, parseRetryBase } = require('./chatHistoryCodec');
+const { createJsonStore } = require('./storage/jsonStore');
+const { createKeyedQueue } = require('./storage/keyedQueue');
 
-function getRetryBasePath(fs, gameCardsDir) {
-  return sessions.getRetryBasePath(fs, gameCardsDir);
+function failure(error, fallback = {}) {
+  return { success: false, error: error.message, ...fallback };
 }
 
-function cleanMessages(messages) {
-  return messages.map(msg => {
-    const cleaned = { role: msg.role, content: msg.content };
-    if (msg.thinking) cleaned.thinking = msg.thinking;
-    if (msg._meta) cleaned._meta = msg._meta;
-    if (msg.ttl !== undefined) cleaned.ttl = msg.ttl;
-    return cleaned;
-  });
-}
+function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
+  const store = options.store || createJsonStore(fs);
+  const queue = options.queue || createKeyedQueue();
 
-function isPlainObject(value) {
-  return !!value && typeof value === 'object' && !Array.isArray(value);
-}
-
-function cleanGameState(gameState) {
-  return isPlainObject(gameState) ? JSON.parse(JSON.stringify(gameState)) : {};
-}
-
-function cleanRetryBase(options) {
-  return {
-    messages: Array.isArray(options.retryBaseMessages) ? cleanMessages(options.retryBaseMessages) : [],
-    gameState: cleanGameState(options.retryBaseState)
-  };
-}
-
-function restoreMessages(messages) {
-  return messages.map(msg => {
-    const restored = { ...msg };
-    if (msg.thinking) restored._thinking = msg.thinking;
-    return restored;
-  });
-}
-
-function parseHistoryContent(content) {
-  const data = JSON.parse(content);
-  if (Array.isArray(data)) {
-    return { messages: restoreMessages(data), gameState: {} };
-  }
-  if (!isPlainObject(data)) {
-    return { messages: [], gameState: {} };
-  }
-  return {
-    messages: Array.isArray(data.messages) ? restoreMessages(data.messages) : [],
-    gameState: cleanGameState(data.gameState)
-  };
-}
-
-function normalizeSavePayload(payload, options) {
-  if (Array.isArray(payload)) {
-    return {
-      messages: payload,
-      gameState: cleanGameState(options.gameState)
-    };
-  }
-  if (isPlainObject(payload)) {
-    return {
-      messages: Array.isArray(payload.messages) ? payload.messages : [],
-      gameState: cleanGameState(payload.gameState)
-    };
-  }
-  return { messages: [], gameState: {} };
-}
-
-function parseRetryBaseContent(content) {
-  const data = JSON.parse(content);
-  if (Array.isArray(data)) return { messages: restoreMessages(data), gameState: {}, hasGameState: false };
-  if (!isPlainObject(data)) return { messages: [], gameState: {}, hasGameState: false };
-  return {
-    messages: Array.isArray(data.messages) ? restoreMessages(data.messages) : [],
-    gameState: cleanGameState(data.gameState),
-    hasGameState: Object.prototype.hasOwnProperty.call(data, 'gameState')
-  };
-}
-
-function ensureSessionFiles(fs, messagesPath) {
-  const sessionDir = path.dirname(messagesPath);
-  const sessionRoot = path.dirname(sessionDir);
-  if (!fs.existsSync(sessionDir)) {
-    fs.mkdirSync(sessionDir, { recursive: true });
-  }
-  const activeSessionPath = path.join(sessionRoot, 'active.json');
-  if (!fs.existsSync(activeSessionPath)) {
-    fs.writeFileSync(activeSessionPath, JSON.stringify({ id: path.basename(sessionDir) }, null, 2), 'utf-8');
-  }
-}
-
-function migrateLegacyHistory(fs, messagesPath, legacyChatHistoryPath) {
-  const legacyPath = [].concat(legacyChatHistoryPath || [])
-    .find(filePath => filePath && fs.existsSync(filePath));
-  if (!legacyPath || fs.existsSync(messagesPath)) {
-    return;
-  }
-  ensureSessionFiles(fs, messagesPath);
-  fs.copyFileSync(legacyPath, messagesPath);
-}
-
-function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, legacyChatHistoryPath) {
-  migrateLegacyHistory(fs, sessions.getMessagesPath(fs, gameCardsDir), legacyChatHistoryPath);
-
-  ipcMain.handle('get-chat-history', () => {
+  ipcMain.handle('get-chat-history', async () => {
     try {
-      const messagesPath = sessions.getMessagesPath(fs, gameCardsDir);
-      if (fs.existsSync(messagesPath)) {
-        const content = fs.readFileSync(messagesPath, 'utf-8');
-        const history = parseHistoryContent(content);
+      const context = await sessions.getActiveSessionContext(store, gameCardsDir);
+      return await queue.run(context.sessionDir, async () => {
+        const data = await store.readJson(context.messagesPath, null);
+        if (data === null) return { success: true, messages: [], gameState: {} };
+        const history = parseHistory(data);
         const result = { success: true, messages: history.messages, gameState: history.gameState };
-        const retryBasePath = getRetryBasePath(fs, gameCardsDir);
-        if (fs.existsSync(retryBasePath)) {
-          const retryBase = parseRetryBaseContent(fs.readFileSync(retryBasePath, 'utf-8'));
+        const retryData = await store.readJson(context.retryBasePath, null);
+        if (retryData !== null) {
+          const retryBase = parseRetryBase(retryData);
           if (retryBase.messages.length > 0) result.retryBaseMessages = retryBase.messages;
           if (retryBase.hasGameState) result.retryBaseState = retryBase.gameState;
         }
         return result;
-      }
-      return { success: true, messages: [], gameState: {} };
+      });
     } catch (err) {
       console.error('Error reading chat history:', err);
-      return { success: false, error: err.message, messages: [], gameState: {} };
+      return failure(err, { messages: [], gameState: {} });
     }
   });
 
-  ipcMain.handle('save-chat-history', (event, payload, options = {}) => {
+  ipcMain.handle('save-chat-history', async (event, payload, saveOptions = {}) => {
     try {
-      const messagesPath = sessions.getMessagesPath(fs, gameCardsDir);
-      ensureSessionFiles(fs, messagesPath);
-      const retryBasePath = getRetryBasePath(fs, gameCardsDir);
-      const retryBase = cleanRetryBase(options);
-      const history = normalizeSavePayload(payload, options);
-      const cleanedHistory = {
-        messages: cleanMessages(history.messages),
-        gameState: history.gameState
-      };
-      fs.writeFileSync(messagesPath, JSON.stringify(cleanedHistory, null, 2), 'utf-8');
-      fs.writeFileSync(retryBasePath, JSON.stringify(retryBase, null, 2), 'utf-8');
-      sessions.updateSessionMeta(fs, gameCardsDir, cleanedHistory.messages);
-      return { success: true };
+      const context = await sessions.getActiveSessionContext(store, gameCardsDir);
+      const history = createHistory(payload, saveOptions);
+      const retryBase = createRetryBase(saveOptions);
+      return await queue.run(context.sessionDir, async () => {
+        await sessions.ensureSessionFiles(store, context);
+        await store.writeJson(context.messagesPath, history);
+        await store.writeJson(context.retryBasePath, retryBase);
+        await sessions.updateSessionMeta(store, context, history.messages);
+        return { success: true };
+      });
     } catch (err) {
       console.error('Error saving chat history:', err);
-      return { success: false, error: err.message };
+      return failure(err);
     }
   });
 
-  ipcMain.handle('list-chat-sessions', () => {
+  ipcMain.handle('list-chat-sessions', async () => {
     try {
-      return { success: true, ...sessions.listSessions(fs, gameCardsDir) };
+      return { success: true, ...await sessions.listSessions(store, gameCardsDir) };
     } catch (err) {
-      return { success: false, error: err.message, sessions: [], activeId: null };
+      return failure(err, { sessions: [], activeId: null });
     }
   });
 
-  ipcMain.handle('get-active-chat-session', () => {
+  ipcMain.handle('get-active-chat-session', async () => {
     try {
-      const list = sessions.listSessions(fs, gameCardsDir);
+      const list = await sessions.listSessions(store, gameCardsDir);
       return { success: true, session: list.sessions.find(item => item.id === list.activeId) || null };
     } catch (err) {
-      return { success: false, error: err.message, session: null };
+      return failure(err, { session: null });
     }
   });
 
-  ipcMain.handle('create-chat-session', (event, title) => {
+  ipcMain.handle('create-chat-session', async (event, title) => {
     try {
-      return { success: true, ...sessions.createSession(fs, gameCardsDir, title) };
+      return { success: true, ...await sessions.createSession(store, gameCardsDir, title) };
     } catch (err) {
-      return { success: false, error: err.message };
+      return failure(err);
     }
   });
 
-  ipcMain.handle('set-active-chat-session', (event, id) => {
+  ipcMain.handle('set-active-chat-session', async (event, id) => {
     try {
-      return { success: true, ...sessions.setActiveSession(fs, gameCardsDir, id) };
+      return { success: true, ...await sessions.setActiveSession(store, gameCardsDir, id) };
     } catch (err) {
-      return { success: false, error: err.message };
+      return failure(err);
     }
   });
 
-  ipcMain.handle('rename-chat-session', (event, id, title) => {
+  ipcMain.handle('rename-chat-session', async (event, id, title) => {
     try {
-      return { success: true, session: sessions.renameSession(fs, gameCardsDir, id, title) };
+      return { success: true, session: await sessions.renameSession(store, gameCardsDir, id, title) };
     } catch (err) {
-      return { success: false, error: err.message };
+      return failure(err);
     }
   });
 
-  ipcMain.handle('delete-chat-session', (event, id) => {
+  ipcMain.handle('delete-chat-session', async (event, id) => {
     try {
-      return { success: true, ...sessions.deleteSession(fs, gameCardsDir, id) };
+      return { success: true, ...await sessions.deleteSession(store, gameCardsDir, id) };
     } catch (err) {
-      return { success: false, error: err.message };
+      return failure(err);
     }
   });
 }

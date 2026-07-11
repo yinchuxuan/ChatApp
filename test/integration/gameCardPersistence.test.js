@@ -2,6 +2,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { registerGameCardHandlers } = require('../../ipc/gameCardHandlers');
+const { createJsonStore } = require('../../ipc/storage/jsonStore');
+const { migrateFlatCardFiles } = require('../../ipc/storage/storageMigrations');
 
 function createIpcMain() {
   const handlers = {};
@@ -55,6 +57,7 @@ describe('Game Card Persistence IPC', () => {
     fs.mkdirSync(path.dirname(legacyPath), { recursive: true });
     fs.writeFileSync(legacyPath, JSON.stringify(card), 'utf-8');
 
+    await migrateFlatCardFiles(createJsonStore(fs), path.join(tempDir, 'game-cards'));
     const freshIpcMain = createIpcMain();
     registerGameCardHandlers(freshIpcMain, path.join(tempDir, 'game-cards'), fs, dialog);
 

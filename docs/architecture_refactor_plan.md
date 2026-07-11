@@ -139,12 +139,16 @@ scriptExecutor.run(source, context, options)
 
 ## 阶段 6：统一 IPC 存储
 
+状态：已完成（2026-07-11）。
+
 - 提取共享的 JSON read/write、目录创建和错误包装逻辑。
 - 使用临时文件加 rename 实现原子 JSON 写入。
 - 为同一 session 的保存操作增加串行队列。
 - 将大目录复制等操作改为异步文件 API，避免阻塞 Electron 主线程。
 - 将旧数据 migration 从 handler 注册逻辑中移出，集中在启动阶段执行。
 - 保持现有 userData 目录结构和迁移兼容性。
+
+实现结果：新增 `ipc/storage` 统一异步 JSON store、keyed queue 与启动 migration。业务 JSON 通过同目录临时文件写入并以 `rename` 原子替换；聊天历史按 session 串行保存 messages、gameState、retry base 和 metadata。配置、背景、游戏卡与 session handler 共享同一 store，游戏卡目录复制改用异步文件 API；旧配置、背景、聊天与游戏卡迁移统一在窗口创建前执行，不再由 handler 注册触发。
 
 验收条件：写入失败不会留下半写 JSON，messages、gameState、retry base 和 session metadata 保持一致。
 

@@ -1,7 +1,9 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { registerBackgroundHandlers } = require('../../ipc/backgroundHandlers');
+const { migrateLegacyLocalUrl, registerBackgroundHandlers } = require('../../ipc/backgroundHandlers');
+const { createJsonStore } = require('../../ipc/storage/jsonStore');
+const { migrateJsonFile } = require('../../ipc/storage/storageMigrations');
 const {
   USER_BACKGROUND_URL,
   createGameCardResourceUrl,
@@ -137,6 +139,12 @@ describe('Controlled local resource protocol', () => {
       backgroundImageUrl: `local://${imagePath}`,
       backgroundOpacity: 0.4
     }));
+    await migrateJsonFile(
+      createJsonStore(fs),
+      dependencies.backgroundConfigPath,
+      [],
+      value => migrateLegacyLocalUrl(fs, path, value)
+    );
     const ipcMain = createIpcMain();
     registerBackgroundHandlers(ipcMain, dependencies.backgroundConfigPath, fs, path, {}, []);
 

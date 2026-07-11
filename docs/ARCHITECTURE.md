@@ -8,7 +8,7 @@
 - **聊天运行时 (`src/chat/`)**：通过独立 hook 管理 session、持久化、生成、重试、中止和滚动；`GameCardRuntimeProvider` 管理当前游戏卡、gameState 与运行时错误。
 - **游戏卡核心 (`shared/game-card/`)**：平台无关的规则、content、state、schema 与协议适配逻辑。只处理普通数据，并通过显式依赖接入文件读取和脚本执行。
 - **平台适配层 (`src/platform/`)**：定义 renderer 使用的游戏卡平台接口，并提供 Electron 与内存实现。未来 Tauri 前端需实现同一接口，不在 shared core 中增加平台判断。
-- **IPC 处理器 (`ipc/`)**：处理器模块读写 `userData` 目录下按领域分组的 JSON 文件：`config/`、`game-cards/`。
+- **IPC 处理器 (`ipc/`)**：处理器模块通过 `ipc/storage` 的异步原子 JSON store 读写 `userData`；聊天保存按 session 串行，目录导入使用异步文件 API。
 
 ## 交互流程
 
@@ -67,7 +67,9 @@ userData/
             messages.json
 ```
 
-旧版本根目录下的 `model-config.json`、`background-config.json`、`chat/history.json`、`chat-histories/chat-history.json` 会在读取时迁移到当前卡或 `no-card` session；旧 `cards/<id>.json` 会迁移为 `cards/<id>/card.json`。
+旧版本根目录下的 `model-config.json`、`background-config.json`、`chat/history.json`、`chat-histories/chat-history.json` 会在启动阶段迁移到当前卡或 `no-card` session；旧 `cards/<id>.json` 会迁移为 `cards/<id>/card.json`。migration 在 IPC handler 注册之外集中执行，并在窗口创建前完成。
+
+所有业务 JSON 写入先写入目标文件同目录的临时文件，再通过 `rename` 替换目标文件。配置、背景、游戏卡、session messages、retry base 和 metadata 共用该存储边界；同一 session 的聊天读写进入同一串行队列，避免并发保存交叉覆盖。
 
 - **同步调用**：渲染进程调用 `ipcRenderer.invoke()` → 主进程通过 `ipcMain.handle()` 处理 → 返回结果。
 - **异步事件**：主进程通过 `ipcRenderer.on('background-config-changed')` 向渲染进程推送配置变更通知。

@@ -1,16 +1,11 @@
 const path = require('path');
 const { getCardAssetPath, getCardAudioPath, getCardImagePath } = require('./gameCardAssets');
 const { copyCardDirectory } = require('./gameCardDirectoryCopy');
-const {
-  ensureGameCardDirs,
-  getCardPath,
-  isSafeGameCardId,
-  readJsonFile,
-  writeJsonFile
-} = require('./gameCardStorage');
-const { readGameCardJson } = require('./gameCardImportResolver');
+const { getCardPath, isSafeGameCardId } = require('./gameCardStorage');
+const { readGameCardJsonAsync } = require('./gameCardImportResolver');
 const { validateImportedGameCard } = require('./gameCardImportValidation');
 const { createGameCardResourceUrl } = require('./localResourceProtocol');
+const { createJsonStore } = require('./storage/jsonStore');
 
 function asErrorResult(err, fallback = {}) {
   console.error('Error handling game card IPC:', err);
@@ -24,88 +19,55 @@ function asErrorResult(err, fallback = {}) {
   };
 }
 
-function readCard(fs, cardsDir, id) {
-  const cardPath = getCardPath(cardsDir, id);
-  return readGameCardJson(fs, cardPath, null);
-}
-function listCardIds(fs, cardsDir) {
-  if (!fs.existsSync(cardsDir)) return [];
-  return fs.readdirSync(cardsDir)
-    .filter(name => isSafeGameCardId(name) && fs.existsSync(getCardPath(cardsDir, name)))
-    .sort();
+async function readCard(store, cardsDir, id) {
+  return readGameCardJsonAsync(store, getCardPath(cardsDir, id), null);
 }
 
-function migrateLegacyCards(fs, gameCardsDir, legacyGameCardsDir) {
-  if (!legacyGameCardsDir || !fs.existsSync(legacyGameCardsDir)) {
-    return;
-  }
-  if (!fs.existsSync(gameCardsDir)) {
-    fs.mkdirSync(gameCardsDir, { recursive: true });
-  }
-  ['active.json', 'cards'].forEach(name => {
-    const sourcePath = path.join(legacyGameCardsDir, name);
-    const targetPath = path.join(gameCardsDir, name);
-    if (fs.existsSync(sourcePath) && !fs.existsSync(targetPath)) {
-      fs.cpSync(sourcePath, targetPath, { recursive: true });
-    }
-  });
+async function listCardIds(store, cardsDir) {
+  if (!(await store.exists(cardsDir))) return [];
+  const names = await store.io.readdir(cardsDir);
+  const checks = await Promise.all(names.map(async name => (
+    isSafeGameCardId(name) && await store.exists(getCardPath(cardsDir, name)) ? name : null
+  )));
+  return checks.filter(Boolean).sort();
 }
 
-function migrateFlatCardFiles(fs, cardsDir) {
-  if (!fs.existsSync(cardsDir)) return;
-  fs.readdirSync(cardsDir).forEach(name => {
-    if (!name.endsWith('.json')) return;
-    const id = path.basename(name, '.json');
-    if (!isSafeGameCardId(id)) return;
-    const legacyPath = path.join(cardsDir, name);
-    const cardPath = getCardPath(cardsDir, id);
-    if (!fs.existsSync(cardPath)) {
-      writeJsonFile(fs, cardPath, readJsonFile(fs, legacyPath, null));
-    }
-  });
-}
-
-async function readImportCard(fs, selectedDir) {
+async function readImportCard(fs, store, selectedDir) {
   const cardPath = path.join(selectedDir, 'card.json');
-  if (!fs.existsSync(cardPath)) throw new Error('Selected folder must contain card.json');
-
-  const card = readGameCardJson(fs, cardPath);
-  if (!card || !isSafeGameCardId(card.id)) {
-    throw new Error('Game card must have a safe id');
-  }
+  if (!(await store.exists(cardPath))) throw new Error('Selected folder must contain card.json');
+  const card = await readGameCardJsonAsync(store, cardPath);
+  if (!card || !isSafeGameCardId(card.id)) throw new Error('Game card must have a safe id');
   await validateImportedGameCard(fs, card, selectedDir);
   return card;
 }
 
-function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameCardsDir) {
-  migrateLegacyCards(fs, gameCardsDir, legacyGameCardsDir);
-  const cardsDir = ensureGameCardDirs(fs, gameCardsDir);
-  migrateFlatCardFiles(fs, cardsDir);
+function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, options = {}) {
+  const store = options.store || createJsonStore(fs);
+  const cardsDir = path.join(gameCardsDir, 'cards');
   const activePath = path.join(gameCardsDir, 'active.json');
 
-  ipcMain.handle('get-game-cards', () => {
+  ipcMain.handle('get-game-cards', async () => {
     try {
-      const cards = listCardIds(fs, cardsDir).map(id => readCard(fs, cardsDir, id)).filter(Boolean);
+      const ids = await listCardIds(store, cardsDir);
+      const cards = (await Promise.all(ids.map(id => readCard(store, cardsDir, id)))).filter(Boolean);
       return { success: true, cards };
     } catch (err) {
       return asErrorResult(err, { cards: [] });
     }
   });
 
-  ipcMain.handle('get-game-card', (event, id) => {
+  ipcMain.handle('get-game-card', async (event, id) => {
     try {
-      return { success: true, card: readCard(fs, cardsDir, id) };
+      return { success: true, card: await readCard(store, cardsDir, id) };
     } catch (err) {
       return asErrorResult(err, { card: null });
     }
   });
 
-  ipcMain.handle('save-game-card', (event, card) => {
+  ipcMain.handle('save-game-card', async (event, card) => {
     try {
-      if (!card || !isSafeGameCardId(card.id)) {
-        throw new Error('Game card must have a safe id');
-      }
-      writeJsonFile(fs, getCardPath(cardsDir, card.id), card);
+      if (!card || !isSafeGameCardId(card.id)) throw new Error('Game card must have a safe id');
+      await store.writeJson(getCardPath(cardsDir, card.id), card);
       return { success: true };
     } catch (err) {
       return asErrorResult(err);
@@ -114,63 +76,58 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameC
 
   ipcMain.handle('import-game-card-from-directory', async () => {
     try {
-      if (!dialog || typeof dialog.showOpenDialog !== 'function') {
-        throw new Error('File dialog is not available');
-      }
-      const result = await dialog.showOpenDialog({
-        properties: ['openDirectory']
-      });
-      if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+      if (!dialog || typeof dialog.showOpenDialog !== 'function') throw new Error('File dialog is not available');
+      const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+      if (result.canceled || !result.filePaths?.length) {
         return { success: false, canceled: true, card: null };
       }
       const selectedDir = result.filePaths[0];
-      const card = await readImportCard(fs, selectedDir);
-      copyCardDirectory(fs, selectedDir, path.join(cardsDir, card.id));
-      writeJsonFile(fs, activePath, { id: card.id });
+      const card = await readImportCard(fs, store, selectedDir);
+      await store.ensureDir(cardsDir);
+      await copyCardDirectory(store, selectedDir, path.join(cardsDir, card.id));
+      await store.writeJson(activePath, { id: card.id });
       return { success: true, card };
     } catch (err) {
       return asErrorResult(err, { card: null });
     }
   });
 
-  ipcMain.handle('set-active-game-card', (event, id) => {
+  ipcMain.handle('set-active-game-card', async (event, id) => {
     try {
       if (id === null || id === '') {
-        writeJsonFile(fs, activePath, { id: null });
+        await store.writeJson(activePath, { id: null });
         return { success: true };
       }
-      if (!readCard(fs, cardsDir, id)) {
-        throw new Error('Game card not found');
-      }
-      writeJsonFile(fs, activePath, { id });
+      if (!(await readCard(store, cardsDir, id))) throw new Error('Game card not found');
+      await store.writeJson(activePath, { id });
       return { success: true };
     } catch (err) {
       return asErrorResult(err);
     }
   });
 
-  ipcMain.handle('get-active-game-card', () => {
+  ipcMain.handle('get-active-game-card', async () => {
     try {
-      const active = readJsonFile(fs, activePath, { id: null });
-      const card = active && active.id ? readCard(fs, cardsDir, active.id) : null;
+      const active = await store.readJson(activePath, { id: null });
+      const card = active?.id ? await readCard(store, cardsDir, active.id) : null;
       return { success: true, card };
     } catch (err) {
       return asErrorResult(err, { card: null });
     }
   });
 
-  ipcMain.handle('read-game-card-file', (event, id, relativePath) => {
+  ipcMain.handle('read-game-card-file', async (event, id, relativePath) => {
     try {
       const filePath = getCardAssetPath(fs, cardsDir, id, relativePath);
-      return { success: true, content: fs.readFileSync(filePath, 'utf-8') };
+      return { success: true, content: await store.readText(filePath) };
     } catch (err) {
       return asErrorResult(err, { content: '' });
     }
   });
 
-  ipcMain.handle('get-game-card-audio-url', (event, relativePath) => {
+  ipcMain.handle('get-game-card-audio-url', async (event, relativePath) => {
     try {
-      const active = readJsonFile(fs, activePath, { id: null });
+      const active = await store.readJson(activePath, { id: null });
       if (!active?.id) throw new Error('No active game card');
       getCardAudioPath(fs, cardsDir, active.id, relativePath);
       return { success: true, url: createGameCardResourceUrl(active.id, 'audio', relativePath) };
@@ -179,9 +136,9 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameC
     }
   });
 
-  ipcMain.handle('get-game-card-image-url', (event, relativePath) => {
+  ipcMain.handle('get-game-card-image-url', async (event, relativePath) => {
     try {
-      const active = readJsonFile(fs, activePath, { id: null });
+      const active = await store.readJson(activePath, { id: null });
       if (!active?.id) throw new Error('No active game card');
       getCardImagePath(fs, cardsDir, active.id, relativePath);
       return { success: true, url: createGameCardResourceUrl(active.id, 'image', relativePath) };

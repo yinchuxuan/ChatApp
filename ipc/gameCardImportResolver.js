@@ -74,8 +74,41 @@ function readGameCardJson(fs, cardPath, fallback = null) {
   return expandImports(readJson(fs, cardPath), { fs, cardDir, stack: [cardPath] });
 }
 
+async function expandImportsAsync(value, context) {
+  if (isImportObject(value)) {
+    const filePath = resolveImportPath(context.cardDir, value.$import);
+    if (context.stack.includes(filePath)) throw new Error(`circular game card import: ${value.$import}`);
+    if (context.stack.length >= MAX_IMPORT_DEPTH) throw new Error('game card import depth limit exceeded');
+    if (!(await context.store.exists(filePath))) {
+      throw new Error(`game card import not found: ${path.basename(filePath)}`);
+    }
+    const imported = await context.store.readJson(filePath);
+    return expandImportsAsync(imported, { ...context, stack: [...context.stack, filePath] });
+  }
+  if (Array.isArray(value)) {
+    const expanded = await Promise.all(value.map(item => expandImportsAsync(item, context)));
+    return expanded.flatMap(item => Array.isArray(item) ? item : [item]);
+  }
+  if (isPlainObject(value)) {
+    const entries = await Promise.all(Object.entries(value).map(async ([key, child]) => (
+      [key, await expandImportsAsync(child, context)]
+    )));
+    return Object.fromEntries(entries);
+  }
+  return value;
+}
+
+async function readGameCardJsonAsync(store, cardPath, fallback = null) {
+  if (!(await store.exists(cardPath))) return fallback;
+  const cardDir = path.dirname(cardPath);
+  const card = await store.readJson(cardPath);
+  return expandImportsAsync(card, { store, cardDir, stack: [cardPath] });
+}
+
 module.exports = {
   expandImports,
+  expandImportsAsync,
   readGameCardJson,
+  readGameCardJsonAsync,
   resolveImportPath
 };

@@ -1,44 +1,22 @@
-const path = require('path');
+const { createJsonStore } = require('./storage/jsonStore');
 
-function ensureParentDir(fs, filePath) {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
+const DEFAULT_CONFIG = { apiUrl: '', apiKey: '', modelName: '' };
 
-function findExistingPath(fs, paths) {
-  return paths.find(filePath => filePath && fs.existsSync(filePath));
-}
+function registerConfigHandlers(ipcMain, configPath, fs, options = {}) {
+  const store = options.store || createJsonStore(fs);
 
-function readConfig(fs, configPath, legacyConfigPath) {
-  if (fs.existsSync(configPath)) {
-    return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-  }
-  const legacyPath = findExistingPath(fs, [].concat(legacyConfigPath || []));
-  if (legacyPath) {
-    const config = JSON.parse(fs.readFileSync(legacyPath, 'utf-8'));
-    ensureParentDir(fs, configPath);
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
-    return config;
-  }
-  return { apiUrl: '', apiKey: '', modelName: '' };
-}
-
-function registerConfigHandlers(ipcMain, configPath, fs, legacyConfigPath) {
-  ipcMain.handle('get-model-config', () => {
+  ipcMain.handle('get-model-config', async () => {
     try {
-      return { success: true, config: readConfig(fs, configPath, legacyConfigPath) };
+      return { success: true, config: await store.readJson(configPath, DEFAULT_CONFIG) };
     } catch (err) {
       console.error('Error reading model config:', err);
       return { success: false, error: err.message };
     }
   });
 
-  ipcMain.handle('save-model-config', (event, config) => {
+  ipcMain.handle('save-model-config', async (event, config) => {
     try {
-      ensureParentDir(fs, configPath);
-      fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+      await store.writeJson(configPath, config);
       return { success: true };
     } catch (err) {
       console.error('Error saving model config:', err);
@@ -47,4 +25,4 @@ function registerConfigHandlers(ipcMain, configPath, fs, legacyConfigPath) {
   });
 }
 
-module.exports = { registerConfigHandlers };
+module.exports = { DEFAULT_CONFIG, registerConfigHandlers };

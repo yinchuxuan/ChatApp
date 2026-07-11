@@ -1,9 +1,13 @@
 const path = require('path');
 const { getCardAudioPath, getCardImagePath, IMAGE_EXTENSIONS } = require('./gameCardAssets');
-const { readJsonFile } = require('./gameCardStorage');
 
 const FILE_NOT_FOUND = -6;
 const USER_BACKGROUND_URL = 'local://user-background/current';
+
+function readJsonFileSync(fs, filePath, fallback) {
+  if (!fs.existsSync(filePath)) return fallback;
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+}
 
 function encodePath(relativePath) {
   return relativePath
@@ -27,7 +31,7 @@ function decodeSegments(pathname) {
 function resolveGameCardResource(parsed, dependencies) {
   const { fs, cardsDir, activePath } = dependencies;
   const [cardId, type, ...resourceSegments] = decodeSegments(parsed.pathname);
-  const active = readJsonFile(fs, activePath, { id: null });
+  const active = readJsonFileSync(fs, activePath, { id: null });
   if (!active?.id || active.id !== cardId || resourceSegments.length === 0) {
     throw new Error('Game card resource is not authorized');
   }
@@ -40,7 +44,7 @@ function resolveGameCardResource(parsed, dependencies) {
 function resolveBackgroundResource(parsed, dependencies) {
   const { fs, backgroundConfigPath } = dependencies;
   if (parsed.pathname !== '/current') throw new Error('Invalid user background URL');
-  const config = readJsonFile(fs, backgroundConfigPath, null);
+  const config = readJsonFileSync(fs, backgroundConfigPath, null);
   const filePath = config?.backgroundImagePath;
   if (config?.backgroundImageUrl !== USER_BACKGROUND_URL || typeof filePath !== 'string') {
     throw new Error('User background is not authorized');
