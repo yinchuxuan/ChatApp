@@ -11,14 +11,17 @@ Vite requires Node.js `^20.19.0` or `>=22.12.0` for local build and development 
 | `npm run renderer:dev` | Start only the Vite renderer on fixed port `1420` |
 | `npm run tauri:dev` | Start the Vite renderer and Tauri desktop debug app |
 | `npm run tauri:build` | Build the renderer and native Tauri desktop bundle |
+| `cargo test --manifest-path src-tauri/Cargo.toml` | Run Tauri Rust backend tests |
 | `npm run lint` | Run ESLint on all `.js`/`.jsx` files |
 | `npm run lint:fix` | Run ESLint with auto-fix |
 
-Tauri commands require the stable Rust toolchain and the platform prerequisites from the Tauri 2 documentation. Stage 2 provides the renderer adapters; native configuration and storage commands remain pending until the later migration phases.
+Tauri commands require the stable Rust toolchain and the platform prerequisites from the Tauri 2 documentation. The Rust backend currently provides configuration, chat history, and session storage; game card repository and local resource commands remain pending until later migration phases.
 
 ## Testing
 
 The test suite has three layers, run in order by `npm test`:
+
+Tauri Rust storage tests run separately with `cargo test --manifest-path src-tauri/Cargo.toml`. They cover atomic JSON replacement, configuration persistence, session isolation, retry state, metadata, and concurrent save ordering.
 
 ### Unit Tests (`test/**/*.test.js`, excluding `*.integration.test.js`)
 - **Framework**: Jest + jsdom + Testing Library
@@ -62,6 +65,7 @@ Unit and integration tests are grouped by ownership:
 - `src/styles/renderer.css` is the single platform CSS entry and owns platform style order.
 - `src/index.html` contains one module script; Vite resolves the complete JavaScript and CSS dependency graph.
 - Development uses Vite React refresh through `scripts/dev.js`.
+- Vite development routes model API requests through a local same-origin streaming proxy so providers without browser CORS headers remain usable; production Electron continues to request providers directly.
 - Tauri development uses the same Vite config at `http://localhost:1420`; the fixed port prevents the native shell from loading a different server.
 - Tauri dev/build commands pass `--mode tauri`; other Vite modes compile the Electron adapter as the fixed desktop target.
 - Production and Electron E2E load `dist/renderer/index.html`.

@@ -2,7 +2,7 @@
 
 ## 组成部分
 
-- **Tauri 桌面壳 (`src-tauri/`)**：复用 Vite renderer，并通过构建期 target 使用 Tauri renderer adapter；当前尚未实现 native 业务 commands，配置和存储从阶段 3 开始迁移。
+- **Tauri 桌面壳 (`src-tauri/`)**：复用 Vite renderer，并通过构建期 target 使用 Tauri renderer adapter；Rust 后端已实现配置、聊天历史和 Session commands，游戏卡仓库与资源协议按后续迁移阶段接入。
 - **主进程 (`main.js`)**：Electron 主进程，创建 `BrowserWindow`，管理应用生命周期，注册 IPC 处理器处理文件 I/O（模型配置、背景配置、聊天历史）。
 - **预加载脚本 (`preload.js`)**：通过 `contextBridge` 桥接主进程与渲染进程，暴露 `window.electronAPI` 供渲染进程调用。
 - **渲染进程 (`src/`)**：Vite 构建的 React 单页应用。`main.jsx` 是唯一入口，`App.jsx` 为根组件；平台模块通过 ESM `import/export` 连接，不依赖 HTML 脚本顺序或 `window.*` 模块注册。

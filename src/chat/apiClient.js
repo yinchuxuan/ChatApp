@@ -2,6 +2,9 @@ import { buildAnthropicParams, buildOpenAIParams } from './modelGenerationParams
 import { adaptMessagesToProtocol } from '../../shared/game-card/protocol/protocolAdapter.js';
 import { createSSEParser } from './sseParser.js';
 
+const DEV_MODEL_PROXY_PATH = '/__chatapp_model_proxy';
+const DEV_MODEL_TARGET_HEADER = 'X-ChatApp-Target-Url';
+
 function normalizeUrl(url) {
   return url.replace(/\/+$/, '').replace(/\/v1$/, '');
 }
@@ -46,6 +49,22 @@ function buildRequest(config) {
   const request = protocol === 'anthropic' ? buildAnthropicRequest(config) : buildOpenAIRequest(config);
   if (config.signal) request.options.signal = config.signal;
   return { protocol, ...request };
+}
+
+function shouldUseDevModelProxy() {
+  return globalThis.__CHATAPP_DEV_MODEL_PROXY__ === true;
+}
+
+function resolveRequestTransport(request, useProxy = shouldUseDevModelProxy()) {
+  if (!useProxy) return request;
+  return {
+    ...request,
+    url: DEV_MODEL_PROXY_PATH,
+    options: {
+      ...request.options,
+      headers: { ...request.options.headers, [DEV_MODEL_TARGET_HEADER]: request.url }
+    }
+  };
 }
 
 function emitProviderChunk(parsed, protocol, callbacks) {
@@ -96,7 +115,7 @@ async function readSSEStream(reader, protocol, callbacks) {
 }
 
 async function sendChatRequest(config, callbacks = {}) {
-  const { url, options, protocol } = buildRequest(config);
+  const { url, options, protocol } = resolveRequestTransport(buildRequest(config));
   const response = await fetch(url, options);
   if (!response.ok) {
     let message = `API 错误: ${response.status}`;
@@ -109,4 +128,4 @@ async function sendChatRequest(config, callbacks = {}) {
   finally { reader.releaseLock(); }
 }
 
-export { readSSEStream, sendChatRequest };
+export { readSSEStream, resolveRequestTransport, sendChatRequest };

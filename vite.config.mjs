@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import modelProxy from './scripts/devModelProxy.js';
 
 const host = process.env.TAURI_DEV_HOST;
+const { createDevModelProxyPlugin } = modelProxy;
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   const desktopTarget = mode === 'tauri' ? 'tauri' : 'electron';
   return {
     root: 'src',
@@ -11,9 +13,10 @@ export default defineConfig(({ mode }) => {
     cacheDir: '../node_modules/.vite',
     clearScreen: false,
     define: {
-      __CHATAPP_DESKTOP_TARGET__: JSON.stringify(desktopTarget)
+      __CHATAPP_DESKTOP_TARGET__: JSON.stringify(desktopTarget),
+      'globalThis.__CHATAPP_DEV_MODEL_PROXY__': JSON.stringify(command === 'serve')
     },
-    plugins: [react()],
+    plugins: [react(), createDevModelProxyPlugin()],
     envPrefix: ['VITE_', 'TAURI_ENV_*'],
     server: {
       host: host || false,

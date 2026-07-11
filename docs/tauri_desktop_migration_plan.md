@@ -70,7 +70,7 @@
 - Tauri adapter 可以用 mock commands 通过全部 contract tests。
 - Electron adapter 的行为和测试保持不变。
 
-## 阶段 3：迁移配置、存储与 Session
+## 阶段 3：迁移配置、存储与 Session（已完成，2026-07-11）
 
 - 在 Rust 中使用 Tauri `app_data_dir` 建立与现有一致的数据目录。
 - 实现 JSON 读取、目录创建、临时文件写入和同目录 rename 替换。
@@ -79,6 +79,12 @@
 - 实现 messages、game state、retry base 和 metadata 的读写。
 - 使用按 session key 的异步锁保证同一 session 串行保存。
 - 保持现有 command payload 和 renderer contract 的数据形状。
+
+实现说明：
+
+- Tauri 后端通过 `AppStorage` 统一管理 `app_data_dir`、原子 JSON 写入和按路径异步锁。
+- model/background config、session metadata、messages、game state 和 retry base 已接入 Rust commands。
+- 背景图片目录选择及 `local://` 资源授权仍按计划留在阶段 5，本阶段不开放任意本地路径。
 
 验收条件：
 
