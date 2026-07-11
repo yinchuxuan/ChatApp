@@ -1,3 +1,5 @@
+import React from 'react';
+
 const STAGE_LABELS = {
   validate_card: '游戏卡主文件校验',
   load_state_schema: '读取状态 schema',
@@ -38,7 +40,7 @@ function formatStage(stage) {
 }
 
 function GameCardErrorPanel({ error, variant = 'active', onClose }) {
-  const R = window.React || React;
+  const R = React;
   const C = R.createElement;
   const normalized = normalizeGameCardError(error);
   const [expanded, setExpanded] = R.useState(false);
@@ -75,11 +77,6 @@ function GameCardErrorPanel({ error, variant = 'active', onClose }) {
       C('button', { type: 'button', onClick: () => copyGameCardError(normalized) }, '复制错误')
     )
   );
-}
-
-if (typeof window !== 'undefined') {
-  window.GameCardErrorPanel = GameCardErrorPanel;
-  window.normalizeGameCardError = normalizeGameCardError;
 }
 
 export default GameCardErrorPanel;

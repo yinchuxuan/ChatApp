@@ -1,5 +1,5 @@
-const { matchesPredicate } = require('./predicate');
-const { getStateValue, hasStateValue, setStateValue, deleteStateValue } = require('./statePaths');
+import { matchesPredicate } from './predicate.js';
+import { deleteStateValue, getStateValue, hasStateValue, setStateValue } from './statePaths.js';
 
 function normalizeFind(find) {
   if (Array.isArray(find)) return find;
@@ -57,6 +57,4 @@ function withFindState(state = {}, find, messages = []) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { normalizeFind, resolveFind, withFindState };
-}
+export { normalizeFind, resolveFind, withFindState };

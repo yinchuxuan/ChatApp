@@ -38,10 +38,4 @@ function adaptMessagesToProtocol(messages, protocol = 'openai') {
   return adaptOpenAIMessages(messages);
 }
 
-if (typeof window !== 'undefined') {
-  window.adaptMessagesToProtocol = adaptMessagesToProtocol;
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { adaptMessagesToProtocol };
-}
+export { adaptMessagesToProtocol };

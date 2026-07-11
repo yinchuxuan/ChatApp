@@ -1,30 +1,9 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const vm = require('node:vm');
+const { applyGameCard } = require('../../src/gameCard/engine');
+const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
-
-const scripts = [
-  'predicate.js', 'statePaths.js', 'findResolver.js', 'contentTransforms.js',
-  'fileSections.js', 'contentFiles.js', 'contentObjects.js', 'contentResolver.js', 'execSource.js', 'execFiles.js', 'execRunner.js',
-  'stateSchema.js', 'stateActions.js', 'statePatch.js', 'actions.js',
-  'validateStateActions.js', 'validateContent.js', 'validateFind.js',
-  'validatePredicates.js', 'audioConfig.js', 'visualConfig.js', 'uiConfig.js', 'validateGameCard.js', 'engine.js'
-];
-
-function loadBrowserRuntime() {
-  const context = { console };
-  context.window = context;
-  vm.createContext(context);
-  scripts.forEach((file) => {
-    const code = fs.readFileSync(path.join(__dirname, '../../dist/gameCard', file), 'utf8');
-    vm.runInContext(code, context, { filename: file });
-  });
-  return context;
-}
 
 describe('browser game card find runtime', () => {
   test('rule find still resolves after content resolver is loaded', () => {
-    const runtime = loadBrowserRuntime();
     const card = {
       version: '1', id: 'find-browser', name: 'Find Browser',
       rules: [{
@@ -42,7 +21,7 @@ describe('browser game card find runtime', () => {
       }]
     };
 
-    const result = runtime.applyGameCard({
+    const result = applyGameCard({
       card,
       phase: 'pre_send',
       messages: [{ role: 'assistant', content: 'T:2007.10.21: 08:00' }, { role: 'user', content: 'go' }],
@@ -54,7 +33,6 @@ describe('browser game card find runtime', () => {
   });
 
   test('rule find can drive action when state updates in browser runtime', () => {
-    const runtime = loadBrowserRuntime();
     const card = {
       version: '1', id: 'advance-browser', name: 'Advance Browser',
       state: { schema: { slot: { type: 'enum', values: ['free', 'fixed'], default: 'free' } } },
@@ -73,7 +51,7 @@ describe('browser game card find runtime', () => {
       }]
     };
 
-    const result = runtime.applyGameCard({
+    const result = applyGameCard({
       card,
       phase: 'pre_send',
       messages: [{ role: 'assistant', content: 'T:2007.10.21: 14:00' }, { role: 'user', content: 'go' }],
@@ -85,7 +63,6 @@ describe('browser game card find runtime', () => {
   });
 
   test('white album browser runtime appends tail context to latest user message', () => {
-    const runtime = loadBrowserRuntime();
     const { card, stateSchema: schema, llmStateSchema: llmSchema } = require('./whiteAlbumTestCard');
     const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema } });
     const fileContents = {
@@ -102,14 +79,14 @@ describe('browser game card find runtime', () => {
       'worldbook/index.md': '世界书索引',
       'worldbook/location.md': '# 地点'
     };
-    const init = runtime.applyGameCard({
+    const init = applyGameCard({
       card: loadedCard,
       phase: 'init',
       messages: [],
-      state: runtime.ensureStateDefaults(loadedCard.state.schema, {}).state,
+      state: ensureStateDefaults(loadedCard.state.schema, {}).state,
       fileContents
     });
-    const result = runtime.applyGameCard({
+    const result = applyGameCard({
       card: loadedCard,
       phase: 'pre_send',
       messages: [...init.messages, { role: 'user', content: '继续' }],

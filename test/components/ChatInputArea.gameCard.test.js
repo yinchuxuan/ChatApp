@@ -194,7 +194,7 @@ describe('ChatInputArea game card pre_send integration', () => {
       fireEvent.change(screen.getByPlaceholderText('输入您的回答...'), { target: { value: 'hello' } });
       fireEvent.click(screen.getByRole('button', { name: '发送消息' }));
     });
-    await waitFor(() => expect(onGameCardError).toHaveBeenCalledWith(expect.objectContaining({ error: '游戏卡状态 schema 校验失败' })));
+    await waitFor(() => expect(onGameCardError).toHaveBeenCalledWith(expect.objectContaining({ message: '游戏卡状态 schema 校验失败' })));
     expect(global.fetch).not.toHaveBeenCalled(); window.preparePreSendMessages = originalPreSend;
   });
 });

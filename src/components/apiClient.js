@@ -1,13 +1,16 @@
+import { buildAnthropicParams, buildOpenAIParams } from './modelGenerationParams.js';
+import { adaptMessagesToProtocol } from '../gameCard/protocolAdapter.js';
+
 function normalizeUrl(url) {
   return url.replace(/\/+$/, '').replace(/\/v1$/, '');
 }
 
 function getOpenAIParams(config) {
-  return window.buildOpenAIParams ? window.buildOpenAIParams(config) : {};
+  return buildOpenAIParams(config);
 }
 
 function getAnthropicParams(config) {
-  return window.buildAnthropicParams ? window.buildAnthropicParams(config) : {};
+  return buildAnthropicParams(config);
 }
 
 function buildOpenAIRequest(config) {
@@ -58,15 +61,7 @@ function buildAnthropicRequest(config) {
 }
 
 function adaptMessagesForRequest(messages, protocol) {
-  if (typeof window !== 'undefined' && window.adaptMessagesToProtocol) {
-    return window.adaptMessagesToProtocol(messages, protocol);
-  }
-  if (typeof require !== 'undefined') {
-    try {
-      return require('../gameCard/protocolAdapter').adaptMessagesToProtocol(messages, protocol);
-    } catch (_) { /* use fallback */ }
-  }
-  return { messages: Array.isArray(messages) ? messages : [] };
+  return adaptMessagesToProtocol(messages, protocol);
 }
 
 function buildRequest(config) {
@@ -181,11 +176,6 @@ async function sendChatRequest(config, callbacks) {
   } finally {
     reader.releaseLock();
   }
-}
-
-// Make available globally for browser environment
-if (typeof window !== 'undefined') {
-  window.sendChatRequest = sendChatRequest;
 }
 
 export { sendChatRequest };

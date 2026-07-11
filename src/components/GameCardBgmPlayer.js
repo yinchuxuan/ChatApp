@@ -1,5 +1,7 @@
+import React from 'react';
+
 function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 0, defer = false }) {
-  const R = window.React || React;
+  const R = React;
   const audioRef = R.useRef(null), lastPathRef = R.useRef('');
   const playingRef = R.useRef(false);
   const pendingResumeRef = R.useRef(false);
@@ -101,5 +103,4 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
   );
 }
 
-if (typeof window !== 'undefined') { window.GameCardBgmPlayer = GameCardBgmPlayer; }
-module.exports = GameCardBgmPlayer;
+export default GameCardBgmPlayer;

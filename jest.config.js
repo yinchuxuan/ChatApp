@@ -26,6 +26,7 @@ module.exports = {
   transform: {
     '^.+\\.jsx?$': 'babel-jest'
   },
+  transformIgnorePatterns: ['/node_modules/(?!marked/)'],
   moduleDirectories: ['node_modules', 'src'],
   modulePathIgnorePatterns: ['<rootDir>/test/__mocks__/']
 };

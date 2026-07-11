@@ -7,6 +7,7 @@ const _React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, waitFor: _waitFor, act } = require('@testing-library/react');
 
 const electronAPI = global.window.electronAPI;
+const chatPanelRenderers = require('../../src/components/ChatPanelRenderers').default;
 
 describe('ChatPanel Component - Auto-scroll', () => {
   let ChatPanel;
@@ -19,14 +20,11 @@ describe('ChatPanel Component - Auto-scroll', () => {
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key', modelName: 'gpt-4' }
     });
     global.fetch.mockResolvedValue(global.createStreamingMock('Test response'));
-    window.ChatPanelRenderers = {
-      renderMsgHistoryDisplay: jest.fn(() => null),
-      renderChatHistory: jest.fn(() => null)
-    };
+    jest.spyOn(chatPanelRenderers, 'renderMsgHistoryDisplay').mockReturnValue(null);
   });
 
   afterEach(() => {
-    window.ChatPanelRenderers = undefined;
+    jest.restoreAllMocks();
     window.sendChatRequest = originalSendChatRequest;
   });
 
@@ -118,7 +116,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
   });
 
   test('should auto-scroll when toggling to msg history display', async () => {
-    window.ChatPanelRenderers.renderMsgHistoryDisplay = jest.fn((R) =>
+    chatPanelRenderers.renderMsgHistoryDisplay.mockImplementation((R) =>
       R.createElement('div', { className: 'chat-msg-history-display' }, 'Msg History Content')
     );
 

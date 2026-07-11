@@ -40,6 +40,4 @@ function validateUiRoot(root, path, errors) {
   if (root.props !== undefined && !isObject(root.props)) errors.push(`${path}.props: must be an object`);
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { UI_STYLE_PATH_PATTERN, UI_ROOT_SOURCE_PATH_PATTERN, validateUiConfig };
-}
+export { UI_ROOT_SOURCE_PATH_PATTERN, UI_STYLE_PATH_PATTERN, validateUiConfig };

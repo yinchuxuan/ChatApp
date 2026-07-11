@@ -1,9 +1,9 @@
-const {
+import {
   cloneState,
   getStateValue,
   hasStateValue,
   setStateValue
-} = require('./statePaths');
+} from './statePaths.js';
 
 const VALID_TYPES = ['string', 'number', 'boolean', 'object', 'array', 'enum'];
 
@@ -135,6 +135,4 @@ function validateStatePathValue(schemaInput, path, value) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ensureStateDefaults, normalizeStateSchema, validateStatePathValue };
-}
+export { ensureStateDefaults, normalizeStateSchema, validateStatePathValue };

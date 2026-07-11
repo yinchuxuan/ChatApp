@@ -1,11 +1,11 @@
-const {
+import {
   cloneState,
   deleteStateValue,
   getStateValue,
   hasStateValue,
   setStateValue
-} = require('./statePaths');
-const { normalizeStateSchema, validateStatePathValue } = require('./stateSchema');
+} from './statePaths.js';
+import { normalizeStateSchema, validateStatePathValue } from './stateSchema.js';
 
 function isObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -183,6 +183,4 @@ function applyStateAction(state, action, options = {}) {
   return fail(action?.type || 'unknown', state, 'not_implemented', options);
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { applyStateAction };
-}
+export { applyStateAction };

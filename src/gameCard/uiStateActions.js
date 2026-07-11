@@ -1,6 +1,6 @@
-const { applyStateAction } = require('./stateActions');
-const { expandCardImports } = require('./cardImportExpander');
-const { loadExternalStateSchema } = require('./stateSchemaLoader');
+import { expandCardImports } from './cardImportExpander.js';
+import { applyStateAction } from './stateActions.js';
+import { loadExternalStateSchema } from './stateSchemaLoader.js';
 
 const MAX_UI_STATE_ACTIONS = 50;
 
@@ -76,10 +76,4 @@ async function applyUiStateActionEvent({ event, state = {}, messages = [], card 
   };
 }
 
-if (typeof window !== 'undefined') {
-  window.GameCardUiStateActions = { applyUiStateActionEvent, normalizeUiStateActions };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { applyUiStateActionEvent, normalizeUiStateActions };
-}
+export { applyUiStateActionEvent, normalizeUiStateActions };

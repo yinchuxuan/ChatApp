@@ -1,4 +1,6 @@
-import './GameCardErrorPanel.jsx';
+import React from 'react';
+import ChatSessionManager from './ChatSessionManager.jsx';
+import GameCardErrorPanel, { normalizeGameCardError } from './GameCardErrorPanel.jsx';
 
 function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged, audioControl, onImportError }) {
   const [card, setCard] = React.useState(null);
@@ -26,7 +28,7 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
       onImportError?.(null);
       window.dispatchEvent(new CustomEvent('game-card-changed', { detail: result.card || null }));
     } else if (!result.canceled) {
-      const nextError = window.normalizeGameCardError?.(result, { title: '导入游戏卡失败' }) || result;
+      const nextError = normalizeGameCardError(result, { title: '导入游戏卡失败' });
       setError(nextError);
       onImportError?.(nextError);
     }
@@ -34,8 +36,6 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
   };
 
   const title = card ? (card.name || card.id) : '未加载游戏卡';
-  const SessionManager = window.ChatSessionManager;
-  const ErrorPanel = window.GameCardErrorPanel;
   const errorTitle = error ? `${error.title || '导入游戏卡失败'}: ${error.message || error.error || ''}` : '';
 
   return (
@@ -47,7 +47,7 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
       {modelName ? <span className="config-status configured game-card-model-status" data-gc-part="model-status">{modelName}</span> : null}
       <div className="game-card-title-actions" data-gc-part="game-card-title-actions">
         {audioControl || null}
-        {SessionManager ? <SessionManager onBeforeSessionChange={onBeforeSessionChange} onSessionChanged={onSessionChanged} /> : null}
+        <ChatSessionManager onBeforeSessionChange={onBeforeSessionChange} onSessionChanged={onSessionChanged} />
         <button
           className="game-card-import-btn md-btn md-btn-icon"
           data-gc-part="game-card-import-button"
@@ -64,13 +64,9 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
           </button>
         ) : null}
       </div>
-      {error && ErrorPanel && !onImportError ? <ErrorPanel error={error} variant="import" /> : null}
+      {error && !onImportError ? <GameCardErrorPanel error={error} variant="import" /> : null}
     </div>
   );
-}
-
-if (typeof window !== 'undefined') {
-  window.GameCardTitleControl = GameCardTitleControl;
 }
 
 export default GameCardTitleControl;

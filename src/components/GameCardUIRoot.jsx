@@ -1,26 +1,11 @@
-function getRuntime() {
-  if (typeof window !== 'undefined' && window.GameCardUiRuntime) return window.GameCardUiRuntime;
-  if (typeof require !== 'undefined') return require('../gameCard/uiRuntime');
-  return null;
-}
-
-function getStateActions() {
-  if (typeof window !== 'undefined' && window.GameCardUiStateActions) return window.GameCardUiStateActions;
-  if (typeof require !== 'undefined') return require('../gameCard/uiStateActions');
-  return null;
-}
-
-function getScriptRunner() {
-  if (typeof window !== 'undefined' && window.GameCardUiScripts) return window.GameCardUiScripts;
-  if (typeof require !== 'undefined') return require('../gameCard/uiScripts');
-  return null;
-}
-
-function getMessageRenderers() {
-  if (typeof window !== 'undefined' && window.ChatPanelMessageRenderers) return window.ChatPanelMessageRenderers;
-  if (typeof require !== 'undefined') return require('./ChatPanelMessageRenderers');
-  return null;
-}
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+import React from 'react';
+import ChatPanelMessageRenderers from './ChatPanelMessageRenderers.js';
+import { highlightQuotes } from './highlightQuotes.js';
+import * as runtime from '../gameCard/uiRuntime.js';
+import { applyUiScriptRunEvent } from '../gameCard/uiScripts.js';
+import { applyUiStateActionEvent } from '../gameCard/uiStateActions.js';
 
 function clone(value) {
   if (value === undefined) return undefined;
@@ -45,9 +30,8 @@ function emitInputAction(event) {
 }
 
 async function emitStateAction(event, options) {
-  const stateActions = getStateActions();
-  if (!stateActions || typeof options?.setGameState !== 'function') return false;
-  const result = await stateActions.applyUiStateActionEvent({
+  if (typeof options?.setGameState !== 'function') return false;
+  const result = await applyUiStateActionEvent({
     event,
     state: options.stateRef.current,
     messages: options.messages,
@@ -62,9 +46,8 @@ async function emitStateAction(event, options) {
 }
 
 async function emitScriptRun(event, options) {
-  const scriptRunner = getScriptRunner();
-  if (!scriptRunner || typeof options?.setGameState !== 'function') return false;
-  const result = await scriptRunner.applyUiScriptRunEvent({
+  if (typeof options?.setGameState !== 'function') return false;
+  const result = await applyUiScriptRunEvent({
     event,
     state: options.stateRef.current,
     messages: options.messages,
@@ -88,8 +71,7 @@ function handleUiEvent(event, options) {
 }
 
 function renderAssistantMessage(R, content, card, options = {}) {
-  const renderers = getMessageRenderers();
-  if (!renderers?.renderAssistantMsg) return String(content || '');
+  const renderers = ChatPanelMessageRenderers;
   const rowClass = ['chat-message-row', options.rowClassName].filter(Boolean).join(' ');
   const msgClass = ['chat-message assistant', options.messageClassName].filter(Boolean).join(' ');
   const bubble = renderers.renderAssistantMsg(
@@ -102,9 +84,9 @@ function renderAssistantMessage(R, content, card, options = {}) {
     false,
     () => {},
     () => {},
-    window.marked,
-    window.DOMPurify,
-    window.highlightQuotes,
+    marked,
+    DOMPurify,
+    highlightQuotes,
     card?.display
   );
   return R.createElement('div', { className: rowClass, 'data-gc-part': 'message-row', 'data-role': 'assistant' },
@@ -113,8 +95,7 @@ function renderAssistantMessage(R, content, card, options = {}) {
 }
 
 function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isLoading = false }) {
-  const R = window.React || React;
-  const runtime = getRuntime();
+  const R = React;
   const [loadedRoot, setLoadedRoot] = R.useState(null);
   const [error, setError] = R.useState(null);
   const stateRef = R.useRef(gameState || {});
@@ -194,6 +175,4 @@ function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isL
   }));
 }
 
-if (typeof window !== 'undefined') { window.GameCardUIRoot = GameCardUIRoot; }
-if (typeof module !== 'undefined' && module.exports) module.exports = GameCardUIRoot;
 export default GameCardUIRoot;

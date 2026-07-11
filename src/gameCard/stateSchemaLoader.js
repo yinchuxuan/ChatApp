@@ -1,5 +1,5 @@
-const { getAudioStateSchema } = require('./audioConfig');
-const { getVisualStateSchema } = require('./visualConfig');
+import { getAudioStateSchema } from './audioConfig.js';
+import { getVisualStateSchema } from './visualConfig.js';
 
 function hasSchemaFile(card) {
   return typeof card?.stateSchema === 'string' && card.stateSchema.length > 0;
@@ -49,6 +49,4 @@ async function loadExternalStateSchema(card, api) {
   });
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { loadExternalStateSchema, mergeAudioStateSchema, mergeRuntimeStateSchema };
-}
+export { loadExternalStateSchema, mergeAudioStateSchema, mergeRuntimeStateSchema };

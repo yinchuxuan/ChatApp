@@ -65,7 +65,7 @@ function migrateFlatCardFiles(fs, cardsDir) {
   });
 }
 
-function readImportCard(fs, selectedDir) {
+async function readImportCard(fs, selectedDir) {
   const cardPath = path.join(selectedDir, 'card.json');
   if (!fs.existsSync(cardPath)) throw new Error('Selected folder must contain card.json');
 
@@ -73,7 +73,7 @@ function readImportCard(fs, selectedDir) {
   if (!card || !isSafeGameCardId(card.id)) {
     throw new Error('Game card must have a safe id');
   }
-  validateImportedGameCard(fs, card, selectedDir);
+  await validateImportedGameCard(fs, card, selectedDir);
   return card;
 }
 
@@ -124,7 +124,7 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameC
         return { success: false, canceled: true, card: null };
       }
       const selectedDir = result.filePaths[0];
-      const card = readImportCard(fs, selectedDir);
+      const card = await readImportCard(fs, selectedDir);
       copyCardDirectory(fs, selectedDir, path.join(cardsDir, card.id));
       writeJsonFile(fs, activePath, { id: card.id });
       return { success: true, card };

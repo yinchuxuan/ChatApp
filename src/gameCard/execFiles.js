@@ -1,4 +1,4 @@
-const { resolveFileSource } = require('./contentFiles');
+import { resolveFileSource } from './contentFiles.js';
 
 function createExecFiles(options = {}, state = {}) {
   return Object.freeze({
@@ -11,6 +11,4 @@ function createExecFiles(options = {}, state = {}) {
   });
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { createExecFiles };
-}
+export { createExecFiles };

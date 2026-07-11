@@ -1,6 +1,6 @@
-const { VALID_STATE_ACTION_TYPES, validateStateAction } = require('./validateStateActions');
-const { validateContent } = require('./validateContent');
-const { validateFind } = require('./validateFind');
+import { validateContent } from './validateContent.js';
+import { validateFind } from './validateFind.js';
+import { VALID_STATE_ACTION_TYPES, validateStateAction } from './validateStateActions.js';
 const VALID_PHASES = ['init', 'pre_send', 'after_response'];
 const VALID_ANCHORS = ['before', 'after'];
 const VALID_ROLES = ['user', 'assistant', 'system'];
@@ -191,4 +191,4 @@ function validateAction(action, path, errors) {
   if (action._meta !== undefined) validateMessageMeta(action._meta, path + '._meta', errors);
   validateFind(action.find, path + '.find', errors, validatePredicate);
 }
-if (typeof module !== 'undefined' && module.exports) module.exports = { validatePredicate, validateWhen, validateAction, validateTTL, validateMessageMeta, validateMessageRole, validateStatePredicate };
+export { validateAction, validateMessageMeta, validateMessageRole, validatePredicate, validateStatePredicate, validateTTL, validateWhen };

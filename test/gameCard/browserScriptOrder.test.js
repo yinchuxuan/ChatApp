@@ -1,60 +1,13 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-function scriptIndex(html, scriptPath) {
-  return html.indexOf(`src="${scriptPath}"`);
-}
-
-describe('browser game card script order', () => {
-  test('loads content object helpers before browser modules that use them', () => {
+describe('renderer module entry', () => {
+  test('uses one Vite module entry instead of ordered global scripts', () => {
     const html = fs.readFileSync(path.join(__dirname, '../../src/index.html'), 'utf8');
-    const statePaths = scriptIndex(html, '../dist/gameCard/statePaths.js');
-    const findResolver = scriptIndex(html, '../dist/gameCard/findResolver.js');
-    const contentFiles = scriptIndex(html, '../dist/gameCard/contentFiles.js');
-    const contentObjects = scriptIndex(html, '../dist/gameCard/contentObjects.js');
-    const contentResolver = scriptIndex(html, '../dist/gameCard/contentResolver.js');
-    const execSource = scriptIndex(html, '../dist/gameCard/execSource.js');
-    const execFiles = scriptIndex(html, '../dist/gameCard/execFiles.js');
-    const execRunner = scriptIndex(html, '../dist/gameCard/execRunner.js');
-    const validateContent = scriptIndex(html, '../dist/gameCard/validateContent.js');
-    const validateFind = scriptIndex(html, '../dist/gameCard/validateFind.js');
-    const validatePredicates = scriptIndex(html, '../dist/gameCard/validatePredicates.js');
-    const uiConfig = scriptIndex(html, '../dist/gameCard/uiConfig.js');
-    const uiRuntime = scriptIndex(html, '../dist/gameCard/uiRuntime.js');
-    const gameCardUiRoot = scriptIndex(html, '../dist/components/GameCardUIRoot.js');
-    const resourcePreload = scriptIndex(html, '../dist/gameCard/resourcePreload.js');
-    const cardImportExpander = scriptIndex(html, '../dist/gameCard/cardImportExpander.js');
-    const stateSchemaLoader = scriptIndex(html, '../dist/gameCard/stateSchemaLoader.js');
-    const uiStateActions = scriptIndex(html, '../dist/gameCard/uiStateActions.js');
-    const uiScripts = scriptIndex(html, '../dist/gameCard/uiScripts.js');
-    const sendPipeline = scriptIndex(html, '../dist/gameCard/sendPipeline.js');
+    const scripts = [...html.matchAll(/<script\b[^>]*>/g)].map(match => match[0]);
 
-    expect(statePaths).toBeGreaterThan(-1);
-    expect(findResolver).toBeGreaterThan(statePaths);
-    expect(contentObjects).toBeGreaterThan(-1);
-    expect(contentFiles).toBeGreaterThan(-1);
-    expect(contentFiles).toBeGreaterThan(statePaths);
-    expect(contentResolver).toBeGreaterThan(contentObjects);
-    expect(contentResolver).toBeGreaterThan(contentFiles);
-    expect(contentResolver).toBeGreaterThan(findResolver);
-    expect(execSource).toBeGreaterThan(contentResolver);
-    expect(execFiles).toBeGreaterThan(execSource);
-    expect(execRunner).toBeGreaterThan(execFiles);
-    expect(validateContent).toBeGreaterThan(-1);
-    expect(validateFind).toBeGreaterThan(validateContent);
-    expect(validatePredicates).toBeGreaterThan(validateContent);
-    expect(validatePredicates).toBeGreaterThan(validateFind);
-    expect(uiConfig).toBeGreaterThan(validatePredicates);
-    expect(uiRuntime).toBeGreaterThan(scriptIndex(html, '../dist/gameCard/uiStyles.js'));
-    expect(gameCardUiRoot).toBeGreaterThan(uiRuntime);
-    expect(scriptIndex(html, '../dist/gameCard/validateGameCard.js')).toBeGreaterThan(uiConfig);
-    expect(resourcePreload).toBeGreaterThan(-1);
-    expect(cardImportExpander).toBeGreaterThan(resourcePreload);
-    expect(uiStateActions).toBeGreaterThan(stateSchemaLoader);
-    expect(uiScripts).toBeGreaterThan(uiStateActions);
-    expect(gameCardUiRoot).toBeGreaterThan(uiScripts);
-    expect(gameCardUiRoot).toBeGreaterThan(uiStateActions);
-    expect(sendPipeline).toBeGreaterThan(cardImportExpander);
-    expect(sendPipeline).toBeGreaterThan(resourcePreload);
+    expect(scripts).toEqual(['<script type="module" src="/main.jsx">']);
+    expect(html).not.toContain('../dist/gameCard/');
+    expect(html).not.toContain('react.production.min.js');
   });
 });

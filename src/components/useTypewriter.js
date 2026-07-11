@@ -137,8 +137,4 @@ function useTypewriter(R) {
   return { streamContent, displayedCount, setStreamContent, setDisplayedCount, startStreaming, pushContent, finishStreaming, getAccumulatedContent, getThinkingContent, reset, clearStreaming, thinkingContent, thinkingDone };
 }
 
-if (typeof window !== 'undefined') {
-  window.useTypewriter = useTypewriter;
-}
-
-module.exports = useTypewriter;
+export default useTypewriter;

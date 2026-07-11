@@ -1,11 +1,11 @@
-const { applyGameCard } = require('./engine');
-const { adaptMessagesToProtocol } = require('./protocolAdapter');
-const { decayTTL } = require('./ttl');
-const { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath } = require('./resourcePreload');
-const { expandCardImports } = require('./cardImportExpander');
-const { loadExternalStateSchema } = require('./stateSchemaLoader');
-const { ensureStateDefaults } = require('./stateSchema');
-const { applyLatestAssistantStatePatch } = require('./statePatch');
+import { expandCardImports } from './cardImportExpander.js';
+import { applyGameCard } from './engine.js';
+import { adaptMessagesToProtocol } from './protocolAdapter.js';
+import { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath } from './resourcePreload.js';
+import { ensureStateDefaults } from './stateSchema.js';
+import { loadExternalStateSchema } from './stateSchemaLoader.js';
+import { applyLatestAssistantStatePatch } from './statePatch.js';
+import { decayTTL } from './ttl.js';
 
 function extractActiveCard(result) {
   if (!result || result.success === false) return null;
@@ -177,14 +177,14 @@ function toApiMessages(messages) {
   return adaptMessagesToProtocol(messages, 'openai').messages;
 }
 
-if (typeof window !== 'undefined') {
-  window.preparePreSendMessages = preparePreSendMessages;
-  window.prepareAfterResponseMessages = prepareAfterResponseMessages;
-  window.prepareInitMessages = prepareInitMessages;
-  window.toGameCardApiMessages = toApiMessages;
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { extractActiveCard, loadActiveGameCard, loadCardResources, prepareState, prepareInitMessages,
-    preparePreSendMessages, prepareAfterResponseMessages, toApiMessages, adaptMessagesToProtocol };
-}
+export {
+  adaptMessagesToProtocol,
+  extractActiveCard,
+  loadActiveGameCard,
+  loadCardResources,
+  prepareAfterResponseMessages,
+  prepareInitMessages,
+  preparePreSendMessages,
+  prepareState,
+  toApiMessages
+};

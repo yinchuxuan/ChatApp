@@ -116,24 +116,11 @@ async function loadGameCardUiRootStyle(card, api, doc = document) {
   return true;
 }
 
-if (typeof window !== 'undefined') {
-  window.GameCardUiRuntime = {
-    compileGameCardUiRootSource,
-    isSafeUiRootSourcePath,
-    isSafeUiRootStylePath,
-    loadGameCardUiRoot,
-    loadGameCardUiRootStyle,
-    removeGameCardUiRootStyle
-  };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    compileGameCardUiRootSource,
-    isSafeUiRootSourcePath,
-    isSafeUiRootStylePath,
-    loadGameCardUiRoot,
-    loadGameCardUiRootStyle,
-    removeGameCardUiRootStyle
-  };
-}
+export {
+  compileGameCardUiRootSource,
+  isSafeUiRootSourcePath,
+  isSafeUiRootStylePath,
+  loadGameCardUiRoot,
+  loadGameCardUiRootStyle,
+  removeGameCardUiRootStyle
+};

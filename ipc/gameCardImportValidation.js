@@ -1,7 +1,21 @@
 const path = require('path');
-const { validateGameCard } = require('../src/gameCard/validateGameCard');
-const { mergeRuntimeStateSchema } = require('../src/gameCard/stateSchemaLoader');
-const { ensureStateDefaults } = require('../src/gameCard/stateSchema');
+
+let gameCardModules;
+
+async function loadGameCardModules() {
+  if (!gameCardModules) {
+    gameCardModules = Promise.all([
+      import('../src/gameCard/validateGameCard.js'),
+      import('../src/gameCard/stateSchemaLoader.js'),
+      import('../src/gameCard/stateSchema.js')
+    ]).then(([validation, loader, schema]) => ({
+      ensureStateDefaults: schema.ensureStateDefaults,
+      mergeRuntimeStateSchema: loader.mergeRuntimeStateSchema,
+      validateGameCard: validation.validateGameCard
+    }));
+  }
+  return gameCardModules;
+}
 
 class GameCardValidationError extends Error {
   constructor(message, { stage, file = 'card.json', details = [] } = {}) {
@@ -16,7 +30,8 @@ function detail(file, message) {
   return { file, message };
 }
 
-function validateImportedGameCard(fs, card, cardDir) {
+async function validateImportedGameCard(fs, card, cardDir) {
+  const { ensureStateDefaults, mergeRuntimeStateSchema, validateGameCard } = await loadGameCardModules();
   const cardValidation = validateGameCard(card);
   if (!cardValidation.valid) {
     throw new GameCardValidationError('游戏卡主文件 schema 校验失败', {

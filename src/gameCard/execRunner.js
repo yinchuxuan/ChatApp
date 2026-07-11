@@ -1,5 +1,5 @@
-const { resolveExecSource } = require('./execSource');
-const { createExecFiles } = require('./execFiles');
+import { createExecFiles } from './execFiles.js';
+import { resolveExecSource } from './execSource.js';
 
 function deepClone(value) {
   if (value === undefined) return undefined;
@@ -195,6 +195,4 @@ function runExecAction(messages, state, action, options = {}) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { runExecAction, validateExecResult };
-}
+export { runExecAction, validateExecResult };

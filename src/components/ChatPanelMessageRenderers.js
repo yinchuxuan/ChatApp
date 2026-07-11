@@ -1,3 +1,5 @@
+import * as displayRules from '../gameCard/displayRules.js';
+
 // ChatPanelMessageRenderers - Message rendering helpers for ChatPanel
 // Extracts render functions to reduce ChatPanel.jsx below 200 lines
 
@@ -81,9 +83,7 @@ const ChatPanelMessageRenderers = {
   },
 
   getDisplayRules() {
-    if (typeof window !== 'undefined' && window.GameCardDisplayRules) return window.GameCardDisplayRules;
-    if (typeof require !== 'undefined') return require('../gameCard/displayRules');
-    return null;
+    return displayRules;
   },
 
   renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, marked, DOMPurify, highlightQuotes, display) {
@@ -163,8 +163,4 @@ const ChatPanelMessageRenderers = {
   }
 };
 
-if (typeof window !== 'undefined') {
-  window.ChatPanelMessageRenderers = ChatPanelMessageRenderers;
-}
-
-module.exports = ChatPanelMessageRenderers;
+export default ChatPanelMessageRenderers;

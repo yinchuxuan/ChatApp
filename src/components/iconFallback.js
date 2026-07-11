@@ -50,7 +50,6 @@ if (typeof window !== 'undefined') {
   } else {
     installMaterialIconFallback();
   }
-  window.syncMaterialIcons = syncMaterialIcons;
 }
 
 export { syncMaterialIcons };

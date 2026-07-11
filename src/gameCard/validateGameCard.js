@@ -1,9 +1,9 @@
-const { validateWhen, validateAction, validatePredicate } = require('./validatePredicates');
-const { validateFind } = require('./validateFind');
-const { validateAudioConfig } = require('./audioConfig');
-const { validateVisualConfig } = require('./visualConfig');
-const { validateUiConfig } = require('./uiConfig');
-const { validateContentFiles } = require('./contentFiles');
+import { validateAudioConfig } from './audioConfig.js';
+import { validateContentFiles } from './contentFiles.js';
+import { validateFind } from './validateFind.js';
+import { validateUiConfig } from './uiConfig.js';
+import { validateAction, validatePredicate, validateWhen } from './validatePredicates.js';
+import { validateVisualConfig } from './visualConfig.js';
 
 function addError(errors, path, message) {
   errors.push(`${path}: ${message}`);
@@ -51,6 +51,4 @@ function validateGameCard(card) {
   return { valid: errors.length === 0, errors };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { validateGameCard, validateRule };
-}
+export { validateGameCard, validateRule };

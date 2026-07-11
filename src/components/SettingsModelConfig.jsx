@@ -1,3 +1,5 @@
+import React from 'react';
+
 // SettingsModelConfig - Model configuration settings section
 // Part of SettingsPanel component - inline editing, no separate edit mode
 
@@ -112,11 +114,6 @@ function SettingsModelConfig({
       )}
     </div>
   );
-}
-
-// Make available globally for browser environment
-if (typeof window !== 'undefined') {
-  window.SettingsModelConfig = SettingsModelConfig;
 }
 
 export default SettingsModelConfig;

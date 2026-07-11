@@ -37,6 +37,4 @@ function validateFind(find, path, errors, validatePredicate) {
   return validateFindList(find, path, errors, validatePredicate);
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { validateFind };
-}
+export { validateFind };

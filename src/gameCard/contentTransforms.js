@@ -47,6 +47,4 @@ function renderValue(value, joiner = '\n') {
   return String(value ?? '');
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { applyTransform, renderValue, toList };
-}
+export { applyTransform, renderValue, toList };

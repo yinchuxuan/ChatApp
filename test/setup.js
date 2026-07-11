@@ -68,25 +68,25 @@ global.window.electronAPI = {
 };
 
 // Import ChatPanelRenderers from source (not duplicated)
-const ChatPanelRenderers = require('../src/components/ChatPanelRenderers.js');
+const ChatPanelRenderers = require('../src/components/ChatPanelRenderers.js').default;
 global.window.ChatPanelRenderers = ChatPanelRenderers;
 
-const MessageCollapseRenderer = require('../src/components/MessageCollapseRenderer.js');
+const MessageCollapseRenderer = require('../src/components/MessageCollapseRenderer.js').default;
 global.window.MessageCollapseRenderer = MessageCollapseRenderer;
 
-const useTypewriter = require('../src/components/useTypewriter.js');
+const useTypewriter = require('../src/components/useTypewriter.js').default;
 global.window.useTypewriter = useTypewriter;
 
 const ChatGeneration = require('../src/components/chatGeneration.js');
 global.window.ChatGeneration = ChatGeneration;
 
-const useGenerationAbort = require('../src/components/useGenerationAbort.js');
+const useGenerationAbort = require('../src/components/useGenerationAbort.js').default;
 global.window.useGenerationAbort = useGenerationAbort;
 
-const useRetry = require('../src/components/useRetry.js');
+const useRetry = require('../src/components/useRetry.js').default;
 global.window.useRetry = useRetry;
 
-const useLastUserMessageEdit = require('../src/components/useLastUserMessageEdit.js');
+const useLastUserMessageEdit = require('../src/components/useLastUserMessageEdit.js').default;
 global.window.useLastUserMessageEdit = useLastUserMessageEdit;
 
 const highlightQuotes = require('../src/components/highlightQuotes.js');
@@ -98,6 +98,22 @@ require('../src/gameCard/displayStyles.js');
 require('../src/gameCard/visualStyles.js');
 require('../src/gameCard/uiStyles.js');
 require('../src/gameCard/uiRuntime.js');
+
+const generationServices = require('../src/components/generationServices.js').default;
+[
+  'normalizeGameCardError',
+  'prepareAfterResponseMessages',
+  'prepareInitMessages',
+  'preparePreSendMessages',
+  'sendChatRequest',
+  'toGameCardApiMessages'
+].forEach(name => {
+  Object.defineProperty(global.window, name, {
+    configurable: true,
+    get: () => generationServices[name],
+    set: value => { generationServices[name] = value; }
+  });
+});
 
 require('../src/components/modelGenerationParams.js');
 

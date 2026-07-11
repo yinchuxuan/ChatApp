@@ -30,17 +30,4 @@ async function loadGameCardVisualStyle(card, api, doc = document) {
   return true;
 }
 
-if (typeof window !== 'undefined') {
-  window.GameCardVisualStyles = {
-    loadGameCardVisualStyle,
-    removeGameCardVisualStyle
-  };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    loadGameCardVisualStyle,
-    removeGameCardVisualStyle,
-    isSafeVisualStylesheetPath
-  };
-}
+export { isSafeVisualStylesheetPath, loadGameCardVisualStyle, removeGameCardVisualStyle };

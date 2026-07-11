@@ -29,6 +29,4 @@ function extractUniqueFileSection(content, headingText) {
   return lines.slice(match.index + 1, end).join('\n').trim();
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { extractUniqueFileSection };
-}
+export { extractUniqueFileSection };

@@ -11,6 +11,9 @@ const mockChatPanel = () => React.createElement('div', { className: 'chat-panel-
 const mockSettingsPanel = ({ onToggleTheme: _onToggleTheme, theme, onBackgroundChange: _onBackgroundChange }) =>
   React.createElement('div', { className: 'settings-panel-mock' }, `Settings: ${theme}`);
 
+jest.mock('../../src/ChatPanel.jsx', () => ({ __esModule: true, default: (props) => mockChatPanel(props) }));
+jest.mock('../../src/components/SettingsPanel.jsx', () => ({ __esModule: true, default: (props) => mockSettingsPanel(props) }));
+
 describe('App Component - Theme', () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -1,5 +1,5 @@
 function resolveFilePath(requestedPath, options) {
-  const nodePath = options.path || (typeof require === 'function' ? require('path') : null);
+  const nodePath = options.path;
   if (!nodePath || !options.baseDir) throw new Error('exec sourceFile requires a baseDir');
   if (nodePath.isAbsolute(requestedPath)) throw new Error('exec sourceFile path must be relative');
   const baseDir = nodePath.resolve(options.baseDir);
@@ -14,7 +14,7 @@ function readSourceFile(filePath, options = {}) {
   if (options.fileContents && Object.prototype.hasOwnProperty.call(options.fileContents, filePath)) {
     return options.fileContents[filePath];
   }
-  const nodeFs = options.fs || (typeof require === 'function' ? require('fs') : null);
+  const nodeFs = options.fs;
   if (!nodeFs || typeof nodeFs.readFileSync !== 'function') {
     throw new Error('exec sourceFile requires fs.readFileSync');
   }
@@ -79,6 +79,4 @@ function resolveExecSource(action, options = {}) {
   throw new Error('exec requires source or sourceFile');
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { extractExecIncludes, resolveExecIncludePath, resolveExecSource };
-}
+export { extractExecIncludes, resolveExecIncludePath, resolveExecSource };

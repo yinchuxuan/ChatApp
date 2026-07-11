@@ -1,19 +1,12 @@
-// useSettingsState - Custom hook for SettingsPanel state management
-// Extracts config loading and handlers from SettingsPanel
+import React from 'react';
+import { DEFAULT_GENERATION_PARAMS, withDefaultGenerationParams } from './modelGenerationParams.js';
 
 function getDefaultGenerationParams() {
-  return window.DEFAULT_GENERATION_PARAMS || {
-    maxTokens: '4096',
-    temperature: '0.8',
-    topP: '0.9',
-    frequencyPenalty: '0',
-    presencePenalty: '0'
-  };
+  return DEFAULT_GENERATION_PARAMS;
 }
 
 function addDefaultGenerationParams(config) {
-  if (window.withDefaultGenerationParams) return window.withDefaultGenerationParams(config);
-  return { ...getDefaultGenerationParams(), ...config };
+  return withDefaultGenerationParams(config);
 }
 
 function useSettingsState(onBackgroundChange) {
@@ -123,11 +116,6 @@ function useSettingsState(onBackgroundChange) {
     handleChange,
     handleBackgroundChange, handleSelectBackgroundImage, handleClearBackgroundImage
   };
-}
-
-// Make available globally for browser environment
-if (typeof window !== 'undefined') {
-  window.useSettingsState = useSettingsState;
 }
 
 export default useSettingsState;

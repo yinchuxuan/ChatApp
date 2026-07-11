@@ -179,10 +179,11 @@ describe('useSettingsState Hook - Utilities', () => {
     });
   });
 
-  describe('Window Export', () => {
-    test('should be available on window when window exists', () => {
-      expect(typeof window !== 'undefined').toBe(true);
-      expect(window.useSettingsState).toBeDefined();
+  describe('Module Export', () => {
+    test('should be available as a default module export', () => {
+      const useSettingsState = require('../../src/components/useSettingsState.js').default;
+      expect(useSettingsState).toEqual(expect.any(Function));
+      expect(window.useSettingsState).toBeUndefined();
     });
   });
 });

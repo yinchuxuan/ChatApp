@@ -41,14 +41,9 @@ function buildAnthropicParams(config) {
   return body;
 }
 
-if (typeof window !== 'undefined') {
-  window.DEFAULT_GENERATION_PARAMS = DEFAULT_GENERATION_PARAMS;
-  window.withDefaultGenerationParams = withDefaultGenerationParams;
-  window.buildOpenAIParams = buildOpenAIParams;
-  window.buildAnthropicParams = buildAnthropicParams;
-}
-
-exports.DEFAULT_GENERATION_PARAMS = DEFAULT_GENERATION_PARAMS;
-exports.withDefaultGenerationParams = withDefaultGenerationParams;
-exports.buildOpenAIParams = buildOpenAIParams;
-exports.buildAnthropicParams = buildAnthropicParams;
+export {
+  DEFAULT_GENERATION_PARAMS,
+  buildAnthropicParams,
+  buildOpenAIParams,
+  withDefaultGenerationParams
+};

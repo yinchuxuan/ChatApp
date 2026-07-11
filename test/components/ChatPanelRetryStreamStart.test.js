@@ -18,9 +18,6 @@ function TestBackgroundRuntime({ revealToken }) {
 }
 
 describe('ChatPanel retry stream start runtime token', () => {
-  const originalBgmPlayer = window.GameCardBgmPlayer;
-  const originalBackgroundRuntime = window.GameCardBackgroundRuntime;
-
   beforeEach(() => {
     jest.clearAllMocks();
     bgmTokens.length = 0;
@@ -39,18 +36,14 @@ describe('ChatPanel retry stream start runtime token', () => {
       retryBaseMessages: [{ role: 'user', content: 'Q' }],
       retryBaseState: {}
     });
-    window.GameCardBgmPlayer = TestBgmPlayer;
-    window.GameCardBackgroundRuntime = TestBackgroundRuntime;
     global.fetch.mockResolvedValue(global.createStreamingMock('Retry body'));
   });
 
-  afterEach(() => {
-    window.GameCardBgmPlayer = originalBgmPlayer;
-    window.GameCardBackgroundRuntime = originalBackgroundRuntime;
-  });
-
   test('increments audio and background tokens when retry body starts', async () => {
-    render(React.createElement(ChatPanel));
+    render(React.createElement(ChatPanel, {
+      BgmPlayer: TestBgmPlayer,
+      BackgroundRuntime: TestBackgroundRuntime
+    }));
     await screen.findByText('gpt-4');
 
     fireEvent.click(screen.getByRole('button', { name: '重新生成回复' }));

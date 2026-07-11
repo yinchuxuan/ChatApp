@@ -52,6 +52,4 @@ async function expandCardImports(card, api) {
   return expandValue(card.id, card, api, []);
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { expandCardImports };
-}
+export { expandCardImports };

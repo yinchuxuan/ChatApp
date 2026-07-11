@@ -2,7 +2,7 @@ const React = require('react');
 const { fireEvent, render } = require('@testing-library/react');
 const { card } = require('./whiteAlbumTestCard');
 const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/gameCard/displayRules');
-const renderers = require('../../src/components/ChatPanelMessageRenderers');
+const renderers = require('../../src/components/ChatPanelMessageRenderers').default;
 
 const sample = [
   '【时间地点】2007.10.20: 15:00 星期六｜峰城大附属第二音乐室',

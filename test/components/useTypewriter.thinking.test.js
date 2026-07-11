@@ -4,7 +4,7 @@
 
 const R = require('react');
 const { renderHook, act } = require('@testing-library/react');
-const useTypewriter = require('../../src/components/useTypewriter.js');
+const useTypewriter = require('../../src/components/useTypewriter.js').default;
 
 describe('useTypewriter thinking parsing', () => {
   test('should separate thinking content from regular content', () => {

@@ -1,11 +1,5 @@
-// ChatInputArea Component - Extracted from ChatPanel
-// Encapsulates input textarea, send button, and submission logic
-
-function getChatGeneration() {
-  if (typeof window !== 'undefined' && window.ChatGeneration) return window.ChatGeneration;
-  if (typeof require !== 'undefined') return require('./components/chatGeneration');
-  return null;
-}
+import React from 'react';
+import * as chatGeneration from './components/chatGeneration.js';
 
 function ChatInputArea({
   messages,
@@ -28,12 +22,11 @@ function ChatInputArea({
   onGameCardError,
   generationControl
 }) {
-  const R = window.React || React;
+  const R = React;
   const [inputValue, setInputValue] = R.useState('');
   const [isFocused, setIsFocused] = R.useState(false);
   const formRef = R.useRef(null), textareaRef = R.useRef(null);
   const isVisible = isLoading || isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
-  const chatGeneration = getChatGeneration();
   const focusInput = R.useCallback(() => {
     setIsInputHovered(true);
     setTimeout(() => textareaRef.current?.focus(), 0);
@@ -142,5 +135,4 @@ function ChatInputArea({
   );
 }
 
-if (typeof window !== 'undefined') { window.ChatInputArea = ChatInputArea; }
 export default ChatInputArea;

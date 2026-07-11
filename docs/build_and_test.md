@@ -1,11 +1,13 @@
 # Build, Test & Run
 
+Vite requires Node.js `^20.19.0` or `>=22.12.0` for local build and development commands.
+
 ## Scripts
 
 | Command | Description |
 |---|---|
-| `npm run build` | Pre-compile JSX/JS in `src/` to plain JS in `dist/` via Babel |
-| `npm run dev` | Launch Electron app in development mode (`electron .`) |
+| `npm run build` | Build the React renderer to `dist/renderer/` with Vite |
+| `npm run dev` | Start the Vite dev server and launch Electron against it |
 | `npm run lint` | Run ESLint on all `.js`/`.jsx` files |
 | `npm run lint:fix` | Run ESLint with auto-fix |
 
@@ -38,7 +40,15 @@ The test suite has three layers, run in order by `npm test`:
 
 ## Pre-test Hook
 
-`npm test` automatically runs `npm run build` first via `pretest` — the JSX must be compiled before any tests execute.
+`npm test` automatically runs `npm run build` first via `pretest`, so Electron E2E tests use the current Vite production output.
+
+## Renderer Build
+
+- `src/main.jsx` is the single renderer entry.
+- `src/index.html` contains one module script; Vite resolves the complete JavaScript and CSS dependency graph.
+- Development uses Vite React refresh through `scripts/dev.js`.
+- Production and Electron E2E load `dist/renderer/index.html`.
+- The preload boundary remains available as `window.electronAPI`; platform modules are imported with standard ESM syntax.
 
 ## Git Hooks
 

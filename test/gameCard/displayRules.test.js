@@ -1,7 +1,7 @@
 const React = require('react');
 const { render } = require('@testing-library/react');
 const displayRules = require('../../src/gameCard/displayRules');
-const renderers = require('../../src/components/ChatPanelMessageRenderers');
+const renderers = require('../../src/components/ChatPanelMessageRenderers').default;
 
 describe('game card display rules', () => {
   test('hides assistant summary blocks without changing the source content', () => {

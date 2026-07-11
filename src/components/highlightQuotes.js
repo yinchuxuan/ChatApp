@@ -83,10 +83,4 @@ function highlightQuotes(html) {
   return result;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { highlightQuotes, wrapQuotesInText };
-}
-if (typeof window !== 'undefined') {
-  window.highlightQuotes = highlightQuotes;
-  window.wrapQuotesInText = wrapQuotesInText;
-}
+export { highlightQuotes, wrapQuotesInText };

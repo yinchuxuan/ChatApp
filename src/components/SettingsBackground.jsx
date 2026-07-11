@@ -1,3 +1,5 @@
+import React from 'react';
+
 // SettingsBackground - Background image settings section
 // Inline editing pattern: click field to edit in place, auto-save on blur/enter
 // Click preview image to open file picker
@@ -139,11 +141,6 @@ function SettingsBackground({
       </div>
     );
   }
-}
-
-// Make available globally for browser environment
-if (typeof window !== 'undefined') {
-  window.SettingsBackground = SettingsBackground;
 }
 
 export default SettingsBackground;

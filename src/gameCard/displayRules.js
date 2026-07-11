@@ -58,10 +58,4 @@ function applyUserDisplayRules(content, display) {
   return applyDisplayRules(content, display, 'user');
 }
 
-if (typeof window !== 'undefined') {
-  window.GameCardDisplayRules = { applyAssistantDisplayRules, applyUserDisplayRules, getAssistantRules, getRules };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { applyAssistantDisplayRules, applyUserDisplayRules, getAssistantRules, getRules };
-}
+export { applyAssistantDisplayRules, applyUserDisplayRules, getAssistantRules, getRules };

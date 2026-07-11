@@ -46,6 +46,4 @@ function getAudioStateSchema(card) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { AUDIO_PATH_PATTERN, getAudioStateSchema, getBgmRelativePath, validateAudioConfig };
-}
+export { AUDIO_PATH_PATTERN, getAudioStateSchema, getBgmRelativePath, validateAudioConfig };

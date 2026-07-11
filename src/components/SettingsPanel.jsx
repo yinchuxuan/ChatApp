@@ -1,12 +1,11 @@
-// SettingsPanel Component - Hidden panel on right side
-// Provides settings for theme toggle, background image, and model configuration
-/* global useSettingsState */
+import React from 'react';
+import SettingsBackground from './SettingsBackground.jsx';
+import SettingsModelConfig from './SettingsModelConfig.jsx';
+import useSettingsState from './useSettingsState.js';
 
 function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
   const [visible, setVisible] = React.useState(false);
-  const useSettingsStateHook = window.useSettingsState || useSettingsState;
-
-  const state = useSettingsStateHook(onBackgroundChange);
+  const state = useSettingsState(onBackgroundChange);
   const {
     config, backgroundConfig, isConfigured, maskApiKey,
     handleBackgroundChange, handleSelectBackgroundImage, handleClearBackgroundImage,
@@ -15,9 +14,6 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
 
   const handleMouseEnter = () => setVisible(true);
   const handleMouseLeave = () => setVisible(false);
-
-  const SettingsBackgroundComp = window.SettingsBackground;
-  const SettingsModelConfigComp = window.SettingsModelConfig;
 
   return (
     <div className="settings-trigger-zone" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
@@ -37,31 +33,22 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
               <span>{theme === 'dark' ? '切换到浅色' : '切换到深色'}</span>
             </button>
           </div>
-          {SettingsBackgroundComp ? (
-            <SettingsBackgroundComp
+          <SettingsBackground
               backgroundConfig={backgroundConfig}
               onBackgroundChange={handleBackgroundChange}
               onSelectBackgroundImage={handleSelectBackgroundImage}
               onClearBackgroundImage={handleClearBackgroundImage}
-            />
-          ) : null}
-          {SettingsModelConfigComp ? (
-            <SettingsModelConfigComp
+          />
+          <SettingsModelConfig
               config={config}
               onChange={handleChange}
               maskApiKey={maskApiKey}
               isConfigured={isConfigured}
-            />
-          ) : null}
+          />
         </div>
       </div>
     </div>
   );
-}
-
-// Make available globally for browser environment
-if (typeof window !== 'undefined') {
-  window.SettingsPanel = SettingsPanel;
 }
 
 export default SettingsPanel;

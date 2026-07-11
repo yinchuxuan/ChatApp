@@ -1,4 +1,4 @@
-const { matchesWhen } = require('./predicate');
+import { matchesWhen } from './predicate.js';
 
 function resolveWhen(when, options) {
   if (when === undefined) return true;
@@ -41,6 +41,4 @@ function resolveContentObject(content, originalMessage, options, resolveContent)
   return '';
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { resolveContentObject, resolveWhen };
-}
+export { resolveContentObject, resolveWhen };

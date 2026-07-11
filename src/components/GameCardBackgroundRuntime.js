@@ -1,10 +1,10 @@
+import React from 'react';
+import { normalizeTextPanel } from '../gameCard/visualConfig.js';
+
 function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, revealToken = 0 }) {
-  const R = window.React || React;
+  const R = React;
   const lastSourceRef = R.useRef('');
   const pendingUrlRef = R.useRef(null), revealRequestedRef = R.useRef(false);
-  const normalizeTextPanel = window.GameCardVisualConfig?.normalizeTextPanel ||
-    ((value) => (['left', 'right'].includes(value) ? value : 'center'));
-
   const relativePath = R.useMemo(() => {
     const key = gameState?.visual?.background;
     return typeof key === 'string' ? (card?.visual?.background?.[key] || '') : '';
@@ -64,5 +64,4 @@ function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, reveal
   return null;
 }
 
-if (typeof window !== 'undefined') { window.GameCardBackgroundRuntime = GameCardBackgroundRuntime; }
-module.exports = GameCardBackgroundRuntime;
+export default GameCardBackgroundRuntime;

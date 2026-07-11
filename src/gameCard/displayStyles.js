@@ -29,10 +29,4 @@ async function loadGameCardDisplayStyle(card, api, doc = document) {
   return true;
 }
 
-if (typeof window !== 'undefined') {
-  window.GameCardDisplayStyles = { loadGameCardDisplayStyle, removeGameCardDisplayStyle };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { loadGameCardDisplayStyle, removeGameCardDisplayStyle, isSafeStylesheetPath };
-}
+export { isSafeStylesheetPath, loadGameCardDisplayStyle, removeGameCardDisplayStyle };

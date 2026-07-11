@@ -1,8 +1,8 @@
-const { resolveContent } = require('./contentResolver');
-const { runExecAction } = require('./execRunner');
-const { matchesPredicate, matchesWhen } = require('./predicate');
-const { applyStateAction } = require('./stateActions');
-const { withFindState } = require('./findResolver');
+import { resolveContent } from './contentResolver.js';
+import { runExecAction } from './execRunner.js';
+import { withFindState } from './findResolver.js';
+import { matchesPredicate, matchesWhen } from './predicate.js';
+import { applyStateAction } from './stateActions.js';
 
 function findMatchingIndexes(messages, predicate) {
   return messages.reduce((indexes, message, index) => {
@@ -191,4 +191,4 @@ function applyActions(messages, actions = [], options = {}) {
   }, { messages, state: options.state || {}, trace: [] });
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { applyAction, applyActions };
+export { applyAction, applyActions };

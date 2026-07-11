@@ -66,6 +66,8 @@ ipc/                          Electron 主进程适配
 
 ## 阶段 2：引入标准 Renderer Bundler
 
+状态：已完成（2026-07-11）。
+
 - 使用 Vite 或 esbuild 构建 React renderer。
 - 新增单一 renderer 入口，例如 `src/main.jsx`。
 - 将平台组件改为正常的 `import/export`。
@@ -74,6 +76,8 @@ ipc/                          Electron 主进程适配
 - 移除作为模块注册表使用的 `window.ChatPanel`、`window.GameCard*`、`window.prepare*` 等全局变量。
 - 保留 `window.electronAPI`，它是 preload 提供的平台边界。
 - 更新 Jest、Electron 开发启动和生产构建配置。
+
+实现结果：Vite 从 `src/main.jsx` 构建单一 renderer 入口，平台 React 与游戏卡运行时模块均使用 ESM；Electron 开发模式连接 Vite dev server，生产和 E2E 加载 `dist/renderer/index.html`。`window.electronAPI` 保留，旧 Babel 构建改写与平台模块全局注册已删除。
 
 验收条件：renderer 只通过一个入口构建，调整源码文件顺序不会影响运行，现有 unit、integration 和 E2E 测试通过。
 

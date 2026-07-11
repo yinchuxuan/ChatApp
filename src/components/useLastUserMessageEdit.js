@@ -1,11 +1,7 @@
-function getChatGeneration() {
-  if (typeof window !== 'undefined' && window.ChatGeneration) return window.ChatGeneration;
-  if (typeof require !== 'undefined') return require('./chatGeneration');
-  return null;
-}
+import * as chatGeneration from './chatGeneration.js';
 
 function useLastUserMessageEdit(R, messages = [], isLoading = false) {
-  const helper = getChatGeneration();
+  const helper = chatGeneration;
   const [editingIndex, setEditingIndex] = R.useState(null);
   const [content, setContent] = R.useState('');
   const lastUserIndex = helper ? helper.findLastUserIndex(messages) : -1;
@@ -33,5 +29,4 @@ function useLastUserMessageEdit(R, messages = [], isLoading = false) {
   };
 }
 
-if (typeof window !== 'undefined') window.useLastUserMessageEdit = useLastUserMessageEdit;
-if (typeof module !== 'undefined') module.exports = useLastUserMessageEdit;
+export default useLastUserMessageEdit;

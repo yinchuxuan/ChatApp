@@ -71,6 +71,4 @@ function validateStateAction(action, path, errors) {
   }
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { VALID_STATE_ACTION_TYPES, validateStateAction };
-}
+export { VALID_STATE_ACTION_TYPES, validateStateAction };

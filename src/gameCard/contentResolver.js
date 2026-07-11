@@ -1,7 +1,7 @@
-const { applyTransform, renderValue } = require('./contentTransforms');
-const { resolveContentObject } = require('./contentObjects');
-const { resolveFileSource } = require('./contentFiles');
-const { getStateValue, hasStateValue } = require('./statePaths');
+import { applyTransform, renderValue } from './contentTransforms.js';
+import { resolveContentObject } from './contentObjects.js';
+import { resolveFileSource } from './contentFiles.js';
+import { getStateValue, hasStateValue } from './statePaths.js';
 
 function parseSource(expression, index) {
   if (!expression.startsWith('{{', index)) throw new Error('content source expected');
@@ -133,6 +133,4 @@ function resolveContent(content, originalMessage = {}, options = {}) {
   return resolveTemplate(content, originalMessage, options);
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { resolveContent };
-}
+export { resolveContent };

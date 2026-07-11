@@ -1,5 +1,7 @@
+import React from 'react';
+
 function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
-  const R = window.React || React;
+  const R = React;
   const [open, setOpen] = R.useState(false), [sessions, setSessions] = R.useState([]), [activeId, setActiveId] = R.useState(null);
   const [panelMounted, setPanelMounted] = R.useState(false);
   const [editingId, setEditingId] = R.useState(null), [draftTitle, setDraftTitle] = R.useState(''), [busy, setBusy] = R.useState(false);
@@ -115,10 +117,6 @@ function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
       C('div', { className: 'chat-session-list', 'data-gc-part': 'chat-session-list' }, sessions.map(renderSession))
     ) : null
   );
-}
-
-if (typeof window !== 'undefined') {
-  window.ChatSessionManager = ChatSessionManager;
 }
 
 export default ChatSessionManager;

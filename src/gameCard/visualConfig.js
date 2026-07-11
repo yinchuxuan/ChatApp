@@ -66,18 +66,12 @@ function normalizeTextPanel(value) {
   return TEXT_PANEL_VALUES.includes(value) ? value : 'center';
 }
 
-if (typeof window !== 'undefined') {
-  window.GameCardVisualConfig = { normalizeTextPanel };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    IMAGE_PATH_PATTERN,
-    STYLE_PATH_PATTERN,
-    TEXT_PANEL_VALUES,
-    getBackgroundRelativePath,
-    getVisualStateSchema,
-    normalizeTextPanel,
-    validateVisualConfig
-  };
-}
+export {
+  IMAGE_PATH_PATTERN,
+  STYLE_PATH_PATTERN,
+  TEXT_PANEL_VALUES,
+  getBackgroundRelativePath,
+  getVisualStateSchema,
+  normalizeTextPanel,
+  validateVisualConfig
+};

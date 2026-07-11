@@ -13,6 +13,13 @@ const mockSettingsPanel = ({ onToggleTheme, theme, onBackgroundChange: _onBackgr
     `Settings: ${theme}`,
     React.createElement('button', { onClick: onToggleTheme }, 'Toggle Theme')
   );
+let mockCurrentSettingsPanel = mockSettingsPanel;
+
+jest.mock('../../src/ChatPanel.jsx', () => ({ __esModule: true, default: (props) => mockChatPanel(props) }));
+jest.mock('../../src/components/SettingsPanel.jsx', () => ({
+  __esModule: true,
+  default: (props) => mockCurrentSettingsPanel(props)
+}));
 
 describe('App Component - Interaction', () => {
   beforeEach(() => {
@@ -30,6 +37,7 @@ describe('App Component - Interaction', () => {
     }));
     window.ChatPanel = mockChatPanel;
     window.SettingsPanel = mockSettingsPanel;
+    mockCurrentSettingsPanel = mockSettingsPanel;
     electronAPI.getBackgroundConfig.mockResolvedValue({
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
@@ -52,7 +60,7 @@ describe('App Component - Interaction', () => {
         onClick: onToggleTheme
       }, `Theme: ${theme}`);
 
-    window.SettingsPanel = mockSettingsPanelWithToggle;
+    mockCurrentSettingsPanel = mockSettingsPanelWithToggle;
 
     localStorage.setItem('theme', 'light');
 
@@ -82,7 +90,7 @@ describe('App Component - Interaction', () => {
         })
       }, 'Change Background');
 
-    window.SettingsPanel = mockSettingsPanelWithBgChange;
+    mockCurrentSettingsPanel = mockSettingsPanelWithBgChange;
 
     const App = require('../../src/App.jsx').default;
     _render(React.createElement(App, null));
@@ -108,7 +116,7 @@ describe('App Component - Interaction', () => {
         })
       }, 'Set Settings Background');
 
-    window.SettingsPanel = mockSettingsPanelWithBgChange;
+    mockCurrentSettingsPanel = mockSettingsPanelWithBgChange;
 
     const App = require('../../src/App.jsx').default;
     _render(React.createElement(App, null));
@@ -154,7 +162,7 @@ describe('App Component - Interaction', () => {
     expect(appContainer.className).toContain('game-card-theme-white-album-2');
   });
 
-  test('should render null when ChatPanel component not available', async () => {
+  test('should render ChatPanel without a global registration', async () => {
     window.ChatPanel = undefined;
 
     const App = require('../../src/App.jsx').default;
@@ -162,10 +170,10 @@ describe('App Component - Interaction', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.queryByText('ChatPanel Mock')).not.toBeInTheDocument();
+    expect(_screen.getByText('ChatPanel Mock')).toBeInTheDocument();
   });
 
-  test('should render null when SettingsPanel component not available', async () => {
+  test('should render SettingsPanel without a global registration', async () => {
     window.SettingsPanel = undefined;
 
     const App = require('../../src/App.jsx').default;
@@ -173,6 +181,6 @@ describe('App Component - Interaction', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.queryByText(/Settings:/)).not.toBeInTheDocument();
+    expect(_screen.getByText(/Settings:/)).toBeInTheDocument();
   });
 });

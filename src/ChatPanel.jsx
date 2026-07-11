@@ -1,38 +1,48 @@
-import './components/chatGeneration.js'; import './components/useGenerationAbort.js'; import './ChatInputArea.jsx'; import './components/useLastUserMessageEdit.js'; import './components/ChatSessionManager.jsx'; import './components/GameCardTitleControl.jsx';
-import './components/ChatPanelMessageRenderers.js'; import './components/GameCardBgmPlayer.js'; import './components/GameCardBackgroundRuntime.js'; import './components/GameCardUIRoot.jsx'; import './components/GameCardErrorPanel.jsx';
-const RENDERER_POLL_INTERVAL = 100, RENDERER_POLL_TIMEOUT = 5000;
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+import React from 'react';
+import ChatInputArea from './ChatInputArea.jsx';
+import ChatPanelMessageRenderers from './components/ChatPanelMessageRenderers.js';
+import ChatPanelRenderers from './components/ChatPanelRenderers.js';
+import GameCardBackgroundRuntime from './components/GameCardBackgroundRuntime.js';
+import GameCardBgmPlayer from './components/GameCardBgmPlayer.js';
+import GameCardErrorPanel, { normalizeGameCardError } from './components/GameCardErrorPanel.jsx';
+import GameCardTitleControl from './components/GameCardTitleControl.jsx';
+import GameCardUIRoot from './components/GameCardUIRoot.jsx';
+import MessageCollapseRenderer from './components/MessageCollapseRenderer.js';
+import generationServices from './components/generationServices.js';
+import { highlightQuotes } from './components/highlightQuotes.js';
+import useGenerationAbort from './components/useGenerationAbort.js';
+import useLastUserMessageEdit from './components/useLastUserMessageEdit.js';
+import useRetry from './components/useRetry.js';
+import useTypewriter from './components/useTypewriter.js';
+import { loadGameCardDisplayStyle } from './gameCard/displayStyles.js';
+import { loadGameCardUiStyle } from './gameCard/uiStyles.js';
+import { loadGameCardVisualStyle } from './gameCard/visualStyles.js';
 
-function ChatPanel() {
-  const R = window.React || React, InputArea = window.ChatInputArea;
+function ChatPanel({ BgmPlayer = GameCardBgmPlayer, BackgroundRuntime = GameCardBackgroundRuntime } = {}) {
+  const R = React;
   const [messages, setMessages] = R.useState([]), [gameState, setGameState] = R.useState({});
   const [isLoading, setIsLoading] = R.useState(false), [modelConfig, setModelConfig] = R.useState(null);
   const [activeGameCard, setActiveGameCard] = R.useState(null), [gameCardError, setGameCardError] = R.useState(null), [gameCardActionError, setGameCardActionError] = R.useState(null);
   const [showMsgHistory, setShowMsgHistory] = R.useState(false), [msgHistoryMessages, setMsgHistoryMessages] = R.useState(null);
-  const [renderersReady, setRenderersReady] = R.useState(false), [showStreamThinking, setShowStreamThinking] = R.useState(true);
+  const [showStreamThinking, setShowStreamThinking] = R.useState(true);
   const [isHeaderHovered, setIsHeaderHovered] = R.useState(false), [isInputHovered, setIsInputHovered] = R.useState(false);
   const [isInputTriggerHovered, setIsInputTriggerHovered] = R.useState(false), [isHistoryExpanded, setIsHistoryExpanded] = R.useState(false);
   const [audioStopToken, setAudioStopToken] = R.useState(0), [streamContentStartToken, setStreamContentStartToken] = R.useState(0);
-  const tw = window.useTypewriter(R);
+  const tw = useTypewriter(R);
   const handleStreamContentStart = R.useCallback(() => setStreamContentStartToken(value => value + 1), []);
-  const retryBaseRef = R.useRef(null), retryBaseStateRef = R.useRef(null), generationControl = window.useGenerationAbort(R);
-  const editUserMessage = window.useLastUserMessageEdit(R, messages, isLoading);
-  const runRetry = window.useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, handleStreamContentStart, generationControl);
+  const retryBaseRef = R.useRef(null), retryBaseStateRef = R.useRef(null), generationControl = useGenerationAbort(R);
+  const editUserMessage = useLastUserMessageEdit(R, messages, isLoading);
+  const runRetry = useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState, setGameState, retryBaseStateRef, handleStreamContentStart, generationControl);
   const handleRetry = R.useCallback(async () => { const ok = await runRetry(editUserMessage.isActive ? editUserMessage.content : undefined); if (ok) editUserMessage.finish(); }, [runRetry, editUserMessage]);
-  R.useEffect(() => {
-    if (window.ChatPanelRenderers) { setRenderersReady(true); return; }
-    const checkInterval = setInterval(() => {
-      if (window.ChatPanelRenderers) { setRenderersReady(true); clearInterval(checkInterval); }
-    }, RENDERER_POLL_INTERVAL);
-    const timeout = setTimeout(() => clearInterval(checkInterval), RENDERER_POLL_TIMEOUT);
-    return () => { clearInterval(checkInterval); clearTimeout(timeout); };
-  }, []);
   R.useEffect(() => {
     async function loadInitialData() {
       if (!window.electronAPI) return;
       const [config, card] = await Promise.all([window.electronAPI.getModelConfig(), window.electronAPI.getActiveGameCard ? window.electronAPI.getActiveGameCard() : Promise.resolve(null)]);
       if (config.success) setModelConfig(config.config);
       if (card?.success) setActiveGameCard(card.card || null);
-      else if (card?.error) setGameCardError(window.normalizeGameCardError?.(card) || card);
+      else if (card?.error) setGameCardError(normalizeGameCardError(card));
     }
     loadInitialData();
   }, []);
@@ -56,13 +66,10 @@ function ChatPanel() {
   const toggleThinkingForMessage = (idx) => {
     setMessages(prev => prev.map((msg, i) => i === idx ? { ...msg, _thinkingVisible: !msg._thinkingVisible } : msg));
   };
-  const renderers = window.ChatPanelRenderers;
-  const collapseRenderer = window.MessageCollapseRenderer;
-  const renderMsgHistoryDisplay = (renderers && renderersReady) ? () => renderers.renderMsgHistoryDisplay(R, msgHistoryMessages) : () => null, msgRenderers = window.ChatPanelMessageRenderers;
-  const renderUserMarkdown = msgRenderers ? (text) => msgRenderers.renderUserMsg(R, { content: text }, window.marked, window.DOMPurify, window.highlightQuotes, activeGameCard?.display) : null;
-  const renderAssistantMsg = msgRenderers ? (msg, idx, isStreaming) => msgRenderers.renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, window.marked, window.DOMPurify, window.highlightQuotes, activeGameCard?.display) : null;
-  const renderRetryBtn = msgRenderers ? (isLast, isLoading) => msgRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry) : null;
-  const GameCardControl = window.GameCardTitleControl;
+  const renderMsgHistoryDisplay = () => ChatPanelRenderers.renderMsgHistoryDisplay(R, msgHistoryMessages);
+  const renderUserMarkdown = (text) => ChatPanelMessageRenderers.renderUserMsg(R, { content: text }, marked, DOMPurify, highlightQuotes, activeGameCard?.display);
+  const renderAssistantMsg = (msg, idx, isStreaming) => ChatPanelMessageRenderers.renderAssistantMsg(R, msg, idx, isStreaming, tw, currentThinking, showStreamThinking, setShowStreamThinking, toggleThinkingForMessage, marked, DOMPurify, highlightQuotes, activeGameCard?.display);
+  const renderRetryBtn = (isLast, isLoading) => ChatPanelMessageRenderers.renderRetryBtn(R, isLast, isLoading, handleRetry);
   const chatHistoryRef = R.useRef(null), initialLoadDone = R.useRef(false);
   const pinnedScrollAppliedRef = R.useRef(false), lastPinnedUserContentRef = R.useRef(null), wasLoadingRef = R.useRef(false);
   const loadHistory = R.useCallback(async () => {
@@ -73,11 +80,10 @@ function ChatPanel() {
       if (result.success) {
         const loaded = result.messages || [];
         const loadedState = result.gameState || {};
-        const prepareInit = window.prepareInitMessages || (async ({ messages }) => ({ messages, changed: false }));
-        const init = await prepareInit({ messages: loaded, state: loadedState });
+        const init = await generationServices.prepareInitMessages({ messages: loaded, state: loadedState });
         const nextMessages = init.changed ? init.messages : loaded;
         const nextState = init.state || loadedState;
-        setGameCardError(init.error ? (window.normalizeGameCardError?.(init) || init) : null);
+        setGameCardError(init.error ? normalizeGameCardError(init) : null);
         setMessages(nextMessages);
         setGameState(nextState);
         if (init.changed) window.electronAPI.saveChatHistory(nextMessages, { gameState: nextState, retryBaseMessages: retryBaseRef.current, retryBaseState: retryBaseStateRef.current });
@@ -87,7 +93,7 @@ function ChatPanel() {
   }, []);
 
   R.useEffect(() => { loadHistory(); }, [loadHistory]);
-  R.useEffect(() => { window.GameCardDisplayStyles?.loadGameCardDisplayStyle(activeGameCard, window.electronAPI); window.GameCardVisualStyles?.loadGameCardVisualStyle(activeGameCard, window.electronAPI); window.GameCardUiStyles?.loadGameCardUiStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
+  R.useEffect(() => { loadGameCardDisplayStyle(activeGameCard, window.electronAPI); loadGameCardVisualStyle(activeGameCard, window.electronAPI); loadGameCardUiStyle(activeGameCard, window.electronAPI); }, [activeGameCard]);
   const saveCurrentSession = R.useCallback(async () => { if (window.electronAPI && !isLoading) await window.electronAPI.saveChatHistory(messages, { gameState, retryBaseMessages: retryBaseRef.current, retryBaseState: retryBaseStateRef.current }); }, [messages, gameState, isLoading]);
   const handleSessionChanged = R.useCallback(async () => { retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming(); setIsHistoryExpanded(false); await loadHistory(); }, [loadHistory, tw]);
 
@@ -96,7 +102,7 @@ function ChatPanel() {
       retryBaseRef.current = null; retryBaseStateRef.current = null; tw.clearStreaming();
       setGameCardError(null);
       if (e.detail !== undefined) setActiveGameCard(e.detail || null);
-      else if (window.electronAPI?.getActiveGameCard) { const card = await window.electronAPI.getActiveGameCard(); if (card.success) setActiveGameCard(card.card || null); else setGameCardError(window.normalizeGameCardError?.(card) || card); }
+      else if (window.electronAPI?.getActiveGameCard) { const card = await window.electronAPI.getActiveGameCard(); if (card.success) setActiveGameCard(card.card || null); else setGameCardError(normalizeGameCardError(card)); }
       loadHistory();
     };
     window.addEventListener('game-card-changed', handler);
@@ -147,46 +153,37 @@ function ChatPanel() {
   const handleAudioSubmit = R.useCallback(() => setAudioStopToken(value => value + 1), []);
 
   const C = R.createElement;
-  const BgmPlayer = window.GameCardBgmPlayer, BackgroundRuntime = window.GameCardBackgroundRuntime, UiRoot = window.GameCardUIRoot, ErrorPanel = window.GameCardErrorPanel;
-
   const streamThinking = tw.getThinkingContent(), hasThinking = isLoading && streamThinking && streamThinking.length > 0;
   const currentThinking = hasThinking ? streamThinking : null;
 
   const renderMessages = () => {
-    const visibleMessages = msgRenderers ? msgRenderers.filterDialogueMessages(messages) : messages.filter(msg =>
-      (['user', 'assistant'].includes(msg?.role) || msg?._meta?.visibility === 'user_visible') &&
-      msg?._meta?.visibility !== 'llm_only' && msg?._meta?.visibility !== 'debug_only');
-    if (msgRenderers && renderUserMarkdown && renderAssistantMsg && renderRetryBtn) {
-      return msgRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderUserMarkdown, renderAssistantMsg, renderRetryBtn, collapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig, editUserMessage);
-    }
-    if (visibleMessages.length === 0) return C('div', { className: 'chat-empty' }, C('div', null, '加载中...'));
-    return C('div', null, visibleMessages.map((msg, idx) => C('div', { key: idx }, msg.content)));
+    return ChatPanelMessageRenderers.renderMessages(R, messages, isLoading, tw, currentThinking, showStreamThinking, renderUserMarkdown, renderAssistantMsg, renderRetryBtn, MessageCollapseRenderer, isHistoryExpanded, handleExpandHistory, modelConfig, editUserMessage);
   };
 
   return C('div', { className: 'chat-panel', 'data-gc-part': 'chat-panel' },
-    BackgroundRuntime ? C(BackgroundRuntime, { card: activeGameCard, gameState, defer: isLoading, revealToken: streamContentStartToken }) : null,
-    UiRoot ? C(UiRoot, { card: activeGameCard, gameState, setGameState, messages, isLoading }) : null,
+    C(BackgroundRuntime, { card: activeGameCard, gameState, defer: isLoading, revealToken: streamContentStartToken }),
+    C(GameCardUIRoot, { card: activeGameCard, gameState, setGameState, messages, isLoading }),
     C('div', { className: 'chat-main', 'data-gc-part': 'chat-main' },
       C('div', { className: 'chat-header-hover-trigger', 'data-gc-part': 'chat-header-trigger', onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) }),
       C('div', { className: `chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`, 'data-gc-part': 'chat-header', onClick: handleToggleShowMsgHistory, onMouseEnter: () => setIsHeaderHovered(true), onMouseLeave: () => setIsHeaderHovered(false) },
         showMsgHistory ? C('span', { className: 'material-icons' }, 'history') : null,
-        showMsgHistory ? C('span', { className: 'header-title' }, 'msg历史记录') : (GameCardControl ? C(GameCardControl, {
+        showMsgHistory ? C('span', { className: 'header-title' }, 'msg历史记录') : C(GameCardTitleControl, {
           modelName: modelConfig && modelConfig.apiUrl ? (modelConfig.modelName || '已连接') : '',
           onBeforeSessionChange: saveCurrentSession,
           onSessionChanged: handleSessionChanged,
           onImportError: setGameCardActionError,
-          audioControl: BgmPlayer ? C(BgmPlayer, { card: activeGameCard, gameState, stopToken: audioStopToken, resumeToken: streamContentStartToken, defer: isLoading }) : null
-        }) : C('span', { className: 'header-title' }, '未加载游戏卡'))
+          audioControl: C(BgmPlayer, { card: activeGameCard, gameState, stopToken: audioStopToken, resumeToken: streamContentStartToken, defer: isLoading })
+        })
       ),
-      gameCardActionError && ErrorPanel ? C(ErrorPanel, { error: gameCardActionError, variant: 'import', onClose: () => setGameCardActionError(null) }) : null,
+      gameCardActionError ? C(GameCardErrorPanel, { error: gameCardActionError, variant: 'import', onClose: () => setGameCardActionError(null) }) : null,
       C('div', { className: 'chat-history', 'data-gc-part': 'chat-history', ref: chatHistoryRef },
         C('div', { className: 'chat-reading-veil game-card-visual-panel', 'data-gc-part': 'chat-reading-veil', 'aria-hidden': 'true' }),
-        gameCardError && ErrorPanel ? C(ErrorPanel, { error: gameCardError }) : null,
+        gameCardError ? C(GameCardErrorPanel, { error: gameCardError }) : null,
         showMsgHistory ? renderMsgHistoryDisplay() : renderMessages()
       ),
       C('div', { className: 'chat-input-hover-trigger', 'data-gc-part': 'chat-input-trigger', onMouseEnter: () => setIsInputTriggerHovered(true), onMouseLeave: () => setIsInputTriggerHovered(false) })
     ),
-    C(InputArea, {
+    C(ChatInputArea, {
       messages, setMessages, gameState, setGameState, modelConfig, isLoading, setIsLoading, tw,
       setShowStreamThinking, isInputHovered, setIsInputHovered, isInputTriggerHovered, setIsInputTriggerHovered,
       retryBaseRef, retryBaseStateRef, onAudioSubmit: handleAudioSubmit, onStreamContentStart: handleStreamContentStart,
@@ -195,5 +192,4 @@ function ChatPanel() {
   );
 }
 
-if (typeof window !== 'undefined') { window.ChatPanel = ChatPanel; }
 export default ChatPanel;

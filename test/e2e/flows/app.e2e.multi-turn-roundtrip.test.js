@@ -155,9 +155,13 @@ test.describe('Multi-turn round trip', () => {
     await send('score check');
     await expect.poll(() => requests.length).toBe(1);
 
-    const stateResult = await getAppHelper().evaluate(({ card }) => {
-      return window.applyGameCard({ card, phase: 'pre_send', messages: [{ role: 'user', content: 'score' }], state: { score: 0 } });
-    }, { card });
+    const { applyGameCard } = await import('../../../src/gameCard/engine.js');
+    const stateResult = applyGameCard({
+      card,
+      phase: 'pre_send',
+      messages: [{ role: 'user', content: 'score' }],
+      state: { score: 0 }
+    });
     expect(stateResult.state.score).toBe(10);
   });
 });

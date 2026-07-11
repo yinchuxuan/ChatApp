@@ -24,6 +24,10 @@ const mockUseSettingsStateReturn = {
 
 const mockUseSettingsState = jest.fn(() => mockUseSettingsStateReturn);
 
+jest.mock('../../src/components/useSettingsState.js', () => ({ __esModule: true, default: (...args) => mockUseSettingsState(...args) }));
+jest.mock('../../src/components/SettingsBackground.jsx', () => ({ __esModule: true, default: (props) => mockSettingsBackground(props) }));
+jest.mock('../../src/components/SettingsModelConfig.jsx', () => ({ __esModule: true, default: (props) => mockSettingsModelConfig(props) }));
+
 describe('SettingsPanel Component - Components', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -66,7 +70,7 @@ describe('SettingsPanel Component - Components', () => {
     expect(_screen.getByText('SettingsModelConfig Mock')).toBeInTheDocument();
   });
 
-  test('should not render SettingsBackground when not available', async () => {
+  test('should render SettingsBackground without a global registration', async () => {
     window.SettingsBackground = undefined;
 
     const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
@@ -79,10 +83,10 @@ describe('SettingsPanel Component - Components', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.queryByText('SettingsBackground Mock')).not.toBeInTheDocument();
+    expect(_screen.getByText('SettingsBackground Mock')).toBeInTheDocument();
   });
 
-  test('should not render SettingsModelConfig when not available', async () => {
+  test('should render SettingsModelConfig without a global registration', async () => {
     window.SettingsModelConfig = undefined;
 
     const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
@@ -95,7 +99,7 @@ describe('SettingsPanel Component - Components', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.queryByText('SettingsModelConfig Mock')).not.toBeInTheDocument();
+    expect(_screen.getByText('SettingsModelConfig Mock')).toBeInTheDocument();
   });
 
   test('should not show configured status badge in header after removal', async () => {

@@ -1,5 +1,5 @@
-const { extractUniqueFileSection } = require('./fileSections');
-const { getStateValue, hasStateValue } = require('./statePaths');
+import { extractUniqueFileSection } from './fileSections.js';
+import { getStateValue, hasStateValue } from './statePaths.js';
 
 const FILE_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.(md|txt|json)$/i;
 
@@ -7,8 +7,8 @@ function readDeclaredFile(filePath, options) {
   if (options.fileContents && Object.prototype.hasOwnProperty.call(options.fileContents, filePath)) {
     return options.fileContents[filePath];
   }
-  const nodeFs = options.fs || (typeof require === 'function' ? require('fs') : null);
-  const nodePath = options.path || (typeof require === 'function' ? require('path') : null);
+  const nodeFs = options.fs;
+  const nodePath = options.path;
   if (!nodeFs?.readFileSync || !nodePath || !options.baseDir) throw new Error('file requires preloaded content or a baseDir');
   if (nodePath.isAbsolute(filePath)) throw new Error('file path must be relative');
   const baseDir = nodePath.resolve(options.baseDir);
@@ -59,10 +59,4 @@ function validateContentFiles(files, path = 'files') {
   return errors;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    FILE_PATH_PATTERN,
-    resolveFileSource,
-    validateContentFiles
-  };
-}
+export { FILE_PATH_PATTERN, resolveFileSource, validateContentFiles };

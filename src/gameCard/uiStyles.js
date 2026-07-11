@@ -31,10 +31,4 @@ async function loadGameCardUiStyle(card, api, doc = document) {
   return true;
 }
 
-if (typeof window !== 'undefined') {
-  window.GameCardUiStyles = { loadGameCardUiStyle, removeGameCardUiStyle };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { loadGameCardUiStyle, removeGameCardUiStyle, isSafeUiStylesheetPath };
-}
+export { isSafeUiStylesheetPath, loadGameCardUiStyle, removeGameCardUiStyle };

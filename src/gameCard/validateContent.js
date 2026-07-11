@@ -47,6 +47,4 @@ function validateContent(content, path, errors, validateWhen) {
   addError(errors, path, 'must be a string or content object');
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { validateContent };
-}
+export { validateContent };

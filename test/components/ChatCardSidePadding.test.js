@@ -85,21 +85,21 @@ describe('Chat Area Reading Column Width', () => {
   test('quote highlighting styles are centralized in chat-quotes stylesheet', () => {
     const messagesCssPath = require('path').join(__dirname, '../../src/styles/components.chat-messages.css');
     const quotesCssPath = require('path').join(__dirname, '../../src/styles/components.chat-quotes.css');
-    const indexPath = require('path').join(__dirname, '../../src/index.html');
+    const entryPath = require('path').join(__dirname, '../../src/styles/renderer.css');
     const messagesCss = execSync(`cat "${messagesCssPath}"`, { encoding: 'utf8' });
     const quotesCss = execSync(`cat "${quotesCssPath}"`, { encoding: 'utf8' });
-    const indexHtml = execSync(`cat "${indexPath}"`, { encoding: 'utf8' });
+    const entryCss = execSync(`cat "${entryPath}"`, { encoding: 'utf8' });
 
     expect(messagesCss).not.toMatch(/\.quoted-text\s*\{/);
     expect(quotesCss).toMatch(/\.chat-bubble-content \.quoted-text\s*\{/);
-    expect(indexHtml).toContain('styles/components.chat-quotes.css');
+    expect(entryCss).toContain('./components.chat-quotes.css');
   });
 
   test('chat content stylesheet is loaded by the app shell', () => {
-    const indexPath = require('path').join(__dirname, '../../src/index.html');
-    const indexHtml = execSync(`cat "${indexPath}"`, { encoding: 'utf8' });
+    const entryPath = require('path').join(__dirname, '../../src/styles/renderer.css');
+    const entryCss = execSync(`cat "${entryPath}"`, { encoding: 'utf8' });
 
-    expect(indexHtml).toContain('styles/components.chat-content.css');
+    expect(entryCss).toContain('./components.chat-content.css');
   });
 
   test('dark assistant text falls back to the dark surface text color', () => {

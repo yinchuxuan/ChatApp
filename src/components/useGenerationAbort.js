@@ -16,5 +16,4 @@ function useGenerationAbort(R) {
   return R.useMemo(() => ({ createAbortSignal, clearAbortSignal, stopGeneration }), [clearAbortSignal, createAbortSignal, stopGeneration]);
 }
 
-if (typeof window !== 'undefined') window.useGenerationAbort = useGenerationAbort;
-if (typeof module !== 'undefined') module.exports = useGenerationAbort;
+export default useGenerationAbort;

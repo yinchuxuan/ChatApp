@@ -1,4 +1,4 @@
-const { getStateValue, hasStateValue } = require('./statePaths');
+import { getStateValue, hasStateValue } from './statePaths.js';
 
 function compareNumber(actual, expected) {
   if (typeof expected === 'number') return actual === expected;
@@ -161,6 +161,4 @@ function matchesWhen(when, phase, messages, state = {}) {
   return true;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { compareNumber, matchesPredicate, matchesWhen, matchesLast, matchesState };
-}
+export { compareNumber, matchesPredicate, matchesWhen, matchesLast, matchesState };

@@ -1,12 +1,9 @@
-// App Component - Main application entry point
-// Uses components loaded globally via Babel standalone
+import React from 'react';
+import ChatPanel from './ChatPanel.jsx';
+import SettingsPanel from './components/SettingsPanel.jsx';
 
 // App Component
 function App() {
-  // Destructure globally-registered components to local variables for JSX usage
-  const ChatPanel = typeof window !== 'undefined' ? window.ChatPanel : null;
-  const SettingsPanel = typeof window !== 'undefined' ? window.SettingsPanel : null;
-
   const [theme, setTheme] = React.useState('light');
   const [backgroundConfig, setBackgroundConfig] = React.useState({
     backgroundImageUrl: '',
@@ -125,20 +122,11 @@ function App() {
       {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} />}
       {backgroundImageUrl && <div data-gc-part="background-overlay" style={getOverlayStyle()} />}
       <div className="app-content-wrapper">
-        {ChatPanel ? <ChatPanel /> : null}
+        <ChatPanel />
       </div>
-      {SettingsPanel ? (
-        <SettingsPanel onToggleTheme={toggleTheme} theme={theme} onBackgroundChange={handleBackgroundChange} />
-      ) : null}
+      <SettingsPanel onToggleTheme={toggleTheme} theme={theme} onBackgroundChange={handleBackgroundChange} />
     </div>
   );
-}
-
-// Render - only in non-test environment
-if (typeof process === 'undefined' || process.env?.NODE_ENV !== 'test') {
-  const container = document.getElementById('root');
-  const root = ReactDOM.createRoot(container);
-  root.render(<App />);
 }
 
 export default App;

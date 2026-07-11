@@ -1,7 +1,7 @@
-const { applyActions } = require('./actions');
-const { withFindState } = require('./findResolver');
-const { matchesWhen } = require('./predicate');
-const { validateGameCard } = require('./validateGameCard');
+import { applyActions } from './actions.js';
+import { withFindState } from './findResolver.js';
+import { matchesWhen } from './predicate.js';
+import { validateGameCard } from './validateGameCard.js';
 
 function cloneMessage(message) {
   return {
@@ -130,6 +130,4 @@ function applyGameCard({ card, phase, messages = [], state = {}, event = {}, con
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { applyGameCard, cloneMessages };
-}
+export { applyGameCard, cloneMessages };

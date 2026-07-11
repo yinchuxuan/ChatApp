@@ -1,4 +1,4 @@
-const { extractExecIncludes, resolveExecIncludePath } = require('./execSource');
+import { extractExecIncludes, resolveExecIncludePath } from './execSource.js';
 
 function collectContentFilePaths(card, paths) {
   Object.values(card?.files || {}).forEach((filePath) => {
@@ -26,6 +26,4 @@ function collectFileContentPaths(card) {
   return [...paths];
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath };
-}
+export { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath };

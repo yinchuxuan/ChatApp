@@ -188,8 +188,4 @@ const MessageCollapseRenderer = {
   }
 };
 
-if (typeof window !== 'undefined') {
-  window.MessageCollapseRenderer = MessageCollapseRenderer;
-}
-
-module.exports = MessageCollapseRenderer;
+export default MessageCollapseRenderer;

@@ -25,10 +25,4 @@ const ChatPanelRenderers = {
   }
 };
 
-// Make available globally for browser environment
-if (typeof window !== 'undefined') {
-  window.ChatPanelRenderers = ChatPanelRenderers;
-}
-
-// CommonJS export for Node.js/test environment (does not affect browser Babel)
-module.exports = ChatPanelRenderers;
+export default ChatPanelRenderers;

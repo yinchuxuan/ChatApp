@@ -26,6 +26,10 @@ const mockUseSettingsStateReturn = {
 
 const mockUseSettingsState = jest.fn(() => mockUseSettingsStateReturn);
 
+jest.mock('../../src/components/useSettingsState.js', () => ({ __esModule: true, default: (...args) => mockUseSettingsState(...args) }));
+jest.mock('../../src/components/SettingsBackground.jsx', () => ({ __esModule: true, default: (props) => mockSettingsBackground(props) }));
+jest.mock('../../src/components/SettingsModelConfig.jsx', () => ({ __esModule: true, default: (props) => mockSettingsModelConfig(props) }));
+
 describe('SettingsPanel Component - Basic', () => {
   beforeEach(() => {
     jest.clearAllMocks();

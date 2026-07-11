@@ -1,7 +1,7 @@
-const { runExecAction } = require('./execRunner');
-const { extractExecIncludes, resolveExecIncludePath } = require('./execSource');
-const { expandCardImports } = require('./cardImportExpander');
-const { loadExternalStateSchema } = require('./stateSchemaLoader');
+import { expandCardImports } from './cardImportExpander.js';
+import { runExecAction } from './execRunner.js';
+import { extractExecIncludes, resolveExecIncludePath } from './execSource.js';
+import { loadExternalStateSchema } from './stateSchemaLoader.js';
 
 const SCRIPT_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.js$/i;
 
@@ -107,10 +107,4 @@ async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = 
   }
 }
 
-if (typeof window !== 'undefined') {
-  window.GameCardUiScripts = { applyUiScriptRunEvent, normalizeUiScriptRunEvent };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { applyUiScriptRunEvent, normalizeUiScriptRunEvent, loadScriptFileContents };
-}
+export { applyUiScriptRunEvent, loadScriptFileContents, normalizeUiScriptRunEvent };

@@ -1,4 +1,4 @@
-const useRetry = require('../../src/components/useRetry.js');
+const useRetry = require('../../src/components/useRetry.js').default;
 
 function createTw() {
   let content = '';

@@ -1,3 +1,5 @@
+import generationServices from './generationServices.js';
+
 function cloneChatValue(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -57,8 +59,7 @@ async function runChatGeneration(options) {
   tw.startStreaming();
   options.setShowStreamThinking?.(true);
   try {
-    const preparePreSend = window.preparePreSendMessages || (async ({ messages: input }) => ({ messages: input }));
-    preSend = await preparePreSend({ messages, state });
+    preSend = await generationServices.preparePreSendMessages({ messages, state });
     if (preSend.error) return handleGenerationError(preSend, options);
     options.onGameCardError?.(null);
     if (preSend.state && setGameState) setGameState(preSend.state);
@@ -79,8 +80,7 @@ async function sendGenerationRequest(preSend, modelConfig, tw, onStreamContentSt
     contentStarted = true;
     onStreamContentStart?.();
   };
-  const toApiMessages = window.toGameCardApiMessages || ((input) => input.map(msg => ({ role: msg.role, content: msg.content })));
-  await window.sendChatRequest({
+  await generationServices.sendChatRequest({
     apiUrl: modelConfig.apiUrl,
     apiKey: modelConfig.apiKey,
     modelName: modelConfig.modelName,
@@ -91,7 +91,7 @@ async function sendGenerationRequest(preSend, modelConfig, tw, onStreamContentSt
     frequencyPenalty: modelConfig.frequencyPenalty,
     presencePenalty: modelConfig.presencePenalty,
     signal: abortSignal,
-    messages: toApiMessages(preSend.messages)
+    messages: generationServices.toGameCardApiMessages(preSend.messages)
   }, {
     onToken: (text) => { if (tw.pushContent(text)) notifyContentStart(); },
     onThinkingToken: (text) => tw.pushContent(text, 'reasoning')
@@ -106,8 +106,11 @@ async function finishGeneration(preSend, baseMessages, baseState, options) {
   if (!content) return true;
   const assistantMessage = { role: 'assistant', content, _thinking: tw.getThinkingContent(), thinking: tw.getThinkingContent() };
   const base = preSend.applied ? preSend.messages : baseMessages;
-  const prepareAfterResponse = window.prepareAfterResponseMessages || (async ({ messages }) => ({ messages, applied: false }));
-  const after = await prepareAfterResponse({ messages: [...base, assistantMessage], state: preSend.state || baseState, card: preSend.card || null });
+  const after = await generationServices.prepareAfterResponseMessages({
+    messages: [...base, assistantMessage],
+    state: preSend.state || baseState,
+    card: preSend.card || null
+  });
   if (after.state && setGameState) setGameState(after.state);
   if (after.applied) setMessages(after.messages);
   else if (options.appendAssistantWithUpdater) setMessages(prev => [...prev, assistantMessage]);
@@ -120,7 +123,7 @@ function handleGenerationError(preSend, options) {
   options.setIsLoading(false);
   options.tw.reset();
   if (options.onGameCardError) {
-    options.onGameCardError(window.normalizeGameCardError?.(preSend) || preSend);
+    options.onGameCardError(generationServices.normalizeGameCardError(preSend));
     return false;
   }
   throw new Error(`游戏卡错误: ${preSend.error}`);
@@ -151,7 +154,12 @@ function handleGenerationException(err, options, preSend, baseMessages, abortSig
   return false;
 }
 
-const ChatGeneration = { cloneChatValue, stripTurnContext, normalizeRetryMessages, findLastUserIndex, loadRetryBase, buildRetryMessages, runChatGeneration };
-
-if (typeof window !== 'undefined') window.ChatGeneration = ChatGeneration;
-if (typeof module !== 'undefined') module.exports = ChatGeneration;
+export {
+  buildRetryMessages,
+  cloneChatValue,
+  findLastUserIndex,
+  loadRetryBase,
+  normalizeRetryMessages,
+  runChatGeneration,
+  stripTurnContext
+};

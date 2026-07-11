@@ -1,15 +1,9 @@
-// useRetry - Custom hook for regenerating from the last user message
-
-function getChatGeneration() {
-  if (typeof window !== 'undefined' && window.ChatGeneration) return window.ChatGeneration;
-  if (typeof require !== 'undefined') return require('./chatGeneration');
-  return null;
-}
+import * as chatGeneration from './chatGeneration.js';
 
 function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retryBaseRef, gameState = {}, setGameState, retryBaseStateRef, onStreamContentStart, generationControl) {
   const handleRetry = R.useCallback(async (editedContent) => {
     if (!modelConfig || !modelConfig.apiUrl || !modelConfig.apiKey) return;
-    const helper = getChatGeneration();
+    const helper = chatGeneration;
     const persisted = await helper.loadRetryBase(retryBaseRef, retryBaseStateRef);
     const persistedMessages = Array.isArray(persisted?.retryBaseMessages) ? persisted.retryBaseMessages : null;
     const persistedState = persisted?.retryBaseState !== undefined ? persisted.retryBaseState : undefined;
@@ -38,5 +32,4 @@ function useRetry(R, messages, setMessages, modelConfig, setIsLoading, tw, retry
   return handleRetry;
 }
 
-if (typeof window !== 'undefined') { window.useRetry = useRetry; }
-module.exports = useRetry;
+export default useRetry;

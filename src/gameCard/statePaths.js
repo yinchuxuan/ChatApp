@@ -75,12 +75,4 @@ function deleteStateValue(state, path) {
   return nextState;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    cloneState,
-    deleteStateValue,
-    getStateValue,
-    hasStateValue,
-    setStateValue
-  };
-}
+export { cloneState, deleteStateValue, getStateValue, hasStateValue, setStateValue };

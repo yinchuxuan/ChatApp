@@ -1,5 +1,5 @@
-const { applyStateAction } = require('./stateActions');
-const { cloneState } = require('./statePaths');
+import { applyStateAction } from './stateActions.js';
+import { cloneState } from './statePaths.js';
 
 const PATCH_PATTERN = /<state_patch>([\s\S]*?)<\/state_patch>/g;
 
@@ -75,9 +75,4 @@ function applyLatestAssistantStatePatch(messages = [], state = {}, options = {})
   }, { state: cloneState(state), trace: { applied: false, patches: [], changedKeys: [] } });
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    applyLatestAssistantStatePatch,
-    extractLatestAssistantStatePatches
-  };
-}
+export { applyLatestAssistantStatePatch, extractLatestAssistantStatePatches };
