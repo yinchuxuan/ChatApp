@@ -1,0 +1,143 @@
+import { act, renderHook } from '@testing-library/react';
+import useChatGeneration from '../../src/chat/useChatGeneration.js';
+
+function createTypewriter() {
+  let content = '';
+  return {
+    clearStreaming: jest.fn(() => { content = ''; }),
+    startStreaming: jest.fn(),
+    pushContent: jest.fn((text, type) => { if (type !== 'reasoning') content += text; return text; }),
+    finishStreaming: jest.fn(),
+    getAccumulatedContent: jest.fn(() => content),
+    getThinkingContent: jest.fn(() => ''),
+    reset: jest.fn(() => { content = ''; })
+  };
+}
+
+function createPersistence() {
+  return {
+    retryBaseRef: { current: null },
+    retryBaseStateRef: { current: null },
+    setRetryBase: jest.fn(),
+    refreshRetryBase: jest.fn(async () => null)
+  };
+}
+
+function renderGeneration(overrides = {}) {
+  const options = {
+    messages: [],
+    setMessages: jest.fn(),
+    gameState: {},
+    setGameState: jest.fn(),
+    modelConfig: { apiUrl: 'https://api.example.com/v1', apiKey: 'key', modelName: 'gpt-4' },
+    typewriter: createTypewriter(),
+    persistence: createPersistence(),
+    isLoading: false,
+    setIsLoading: jest.fn(),
+    setRuntimeError: jest.fn(),
+    setShowStreamThinking: jest.fn(),
+    ...overrides
+  };
+  const hook = renderHook(() => useChatGeneration(options));
+  return { ...hook, options };
+}
+
+describe('useChatGeneration game card pipeline', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    global.fetch.mockResolvedValue(global.createStreamingMock('ok'));
+  });
+
+  test('sends unmodified messages without an active card', async () => {
+    window.electronAPI.getActiveGameCard.mockResolvedValue({ success: true, card: null });
+    const { result } = renderGeneration();
+    await act(async () => { await result.current.send('hello'); });
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body.messages).toEqual([{ role: 'user', content: 'hello' }]);
+  });
+
+  test('passes generation parameters from model config', async () => {
+    const { result } = renderGeneration({
+      modelConfig: {
+        apiUrl: 'https://api.example.com/v1', apiKey: 'key', modelName: 'gpt-4',
+        maxTokens: '2048', temperature: '0.8', topP: '0.9', frequencyPenalty: '0.2', presencePenalty: '0.4'
+      }
+    });
+    await act(async () => { await result.current.send('hello'); });
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body).toMatchObject({ max_tokens: 2048, temperature: 0.8, top_p: 0.9, frequency_penalty: 0.2, presence_penalty: 0.4 });
+  });
+
+  test('appends the assistant response through the state updater', async () => {
+    const setMessages = jest.fn();
+    const { result } = renderGeneration({ setMessages });
+    await act(async () => { await result.current.send('hello'); });
+    expect(setMessages.mock.calls[0][0]).toEqual([{ role: 'user', content: 'hello' }]);
+    const updater = setMessages.mock.calls.at(-1)[0];
+    expect(updater([{ role: 'user', content: 'hello' }])).toEqual([
+      { role: 'user', content: 'hello' },
+      { role: 'assistant', content: 'ok', _thinking: '', thinking: '' }
+    ]);
+  });
+
+  test('sends pre_send transformed messages', async () => {
+    window.electronAPI.getActiveGameCard.mockResolvedValue({
+      success: true,
+      card: {
+        version: '1', id: 'active', name: 'Active Card',
+        rules: [{ when: { phase: 'pre_send' }, then: [{ type: 'insert', predicate: { index: 0 }, anchor: 'before', role: 'system', content: 'rules' }] }]
+      }
+    });
+    const setMessages = jest.fn();
+    const { result } = renderGeneration({ setMessages });
+    await act(async () => { await result.current.send('hello'); });
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body.messages).toEqual([{ role: 'system', content: 'rules' }, { role: 'user', content: 'hello' }]);
+    expect(setMessages).toHaveBeenCalledWith([
+      { role: 'system', content: 'rules' },
+      { role: 'user', content: 'hello' }
+    ]);
+  });
+
+  test('applies after_response rules before storing the assistant', async () => {
+    window.electronAPI.getActiveGameCard.mockResolvedValue({
+      success: true,
+      card: {
+        version: '1', id: 'active', name: 'Active Card',
+        rules: [{ when: { phase: 'after_response' }, then: [{ type: 'replace', predicate: { index: 'last' }, content: 'cleaned' }] }]
+      }
+    });
+    const setMessages = jest.fn();
+    const { result } = renderGeneration({ setMessages });
+    await act(async () => { await result.current.send('hello'); });
+    expect(setMessages).toHaveBeenLastCalledWith([
+      { role: 'user', content: 'hello' },
+      { role: 'assistant', content: 'cleaned', _thinking: '', thinking: '' }
+    ]);
+  });
+
+  test('passes and updates game state', async () => {
+    const originalPreSend = window.preparePreSendMessages;
+    const originalAfter = window.prepareAfterResponseMessages;
+    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state: { score: state.score + 1 }, applied: false, card: { id: 'state' } }));
+    window.prepareAfterResponseMessages = jest.fn(async ({ messages, state }) => ({ messages, state: { score: state.score + 10 }, applied: false }));
+    const setGameState = jest.fn();
+    const { result } = renderGeneration({ gameState: { score: 1 }, setGameState });
+    await act(async () => { await result.current.send('hello'); });
+    expect(window.prepareAfterResponseMessages.mock.calls[0][0].state).toEqual({ score: 2 });
+    expect(setGameState).toHaveBeenLastCalledWith({ score: 12 });
+    window.preparePreSendMessages = originalPreSend;
+    window.prepareAfterResponseMessages = originalAfter;
+  });
+
+  test('reports pre_send game card errors', async () => {
+    const originalPreSend = window.preparePreSendMessages;
+    window.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, error: '游戏卡状态 schema 校验失败' }));
+    const setRuntimeError = jest.fn();
+    const { result } = renderGeneration({ setRuntimeError });
+    await act(async () => { await result.current.send('hello'); });
+    expect(setRuntimeError).toHaveBeenCalledWith(expect.objectContaining({ message: '游戏卡状态 schema 校验失败' }));
+    expect(global.fetch).not.toHaveBeenCalled();
+    window.preparePreSendMessages = originalPreSend;
+  });
+});

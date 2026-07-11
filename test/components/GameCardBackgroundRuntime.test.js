@@ -17,32 +17,30 @@ describe('GameCardBackgroundRuntime', () => {
 
   test('dispatches resolved background url from game state', async () => {
     const handler = jest.fn();
-    window.addEventListener('game-card-background-changed', handler);
 
     render(React.createElement(GameCardBackgroundRuntime, {
       card: { visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school' } }
+      gameState: { visual: { background: 'school' } },
+      onBackgroundChange: handler
     }));
     await flushEffects();
 
     await waitFor(() => expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('images/school.jpg'));
-    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ detail: { url: 'local:///school.jpg' } }));
-    window.removeEventListener('game-card-background-changed', handler);
+    expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
   });
 
   test('clears background when key is missing', async () => {
     const handler = jest.fn();
-    window.addEventListener('game-card-background-changed', handler);
 
     render(React.createElement(GameCardBackgroundRuntime, {
       card: { visual: { background: {} } },
-      gameState: { visual: { background: 'missing' } }
+      gameState: { visual: { background: 'missing' } },
+      onBackgroundChange: handler
     }));
     await flushEffects();
 
     expect(window.electronAPI.getGameCardImageUrl).not.toHaveBeenCalled();
-    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ detail: { url: '' } }));
-    window.removeEventListener('game-card-background-changed', handler);
+    expect(handler).toHaveBeenCalledWith({ url: '' });
   });
 
   test('resolves again when card changes with the same relative path', async () => {
@@ -66,13 +64,13 @@ describe('GameCardBackgroundRuntime', () => {
 
   test('defers background dispatch until response body starts', async () => {
     const handler = jest.fn();
-    window.addEventListener('game-card-background-changed', handler);
 
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
       card: { visual: { background: { school: 'images/school.jpg' } } },
       gameState: { visual: { background: 'school' } },
       defer: true,
-      revealToken: 0
+      revealToken: 0,
+      onBackgroundChange: handler
     }));
     await flushEffects();
 
@@ -82,59 +80,55 @@ describe('GameCardBackgroundRuntime', () => {
       card: { visual: { background: { school: 'images/school.jpg' } } },
       gameState: { visual: { background: 'school' } },
       defer: true,
-      revealToken: 1
+      revealToken: 1,
+      onBackgroundChange: handler
     }));
     await flushEffects();
 
-    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ detail: { url: 'local:///school.jpg' } }));
-    window.removeEventListener('game-card-background-changed', handler);
+    expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
   });
 
   test('reveals deferred background after the image resolves late', async () => {
     let resolveImage;
     window.electronAPI.getGameCardImageUrl.mockReturnValue(new Promise(resolve => { resolveImage = resolve; }));
     const handler = jest.fn();
-    window.addEventListener('game-card-background-changed', handler);
 
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
       card: { visual: { background: { school: 'images/school.jpg' } } },
       gameState: { visual: { background: 'school' } },
       defer: true,
-      revealToken: 0
+      revealToken: 0,
+      onBackgroundChange: handler
     }));
     rerender(React.createElement(GameCardBackgroundRuntime, {
       card: { visual: { background: { school: 'images/school.jpg' } } },
       gameState: { visual: { background: 'school' } },
       defer: true,
-      revealToken: 1
+      revealToken: 1,
+      onBackgroundChange: handler
     }));
     await act(async () => resolveImage({ success: true, url: 'local:///school.jpg' }));
 
-    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ detail: { url: 'local:///school.jpg' } }));
-    window.removeEventListener('game-card-background-changed', handler);
+    expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
   });
 
   test('dispatches visual panel state and normalizes invalid values', async () => {
     const handler = jest.fn();
-    window.addEventListener('game-card-visual-panel-changed', handler);
 
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
       card: { id: 'wa2', visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school', textPanel: 'right' } }
+      gameState: { visual: { background: 'school', textPanel: 'right' } },
+      onVisualPanelChange: handler
     }));
     await flushEffects();
     rerender(React.createElement(GameCardBackgroundRuntime, {
       card: { id: 'wa2', visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school', textPanel: 'bottom' } }
+      gameState: { visual: { background: 'school', textPanel: 'bottom' } },
+      onVisualPanelChange: handler
     }));
     await flushEffects();
 
-    expect(handler).toHaveBeenCalledWith(expect.objectContaining({
-      detail: { textPanel: 'right', cardId: 'wa2' }
-    }));
-    expect(handler).toHaveBeenCalledWith(expect.objectContaining({
-      detail: { textPanel: 'center', cardId: 'wa2' }
-    }));
-    window.removeEventListener('game-card-visual-panel-changed', handler);
+    expect(handler).toHaveBeenCalledWith({ textPanel: 'right', cardId: 'wa2' });
+    expect(handler).toHaveBeenCalledWith({ textPanel: 'center', cardId: 'wa2' });
   });
 });

@@ -1,4 +1,4 @@
-// useTypewriter - Custom hook for typewriter-style text animation
+// Typewriter state for streamed chat content.
 // Uses requestAnimationFrame to progressively reveal text ~2 chars per frame
 
 function useTypewriter(R) {

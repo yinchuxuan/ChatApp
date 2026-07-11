@@ -7,7 +7,11 @@ const { render: _render, screen: _screen, fireEvent: _fireEvent, act } = require
 
 const electronAPI = global.window.electronAPI;
 
-const mockChatPanel = () => React.createElement('div', { className: 'chat-panel-mock' }, 'ChatPanel Mock');
+let chatPanelProps;
+const mockChatPanel = (props) => {
+  chatPanelProps = props;
+  return React.createElement('div', { className: 'chat-panel-mock' }, 'ChatPanel Mock');
+};
 const mockSettingsPanel = ({ onToggleTheme, theme, onBackgroundChange: _onBackgroundChange }) =>
   React.createElement('div', { className: 'settings-panel-mock' },
     `Settings: ${theme}`,
@@ -38,6 +42,7 @@ describe('App Component - Interaction', () => {
     window.ChatPanel = mockChatPanel;
     window.SettingsPanel = mockSettingsPanel;
     mockCurrentSettingsPanel = mockSettingsPanel;
+    chatPanelProps = null;
     electronAPI.getBackgroundConfig.mockResolvedValue({
       success: true,
       config: { backgroundImageUrl: '', backgroundOpacity: 0.5 }
@@ -129,15 +134,13 @@ describe('App Component - Interaction', () => {
     expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('settings-bg-url');
 
     await act(async () => {
-      window.dispatchEvent(new CustomEvent('game-card-background-changed', {
-        detail: { url: 'game-card-bg-url' }
-      }));
+      chatPanelProps.onBackgroundChange({ url: 'game-card-bg-url' });
     });
     expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('game-card-bg-url');
     expect(document.querySelector('[data-gc-part="background-overlay"]').style.opacity).toBe('0.3');
 
     await act(async () => {
-      window.dispatchEvent(new CustomEvent('game-card-background-changed', { detail: { url: '' } }));
+      chatPanelProps.onBackgroundChange({ url: '' });
     });
     expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('settings-bg-url');
     expect(document.querySelector('[data-gc-part="background-overlay"]').style.opacity).toBe('0.3');
@@ -153,9 +156,7 @@ describe('App Component - Interaction', () => {
     expect(appContainer.className).toContain('game-card-visual-position-center');
 
     await act(async () => {
-      window.dispatchEvent(new CustomEvent('game-card-visual-panel-changed', {
-        detail: { textPanel: 'right', cardId: 'White Album 2' }
-      }));
+      chatPanelProps.onVisualPanelChange({ textPanel: 'right', cardId: 'White Album 2' });
     });
 
     expect(appContainer.className).toContain('game-card-visual-position-right');

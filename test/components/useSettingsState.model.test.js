@@ -57,9 +57,11 @@ describe('useSettingsState Hook - Model Handlers', () => {
     expect(result.current.config.modelName).toBe('new-model');
   });
 
-  test('should dispatch model-config-changed event on save', async () => {
+  test('should publish model config on save', async () => {
     const useSettingsState = require('../../src/components/useSettingsState.js').default;
-    const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+    const { subscribeModelConfig } = require('../../src/chat/modelConfigService.js');
+    const listener = jest.fn();
+    const unsubscribe = subscribeModelConfig(listener);
 
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
@@ -70,9 +72,7 @@ describe('useSettingsState Hook - Model Handlers', () => {
     // Wait for async save
     await hookAct(async () => { await new Promise(r => setTimeout(r, 10)); });
 
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'model-config-changed' })
-    );
-    dispatchSpy.mockRestore();
+    expect(listener).toHaveBeenCalledWith(expect.objectContaining({ apiUrl: 'http://saved-api.com' }));
+    unsubscribe();
   });
 });

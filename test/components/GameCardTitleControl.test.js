@@ -3,8 +3,14 @@ import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 
 import '../../src/components/ChatSessionManager.jsx';
 import GameCardTitleControl from '../../src/components/GameCardTitleControl.jsx';
+import { GameCardRuntimeProvider } from '../../src/chat/GameCardRuntimeProvider.jsx';
 
 const electronAPI = global.window.electronAPI;
+
+function renderControl(props = {}, parentProps = null) {
+  const control = <GameCardRuntimeProvider><GameCardTitleControl {...props} /></GameCardRuntimeProvider>;
+  return render(parentProps ? <div {...parentProps}>{control}</div> : control);
+}
 
 describe('GameCardTitleControl', () => {
   beforeEach(() => {
@@ -26,13 +32,13 @@ describe('GameCardTitleControl', () => {
       card: { id: 'quest', name: 'Quest Card', rules: [] }
     });
 
-    render(<GameCardTitleControl />);
+    renderControl();
 
     await screen.findByText('Quest Card');
   });
 
   test('shows empty state when no game card is loaded', async () => {
-    render(<GameCardTitleControl />);
+    renderControl();
 
     await screen.findByText('未加载游戏卡');
   });
@@ -44,13 +50,7 @@ describe('GameCardTitleControl', () => {
       success: true,
       card: { id: 'new_quest', name: 'New Quest', rules: [] }
     });
-    window.addEventListener('game-card-changed', cardChanged);
-
-    render(
-      <div onClick={headerClick}>
-        <GameCardTitleControl />
-      </div>
-    );
+    renderControl({ onActiveCardChanged: cardChanged }, { onClick: headerClick });
 
     await screen.findByText('未加载游戏卡');
     await act(async () => {
@@ -59,11 +59,8 @@ describe('GameCardTitleControl', () => {
 
     expect(electronAPI.importGameCardFromDirectory).toHaveBeenCalled();
     expect(headerClick).not.toHaveBeenCalled();
-    expect(cardChanged).toHaveBeenCalledWith(expect.objectContaining({
-      detail: { id: 'new_quest', name: 'New Quest', rules: [] }
-    }));
+    expect(cardChanged).toHaveBeenCalledWith({ id: 'new_quest', name: 'New Quest', rules: [] });
     expect(screen.getByText('New Quest')).toBeInTheDocument();
-    window.removeEventListener('game-card-changed', cardChanged);
   });
 
   test('shows readable import errors without changing active card', async () => {
@@ -75,9 +72,7 @@ describe('GameCardTitleControl', () => {
       file: 'state/schema.json',
       details: [{ file: 'state/schema.json', message: 'schema.timeline.currentTime.default: must be a string' }]
     });
-    window.addEventListener('game-card-changed', cardChanged);
-
-    render(<GameCardTitleControl />);
+    renderControl({ onActiveCardChanged: cardChanged });
     await screen.findByText('未加载游戏卡');
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
@@ -89,11 +84,10 @@ describe('GameCardTitleControl', () => {
     expect(screen.getAllByText(/state\/schema\.json/).length).toBeGreaterThan(0);
     expect(screen.getByText(/schema\.timeline\.currentTime\.default/)).toBeInTheDocument();
     expect(cardChanged).not.toHaveBeenCalled();
-    window.removeEventListener('game-card-changed', cardChanged);
   });
 
   test('opens session manager without showing session name in title', async () => {
-    render(<GameCardTitleControl />);
+    renderControl();
 
     await screen.findByText('未加载游戏卡');
     const sessionButton = screen.getByRole('button', { name: '管理聊天会话' });
@@ -115,7 +109,7 @@ describe('GameCardTitleControl', () => {
   });
 
   test('renders audio control in the title bar', async () => {
-    render(<GameCardTitleControl audioControl={<button className="audio-test" aria-label="关闭 BGM">music_note</button>} />);
+    renderControl({ audioControl: <button className="audio-test" aria-label="关闭 BGM">music_note</button> });
 
     await screen.findByText('未加载游戏卡');
     const actions = document.querySelector('.game-card-title-actions');
@@ -133,7 +127,7 @@ describe('GameCardTitleControl', () => {
       .mockResolvedValueOnce({ success: true, activeId: 'default', sessions: [{ id: 'default', title: '默认会话' }] })
       .mockResolvedValue({ success: true, activeId: 'session-1', sessions: [{ id: 'session-1', title: '新会话' }] });
 
-    render(<GameCardTitleControl onBeforeSessionChange={before} onSessionChanged={changed} />);
+    renderControl({ onBeforeSessionChange: before, onSessionChanged: changed });
     await screen.findByText('未加载游戏卡');
     fireEvent.click(screen.getByRole('button', { name: '管理聊天会话' }));
     await act(async () => {
@@ -156,7 +150,7 @@ describe('GameCardTitleControl', () => {
     });
     electronAPI.createChatSession.mockResolvedValue({ success: true, id: 'archive-1' });
 
-    render(<GameCardTitleControl onBeforeSessionChange={before} />);
+    renderControl({ onBeforeSessionChange: before });
     await screen.findByText('未加载游戏卡');
     fireEvent.click(screen.getByRole('button', { name: '管理聊天会话' }));
     await act(async () => {

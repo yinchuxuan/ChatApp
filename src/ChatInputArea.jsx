@@ -1,26 +1,14 @@
 import React from 'react';
-import * as chatGeneration from './components/chatGeneration.js';
+import { subscribeChatInputCommands } from './chat/chatInputCommands.js';
 
 function ChatInputArea({
-  messages,
-  setMessages,
-  gameState = {},
-  setGameState,
-  modelConfig,
   isLoading,
-  setIsLoading,
-  tw,
-  setShowStreamThinking,
   isInputHovered,
   setIsInputHovered,
   isInputTriggerHovered,
   setIsInputTriggerHovered,
-  retryBaseRef,
-  retryBaseStateRef,
-  onAudioSubmit,
-  onStreamContentStart,
-  onGameCardError,
-  generationControl
+  onSend,
+  onStop
 }) {
   const R = React;
   const [inputValue, setInputValue] = R.useState('');
@@ -35,45 +23,21 @@ function ChatInputArea({
   const submitValue = R.useCallback(async (rawValue, formElement) => {
     const value = String(rawValue || '');
     if (!value.trim() || isLoading) return;
-    if (!modelConfig || !modelConfig.apiUrl || !modelConfig.apiKey) {
-      setMessages(prev => [...prev, { role: 'user', content: value }, { role: 'assistant', content: '请先在右侧设置面板配置模型 API', isError: true }]);
-      setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false); return;
-    }
-    onAudioSubmit?.();
-    const userMessage = { role: 'user', content: value };
-    const newMessages = [...messages, userMessage];
-    if (retryBaseRef) retryBaseRef.current = chatGeneration.normalizeRetryMessages(newMessages);
-    if (retryBaseStateRef) retryBaseStateRef.current = chatGeneration.cloneChatValue(gameState);
+    const accepted = await onSend?.(value);
+    if (!accepted) return;
     setInputValue(''); setIsInputHovered(false); setIsInputTriggerHovered(false);
     const textarea = formElement?.querySelector('textarea') || textareaRef.current;
     if (textarea) textarea.blur();
-    await chatGeneration.runChatGeneration({
-      messages: newMessages,
-      state: gameState,
-      modelConfig,
-      setMessages,
-      setGameState,
-      setIsLoading,
-      tw,
-      setShowStreamThinking,
-      onStreamContentStart,
-      onGameCardError,
-      ...generationControl,
-      appendAssistantWithUpdater: true
-    });
-  }, [chatGeneration, gameState, isLoading, messages, modelConfig, retryBaseRef, retryBaseStateRef, setGameState,
-    setIsInputHovered, setIsInputTriggerHovered, setIsLoading, setMessages, setShowStreamThinking,
-    tw, onAudioSubmit, onStreamContentStart, onGameCardError, generationControl]);
+  }, [isLoading, onSend, setIsInputHovered, setIsInputTriggerHovered]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLoading) { generationControl?.stopGeneration?.(); return; }
+    if (isLoading) { onStop?.(); return; }
     await submitValue(inputValue, e.currentTarget);
   };
 
   R.useEffect(() => {
-    const handler = (e) => {
-      const action = e.detail || {};
+    const handler = (action = {}) => {
       if (action.type === 'chat.input.set') {
         setInputValue(String(action.value || ''));
         if (action.focus) focusInput();
@@ -90,8 +54,7 @@ function ChatInputArea({
         submitValue(action.content, formRef.current);
       }
     };
-    window.addEventListener('game-card-chat-input-action', handler);
-    return () => window.removeEventListener('game-card-chat-input-action', handler);
+    return subscribeChatInputCommands(handler);
   }, [focusInput, submitValue]);
 
   const C = R.createElement;

@@ -123,6 +123,8 @@ scriptExecutor.run(source, context, options)
 
 ## 阶段 5：拆分聊天运行时
 
+状态：已完成（2026-07-11）。
+
 - 将 session 加载、保存和切换提取为 `useChatSession`。
 - 将自动保存和 retry base 管理提取为 `useChatPersistence`。
 - 将生成、retry 和 abort 统一到 `useChatGeneration`。
@@ -130,6 +132,8 @@ scriptExecutor.run(source, context, options)
 - 使用 `GameCardRuntimeProvider` 管理 active card、gameState 和 runtime error。
 - 用 props、Context 或明确的 service 替代平台内部 `CustomEvent`。
 - `ChatPanel` 只负责页面组合和少量界面状态。
+
+实现结果：新增 `src/chat` 运行时层。`useChatSession` 负责历史加载、保存和 session 切换，`useChatPersistence` 负责自动保存与 retry 快照，`useChatGeneration` 统一发送、retry 和 abort，`useChatScroll` 管理消息定位。`GameCardRuntimeProvider` 统一持有 active card、gameState 与 runtime error；游戏卡切换、输入命令、模型配置和视觉更新改为 Context、显式 service 或 props 回调，不再依赖 renderer 内部 `CustomEvent`。`ChatPanel` 仅挂载 provider 与 `ChatRuntime`。
 
 验收条件：聊天发送、重试、编辑最后一条 user 消息、停止生成、session 切换和游戏卡切换行为不变。
 

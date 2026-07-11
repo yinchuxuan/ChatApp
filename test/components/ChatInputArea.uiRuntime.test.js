@@ -1,27 +1,11 @@
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import ChatInputArea from '../../src/ChatInputArea.jsx';
+import { dispatchChatInputCommand } from '../../src/chat/chatInputCommands.js';
 
 function renderInputArea(props = {}) {
-  const tw = {
-    startStreaming: jest.fn(),
-    pushContent: jest.fn(() => true),
-    finishStreaming: jest.fn(),
-    getAccumulatedContent: jest.fn(() => 'ok'),
-    getThinkingContent: jest.fn(() => ''),
-    clearStreaming: jest.fn(),
-    reset: jest.fn()
-  };
   return render(React.createElement(ChatInputArea, {
-    messages: [],
-    setMessages: jest.fn(),
-    gameState: {},
-    setGameState: jest.fn(),
-    modelConfig: { apiUrl: 'https://api.example.com/v1', apiKey: 'key', modelName: 'gpt-4' },
     isLoading: false,
-    setIsLoading: jest.fn(),
-    tw,
-    setShowStreamThinking: jest.fn(),
     isInputHovered: false,
     setIsInputHovered: jest.fn(),
     isInputTriggerHovered: false,
@@ -31,7 +15,7 @@ function renderInputArea(props = {}) {
 }
 
 function dispatchInputAction(detail) {
-  window.dispatchEvent(new CustomEvent('game-card-chat-input-action', { detail }));
+  dispatchChatInputCommand(detail);
 }
 
 describe('ChatInputArea ui runtime events', () => {
@@ -56,14 +40,13 @@ describe('ChatInputArea ui runtime events', () => {
   });
 
   test('sends explicit content through normal chat pipeline', async () => {
-    renderInputArea();
+    const onSend = jest.fn(async () => true);
+    renderInputArea({ onSend });
 
     await act(async () => {
       dispatchInputAction({ type: 'chat.send', content: '继续' });
     });
 
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(body.messages).toEqual([{ role: 'user', content: '继续' }]);
+    await waitFor(() => expect(onSend).toHaveBeenCalledWith('继续'));
   });
 });

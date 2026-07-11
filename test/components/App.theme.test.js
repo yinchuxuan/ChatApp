@@ -7,7 +7,13 @@ const { render: _render, screen: _screen, fireEvent: _fireEvent, act } = require
 
 const electronAPI = global.window.electronAPI;
 
-const mockChatPanel = () => React.createElement('div', { className: 'chat-panel-mock' }, 'ChatPanel Mock');
+let initialGameCardBackground = '';
+const mockChatPanel = (props) => {
+  React.useEffect(() => {
+    if (initialGameCardBackground) props.onBackgroundChange({ url: initialGameCardBackground });
+  }, []);
+  return React.createElement('div', { className: 'chat-panel-mock' }, 'ChatPanel Mock');
+};
 const mockSettingsPanel = ({ onToggleTheme: _onToggleTheme, theme, onBackgroundChange: _onBackgroundChange }) =>
   React.createElement('div', { className: 'settings-panel-mock' }, `Settings: ${theme}`);
 
@@ -18,6 +24,7 @@ describe('App Component - Theme', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+    initialGameCardBackground = '';
     window.matchMedia = jest.fn().mockImplementation(query => ({
       matches: false,
       media: query,
@@ -43,7 +50,6 @@ describe('App Component - Theme', () => {
   afterEach(() => {
     window.ChatPanel = undefined;
     window.SettingsPanel = undefined;
-    window.__lastGameCardBackgroundDetail = undefined;
   });
 
   test('should initialize theme from localStorage', async () => {
@@ -122,10 +128,8 @@ describe('App Component - Theme', () => {
     expect(_screen.getByText('ChatPanel Mock')).toBeInTheDocument();
   });
 
-  test('uses cached game card background event from early runtime dispatch', async () => {
-    window.__lastGameCardBackgroundDetail = {
-      url: 'local:///Users/me/Application Support/ChatApp/invite.png'
-    };
+  test('uses the initial game card background from the runtime callback', async () => {
+    initialGameCardBackground = 'local:///Users/me/Application Support/ChatApp/invite.png';
     const App = require('../../src/App.jsx').default;
 
     _render(React.createElement(App, null));

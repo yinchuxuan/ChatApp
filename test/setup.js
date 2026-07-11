@@ -74,20 +74,8 @@ global.window.ChatPanelRenderers = ChatPanelRenderers;
 const MessageCollapseRenderer = require('../src/components/MessageCollapseRenderer.js').default;
 global.window.MessageCollapseRenderer = MessageCollapseRenderer;
 
-const useTypewriter = require('../src/components/useTypewriter.js').default;
-global.window.useTypewriter = useTypewriter;
-
-const ChatGeneration = require('../src/components/chatGeneration.js');
+const ChatGeneration = require('../src/chat/chatGeneration.js');
 global.window.ChatGeneration = ChatGeneration;
-
-const useGenerationAbort = require('../src/components/useGenerationAbort.js').default;
-global.window.useGenerationAbort = useGenerationAbort;
-
-const useRetry = require('../src/components/useRetry.js').default;
-global.window.useRetry = useRetry;
-
-const useLastUserMessageEdit = require('../src/components/useLastUserMessageEdit.js').default;
-global.window.useLastUserMessageEdit = useLastUserMessageEdit;
 
 const highlightQuotes = require('../src/components/highlightQuotes.js');
 global.window.highlightQuotes = highlightQuotes.highlightQuotes;
@@ -99,7 +87,7 @@ require('../src/gameCard/visualStyles.js');
 require('../src/gameCard/uiStyles.js');
 require('../src/gameCard/uiRuntime.js');
 
-const generationServices = require('../src/components/generationServices.js').default;
+const generationServices = require('../src/chat/generationServices.js').default;
 [
   'normalizeGameCardError',
   'prepareAfterResponseMessages',

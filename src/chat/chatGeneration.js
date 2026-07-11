@@ -23,15 +23,6 @@ function findLastUserIndex(messages = []) {
   return -1;
 }
 
-async function loadRetryBase(retryBaseRef, retryBaseStateRef) {
-  const result = await window.electronAPI?.getChatHistory?.();
-  if (result?.success) {
-    if (retryBaseRef && Array.isArray(result.retryBaseMessages)) retryBaseRef.current = result.retryBaseMessages;
-    if (retryBaseStateRef && result.retryBaseState !== undefined) retryBaseStateRef.current = result.retryBaseState;
-  }
-  return result?.success ? result : null;
-}
-
 function buildRetryMessages(messages, retryBaseMessages, editedContent) {
   const visibleLastUser = findLastUserIndex(messages);
   if (visibleLastUser < 0) return null;
@@ -158,7 +149,6 @@ export {
   buildRetryMessages,
   cloneChatValue,
   findLastUserIndex,
-  loadRetryBase,
   normalizeRetryMessages,
   runChatGeneration,
   stripTurnContext

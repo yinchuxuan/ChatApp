@@ -7,6 +7,7 @@ import * as runtime from '../gameCard/uiRuntime.js';
 import { applyUiScriptRunEvent } from '../gameCard/uiScripts.js';
 import { applyUiStateActionEvent } from '../gameCard/uiStateActions.js';
 import { gameCardPlatform } from '../platform/index.js';
+import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
 
 function clone(value) {
   if (value === undefined) return undefined;
@@ -34,9 +35,7 @@ async function resourceResult(field, load) {
 }
 
 function emitInputAction(event) {
-  if (typeof window === 'undefined') return false;
-  window.dispatchEvent(new CustomEvent('game-card-chat-input-action', { detail: event }));
-  return true;
+  return dispatchChatInputCommand(event);
 }
 
 async function emitStateAction(event, options) {

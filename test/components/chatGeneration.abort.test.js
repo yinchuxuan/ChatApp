@@ -1,4 +1,4 @@
-const ChatGeneration = require('../../src/components/chatGeneration.js');
+const ChatGeneration = require('../../src/chat/chatGeneration.js');
 
 function makeTypewriter(content = 'partial answer') {
   return {

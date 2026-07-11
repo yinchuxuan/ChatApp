@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import GameCardUIRoot from '../../src/components/GameCardUIRoot.jsx';
+import { subscribeChatInputCommands } from '../../src/chat/chatInputCommands.js';
 
 describe('GameCardUIRoot', () => {
   beforeEach(() => {
@@ -9,7 +10,7 @@ describe('GameCardUIRoot', () => {
 
   test('mounts card React root and emits controlled input events', async () => {
     const emitted = [];
-    window.addEventListener('game-card-chat-input-action', (event) => emitted.push(event.detail), { once: true });
+    const unsubscribe = subscribeChatInputCommands(event => emitted.push(event));
     window.electronAPI.readGameCardFile.mockImplementation(async (_id, filePath) => ({
       success: true,
       content: filePath.endsWith('.css')
@@ -50,6 +51,7 @@ describe('GameCardUIRoot', () => {
     }));
     expect(document.getElementById('game-card-ui-root-style').textContent)
       .toContain('choice-button');
+    unsubscribe();
   });
 
   test('applies controlled game state actions from card React root', async () => {

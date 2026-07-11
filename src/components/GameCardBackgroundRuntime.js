@@ -2,7 +2,7 @@ import React from 'react';
 import { normalizeTextPanel } from '../gameCard/visualConfig.js';
 import { gameCardPlatform } from '../platform/index.js';
 
-function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, revealToken = 0 }) {
+function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, revealToken = 0, onBackgroundChange, onVisualPanelChange }) {
   const R = React;
   const lastSourceRef = R.useRef('');
   const pendingUrlRef = R.useRef(null), revealRequestedRef = R.useRef(false);
@@ -14,13 +14,11 @@ function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, reveal
   const textPanel = normalizeTextPanel(gameState?.visual?.textPanel);
 
   const dispatchBackground = R.useCallback((url) => {
-    const detail = { url };
-    window.__lastGameCardBackgroundDetail = detail;
-    window.dispatchEvent(new CustomEvent('game-card-background-changed', { detail }));
-  }, []);
+    onBackgroundChange?.({ url });
+  }, [onBackgroundChange]);
   const dispatchVisualPanel = R.useCallback((detail) => {
-    window.dispatchEvent(new CustomEvent('game-card-visual-panel-changed', { detail }));
-  }, []);
+    onVisualPanelChange?.(detail);
+  }, [onVisualPanelChange]);
 
   R.useEffect(() => {
     let canceled = false;

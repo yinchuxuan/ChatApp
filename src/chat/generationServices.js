@@ -1,5 +1,5 @@
-import { sendChatRequest } from './apiClient.js';
-import { normalizeGameCardError } from './GameCardErrorPanel.jsx';
+import { sendChatRequest } from '../components/apiClient.js';
+import { normalizeGameCardError } from '../components/GameCardErrorPanel.jsx';
 import {
   prepareAfterResponseMessages,
   prepareInitMessages,

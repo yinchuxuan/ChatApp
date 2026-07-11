@@ -3,6 +3,7 @@ const { fireEvent, render } = require('@testing-library/react');
 const { card } = require('./whiteAlbumTestCard');
 const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/gameCard/displayRules');
 const renderers = require('../../src/components/ChatPanelMessageRenderers').default;
+const { subscribeChatInputCommands } = require('../../src/chat/chatInputCommands');
 
 const sample = [
   '【时间地点】2007.10.20: 15:00 星期六｜峰城大附属第二音乐室',
@@ -99,8 +100,7 @@ describe('white album display rules', () => {
 
   test('clicking a rendered choice fills chat input through ui runtime event', () => {
     const events = [];
-    const listener = event => events.push(event.detail);
-    window.addEventListener('game-card-chat-input-action', listener);
+    const unsubscribe = subscribeChatInputCommands(event => events.push(event));
     const element = renderers.renderAssistantMsg(
       React,
       { role: 'assistant', content: sample },
@@ -119,7 +119,7 @@ describe('white album display rules', () => {
     const { container } = render(element);
 
     fireEvent.click(container.querySelector('.wa2-choice'));
-    window.removeEventListener('game-card-chat-input-action', listener);
+    unsubscribe();
 
     expect(events).toEqual([{
       type: 'chat.input.set',

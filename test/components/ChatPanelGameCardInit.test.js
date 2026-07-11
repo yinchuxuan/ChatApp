@@ -108,20 +108,22 @@ describe('ChatPanel game card init', () => {
     render(React.createElement(ChatPanel));
 
     await waitFor(() => expect(window.electronAPI.getChatHistory).toHaveBeenCalled());
+    const nextCard = {
+      version: '1',
+      id: 'init-card',
+      name: 'Init Card',
+      rules: [{
+        when: { phase: 'init', length: 0 },
+        then: [{ type: 'insert', role: 'system', content: 'intro', _meta: { visibility: 'user_visible' } }]
+      }]
+    };
     window.electronAPI.getActiveGameCard.mockResolvedValue({
       success: true,
-      card: {
-        version: '1',
-        id: 'init-card',
-        name: 'Init Card',
-        rules: [{
-          when: { phase: 'init', length: 0 },
-          then: [{ type: 'insert', role: 'system', content: 'intro', _meta: { visibility: 'user_visible' } }]
-        }]
-      }
+      card: nextCard
     });
+    window.electronAPI.importGameCardFromDirectory.mockResolvedValue({ success: true, card: nextCard });
     await act(async () => {
-      window.dispatchEvent(new CustomEvent('game-card-changed'));
+      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
     });
 
     await waitFor(() => expect(screen.getByText('intro')).toBeInTheDocument());

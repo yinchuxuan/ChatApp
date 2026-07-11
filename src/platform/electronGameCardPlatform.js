@@ -28,6 +28,11 @@ function extractActiveCard(result) {
   return result.card || result.gameCard || result.activeGameCard || null;
 }
 
+function unwrapActiveCard(result) {
+  if (result?.success === false) throw new Error(result.error || 'failed to load active game card');
+  return extractActiveCard(result);
+}
+
 function createElectronGameCardPlatform(apiSource = currentElectronApi) {
   return createGameCardPlatform({
     resources: {
@@ -47,11 +52,11 @@ function createElectronGameCardPlatform(apiSource = currentElectronApi) {
     repository: {
       async getActiveCard() {
         const invoke = requireApiMethod(apiSource, 'getActiveGameCard');
-        return extractActiveCard(await invoke());
+        return unwrapActiveCard(await invoke());
       }
     },
     scriptExecutor: controlledScriptExecutor
   });
 }
 
-export { createElectronGameCardPlatform, extractActiveCard };
+export { createElectronGameCardPlatform, extractActiveCard, unwrapActiveCard };

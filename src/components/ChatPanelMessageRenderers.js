@@ -1,4 +1,5 @@
 import * as displayRules from '../gameCard/displayRules.js';
+import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
 
 // ChatPanelMessageRenderers - Message rendering helpers for ChatPanel
 // Extracts render functions to reduce ChatPanel.jsx below 200 lines
@@ -11,9 +12,7 @@ const ChatPanelMessageRenderers = {
     if (!value) return false;
     e.preventDefault();
     e.stopPropagation();
-    window.dispatchEvent(new CustomEvent('game-card-chat-input-action', {
-      detail: { type: 'chat.input.set', value, focus: true }
-    }));
+    dispatchChatInputCommand({ type: 'chat.input.set', value, focus: true });
     return true;
   },
 

@@ -40,34 +40,21 @@ function App() {
     setBackgroundConfig(config);
   }, []);
 
-  // Listen for background-config-changed events (from IPC saves)
   React.useEffect(() => {
-    const handler = (e) => { setBackgroundConfig(e.detail); };
-    window.addEventListener('background-config-changed', handler);
     if (window.electronAPI) {
       window.electronAPI.onBackgroundConfigChanged((config) => {
         setBackgroundConfig(config);
       });
     }
-    return () => window.removeEventListener('background-config-changed', handler);
   }, []);
 
-  React.useEffect(() => {
-    const handler = (e) => setGameCardBackgroundUrl(e.detail?.url || '');
-    window.addEventListener('game-card-background-changed', handler);
-    if (window.__lastGameCardBackgroundDetail) {
-      setGameCardBackgroundUrl(window.__lastGameCardBackgroundDetail.url || '');
-    }
-    return () => window.removeEventListener('game-card-background-changed', handler);
+  const handleGameCardBackgroundChange = React.useCallback((detail) => {
+    setGameCardBackgroundUrl(detail?.url || '');
   }, []);
 
-  React.useEffect(() => {
-    const handler = (e) => {
-      const textPanel = ['left', 'right'].includes(e.detail?.textPanel) ? e.detail.textPanel : 'center';
-      setVisualPanel({ textPanel, cardId: e.detail?.cardId || '' });
-    };
-    window.addEventListener('game-card-visual-panel-changed', handler);
-    return () => window.removeEventListener('game-card-visual-panel-changed', handler);
+  const handleVisualPanelChange = React.useCallback((detail) => {
+    const textPanel = ['left', 'right'].includes(detail?.textPanel) ? detail.textPanel : 'center';
+    setVisualPanel({ textPanel, cardId: detail?.cardId || '' });
   }, []);
 
   const backgroundImageUrl = gameCardBackgroundUrl || backgroundConfig.backgroundImageUrl;
@@ -122,7 +109,10 @@ function App() {
       {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} />}
       {backgroundImageUrl && <div data-gc-part="background-overlay" style={getOverlayStyle()} />}
       <div className="app-content-wrapper">
-        <ChatPanel />
+        <ChatPanel
+          onBackgroundChange={handleGameCardBackgroundChange}
+          onVisualPanelChange={handleVisualPanelChange}
+        />
       </div>
       <SettingsPanel onToggleTheme={toggleTheme} theme={theme} onBackgroundChange={handleBackgroundChange} />
     </div>

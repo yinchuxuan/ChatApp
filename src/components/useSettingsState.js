@@ -1,5 +1,6 @@
 import React from 'react';
 import { DEFAULT_GENERATION_PARAMS, withDefaultGenerationParams } from './modelGenerationParams.js';
+import { publishModelConfig } from '../chat/modelConfigService.js';
 
 function getDefaultGenerationParams() {
   return DEFAULT_GENERATION_PARAMS;
@@ -47,9 +48,7 @@ function useSettingsState(onBackgroundChange) {
       const updated = { ...prev, [field]: value };
       if (window.electronAPI) {
         window.electronAPI.saveModelConfig(updated).then(result => {
-          if (result.success) {
-            window.dispatchEvent(new CustomEvent('model-config-changed', { detail: updated }));
-          }
+          if (result.success) publishModelConfig(updated);
         });
       }
       return updated;
@@ -63,7 +62,6 @@ function useSettingsState(onBackgroundChange) {
       if (window.electronAPI) {
         window.electronAPI.saveBackgroundConfig(updated).then(result => {
           if (result.success) {
-            window.dispatchEvent(new CustomEvent('background-config-changed', { detail: updated }));
             if (onBackgroundChange) onBackgroundChange(updated);
           }
         });
@@ -81,7 +79,6 @@ function useSettingsState(onBackgroundChange) {
         if (saveResult.success) {
           const savedConfig = saveResult.config || updated;
           setBackgroundConfig(savedConfig);
-          window.dispatchEvent(new CustomEvent('background-config-changed', { detail: savedConfig }));
           if (onBackgroundChange) onBackgroundChange(savedConfig);
         }
       }
@@ -94,7 +91,6 @@ function useSettingsState(onBackgroundChange) {
       if (window.electronAPI) {
         window.electronAPI.saveBackgroundConfig(updated).then(result => {
           if (result.success) {
-            window.dispatchEvent(new CustomEvent('background-config-changed', { detail: updated }));
             if (onBackgroundChange) onBackgroundChange(updated);
           }
         });

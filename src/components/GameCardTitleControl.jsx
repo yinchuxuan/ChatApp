@@ -1,21 +1,12 @@
 import React from 'react';
 import ChatSessionManager from './ChatSessionManager.jsx';
 import GameCardErrorPanel, { normalizeGameCardError } from './GameCardErrorPanel.jsx';
+import { useGameCardRuntime } from '../chat/GameCardRuntimeProvider.jsx';
 
-function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged, audioControl, onImportError }) {
-  const [card, setCard] = React.useState(null);
+function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged, onSwitchSession, onActiveCardChanged, audioControl, onImportError }) {
+  const { activeCard: card, changeActiveCard } = useGameCardRuntime();
   const [error, setError] = React.useState(null);
   const [isImporting, setIsImporting] = React.useState(false);
-
-  const loadActiveCard = React.useCallback(async () => {
-    if (!window.electronAPI?.getActiveGameCard) return;
-    const result = await window.electronAPI.getActiveGameCard();
-    if (result.success) setCard(result.card || null);
-  }, []);
-
-  React.useEffect(() => {
-    loadActiveCard();
-  }, [loadActiveCard]);
 
   const handleImport = async (event) => {
     event.stopPropagation();
@@ -24,9 +15,9 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
     setError(null);
     const result = await window.electronAPI.importGameCardFromDirectory();
     if (result.success) {
-      setCard(result.card || null);
+      changeActiveCard(result.card || null);
       onImportError?.(null);
-      window.dispatchEvent(new CustomEvent('game-card-changed', { detail: result.card || null }));
+      await onActiveCardChanged?.(result.card || null);
     } else if (!result.canceled) {
       const nextError = normalizeGameCardError(result, { title: '导入游戏卡失败' });
       setError(nextError);
@@ -47,7 +38,12 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
       {modelName ? <span className="config-status configured game-card-model-status" data-gc-part="model-status">{modelName}</span> : null}
       <div className="game-card-title-actions" data-gc-part="game-card-title-actions">
         {audioControl || null}
-        <ChatSessionManager onBeforeSessionChange={onBeforeSessionChange} onSessionChanged={onSessionChanged} />
+        <ChatSessionManager
+          cardId={card?.id || ''}
+          onBeforeSessionChange={onBeforeSessionChange}
+          onSessionChanged={onSessionChanged}
+          onSwitchSession={onSwitchSession}
+        />
         <button
           className="game-card-import-btn md-btn md-btn-icon"
           data-gc-part="game-card-import-button"

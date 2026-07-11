@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
+function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, onSwitchSession }) {
   const R = React;
   const [open, setOpen] = R.useState(false), [sessions, setSessions] = R.useState([]), [activeId, setActiveId] = R.useState(null);
   const [panelMounted, setPanelMounted] = R.useState(false);
@@ -11,12 +11,7 @@ function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
     if (result?.success) { setSessions(result.sessions || []); setActiveId(result.activeId || null); }
   }, []);
 
-  R.useEffect(() => { loadSessions(); }, [loadSessions]);
-  R.useEffect(() => {
-    const handler = () => loadSessions();
-    window.addEventListener('game-card-changed', handler);
-    return () => window.removeEventListener('game-card-changed', handler);
-  }, [loadSessions]);
+  R.useEffect(() => { loadSessions(); }, [cardId, loadSessions]);
   R.useEffect(() => {
     if (open || !panelMounted) return undefined;
     const timer = setTimeout(() => setPanelMounted(false), 180);
@@ -26,9 +21,14 @@ function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
   const activate = async (id) => {
     if (id === activeId || busy) return;
     setBusy(true);
-    await onBeforeSessionChange?.();
-    const result = await window.electronAPI?.setActiveChatSession?.(id);
-    if (result?.success) { await onSessionChanged?.(id); await loadSessions(); setOpen(false); }
+    let result;
+    if (onSwitchSession) result = await onSwitchSession(id);
+    else {
+      await onBeforeSessionChange?.();
+      result = await window.electronAPI?.setActiveChatSession?.(id);
+      if (result?.success) await onSessionChanged?.(id);
+    }
+    if (result?.success) { await loadSessions(); setOpen(false); }
     setBusy(false);
   };
 

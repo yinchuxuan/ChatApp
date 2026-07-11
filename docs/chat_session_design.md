@@ -121,12 +121,12 @@ preload 暴露同名 camelCase 方法：
 
 ## 前端集成
 
-`ChatPanel` 仍然通过 `getChatHistory()` 和 `saveChatHistory()` 读写当前 session。新增一个 session 控件负责管理 active session：
+`useChatSession` 通过 `getChatHistory()` 和 `saveChatHistory()` 读写当前 session，`useChatPersistence` 管理自动保存和 retry base。session 控件负责管理 active session：
 
 - 显示当前游戏卡名和当前 session 标题。
 - 展开后列出同一游戏卡下的 session。
 - 支持新建、切换、重命名和删除。
-- 切换时重置 streaming、retry ref 和展开状态。
+- 切换通过 `useChatSession.switchSession()` 完成，并重置 streaming、retry ref 和展开状态。
 
 session 控件不应该依赖 msg 历史调试面板；msg 历史仍只用于查看当前保存内容。
 

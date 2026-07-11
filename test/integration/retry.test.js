@@ -1,5 +1,5 @@
 /**
- * Integration Tests - useRetry hook (app-001)
+ * Integration Tests - retry message helpers (app-001)
  * Tests the retry logic independently
  */
 

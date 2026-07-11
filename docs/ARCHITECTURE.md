@@ -5,6 +5,7 @@
 - **主进程 (`main.js`)**：Electron 主进程，创建 `BrowserWindow`，管理应用生命周期，注册 IPC 处理器处理文件 I/O（模型配置、背景配置、聊天历史）。
 - **预加载脚本 (`preload.js`)**：通过 `contextBridge` 桥接主进程与渲染进程，暴露 `window.electronAPI` 供渲染进程调用。
 - **渲染进程 (`src/`)**：Vite 构建的 React 单页应用。`main.jsx` 是唯一入口，`App.jsx` 为根组件；平台模块通过 ESM `import/export` 连接，不依赖 HTML 脚本顺序或 `window.*` 模块注册。
+- **聊天运行时 (`src/chat/`)**：通过独立 hook 管理 session、持久化、生成、重试、中止和滚动；`GameCardRuntimeProvider` 管理当前游戏卡、gameState 与运行时错误。
 - **游戏卡核心 (`shared/game-card/`)**：平台无关的规则、content、state、schema 与协议适配逻辑。只处理普通数据，并通过显式依赖接入文件读取和脚本执行。
 - **平台适配层 (`src/platform/`)**：定义 renderer 使用的游戏卡平台接口，并提供 Electron 与内存实现。未来 Tauri 前端需实现同一接口，不在 shared core 中增加平台判断。
 - **IPC 处理器 (`ipc/`)**：处理器模块读写 `userData` 目录下按领域分组的 JSON 文件：`config/`、`game-cards/`。
@@ -38,6 +39,8 @@ scriptExecutor.run(source, context, options)
 ```
 
 `src/platform/electronGameCardPlatform.js` 将这些调用适配到现有 preload API；`sendPipeline` 只接收显式传入的 platform。脚本上下文构造和结果校验属于 shared core，受控 JavaScript 的具体执行环境属于 renderer adapter。
+
+聊天界面中的输入命令和模型配置通知通过 `src/chat` 下的显式 service 传递。游戏卡切换由 `GameCardRuntimeProvider` 与 props 回调协调，背景和视觉面板状态通过组件 props 回传给 `App`；renderer 组件之间不使用 DOM `CustomEvent` 作为内部消息总线。
 
 ## userData 结构
 
