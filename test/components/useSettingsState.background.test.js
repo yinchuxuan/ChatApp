@@ -23,7 +23,7 @@ describe('useSettingsState Hook - Background Handlers', () => {
       config: { backgroundImageUrl: 'bg-url', backgroundOpacity: 0.5 }
     });
 
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => {
@@ -35,7 +35,7 @@ describe('useSettingsState Hook - Background Handlers', () => {
   });
 
   test('should handle handleBackgroundChange for backgroundImageUrl with auto-save', async () => {
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -52,7 +52,7 @@ describe('useSettingsState Hook - Background Handlers', () => {
   });
 
   test('should handle handleBackgroundChange for backgroundOpacity with auto-save', async () => {
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -76,7 +76,7 @@ describe('useSettingsState Hook - Background Handlers', () => {
       config: { backgroundImageUrl: 'local://user-background/current', backgroundOpacity: 0.5 }
     });
 
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -94,7 +94,7 @@ describe('useSettingsState Hook - Background Handlers', () => {
   test('should handle canceled image selection', async () => {
     electronAPI.selectBackgroundImage.mockResolvedValue({ success: false, canceled: true });
 
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -112,7 +112,7 @@ describe('useSettingsState Hook - Background Handlers', () => {
       error: 'Invalid image'
     });
 
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -130,7 +130,7 @@ describe('useSettingsState Hook - Background Handlers', () => {
       config: { backgroundImageUrl: 'bg-url', backgroundOpacity: 0.5 }
     });
 
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => {
@@ -148,7 +148,7 @@ describe('useSettingsState Hook - Background Handlers', () => {
 
   test('should call onBackgroundChange callback on save success', async () => {
     const onBackgroundChange = jest.fn();
-    const useSettingsState = require('../../src/components/useSettingsState.js').default;
+    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(onBackgroundChange));
 
     await hookAct(async () => { await Promise.resolve(); });

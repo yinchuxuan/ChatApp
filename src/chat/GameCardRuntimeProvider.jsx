@@ -1,5 +1,6 @@
 import React from 'react';
-import { normalizeGameCardError } from '../components/GameCardErrorPanel.jsx';
+import { PropTypes } from '../components/componentPropTypes.js';
+import { normalizeGameCardError } from '../gameCard/runtimeError.js';
 import { gameCardPlatform } from '../platform/index.js';
 
 const GameCardRuntimeContext = React.createContext(null);
@@ -39,6 +40,13 @@ function GameCardRuntimeProvider({ children, platform = gameCardPlatform }) {
 
   return <GameCardRuntimeContext.Provider value={value}>{children}</GameCardRuntimeContext.Provider>;
 }
+
+GameCardRuntimeProvider.propTypes = {
+  children: PropTypes.node,
+  platform: PropTypes.shape({
+    repository: PropTypes.shape({ getActiveCard: PropTypes.func.isRequired }).isRequired
+  })
+};
 
 function useGameCardRuntime() {
   const runtime = React.useContext(GameCardRuntimeContext);

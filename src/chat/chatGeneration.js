@@ -1,9 +1,6 @@
 import generationServices from './generationServices.js';
 import { createChatMessage } from './messageIds.js';
-
-function cloneChatValue(value) {
-  return JSON.parse(JSON.stringify(value));
-}
+import { cloneJson as cloneChatValue } from '../../shared/game-card/utils/jsonValue.js';
 
 function stripTurnContext(content) {
   return typeof content === 'string'

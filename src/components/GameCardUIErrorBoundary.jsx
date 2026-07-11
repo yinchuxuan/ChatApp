@@ -1,4 +1,5 @@
 import React from 'react';
+import { PropTypes } from './componentPropTypes.js';
 
 class GameCardUIErrorBoundary extends React.Component {
   constructor(props) {
@@ -48,5 +49,10 @@ class GameCardUIErrorBoundary extends React.Component {
     >{this.props.children}</div>;
   }
 }
+
+GameCardUIErrorBoundary.propTypes = {
+  children: PropTypes.node,
+  onError: PropTypes.func
+};
 
 export default GameCardUIErrorBoundary;

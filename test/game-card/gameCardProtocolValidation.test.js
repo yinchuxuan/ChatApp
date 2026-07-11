@@ -1,9 +1,9 @@
 const schema = require('../../shared/game-card/schema/game-card.schema.json');
-const { applyGameCard } = require('../../src/gameCard/engine');
+const { applyGameCard } = require('../../shared/game-card/engine/engine');
 const {
   GAME_CARD_SCHEMA_VERSION,
   validateGameCard
-} = require('../../src/gameCard/validateGameCard');
+} = require('../../shared/game-card/schema/validateGameCard');
 const {
   collectSchemaFileReferences
 } = require('../../shared/game-card/schema/schemaFileReferences.js');

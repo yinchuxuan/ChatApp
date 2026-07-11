@@ -1,4 +1,5 @@
 const { randomUUID } = require('node:crypto');
+const { cloneJson } = require('./jsonValue');
 
 function cleanMessages(messages) {
   return messages.map(msg => {
@@ -16,7 +17,7 @@ function isPlainObject(value) {
 }
 
 function cleanGameState(gameState) {
-  return isPlainObject(gameState) ? JSON.parse(JSON.stringify(gameState)) : {};
+  return isPlainObject(gameState) ? cloneJson(gameState) : {};
 }
 
 function restoreMessages(messages) {

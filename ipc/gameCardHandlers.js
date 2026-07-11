@@ -5,18 +5,12 @@ const { getCardPath, isSafeGameCardId } = require('./gameCardStorage');
 const { readGameCardJsonAsync } = require('./gameCardImportResolver');
 const { validateImportedGameCard } = require('./gameCardImportValidation');
 const { createGameCardResourceUrl } = require('./localResourceProtocol');
+const { failureResult } = require('./ipcResult');
 const { createJsonStore } = require('./storage/jsonStore');
 
 function asErrorResult(err, fallback = {}) {
   console.error('Error handling game card IPC:', err);
-  return {
-    success: false,
-    error: err.message,
-    ...(err.stage ? { stage: err.stage } : {}),
-    ...(err.file ? { file: err.file } : {}),
-    ...(err.details ? { details: err.details } : {}),
-    ...fallback
-  };
+  return failureResult(err, fallback);
 }
 
 async function readCard(store, cardsDir, id) {

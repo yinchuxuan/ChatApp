@@ -9,11 +9,6 @@ function parsePath(path) {
   return parts;
 }
 
-function cloneJson(value) {
-  if (value === undefined) return undefined;
-  return JSON.parse(JSON.stringify(value));
-}
-
 function cloneState(state) {
   return isObject(state) ? cloneJson(state) : {};
 }
@@ -76,3 +71,4 @@ function deleteStateValue(state, path) {
 }
 
 export { cloneState, deleteStateValue, getStateValue, hasStateValue, setStateValue };
+import { cloneJson } from '../utils/jsonValue.js';

@@ -1,6 +1,6 @@
 import React from 'react';
 import generationServices from './generationServices.js';
-import { normalizeGameCardError } from '../components/GameCardErrorPanel.jsx';
+import { normalizeGameCardError } from '../gameCard/runtimeError.js';
 import { rendererServices } from '../platform/index.js';
 
 function useChatSession({

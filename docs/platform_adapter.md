@@ -26,6 +26,8 @@
 
 平台对象及其三个子接口创建后被冻结。调用方不能在运行时替换方法。
 
+该接口以及 renderer 的 `config`、`background`、`sessions`、`cards` service 类型集中定义在 `src/platform/contracts.js`。adapter 工厂通过 JSDoc 引用同一 contract，避免各实现各自描述返回结构。
+
 ## 实现
 
 `electronGameCardPlatform.js` 是生产 adapter。它通过 `window.electronAPI` 调用 preload IPC，并将 `{ success, content/url/card }` 返回值解包为 contract 的直接返回值或异常。

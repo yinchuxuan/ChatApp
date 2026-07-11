@@ -1,5 +1,6 @@
-import { createExecContext, cloneJson } from '../../shared/game-card/exec/execContext.js';
+import { createExecContext } from '../../shared/game-card/exec/execContext.js';
 import { validateExecResult } from '../../shared/game-card/exec/execResult.js';
+import { cloneJson } from '../../shared/game-card/utils/jsonValue.js';
 import { controlledScriptExecutor } from '../platform/controlledScriptExecutor.js';
 import { createExecFiles } from './execFiles.js';
 import { resolveExecSource } from './execSource.js';

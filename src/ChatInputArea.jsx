@@ -1,5 +1,6 @@
 import React from 'react';
 import { subscribeChatInputCommands } from './chat/chatInputCommands.js';
+import { PropTypes } from './components/componentPropTypes.js';
 
 function ChatInputArea({
   isLoading,
@@ -57,45 +58,36 @@ function ChatInputArea({
     return subscribeChatInputCommands(handler);
   }, [focusInput, submitValue]);
 
-  const C = R.createElement;
-
-  return C('form', {
-    className: `chat-input-area${isVisible ? ' chat-input-area-visible' : ''}`,
-    'data-gc-part': 'chat-input',
-    ref: formRef,
-    onSubmit: handleSubmit,
-    onMouseEnter: () => setIsInputHovered(true),
-    onMouseLeave: () => setIsInputHovered(false)
-  },
-    C('textarea', {
-      className: 'chat-input-textarea',
-      'data-gc-part': 'chat-input-textarea',
-      ref: textareaRef,
-      value: inputValue,
-      onChange: (e) => setInputValue(e.target.value),
-      placeholder: '输入您的回答...',
-      disabled: isLoading,
-      rows: 1,
-      onFocus: () => setIsFocused(true),
-      onBlur: () => setIsFocused(false),
-      onKeyDown: (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          e.target.form.requestSubmit();
+  return <form className={`chat-input-area${isVisible ? ' chat-input-area-visible' : ''}`}
+    data-gc-part="chat-input" ref={formRef} onSubmit={handleSubmit}
+    onMouseEnter={() => setIsInputHovered(true)} onMouseLeave={() => setIsInputHovered(false)}>
+    <textarea className="chat-input-textarea" data-gc-part="chat-input-textarea"
+      ref={textareaRef} value={inputValue} onChange={event => setInputValue(event.target.value)}
+      placeholder="输入您的回答..." disabled={isLoading} rows={1}
+      onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}
+      onKeyDown={event => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          event.target.form.requestSubmit();
         }
-      }
-    }),
-    C('button', {
-      type: 'submit',
-      className: 'md-btn md-btn-icon send-icon-btn',
-      'data-gc-part': 'chat-send-button',
-      disabled: isLoading ? false : !inputValue.trim(),
-      'aria-label': isLoading ? '停止生成' : '发送消息',
-      title: isLoading ? '停止生成' : '发送消息'
-    },
-      isLoading ? C('span', { className: 'material-icons' }, 'stop') : C('span', { className: 'material-icons' }, 'send')
-    )
-  );
+      }} />
+    <button type="submit" className="md-btn md-btn-icon send-icon-btn"
+      data-gc-part="chat-send-button" disabled={isLoading ? false : !inputValue.trim()}
+      aria-label={isLoading ? '停止生成' : '发送消息'}
+      title={isLoading ? '停止生成' : '发送消息'}>
+      <span className="material-icons">{isLoading ? 'stop' : 'send'}</span>
+    </button>
+  </form>;
 }
+
+ChatInputArea.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  isInputHovered: PropTypes.bool.isRequired,
+  setIsInputHovered: PropTypes.func.isRequired,
+  isInputTriggerHovered: PropTypes.bool.isRequired,
+  setIsInputTriggerHovered: PropTypes.func.isRequired,
+  onSend: PropTypes.func.isRequired,
+  onStop: PropTypes.func.isRequired
+};
 
 export default ChatInputArea;

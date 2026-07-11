@@ -1,4 +1,4 @@
-const { applyStateAction } = require('../../src/gameCard/stateActions');
+const { applyStateAction } = require('../../shared/game-card/state/stateActions');
 
 describe('state action runtime', () => {
   test('state.set creates and replaces nested values immutably', () => {

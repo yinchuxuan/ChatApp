@@ -1,4 +1,5 @@
 const { createJsonStore } = require('./storage/jsonStore');
+const { failureResult } = require('./ipcResult');
 
 const DEFAULT_CONFIG = { apiUrl: '', apiKey: '', modelName: '' };
 
@@ -10,7 +11,7 @@ function registerConfigHandlers(ipcMain, configPath, fs, options = {}) {
       return { success: true, config: await store.readJson(configPath, DEFAULT_CONFIG) };
     } catch (err) {
       console.error('Error reading model config:', err);
-      return { success: false, error: err.message };
+      return failureResult(err);
     }
   });
 
@@ -20,7 +21,7 @@ function registerConfigHandlers(ipcMain, configPath, fs, options = {}) {
       return { success: true };
     } catch (err) {
       console.error('Error saving model config:', err);
-      return { success: false, error: err.message };
+      return failureResult(err);
     }
   });
 }

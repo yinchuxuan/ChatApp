@@ -1,11 +1,12 @@
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import React from 'react';
+import { PropTypes } from '../components/componentPropTypes.js';
 import ChatInputArea from '../ChatInputArea.jsx';
-import ChatPanelMessageRenderers from '../components/ChatPanelMessageRenderers.js';
-import ChatPanelRenderers from '../components/ChatPanelRenderers.js';
+import ChatPanelMessageRenderers from '../components/ChatPanelMessageRenderers.jsx';
+import ChatPanelRenderers from '../components/ChatPanelRenderers.jsx';
 import GameCardBackgroundRuntime from '../components/GameCardBackgroundRuntime.js';
-import GameCardBgmPlayer from '../components/GameCardBgmPlayer.js';
+import GameCardBgmPlayer from '../components/GameCardBgmPlayer.jsx';
 import GameCardErrorPanel from '../components/GameCardErrorPanel.jsx';
 import GameCardTitleControl from '../components/GameCardTitleControl.jsx';
 import GameCardUIRoot from '../components/GameCardUIRoot.jsx';
@@ -142,5 +143,12 @@ function ChatRuntime({
     <ChatInputArea isLoading={isLoading} isInputHovered={isInputHovered} setIsInputHovered={setIsInputHovered} isInputTriggerHovered={isInputTriggerHovered} setIsInputTriggerHovered={setIsInputTriggerHovered} onSend={generation.send} onStop={generation.stop} />
   </div>;
 }
+
+ChatRuntime.propTypes = {
+  BgmPlayer: PropTypes.elementType,
+  BackgroundRuntime: PropTypes.elementType,
+  onBackgroundChange: PropTypes.func,
+  onVisualPanelChange: PropTypes.func
+};
 
 export default ChatRuntime;

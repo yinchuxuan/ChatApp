@@ -1,4 +1,4 @@
-const { matchesPredicate, matchesWhen } = require('../../src/gameCard/predicate');
+const { matchesPredicate, matchesWhen } = require('../../shared/game-card/engine/predicate');
 
 describe('predicate and when condition edge cases', () => {
   test('when phase AND length AND last uses AND semantic', () => {

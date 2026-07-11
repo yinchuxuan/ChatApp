@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import React from 'react';
-import ChatPanelMessageRenderers from './ChatPanelMessageRenderers.js';
+import ChatPanelMessageRenderers from './ChatPanelMessageRenderers.jsx';
 import { highlightQuotes } from './highlightQuotes.js';
 import * as runtime from '../gameCard/uiRuntime.js';
 import { applyUiScriptRunEvent } from '../gameCard/uiScripts.js';
@@ -9,7 +9,8 @@ import { applyUiStateActionEvent } from '../gameCard/uiStateActions.js';
 import { gameCardPlatform } from '../platform/index.js';
 import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
 import GameCardUIErrorBoundary from './GameCardUIErrorBoundary.jsx';
-import { readonly } from './uiReadonly.js';
+import { readonly } from '../gameCard/uiReadonly.js';
+import { gameCard, gameState, message, PropTypes } from './componentPropTypes.js';
 
 async function resourceResult(field, load) {
   try {
@@ -183,5 +184,16 @@ function GameCardUIRoot(props) {
     <GameCardUIRootContent {...props} />
   </GameCardUIErrorBoundary>;
 }
+
+const gameCardUIRootPropTypes = {
+  card: gameCard,
+  gameState,
+  setGameState: PropTypes.func,
+  messages: PropTypes.arrayOf(message),
+  isLoading: PropTypes.bool,
+  onError: PropTypes.func
+};
+GameCardUIRootContent.propTypes = gameCardUIRootPropTypes;
+GameCardUIRoot.propTypes = gameCardUIRootPropTypes;
 
 export default GameCardUIRoot;

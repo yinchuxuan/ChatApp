@@ -1,11 +1,11 @@
 import { expandCardImports } from './cardImportExpander.js';
 import { applyGameCardAsync } from './engine.js';
-import { adaptMessagesToProtocol } from './protocolAdapter.js';
+import { adaptMessagesToProtocol } from '../../shared/game-card/protocol/protocolAdapter.js';
 import { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath } from './resourcePreload.js';
-import { ensureStateDefaults } from './stateSchema.js';
+import { ensureStateDefaults } from '../../shared/game-card/state/stateSchema.js';
 import { loadExternalStateSchema } from './stateSchemaLoader.js';
-import { applyLatestAssistantStatePatch } from './statePatch.js';
-import { decayTTL } from './ttl.js';
+import { applyLatestAssistantStatePatch } from '../../shared/game-card/state/statePatch.js';
+import { decayTTL } from '../../shared/game-card/engine/ttl.js';
 
 async function loadActiveGameCard(platform) {
   if (typeof platform?.repository?.getActiveCard !== 'function') return null;

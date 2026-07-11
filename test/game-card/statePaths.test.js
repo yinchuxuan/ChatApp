@@ -4,7 +4,7 @@ const {
   getStateValue,
   hasStateValue,
   setStateValue
-} = require('../../src/gameCard/statePaths');
+} = require('../../shared/game-card/state/statePaths');
 
 describe('state path tools', () => {
   test('reads nested values with dot paths', () => {

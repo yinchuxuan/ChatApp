@@ -6,6 +6,7 @@
 - **预加载脚本 (`preload.js`)**：通过 `contextBridge` 桥接主进程与渲染进程，暴露 `window.electronAPI` 供渲染进程调用。
 - **渲染进程 (`src/`)**：Vite 构建的 React 单页应用。`main.jsx` 是唯一入口，`App.jsx` 为根组件；平台模块通过 ESM `import/export` 连接，不依赖 HTML 脚本顺序或 `window.*` 模块注册。
 - **聊天运行时 (`src/chat/`)**：通过独立 hook 管理 session、持久化、生成、重试、中止和滚动；`GameCardRuntimeProvider` 管理当前游戏卡、gameState 与运行时错误。
+- **设置运行时 (`src/settings/`)**：管理模型与背景配置的加载、latest-wins 保存队列及设置页状态；`src/components` 只保留可渲染 UI。
 - **游戏卡核心 (`shared/game-card/`)**：平台无关的规则、content、state、schema 与协议适配逻辑。只处理普通数据，并通过显式依赖接入文件读取和脚本执行。
 - **平台适配层 (`src/platform/`)**：定义 renderer 使用的游戏卡与配置、背景、会话、卡片仓库接口，并提供 Electron 与内存实现。未来 Tauri 前端需实现同一接口，不在 shared core 中增加平台判断。
 - **IPC 处理器 (`ipc/`)**：处理器模块通过 `ipc/storage` 的异步原子 JSON store 读写 `userData`；聊天保存按 session 串行，目录导入使用异步文件 API。
@@ -33,6 +34,8 @@
 ```
 
 游戏卡调用方向为 `src/gameCard` renderer 适配层或 `ipc/` Electron 适配层指向 `shared/game-card`。Shared core 不依赖 DOM、React、Electron、Node 文件系统或本地绝对路径。
+
+`src/gameCard` 不提供 shared core 的重导出。纯规则、content、state、schema 和 protocol 调用必须直接导入 `shared/game-card` 下的所有者模块；`src/gameCard` 只暴露 renderer 资源预载、受控脚本、runtime 样式和 UI 适配行为。
 
 游戏卡结构协议由 `shared/game-card/schema/game-card.schema.json` 唯一定义。导入和运行时共用 shared Ajv validator；Electron 只在结构校验通过后处理 import 循环、schema 注解声明的文件存在性及 state schema 内容等跨文件语义。未来平台后端必须复用同一 schema，而不是复制结构规则。
 
@@ -97,6 +100,10 @@ userData/
 普通 unit test mock 显式 service 或 memory adapter。`window.electronAPI` 只在 preload 边界和 Electron 组件测试中使用。
 
 renderer 业务组件通过 `rendererServices` 使用 `config`、`background`、`sessions` 和 `cards` 窄接口。Electron adapter 负责解包 IPC result 并将失败统一转换为异常；组件不直接访问 preload API。
+
+shared core 测试直接导入 `shared/game-card`。只有需要受控 Worker、Electron 资源、预载文件、DOM 样式或动态 UI 编译的测试才导入 `src/gameCard` renderer wrapper。
+
+平台 React 组件使用 PropTypes，并由 ESLint 的 `react/prop-types` 规则检查；平台 service 与游戏卡 adapter 的公共形状由 `src/platform/contracts.js` 中的 JSDoc contract 定义。静态平台 UI 使用 JSX，`GameCardUIRoot` 动态挂载游戏卡组件时保留显式 `React.createElement`。
 
 ## 本地资源协议
 

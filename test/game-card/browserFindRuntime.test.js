@@ -1,5 +1,5 @@
 const { applyGameCard } = require('../../src/gameCard/engine');
-const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
+const { ensureStateDefaults } = require('../../shared/game-card/state/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
 
 describe('browser game card find runtime', () => {

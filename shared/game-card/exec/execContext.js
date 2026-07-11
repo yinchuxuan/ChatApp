@@ -1,14 +1,4 @@
-function cloneJson(value) {
-  if (value === undefined) return undefined;
-  return JSON.parse(JSON.stringify(value));
-}
-
-function deepFreeze(value) {
-  if (!value || typeof value !== 'object') return value;
-  Object.freeze(value);
-  Object.keys(value).forEach((key) => deepFreeze(value[key]));
-  return value;
-}
+import { cloneJson, deepFreeze } from '../utils/jsonValue.js';
 
 function fallbackUuid(random) {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
@@ -54,4 +44,4 @@ function createExecContext({ messages, state, card, event, files, random, random
   };
 }
 
-export { cloneJson, createExecContext, deepFreeze };
+export { createExecContext };

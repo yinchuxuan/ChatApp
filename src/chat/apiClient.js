@@ -1,5 +1,5 @@
-import { buildAnthropicParams, buildOpenAIParams } from '../components/modelGenerationParams.js';
-import { adaptMessagesToProtocol } from '../gameCard/protocolAdapter.js';
+import { buildAnthropicParams, buildOpenAIParams } from './modelGenerationParams.js';
+import { adaptMessagesToProtocol } from '../../shared/game-card/protocol/protocolAdapter.js';
 import { createSSEParser } from './sseParser.js';
 
 function normalizeUrl(url) {

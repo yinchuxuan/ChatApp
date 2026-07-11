@@ -1,6 +1,7 @@
 const { IMAGE_EXTENSIONS } = require('./gameCardAssets');
 const { USER_BACKGROUND_URL } = require('./localResourceProtocol');
 const { createJsonStore } = require('./storage/jsonStore');
+const { failureResult } = require('./ipcResult');
 
 const MIME_TYPES = {
   '.png': 'image/png',
@@ -52,7 +53,7 @@ function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dia
       return { success: true, config: publicConfig(config) };
     } catch (err) {
       console.error('Error reading background config:', err);
-      return { success: false, error: err.message };
+      return failureResult(err);
     }
   });
 
@@ -84,7 +85,7 @@ function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dia
       return { success: true, config: visibleConfig };
     } catch (err) {
       console.error('Error saving background config:', err);
-      return { success: false, error: err.message };
+      return failureResult(err);
     }
   });
 
@@ -103,7 +104,7 @@ function registerBackgroundHandlers(ipcMain, backgroundConfigPath, fs, path, dia
       selectedBackgroundPath = filePath;
       return { success: true, localUrl: USER_BACKGROUND_URL, mimeType: MIME_TYPES[ext] };
     } catch (err) {
-      return { success: false, error: err.message };
+      return failureResult(err);
     }
   });
 }

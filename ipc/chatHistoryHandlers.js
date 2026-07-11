@@ -2,10 +2,7 @@ const sessions = require('./chatSessionStore');
 const { createHistory, createRetryBase, parseHistory, parseRetryBase } = require('./chatHistoryCodec');
 const { createJsonStore } = require('./storage/jsonStore');
 const { createKeyedQueue } = require('./storage/keyedQueue');
-
-function failure(error, fallback = {}) {
-  return { success: false, error: error.message, ...fallback };
-}
+const { failureResult } = require('./ipcResult');
 
 function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
   const store = options.store || createJsonStore(fs);
@@ -29,7 +26,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
       });
     } catch (err) {
       console.error('Error reading chat history:', err);
-      return failure(err, { messages: [], gameState: {} });
+      return failureResult(err, { messages: [], gameState: {} });
     }
   });
 
@@ -47,7 +44,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
       });
     } catch (err) {
       console.error('Error saving chat history:', err);
-      return failure(err);
+      return failureResult(err);
     }
   });
 
@@ -55,7 +52,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
     try {
       return { success: true, ...await sessions.listSessions(store, gameCardsDir) };
     } catch (err) {
-      return failure(err, { sessions: [], activeId: null });
+      return failureResult(err, { sessions: [], activeId: null });
     }
   });
 
@@ -64,7 +61,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
       const list = await sessions.listSessions(store, gameCardsDir);
       return { success: true, session: list.sessions.find(item => item.id === list.activeId) || null };
     } catch (err) {
-      return failure(err, { session: null });
+      return failureResult(err, { session: null });
     }
   });
 
@@ -72,7 +69,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
     try {
       return { success: true, ...await sessions.createSession(store, gameCardsDir, title) };
     } catch (err) {
-      return failure(err);
+      return failureResult(err);
     }
   });
 
@@ -80,7 +77,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
     try {
       return { success: true, ...await sessions.setActiveSession(store, gameCardsDir, id) };
     } catch (err) {
-      return failure(err);
+      return failureResult(err);
     }
   });
 
@@ -88,7 +85,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
     try {
       return { success: true, session: await sessions.renameSession(store, gameCardsDir, id, title) };
     } catch (err) {
-      return failure(err);
+      return failureResult(err);
     }
   });
 
@@ -96,7 +93,7 @@ function registerChatHistoryHandlers(ipcMain, gameCardsDir, fs, options = {}) {
     try {
       return { success: true, ...await sessions.deleteSession(store, gameCardsDir, id) };
     } catch (err) {
-      return failure(err);
+      return failureResult(err);
     }
   });
 }

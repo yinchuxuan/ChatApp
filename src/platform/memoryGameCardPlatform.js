@@ -15,6 +15,7 @@ function requireResource(values, cardId, relativePath, kind) {
   return value;
 }
 
+/** @returns {import('./contracts.js').GameCardPlatform} */
 function createMemoryGameCardPlatform({
   activeCard = null,
   files = {},

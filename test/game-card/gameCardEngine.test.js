@@ -1,4 +1,4 @@
-const { applyGameCard, cloneMessages } = require('../../src/gameCard/engine');
+const { applyGameCard, cloneMessages } = require('../../shared/game-card/engine/engine');
 
 function cardWithRules(rules) {
   return {

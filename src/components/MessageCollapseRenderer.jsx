@@ -1,7 +1,8 @@
 import React from 'react';
 import { findLastRoleIndex, selectVisibleMessages } from '../chat/messageSelection.js';
 import { MessageList, StreamingMessageRow } from './MessageList.jsx';
-import useCollapsedHistory from './useCollapsedHistory.js';
+import useCollapsedHistory from '../chat/useCollapsedHistory.js';
+import { message, PropTypes } from './componentPropTypes.js';
 
 function renderUser(renderer, message, index) {
   return renderer.usesMessageObject ? renderer(message, index) : renderer(message.content);
@@ -37,18 +38,28 @@ function CollapsedMessageList({ messages, isLoading, typewriter, renderUserMessa
   </div>;
 }
 
+CollapsedMessageList.propTypes = {
+  messages: PropTypes.arrayOf(message).isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  typewriter: PropTypes.shape({ streamContent: PropTypes.string }).isRequired,
+  renderUserMessage: PropTypes.func.isRequired,
+  renderAssistantMessage: PropTypes.func.isRequired,
+  renderRetryButton: PropTypes.func.isRequired,
+  isExpanded: PropTypes.bool.isRequired,
+  onExpand: PropTypes.func
+};
+
 const MessageCollapseRenderer = {
   findLastAssistantIndex: messages => findLastRoleIndex(messages, 'assistant'),
   findLastUserIndex: messages => findLastRoleIndex(messages, 'user'),
   resetPull() {},
-  render(R, rawMessages, isLoading, typewriter, renderUserMessage, renderAssistantMessage,
+  render(_React, rawMessages, isLoading, typewriter, renderUserMessage, renderAssistantMessage,
     renderRetryButton, isExpanded, onExpand) {
     const messages = selectVisibleMessages(rawMessages);
     if (messages.length === 0 && !isLoading) return null;
-    return R.createElement(CollapsedMessageList, {
-      messages, isLoading, typewriter, renderUserMessage, renderAssistantMessage,
-      renderRetryButton, isExpanded, onExpand
-    });
+    return <CollapsedMessageList messages={messages} isLoading={isLoading} typewriter={typewriter}
+      renderUserMessage={renderUserMessage} renderAssistantMessage={renderAssistantMessage}
+      renderRetryButton={renderRetryButton} isExpanded={isExpanded} onExpand={onExpand} />;
   }
 };
 

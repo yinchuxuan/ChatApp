@@ -1,5 +1,6 @@
 import React from 'react';
 import { messageKey } from '../chat/messageSelection.js';
+import { message, PropTypes } from './componentPropTypes.js';
 
 function MessageBubble({ message, children }) {
   const className = `chat-message ${message.role} ${message.isError ? 'error' : ''}`;
@@ -38,5 +39,23 @@ function StreamingMessageRow({ content }) {
     <MessageBubble message={message}>{content}</MessageBubble>
   </div>;
 }
+
+MessageBubble.propTypes = { message: message.isRequired, children: PropTypes.node };
+MessageRow.propTypes = {
+  message: message.isRequired,
+  retrySource: PropTypes.bool,
+  retryButton: PropTypes.node,
+  children: PropTypes.node,
+  keyPrefix: PropTypes.string
+};
+MessageList.propTypes = {
+  messages: PropTypes.arrayOf(message).isRequired,
+  lastUserIndex: PropTypes.number.isRequired,
+  renderUser: PropTypes.func.isRequired,
+  renderAssistant: PropTypes.func.isRequired,
+  renderRetryButton: PropTypes.func.isRequired,
+  keyPrefix: PropTypes.string
+};
+StreamingMessageRow.propTypes = { content: PropTypes.node };
 
 export { MessageBubble, MessageList, MessageRow, StreamingMessageRow };

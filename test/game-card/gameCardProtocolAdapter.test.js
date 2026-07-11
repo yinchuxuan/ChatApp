@@ -1,4 +1,4 @@
-const { adaptMessagesToProtocol } = require('../../src/gameCard/protocolAdapter');
+const { adaptMessagesToProtocol } = require('../../shared/game-card/protocol/protocolAdapter');
 
 describe('game card protocol adapter', () => {
   const runtimeMessages = [

@@ -1,7 +1,7 @@
 const {
   ensureStateDefaults,
   normalizeStateSchema
-} = require('../../src/gameCard/stateSchema');
+} = require('../../shared/game-card/state/stateSchema');
 
 describe('state schema defaults', () => {
   test('normalizes direct schema maps', () => {

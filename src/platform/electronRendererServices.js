@@ -24,6 +24,7 @@ async function invoke(method, args = [], field) {
   return payload;
 }
 
+/** @returns {import('./contracts.js').RendererServices} */
 function createElectronRendererServices() {
   return Object.freeze({
     config: Object.freeze({

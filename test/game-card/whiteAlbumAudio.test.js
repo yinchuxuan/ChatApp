@@ -1,9 +1,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { card, stateSchema } = require('./whiteAlbumTestCard');
-const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
+const { ensureStateDefaults } = require('../../shared/game-card/state/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
-const { validateGameCard } = require('../../src/gameCard/validateGameCard');
+const { validateGameCard } = require('../../shared/game-card/schema/validateGameCard');
 
 describe('white album 2 audio', () => {
   test('initializes daily bgm state and maps it to WA2_daily.mp3', () => {

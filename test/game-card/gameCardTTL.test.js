@@ -1,5 +1,5 @@
-const { decayTTL } = require('../../src/gameCard/ttl');
-const { applyGameCard } = require('../../src/gameCard/engine');
+const { decayTTL } = require('../../shared/game-card/engine/ttl');
+const { applyGameCard } = require('../../shared/game-card/engine/engine');
 
 describe('TTL edge cases', () => {
   test('ttl: -1 keeps messages permanent with no decay', () => {

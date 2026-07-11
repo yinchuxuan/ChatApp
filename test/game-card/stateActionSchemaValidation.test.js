@@ -1,5 +1,5 @@
-const { applyGameCard } = require('../../src/gameCard/engine');
-const { applyStateAction } = require('../../src/gameCard/stateActions');
+const { applyGameCard } = require('../../shared/game-card/engine/engine');
+const { applyStateAction } = require('../../shared/game-card/state/stateActions');
 
 function apply(state, action, schema) {
   return applyStateAction(state, action, { schema });

@@ -4,6 +4,7 @@ import {
   hasStateValue,
   setStateValue
 } from './statePaths.js';
+import { cloneJson } from '../utils/jsonValue.js';
 
 const VALID_TYPES = ['string', 'number', 'boolean', 'object', 'array', 'enum'];
 
@@ -13,11 +14,6 @@ function isObject(value) {
 
 function isValidPath(path) {
   return typeof path === 'string' && path.length > 0 && !path.split('.').some((part) => part === '');
-}
-
-function cloneJson(value) {
-  if (value === undefined) return undefined;
-  return JSON.parse(JSON.stringify(value));
 }
 
 function normalizeStateSchema(input = {}) {

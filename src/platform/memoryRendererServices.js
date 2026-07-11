@@ -1,3 +1,4 @@
+/** @returns {import('./contracts.js').RendererServices} */
 function createMemoryRendererServices(initial = {}) {
   let config = initial.config || {};
   let background = initial.background || {};

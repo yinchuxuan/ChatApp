@@ -1,5 +1,5 @@
-const { applyAction } = require('../../src/gameCard/actions');
-const { applyGameCard } = require('../../src/gameCard/engine');
+const { applyAction } = require('../../shared/game-card/engine/actions');
+const { applyGameCard } = require('../../shared/game-card/engine/engine');
 
 describe('game card action execution edge cases', () => {
   test('remove deletes multiple messages without index offset', () => {

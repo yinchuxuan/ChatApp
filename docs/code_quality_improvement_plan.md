@@ -109,12 +109,22 @@ React state updater 必须保持纯函数，异步操作必须具有明确的错
 
 ## P3：目录与公共接口整理
 
+状态：已完成。
+
 - 删除 `src/gameCard` 中未使用的纯重导出文件。
 - core 测试直接导入 `shared/game-card`；renderer wrapper 只保留平台适配行为。
 - 将 `apiClient`、错误标准化和非 UI hooks 从 `components` 移到对应 service/domain 目录。
 - 合并重复的 JSON clone、deep freeze 和 IPC failure result helper。
 - 为 React props 和平台 contract 增加一致的类型约束，可选择 PropTypes、JSDoc check 或渐进式 TypeScript。
 - 将平台组件中的旧式 `React.createElement` 逐步改为 JSX；游戏卡动态源码编译边界除外。
+
+完成结果：
+
+- `src/gameCard` 只保留资源预载、受控脚本、样式和 UI runtime 等 renderer 适配模块，不再转发 shared core API。
+- 设置 hooks、消息 hooks、模型参数和错误标准化已移动到各自 domain 目录。
+- renderer/shared 与 Electron IPC 分别统一 JSON helper，IPC handler 共用 failure result helper。
+- React props 由 ESLint 强制检查 PropTypes；平台 adapter 的异步 contract 集中定义在 `src/platform/contracts.js`。
+- 静态平台组件统一使用 JSX，仅动态游戏卡组件挂载继续显式使用游戏卡提供的 React 实例。
 
 ## 推荐执行顺序
 

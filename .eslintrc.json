@@ -40,7 +40,7 @@
   },
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "react/prop-types": "off",
+    "react/prop-types": "error",
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "no-console": "off",
     "camelcase": ["warn", { "properties": "never", "ignoreDestructuring": true }],
@@ -60,6 +60,7 @@
         "jest": true
       },
       "rules": {
+        "react/prop-types": "off",
         "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }]
       }
     }

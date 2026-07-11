@@ -1,7 +1,7 @@
 import React from 'react';
+import { DEFAULT_GENERATION_PARAMS, withDefaultGenerationParams } from '../chat/modelGenerationParams.js';
 import { publishModelConfig } from '../chat/modelConfigService.js';
 import { rendererServices } from '../platform/index.js';
-import { DEFAULT_GENERATION_PARAMS, withDefaultGenerationParams } from './modelGenerationParams.js';
 import useLatestSave from './useLatestSave.js';
 
 const DEFAULT_CONFIG = {

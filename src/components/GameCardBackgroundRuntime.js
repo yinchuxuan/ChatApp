@@ -1,6 +1,7 @@
 import React from 'react';
-import { normalizeTextPanel } from '../gameCard/visualConfig.js';
+import { normalizeTextPanel } from '../../shared/game-card/schema/visualConfig.js';
 import { gameCardPlatform } from '../platform/index.js';
+import { gameCard, gameState, PropTypes } from './componentPropTypes.js';
 
 function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, revealToken = 0, onBackgroundChange, onVisualPanelChange }) {
   const R = React;
@@ -65,5 +66,14 @@ function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, reveal
   R.useEffect(() => () => dispatchVisualPanel({ textPanel: 'center', cardId: '' }), [dispatchVisualPanel]);
   return null;
 }
+
+GameCardBackgroundRuntime.propTypes = {
+  card: gameCard,
+  gameState,
+  defer: PropTypes.bool,
+  revealToken: PropTypes.number,
+  onBackgroundChange: PropTypes.func,
+  onVisualPanelChange: PropTypes.func
+};
 
 export default GameCardBackgroundRuntime;

@@ -27,6 +27,7 @@ function unwrapActiveCard(result) {
   return result?.card || null;
 }
 
+/** @returns {import('./contracts.js').GameCardPlatform} */
 function createElectronGameCardPlatform(apiSource = currentElectronApi) {
   return createGameCardPlatform({
     resources: {

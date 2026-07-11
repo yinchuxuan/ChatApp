@@ -4,6 +4,10 @@ function requireMethod(owner, name) {
   }
 }
 
+/**
+ * @param {import('./contracts.js').GameCardPlatformOptions} options
+ * @returns {import('./contracts.js').GameCardPlatform}
+ */
 function createGameCardPlatform({ resources, repository, scriptExecutor } = {}) {
   requireMethod(resources, 'readText');
   requireMethod(resources, 'getImageUrl');

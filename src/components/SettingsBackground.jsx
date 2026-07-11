@@ -1,4 +1,5 @@
 import React from 'react';
+import { PropTypes } from './componentPropTypes.js';
 
 // SettingsBackground - Background image settings section
 // Inline editing pattern: click field to edit in place, auto-save on blur/enter
@@ -142,5 +143,15 @@ function SettingsBackground({
     );
   }
 }
+
+SettingsBackground.propTypes = {
+  backgroundConfig: PropTypes.shape({
+    backgroundImageUrl: PropTypes.string,
+    backgroundOpacity: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  }).isRequired,
+  onBackgroundChange: PropTypes.func.isRequired,
+  onSelectBackgroundImage: PropTypes.func.isRequired,
+  onClearBackgroundImage: PropTypes.func.isRequired
+};
 
 export default SettingsBackground;

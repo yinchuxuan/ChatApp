@@ -2,8 +2,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/gameCard/engine');
-const { resolveContent } = require('../../src/gameCard/contentResolver');
-const { ensureStateDefaults } = require('../../src/gameCard/stateSchema');
+const { resolveContent } = require('../../shared/game-card/content/contentResolver');
+const { ensureStateDefaults } = require('../../shared/game-card/state/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
 
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });

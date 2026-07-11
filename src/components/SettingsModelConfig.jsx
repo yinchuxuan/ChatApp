@@ -1,4 +1,5 @@
 import React from 'react';
+import { PropTypes } from './componentPropTypes.js';
 
 // SettingsModelConfig - Model configuration settings section
 // Part of SettingsPanel component - inline editing, no separate edit mode
@@ -115,5 +116,12 @@ function SettingsModelConfig({
     </div>
   );
 }
+
+SettingsModelConfig.propTypes = {
+  config: PropTypes.shape({ protocol: PropTypes.string }).isRequired,
+  onChange: PropTypes.func.isRequired,
+  maskApiKey: PropTypes.func.isRequired,
+  isConfigured: PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
+};
 
 export default SettingsModelConfig;

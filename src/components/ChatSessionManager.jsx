@@ -1,5 +1,6 @@
 import React from 'react';
 import { rendererServices } from '../platform/index.js';
+import { PropTypes, sessionRepository } from './componentPropTypes.js';
 
 function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, onSwitchSession, repository = rendererServices.sessions }) {
   const R = React;
@@ -103,42 +104,76 @@ function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, o
     finally { setBusy(false); }
   };
 
-  const C = R.createElement;
   const togglePanel = (event) => {
     event.stopPropagation();
     const nextOpen = !open;
     if (nextOpen) { setPanelMounted(true); loadSessions(); }
     setOpen(nextOpen);
   };
-  const renderSession = (session) => C('div', { key: session.id, className: `chat-session-row${session.id === activeId ? ' active' : ''}`, 'data-gc-part': 'chat-session-row', onClick: (event) => { event.stopPropagation(); activate(session.id); } },
-    C('span', { className: 'chat-session-row-state', 'data-gc-part': 'chat-session-row-state', 'aria-hidden': 'true' }),
-    C('div', { className: 'chat-session-row-main', 'data-gc-part': 'chat-session-row-main' },
-      editingId === session.id ? C('input', {
-        className: 'chat-session-title-input', value: draftTitle, autoFocus: true,
-        onClick: (event) => event.stopPropagation(), onChange: (event) => setDraftTitle(event.target.value),
-        onKeyDown: (event) => { if (event.key === 'Enter') renameSession(event, session.id); if (event.key === 'Escape') setEditingId(null); }
-      }) : C('div', { className: 'chat-session-title', 'data-gc-part': 'chat-session-title' }, session.title || session.id),
-      C('div', { className: 'chat-session-preview', 'data-gc-part': 'chat-session-preview' }, session.preview || `${session.messageCount || 0} 条消息`)
-    ),
-    editingId === session.id ? C('button', { className: 'chat-session-action', 'data-gc-part': 'chat-session-action', onClick: (event) => renameSession(event, session.id), title: '保存会话名', 'aria-label': '保存会话名' }, C('span', { className: 'material-icons' }, 'check')) :
-      C('button', { className: 'chat-session-action', 'data-gc-part': 'chat-session-action', onClick: (event) => { event.stopPropagation(); setEditingId(session.id); setDraftTitle(session.title || session.id); }, title: '重命名会话', 'aria-label': '重命名会话' }, C('span', { className: 'material-icons' }, 'edit')),
-    C('button', { className: 'chat-session-action danger', 'data-gc-part': 'chat-session-action', onClick: (event) => deleteSession(event, session.id), title: '删除会话', 'aria-label': '删除会话' }, C('span', { className: 'material-icons' }, 'delete'))
-  );
+  const renderSession = session => <div key={session.id}
+    className={`chat-session-row${session.id === activeId ? ' active' : ''}`}
+    data-gc-part="chat-session-row" onClick={event => { event.stopPropagation(); activate(session.id); }}>
+    <span className="chat-session-row-state" data-gc-part="chat-session-row-state" aria-hidden="true" />
+    <div className="chat-session-row-main" data-gc-part="chat-session-row-main">
+      {editingId === session.id ? <input className="chat-session-title-input" value={draftTitle}
+        autoFocus onClick={event => event.stopPropagation()}
+        onChange={event => setDraftTitle(event.target.value)} onKeyDown={event => {
+          if (event.key === 'Enter') renameSession(event, session.id);
+          if (event.key === 'Escape') setEditingId(null);
+        }} /> : <div className="chat-session-title" data-gc-part="chat-session-title">
+        {session.title || session.id}
+      </div>}
+      <div className="chat-session-preview" data-gc-part="chat-session-preview">
+        {session.preview || `${session.messageCount || 0} 条消息`}
+      </div>
+    </div>
+    {editingId === session.id ? <button className="chat-session-action"
+      data-gc-part="chat-session-action" onClick={event => renameSession(event, session.id)}
+      title="保存会话名" aria-label="保存会话名"><span className="material-icons">check</span></button>
+      : <button className="chat-session-action" data-gc-part="chat-session-action"
+        onClick={event => { event.stopPropagation(); setEditingId(session.id); setDraftTitle(session.title || session.id); }}
+        title="重命名会话" aria-label="重命名会话"><span className="material-icons">edit</span></button>}
+    <button className="chat-session-action danger" data-gc-part="chat-session-action"
+      onClick={event => deleteSession(event, session.id)} title="删除会话" aria-label="删除会话">
+      <span className="material-icons">delete</span>
+    </button>
+  </div>;
 
-  return C('div', { className: 'chat-session-manager', 'data-gc-part': 'chat-session-manager', title: error?.message || '' },
-    C('button', { className: 'chat-session-btn', 'data-gc-part': 'chat-session-button', onClick: togglePanel, title: '管理聊天会话', 'aria-label': '管理聊天会话', 'aria-expanded': open ? 'true' : 'false', 'aria-controls': 'chat-session-panel' }, C('span', { className: 'material-icons' }, 'inventory_2')),
-    panelMounted ? C('div', { id: 'chat-session-panel', className: 'chat-session-panel', 'data-gc-part': 'chat-session-panel', 'data-state': open ? 'open' : 'closing', 'aria-hidden': open ? 'false' : 'true', onClick: (event) => event.stopPropagation() },
-      C('div', { className: 'chat-session-panel-head', 'data-gc-part': 'chat-session-panel-head' },
-        C('span', { className: 'chat-session-panel-title' }, '会话'),
-        C('div', { className: 'chat-session-head-actions' },
-          C('button', { className: 'chat-session-text-action', onClick: saveSession, disabled: busy, title: '保存当前会话', 'aria-label': '保存当前会话' }, C('span', { className: 'material-icons' }, 'save'), C('span', null, '存档')),
-          C('button', { className: 'chat-session-text-action', onClick: createSession, disabled: busy, title: '新建会话', 'aria-label': '新建会话' }, C('span', { className: 'material-icons' }, 'add'), C('span', null, '新建'))
-        )
-      ),
-      error ? C('div', { className: 'chat-session-error', role: 'alert' }, error.message) : null,
-      C('div', { className: 'chat-session-list', 'data-gc-part': 'chat-session-list' }, sessions.map(renderSession))
-    ) : null
-  );
+  return <div className="chat-session-manager" data-gc-part="chat-session-manager"
+    title={error?.message || ''}>
+    <button className="chat-session-btn" data-gc-part="chat-session-button" onClick={togglePanel}
+      title="管理聊天会话" aria-label="管理聊天会话" aria-expanded={open}
+      aria-controls="chat-session-panel"><span className="material-icons">inventory_2</span></button>
+    {panelMounted ? <div id="chat-session-panel" className="chat-session-panel"
+      data-gc-part="chat-session-panel" data-state={open ? 'open' : 'closing'} aria-hidden={!open}
+      onClick={event => event.stopPropagation()}>
+      <div className="chat-session-panel-head" data-gc-part="chat-session-panel-head">
+        <span className="chat-session-panel-title">会话</span>
+        <div className="chat-session-head-actions">
+          <button className="chat-session-text-action" onClick={saveSession} disabled={busy}
+            title="保存当前会话" aria-label="保存当前会话">
+            <span className="material-icons">save</span><span>存档</span>
+          </button>
+          <button className="chat-session-text-action" onClick={createSession} disabled={busy}
+            title="新建会话" aria-label="新建会话">
+            <span className="material-icons">add</span><span>新建</span>
+          </button>
+        </div>
+      </div>
+      {error ? <div className="chat-session-error" role="alert">{error.message}</div> : null}
+      <div className="chat-session-list" data-gc-part="chat-session-list">
+        {sessions.map(renderSession)}
+      </div>
+    </div> : null}
+  </div>;
 }
+
+ChatSessionManager.propTypes = {
+  cardId: PropTypes.string,
+  onBeforeSessionChange: PropTypes.func,
+  onSessionChanged: PropTypes.func,
+  onSwitchSession: PropTypes.func,
+  repository: sessionRepository
+};
 
 export default ChatSessionManager;

@@ -1,7 +1,8 @@
 import React from 'react';
 import SettingsBackground from './SettingsBackground.jsx';
 import SettingsModelConfig from './SettingsModelConfig.jsx';
-import useSettingsState from './useSettingsState.js';
+import useSettingsState from '../settings/useSettingsState.js';
+import { PropTypes } from './componentPropTypes.js';
 
 function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
   const [visible, setVisible] = React.useState(false);
@@ -50,5 +51,11 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
     </div>
   );
 }
+
+SettingsPanel.propTypes = {
+  onToggleTheme: PropTypes.func.isRequired,
+  theme: PropTypes.string.isRequired,
+  onBackgroundChange: PropTypes.func
+};
 
 export default SettingsPanel;

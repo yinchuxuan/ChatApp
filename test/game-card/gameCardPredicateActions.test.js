@@ -1,6 +1,6 @@
-const { applyAction } = require('../../src/gameCard/actions');
-const { applyGameCard } = require('../../src/gameCard/engine');
-const { matchesPredicate, matchesWhen } = require('../../src/gameCard/predicate');
+const { applyAction } = require('../../shared/game-card/engine/actions');
+const { applyGameCard } = require('../../shared/game-card/engine/engine');
+const { matchesPredicate, matchesWhen } = require('../../shared/game-card/engine/predicate');
 
 function cardWithRules(rules) {
   return {

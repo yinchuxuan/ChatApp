@@ -60,6 +60,7 @@ Unit and integration tests are grouped by ownership:
 - Production and Electron E2E load `dist/renderer/index.html`.
 - The preload boundary remains available as `window.electronAPI`; platform modules are imported with standard ESM syntax.
 - Game card `display`, `visual` and `ui` styles are loaded at runtime and scoped independently from platform CSS.
+- ESLint 显式扫描 `.js` 和 `.jsx`，并要求所有识别出的 React 组件声明 PropTypes。
 
 ## Git Hooks
 

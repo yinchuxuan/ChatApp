@@ -2,13 +2,9 @@ import { expandCardImports } from './cardImportExpander.js';
 import { runExecAction } from './execRunner.js';
 import { extractExecIncludes, resolveExecIncludePath } from './execSource.js';
 import { loadExternalStateSchema } from './stateSchemaLoader.js';
+import { cloneJson } from '../../shared/game-card/utils/jsonValue.js';
 
 const SCRIPT_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.js$/i;
-
-function cloneJson(value) {
-  if (value === undefined) return undefined;
-  return JSON.parse(JSON.stringify(value));
-}
 
 function isObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);

@@ -1,8 +1,10 @@
 import React from 'react';
 import ChatSessionManager from './ChatSessionManager.jsx';
-import GameCardErrorPanel, { normalizeGameCardError } from './GameCardErrorPanel.jsx';
+import GameCardErrorPanel from './GameCardErrorPanel.jsx';
+import { normalizeGameCardError } from '../gameCard/runtimeError.js';
 import { useGameCardRuntime } from '../chat/GameCardRuntimeProvider.jsx';
 import { rendererServices } from '../platform/index.js';
+import { PropTypes } from './componentPropTypes.js';
 
 function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged, onSwitchSession, onActiveCardChanged, audioControl, onImportError, cardRepository = rendererServices.cards }) {
   const { activeCard: card, changeActiveCard } = useGameCardRuntime();
@@ -66,5 +68,16 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
     </div>
   );
 }
+
+GameCardTitleControl.propTypes = {
+  modelName: PropTypes.string,
+  onBeforeSessionChange: PropTypes.func,
+  onSessionChanged: PropTypes.func,
+  onSwitchSession: PropTypes.func,
+  onActiveCardChanged: PropTypes.func,
+  audioControl: PropTypes.node,
+  onImportError: PropTypes.func,
+  cardRepository: PropTypes.shape({ importDirectory: PropTypes.func.isRequired })
+};
 
 export default GameCardTitleControl;

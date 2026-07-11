@@ -1,13 +1,9 @@
 import { expandCardImports } from './cardImportExpander.js';
-import { applyStateAction } from './stateActions.js';
+import { applyStateAction } from '../../shared/game-card/state/stateActions.js';
+import { cloneJson } from '../../shared/game-card/utils/jsonValue.js';
 import { loadExternalStateSchema } from './stateSchemaLoader.js';
 
 const MAX_UI_STATE_ACTIONS = 50;
-
-function cloneJson(value) {
-  if (value === undefined) return undefined;
-  return JSON.parse(JSON.stringify(value));
-}
 
 function isObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
