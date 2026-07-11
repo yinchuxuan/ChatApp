@@ -3,7 +3,7 @@ const path = require('path');
 const Ajv = require('ajv');
 const { validateGameCard } = require('../../src/gameCard/validateGameCard');
 
-const schemaPath = path.join(__dirname, '../../src/gameCard/game-card.schema.json');
+const schemaPath = path.join(__dirname, '../../shared/game-card/schema/game-card.schema.json');
 const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
 function compileSchema() {

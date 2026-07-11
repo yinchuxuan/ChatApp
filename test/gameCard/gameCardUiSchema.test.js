@@ -4,7 +4,7 @@ const Ajv = require('ajv');
 const { validateGameCard } = require('../../src/gameCard/validateGameCard');
 
 const schema = JSON.parse(fs.readFileSync(
-  path.join(__dirname, '../../src/gameCard/game-card.schema.json'),
+  path.join(__dirname, '../../shared/game-card/schema/game-card.schema.json'),
   'utf8'
 ));
 

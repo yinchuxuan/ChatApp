@@ -5,9 +5,9 @@ let gameCardModules;
 async function loadGameCardModules() {
   if (!gameCardModules) {
     gameCardModules = Promise.all([
-      import('../src/gameCard/validateGameCard.js'),
-      import('../src/gameCard/stateSchemaLoader.js'),
-      import('../src/gameCard/stateSchema.js')
+      import('../shared/game-card/schema/validateGameCard.js'),
+      import('../shared/game-card/schema/runtimeStateSchema.js'),
+      import('../shared/game-card/state/stateSchema.js')
     ]).then(([validation, loader, schema]) => ({
       ensureStateDefaults: schema.ensureStateDefaults,
       mergeRuntimeStateSchema: loader.mergeRuntimeStateSchema,

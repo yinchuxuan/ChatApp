@@ -83,12 +83,16 @@ ipc/                          Electron 主进程适配
 
 ## 阶段 3：提取平台无关 Game Card Core
 
+状态：已完成（2026-07-11）。
+
 - 将纯逻辑移动到 `shared/game-card`。
 - 优先迁移 predicate、TTL、state paths、state actions 和 content transforms。
 - 再迁移 engine、actions、content resolver、protocol adapter 和 validator。
 - Shared 模块不得依赖 `window`、DOM、React、Electron、Node `fs` 或本地路径。
 - Shared 函数只接收普通数据和显式依赖，返回可序列化结果。
 - 为迁移模块保留现有行为测试，并增加无浏览器环境测试。
+
+实现结果：纯规则实现已迁移到 `shared/game-card`，按 engine、content、state、schema 与 protocol 分层。renderer 中的同名模块仅保留兼容导出和 `exec`/本地文件读取适配；这些能力通过显式函数依赖传入 core。Electron 游戏卡导入校验直接使用 shared validator 和 state schema，不再引用 `src/`。
 
 验收条件：Shared core 可以在纯 Node 测试中运行，Electron 主进程不再从 `src/` 导入规则代码。
 

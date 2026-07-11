@@ -18,6 +18,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.jsx',
     'src/**/*.js',
+    'shared/**/*.js',
     '!**/node_modules/**'
   ],
   coverageThreshold: {

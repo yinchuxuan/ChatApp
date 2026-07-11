@@ -1,133 +1,28 @@
-import { applyActions } from './actions.js';
-import { withFindState } from './findResolver.js';
-import { matchesWhen } from './predicate.js';
-import { validateGameCard } from './validateGameCard.js';
+import {
+  applyGameCard as applyCoreGameCard,
+  cloneMessages
+} from '../../shared/game-card/engine/engine.js';
+import { runExecAction } from './execRunner.js';
+import { createPlatformFileReader } from './platformFileReader.js';
 
-function cloneMessage(message) {
-  return {
-    ...message,
-    ...(message?._meta ? { _meta: { ...message._meta } } : {})
-  };
-}
+function applyGameCard(options = {}) {
+  const {
+    contentBaseDir,
+    dependencies = {},
+    fs,
+    path,
+    ...coreOptions
+  } = options;
+  const platformOptions = { baseDir: contentBaseDir, fs, path };
+  const readFile = dependencies.readFile || createPlatformFileReader(platformOptions);
+  const execute = dependencies.runExecAction || ((messages, state, action, runtimeOptions) => (
+    runExecAction(messages, state, action, { ...runtimeOptions, ...platformOptions })
+  ));
 
-function cloneMessages(messages) {
-  return Array.isArray(messages) ? messages.map(cloneMessage) : [];
-}
-
-function cloneState(state) {
-  return state && typeof state === 'object' && !Array.isArray(state) ? { ...state } : {};
-}
-
-function summarizeActionMessages(actions, before, after) {
-  return {
-    before: before.length,
-    after: after.length,
-    inserted: sumActionCount(actions, 'inserted'),
-    removed: sumActionCount(actions, 'removed'),
-    replaced: sumActionCount(actions, 'replaced')
-  };
-}
-
-function sumActionCount(actions, key) {
-  return actions.reduce((total, action) => total + (action.summary?.messages?.[key] || 0), 0);
-}
-
-function summarizeState(before, after) {
-  const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
-  return {
-    changedKeys: [...keys].filter((key) => before[key] !== after[key])
-  };
-}
-
-function applyMatchingRule(messages, state, rule, index, options) {
-  const found = rule.find ? withFindState(state, rule.find, messages) : null;
-  const applied = applyActions(messages, rule.then || [], {
-    ...options,
-    state: found?.state || state,
-    find: found && !Array.isArray(rule.find) ? { ...options.find, ...rule.find } : options.find
+  return applyCoreGameCard({
+    ...coreOptions,
+    dependencies: { readFile, runExecAction: execute }
   });
-  const finalState = found ? found.restore(applied.state) : applied.state;
-  return {
-    messages: applied.messages,
-    state: finalState,
-    trace: {
-      ruleIndex: index,
-      ruleId: rule.id,
-      matched: true,
-      actions: applied.trace,
-      summary: {
-        messages: summarizeActionMessages(applied.trace, messages, applied.messages),
-        state: summarizeState(state, finalState)
-      }
-    }
-  };
-}
-
-function formatRuleError(index, stage, error) {
-  return `rule[${index}] ${stage}: ${error.message}`;
-}
-
-function applyGameCard({ card, phase, messages = [], state = {}, event = {}, contentBaseDir, fileContents, fs, path } = {}) {
-  const validation = validateGameCard(card);
-  const initialMessages = cloneMessages(messages);
-  const initialState = cloneState(state);
-  const trace = {
-    phase,
-    rules: [],
-    errors: validation.errors
-  };
-
-  if (!validation.valid) {
-    return { messages: initialMessages, state: initialState, trace };
-  }
-
-  const result = card.rules.reduce((current, rule, index) => {
-    try {
-      if (!matchesWhen(rule.when, phase, current.messages, current.state)) return current;
-    } catch (error) {
-      return {
-        ...current,
-        trace: {
-          ...current.trace,
-          errors: [...current.trace.errors, formatRuleError(index, 'when', error)]
-        }
-      };
-    }
-
-    let applied;
-    try {
-      applied = applyMatchingRule(current.messages, current.state, rule, index, {
-        card,
-        event: { ...event, phase },
-        baseDir: contentBaseDir,
-        fileContents,
-        fs,
-        path
-      });
-    } catch (error) {
-      return {
-        ...current,
-        trace: {
-          ...current.trace,
-          errors: [...current.trace.errors, formatRuleError(index, 'then', error)]
-        }
-      };
-    }
-    return {
-      messages: applied.messages,
-      state: applied.state,
-      trace: {
-        ...current.trace,
-        rules: [...current.trace.rules, applied.trace]
-      }
-    };
-  }, { messages: initialMessages, state: initialState, trace });
-
-  return {
-    messages: result.messages,
-    state: result.state,
-    trace: result.trace
-  };
 }
 
 export { applyGameCard, cloneMessages };

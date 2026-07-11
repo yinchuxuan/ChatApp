@@ -5,6 +5,7 @@
 - **主进程 (`main.js`)**：Electron 主进程，创建 `BrowserWindow`，管理应用生命周期，注册 IPC 处理器处理文件 I/O（模型配置、背景配置、聊天历史）。
 - **预加载脚本 (`preload.js`)**：通过 `contextBridge` 桥接主进程与渲染进程，暴露 `window.electronAPI` 供渲染进程调用。
 - **渲染进程 (`src/`)**：Vite 构建的 React 单页应用。`main.jsx` 是唯一入口，`App.jsx` 为根组件；平台模块通过 ESM `import/export` 连接，不依赖 HTML 脚本顺序或 `window.*` 模块注册。
+- **游戏卡核心 (`shared/game-card/`)**：平台无关的规则、content、state、schema 与协议适配逻辑。只处理普通数据，并通过显式依赖接入文件读取和脚本执行。
 - **IPC 处理器 (`ipc/`)**：处理器模块读写 `userData` 目录下按领域分组的 JSON 文件：`config/`、`game-cards/`。
 
 ## 交互流程
@@ -22,6 +23,8 @@
     v
 文件系统 (JSON)
 ```
+
+游戏卡调用方向为 `src/gameCard` renderer 适配层或 `ipc/` Electron 适配层指向 `shared/game-card`。Shared core 不依赖 DOM、React、Electron、Node 文件系统或本地绝对路径。
 
 ## userData 结构
 
