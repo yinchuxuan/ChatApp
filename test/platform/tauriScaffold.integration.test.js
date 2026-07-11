@@ -59,6 +59,8 @@ describe('Tauri desktop scaffold', () => {
       'get_active_game_card',
       'read_game_card_file'
     ].forEach(command => expect(lib).toContain(`game_card_commands::${command}`));
+    expect(lib).toContain('config_commands::select_background_image');
+    expect(lib).toContain('register_asynchronous_uri_scheme_protocol("local"');
     expect(schema).toContain('include_str!("../../shared/game-card/schema/game-card.schema.json")');
   });
 });

@@ -7,6 +7,7 @@ use tokio::sync::{Mutex, OwnedMutexGuard};
 pub struct AppStorage {
     root: PathBuf,
     locks: Arc<Mutex<HashMap<PathBuf, Arc<Mutex<()>>>>>,
+    pending_background: Arc<Mutex<Option<PathBuf>>>,
 }
 
 impl AppStorage {
@@ -14,6 +15,7 @@ impl AppStorage {
         Self {
             root,
             locks: Arc::new(Mutex::new(HashMap::new())),
+            pending_background: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -38,5 +40,17 @@ impl AppStorage {
                 .clone()
         };
         lock.lock_owned().await
+    }
+
+    pub async fn set_pending_background(&self, path: PathBuf) {
+        *self.pending_background.lock().await = Some(path);
+    }
+
+    pub async fn pending_background(&self) -> Option<PathBuf> {
+        self.pending_background.lock().await.clone()
+    }
+
+    pub async fn clear_pending_background(&self) {
+        *self.pending_background.lock().await = None;
     }
 }

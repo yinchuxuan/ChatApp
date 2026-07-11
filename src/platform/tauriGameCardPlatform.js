@@ -2,6 +2,7 @@ import { controlledScriptExecutor } from './controlledScriptExecutor.js';
 import { createGameCardPlatform } from './gameCardPlatform.js';
 import { tauriBridge } from './tauriBridge.js';
 import { invokeTauriCommand } from './tauriCommand.js';
+import { createGameCardResourceUrl } from './tauriResourceUrl.js';
 
 function requireString(value, fallback) {
   if (typeof value !== 'string') throw new Error(fallback);
@@ -18,12 +19,10 @@ function createTauriGameCardPlatform(client = tauriBridge) {
         return requireString(value, 'failed to read game card file');
       },
       async getImageUrl(cardId, relativePath) {
-        const value = await call('get_game_card_image_url', { cardId, relativePath }, 'url');
-        return requireString(value, 'failed to resolve game card image');
+        return createGameCardResourceUrl(client.convertFileSrc, cardId, 'image', relativePath);
       },
       async getAudioUrl(cardId, relativePath) {
-        const value = await call('get_game_card_audio_url', { cardId, relativePath }, 'url');
-        return requireString(value, 'failed to resolve game card audio');
+        return createGameCardResourceUrl(client.convertFileSrc, cardId, 'audio', relativePath);
       }
     },
     repository: {

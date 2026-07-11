@@ -1,14 +1,19 @@
 import { tauriBridge } from './tauriBridge.js';
 import { invokeTauriCommand } from './tauriCommand.js';
+import {
+  toRendererBackground,
+  toStoredBackground,
+  userBackgroundUrl
+} from './tauriResourceUrl.js';
 
 const BACKGROUND_EVENT = 'background-config-changed';
 
-function subscribeToBackground(listen, listener) {
+function subscribeToBackground(client, listener) {
   let disposed = false;
   let unlisten = null;
-  const subscription = listen(BACKGROUND_EVENT, (event) => {
+  const subscription = client.listen(BACKGROUND_EVENT, (event) => {
     const payload = event?.payload;
-    listener(payload?.config ?? payload);
+    listener(toRendererBackground(payload?.config ?? payload, client.convertFileSrc));
   });
   Promise.resolve(subscription)
     .then((nextUnlisten) => {
@@ -31,10 +36,20 @@ function createTauriRendererServices(client = tauriBridge) {
       save: config => call('save_model_config', { config }, 'config')
     }),
     background: Object.freeze({
-      load: () => call('get_background_config', {}, 'config'),
-      save: config => call('save_background_config', { config }, 'config'),
-      selectImage: () => call('select_background_image', {}, 'localUrl'),
-      subscribe: listener => subscribeToBackground(client.listen, listener)
+      load: async () => toRendererBackground(
+        await call('get_background_config', {}, 'config'), client.convertFileSrc
+      ),
+      save: async config => toRendererBackground(
+        await call('save_background_config', {
+          config: toStoredBackground(config, client.convertFileSrc)
+        }, 'config'),
+        client.convertFileSrc
+      ),
+      selectImage: async () => {
+        const selected = await call('select_background_image', {}, 'localUrl');
+        return selected ? userBackgroundUrl(client.convertFileSrc) : '';
+      },
+      subscribe: listener => subscribeToBackground(client, listener)
     }),
     sessions: Object.freeze({
       loadHistory: () => call('get_chat_history'),

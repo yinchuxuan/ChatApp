@@ -15,11 +15,12 @@ function electronPlatform() {
 function tauriPlatform() {
   const values = {
     read_game_card_file: 'text',
-    get_game_card_image_url: 'asset://image',
-    get_game_card_audio_url: 'asset://audio',
     get_active_game_card: { id: 'card' }
   };
-  return createTauriGameCardPlatform({ invoke: async command => values[command] });
+  return createTauriGameCardPlatform({
+    invoke: async command => values[command],
+    convertFileSrc: path => path.includes('/image/') ? 'asset://image' : 'asset://audio'
+  });
 }
 
 function memoryPlatform() {

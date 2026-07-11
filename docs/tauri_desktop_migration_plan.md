@@ -117,7 +117,7 @@
 - 无效 schema、缺失文件、路径穿越、符号链接逃逸和 import 循环均被拒绝。
 - 覆盖导入后原 session 可继续加载。
 
-## 阶段 5：迁移图片、背景和音频协议
+## 阶段 5：迁移图片、背景和音频协议（已完成，2026-07-11）
 
 - 在 Tauri 注册受控自定义资源协议，不直接开放整个 app data 目录。
 - 每次请求校验 active card、card id、资源类型、扩展名、规范化路径和 realpath。
@@ -125,6 +125,15 @@
 - 返回正确的图片和音频 MIME type。
 - 为音频实现 Range 请求、`Content-Range` 和 `Accept-Ranges`，保证播放和 seek。
 - 在 Tauri adapter 内处理各系统自定义协议 URL 形式差异。
+
+实现说明：
+
+- Tauri 注册异步 `local` 协议，文件读取在独立线程执行；协议不启用 asset scope，也不接受任意绝对路径。
+- 游戏卡资源请求逐次校验 active card、card id、资源类型、允许扩展名、安全相对路径、规范化卡目录和资源 realpath。
+- renderer adapter 使用 Tauri `convertFileSrc` 生成 macOS/Linux 与 Windows 对应的协议 URL；游戏卡路径和真实本地路径不会通过 command 返回。
+- 用户背景由 Rust 文件选择器选择并暂存，保存配置后才授权；持久化配置只使用 `local://user-background/current` 标记，绝对路径不会返回 renderer。
+- 图片和音频响应返回固定允许表对应的 MIME；音频支持 `HEAD`、单段 byte Range、`206`、`416`、`Content-Range` 和 `Accept-Ranges`。
+- 开放式音频 Range 每次最多读取 `1000 KiB`，WebView 可以继续请求后续区间，无需一次将大音频读入 renderer。
 
 验收条件：
 

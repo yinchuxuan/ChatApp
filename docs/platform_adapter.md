@@ -32,9 +32,9 @@
 
 `electronGameCardPlatform.js` 通过 `window.electronAPI` 调用 preload IPC，并将 `{ success, content/url/card }` 返回值解包为 contract 的直接返回值或异常。
 
-`tauriGameCardPlatform.js` 和 `tauriRendererServices.js` 通过 Tauri `invoke` 调用业务 command，并通过 `listen` 订阅背景配置变更。adapter 接受 Rust `Result` 的直接 payload 和迁移期 `{ success, ... }` envelope，并将取消、业务错误、文件及校验详情归一化为 JavaScript `Error`。
+`tauriGameCardPlatform.js` 和 `tauriRendererServices.js` 通过 Tauri `invoke` 调用业务 command，并通过 `listen` 订阅背景配置变更。adapter 接受 Rust `Result` 的直接 payload 和迁移期 `{ success, ... }` envelope，并将取消、业务错误、文件及校验详情归一化为 JavaScript `Error`。图片、音频和用户背景 URL 通过 `convertFileSrc` 生成，以适配各系统的自定义协议 URL 形式。
 
-Tauri Rust 后端已实现 model/background config、完整 session/history command，以及游戏卡仓库、目录导入和文本资源 command。游戏卡导入由 Rust dialog 选择目录，在临时目录校验后替换并保留同 id 卡片的 session。图片、音频和用户背景资源协议仍由后续迁移阶段提供。
+Tauri Rust 后端已实现 model/background config、完整 session/history command、游戏卡仓库、目录导入、文本资源及受控图片/音频协议。游戏卡导入由 Rust dialog 选择目录，在临时目录校验后替换并保留同 id 卡片的 session。用户背景同样由 Rust dialog 选择，真实路径只存于 native 配置。
 
 `memoryGameCardPlatform.js` 是测试 adapter。它从内存中的 card、文本、图片 URL 和音频 URL 读取资源，并复用受控脚本执行器。聊天管线和 shared core 测试应优先使用它，只有 Electron 边界测试才直接 mock preload API。
 
@@ -63,7 +63,7 @@ React / src/gameCard runtime tests
 
 `sendPipeline`、样式加载、背景、BGM 和自定义 UI 资源读取都接收或使用 platform contract。Shared core 不选择 Electron 或 Tauri adapter。
 
-图片和音频 URL 只允许为当前活动卡解析，adapter 和 IPC 都必须校验 `cardId`。`readText` 可读取指定的已安装卡，用于导入展开和加载卡资源，但仍受游戏卡目录路径校验约束。
+图片和音频 URL 只允许为当前活动卡解析。Electron IPC 和 Tauri 自定义协议在资源实际加载时校验 `cardId`；Tauri adapter 只负责生成平台对应的 URL，不承担授权。`readText` 可读取指定的已安装卡，用于导入展开和加载卡资源，但仍受游戏卡目录路径校验约束。
 
 ## 新平台
 

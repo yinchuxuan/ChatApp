@@ -28,7 +28,8 @@ describe('Tauri renderer adapters', () => {
       url: command.includes('image') ? 'asset://image' : 'asset://audio',
       card: command === 'get_active_game_card' ? { id: 'card' } : undefined
     }));
-    const platform = createTauriGameCardPlatform({ invoke });
+    const convertFileSrc = jest.fn(path => `local://localhost/${encodeURIComponent(path)}`);
+    const platform = createTauriGameCardPlatform({ invoke, convertFileSrc });
 
     await platform.resources.readText('card', 'content.md');
     await platform.resources.getImageUrl('card', 'image.png');
@@ -37,9 +38,8 @@ describe('Tauri renderer adapters', () => {
     expect(invoke).toHaveBeenNthCalledWith(1, 'read_game_card_file', {
       cardId: 'card', relativePath: 'content.md'
     });
-    expect(invoke).toHaveBeenNthCalledWith(2, 'get_game_card_image_url', {
-      cardId: 'card', relativePath: 'image.png'
-    });
+    expect(convertFileSrc).toHaveBeenCalledWith('game-card/card/image/image.png', 'local');
+    expect(invoke).toHaveBeenCalledTimes(2);
   });
 
   test('normalizes rejected and business errors with validation details', async () => {
@@ -47,7 +47,8 @@ describe('Tauri renderer adapters', () => {
     const rejected = createTauriGameCardPlatform({ invoke: async () => { throw failure; } });
     const business = createTauriRendererServices({
       invoke: async () => ({ success: false, error: 'canceled', canceled: true }),
-      listen: jest.fn()
+      listen: jest.fn(),
+      convertFileSrc: jest.fn()
     });
 
     await expect(rejected.repository.getActiveCard()).rejects.toMatchObject({
@@ -67,7 +68,9 @@ describe('Tauri renderer adapters', () => {
       return new Promise(resolve => { resolveUnlisten = resolve; });
     });
     const onChange = jest.fn();
-    const unsubscribe = createTauriRendererServices({ invoke: jest.fn(), listen })
+    const unsubscribe = createTauriRendererServices({
+      invoke: jest.fn(), listen, convertFileSrc: path => `local://${path}`
+    })
       .background.subscribe(onChange);
 
     eventListener({ payload: { config: { opacity: 0.5 } } });
@@ -78,5 +81,29 @@ describe('Tauri renderer adapters', () => {
     expect(listen).toHaveBeenCalledWith(BACKGROUND_EVENT, expect.any(Function));
     expect(onChange).toHaveBeenCalledWith({ opacity: 0.5 });
     expect(unlisten).toHaveBeenCalled();
+  });
+
+  test('normalizes the canonical user background URL at the adapter boundary', async () => {
+    const invoke = jest.fn(async (command, args) => {
+      if (command === 'get_background_config' || command === 'save_background_config') {
+        return args?.config || { backgroundImageUrl: 'local://user-background/current' };
+      }
+      return 'local://user-background/current';
+    });
+    const convertFileSrc = jest.fn(path => `http://local.localhost/${encodeURIComponent(path)}`);
+    const services = createTauriRendererServices({ invoke, listen: jest.fn(), convertFileSrc });
+
+    const loaded = await services.background.load();
+    const selected = await services.background.selectImage();
+    await services.background.save({ backgroundImageUrl: selected, backgroundOpacity: 0.5 });
+
+    expect(loaded.backgroundImageUrl).toBe('http://local.localhost/user-background%2Fcurrent');
+    expect(selected).toBe(loaded.backgroundImageUrl);
+    expect(invoke).toHaveBeenLastCalledWith('save_background_config', {
+      config: {
+        backgroundImageUrl: 'local://user-background/current',
+        backgroundOpacity: 0.5
+      }
+    });
   });
 });

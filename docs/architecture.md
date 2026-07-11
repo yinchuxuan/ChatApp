@@ -2,7 +2,7 @@
 
 ## 组成部分
 
-- **Tauri 桌面壳 (`src-tauri/`)**：复用 Vite renderer，并通过构建期 target 使用 Tauri renderer adapter；Rust 后端已实现配置、聊天历史、Session 和游戏卡仓库 commands，图片与音频资源协议按后续迁移阶段接入。
+- **Tauri 桌面壳 (`src-tauri/`)**：复用 Vite renderer，并通过构建期 target 使用 Tauri renderer adapter；Rust 后端实现配置、聊天历史、Session、游戏卡仓库 commands 和受控图片/音频资源协议。
 - **主进程 (`main.js`)**：Electron 主进程，创建 `BrowserWindow`，管理应用生命周期，注册 IPC 处理器处理文件 I/O（模型配置、背景配置、聊天历史）。
 - **预加载脚本 (`preload.js`)**：通过 `contextBridge` 桥接主进程与渲染进程，暴露 `window.electronAPI` 供渲染进程调用。
 - **渲染进程 (`src/`)**：Vite 构建的 React 单页应用。`main.jsx` 是唯一入口，`App.jsx` 为根组件；平台模块通过 ESM `import/export` 连接，不依赖 HTML 脚本顺序或 `window.*` 模块注册。
@@ -116,3 +116,5 @@ renderer 只能通过受控的 `local://` URL 加载本地图片和音频：
 - `local://user-background/current` 只解析当前背景配置记录的用户背景文件。
 - 主进程在每次请求时校验资源类型、扩展名和 `realpath`；路径穿越、符号链接逃逸及其它 `local://` URL 均被拒绝。
 - 游戏卡资源 IPC 和背景配置 IPC 不向 renderer 返回真实绝对路径。用户背景的绝对路径只保存在主进程读取的配置字段中。
+- Tauri adapter 使用 `convertFileSrc` 将相同虚拟路径转换为各系统实际 URL；Windows 使用 `http://local.localhost/...`，macOS/Linux 使用 `local://localhost/...`。
+- Tauri 音频响应支持 byte Range，并限制单次开放区间的读取大小；自定义协议设置 `no-store`，避免 active card 切换后复用旧授权缓存。

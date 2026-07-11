@@ -11,6 +11,8 @@ mod game_card_schema;
 mod game_card_state_schema;
 mod history;
 mod json_store;
+mod resource_assets;
+mod resource_response;
 mod session_commands;
 mod session_management;
 mod sessions;
@@ -22,6 +24,14 @@ use tauri::Manager;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .register_asynchronous_uri_scheme_protocol("local", |context, request, responder| {
+            let storage = context.app_handle().state::<AppStorage>().inner().clone();
+            std::thread::spawn(move || {
+                responder.respond(resource_response::handle_resource_request(
+                    &storage, request,
+                ));
+            });
+        })
         .setup(|app| {
             let data_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data_dir)?;
@@ -33,6 +43,7 @@ pub fn run() {
             config_commands::save_model_config,
             config_commands::get_background_config,
             config_commands::save_background_config,
+            config_commands::select_background_image,
             session_commands::get_chat_history,
             session_commands::save_chat_history,
             session_commands::list_chat_sessions,
@@ -55,5 +66,7 @@ pub fn run() {
 
 #[cfg(test)]
 mod game_card_tests;
+#[cfg(test)]
+mod resource_tests;
 #[cfg(test)]
 mod tests;

@@ -17,7 +17,11 @@ function mockTauriClient() {
     };
     return values[command];
   });
-  return { invoke, listen: jest.fn(async () => () => {}) };
+  return {
+    invoke,
+    listen: jest.fn(async () => () => {}),
+    convertFileSrc: path => `asset:///${encodeURIComponent(path)}`
+  };
 }
 
 describe('renderer service contract', () => {
