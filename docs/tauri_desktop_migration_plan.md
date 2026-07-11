@@ -141,7 +141,7 @@
 - 非 active card、越界路径和不支持的扩展名无法加载。
 - 大音频文件不需要完整读入 renderer 内存即可播放和 seek。
 
-## 阶段 6：验证网络、脚本和 WebView 兼容性
+## 阶段 6：验证网络、脚本和 WebView 兼容性（已完成，2026-07-11）
 
 - 在三个桌面系统验证现有 browser `fetch`、SSE ReadableStream 和 AbortController。
 - 仅当 WebView CORS 或流式行为无法稳定满足要求时，引入 Rust HTTP command 和 Tauri Channel。
@@ -150,6 +150,15 @@
 - 配置满足动态 UI、Worker、模型 API 和自定义资源协议的 CSP。
 - 保持 native commands 的参数校验，不能依赖 CSP 代替后端授权。
 - 将 Google Fonts 等平台 UI 远程静态资源本地化，保证离线和 CSP 一致性。
+
+实现说明：
+
+- Electron 保持现有 browser `fetch`；Tauri 使用 Rust `reqwest` 发起模型 POST，并通过 Tauri Channel 将原始响应字节逐块转换为 renderer `ReadableStream`。
+- OpenAI-compatible 与 Anthropic-compatible 继续共用现有 SSE parser；Rust 不解析 provider 协议。停止请求通过 renderer request id 调用 native cancel command，并终止对应响应流。
+- Tauri CSP 只为现有能力开放 `unsafe-eval`、Blob Worker、运行时样式和受控 `local` 图片/音频；模型网络由 native command 完成，WebView 不开放任意外网 `connect-src`。
+- native model command 校验 HTTP(S)、POST、请求大小、request id 和允许的模型 header；capability 仍只有 `core:default`，未增加文件系统或 shell 权限。
+- Roboto 与 Roboto Mono 的拉丁字符子集随 Vite renderer 打包；中文继续使用系统字体，不再启动时访问 Google Fonts。
+- 单元与集成测试覆盖 Channel 到 SSE、request-id 中止、Worker 超时、动态 React UI 编译及 CSP 静态约束。三个桌面系统的安装包 WebDriver 回归仍由阶段 8 的 build matrix 执行。
 
 验收条件：
 

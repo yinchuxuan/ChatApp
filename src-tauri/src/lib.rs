@@ -11,6 +11,8 @@ mod game_card_schema;
 mod game_card_state_schema;
 mod history;
 mod json_store;
+mod model_commands;
+mod model_http;
 mod resource_assets;
 mod resource_response;
 mod session_commands;
@@ -18,6 +20,7 @@ mod session_management;
 mod sessions;
 
 use app_storage::AppStorage;
+use model_commands::ModelNetworkState;
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -36,6 +39,7 @@ pub fn run() {
             let data_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data_dir)?;
             app.manage(AppStorage::new(data_dir));
+            app.manage(ModelNetworkState::new()?);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -58,7 +62,9 @@ pub fn run() {
             game_card_commands::import_game_card_from_directory,
             game_card_commands::set_active_game_card,
             game_card_commands::get_active_game_card,
-            game_card_commands::read_game_card_file
+            game_card_commands::read_game_card_file,
+            model_commands::stream_model_request,
+            model_commands::cancel_model_stream
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
@@ -66,6 +72,8 @@ pub fn run() {
 
 #[cfg(test)]
 mod game_card_tests;
+#[cfg(test)]
+mod model_tests;
 #[cfg(test)]
 mod resource_tests;
 #[cfg(test)]

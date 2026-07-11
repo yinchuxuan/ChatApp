@@ -195,4 +195,6 @@ chat.send
 - 状态变更必须通过受控 `state.*` action 或 `game.script.run`，再由聊天 session 持久化。
 - 演出和临时 UI 反馈通过 `effects`。
 
+Tauri WebView 的 CSP 为该 runtime 精确开放 `unsafe-eval`、`worker-src blob:` 和运行时内联样式。它们分别对应动态 React 组件编译、受控脚本 Worker 和卡片样式注入；这些 CSP 能力不会绕过 `emit`、state action、脚本上下文或 native command 的参数校验。
+
 如果未来需要酒馆式全局魔改，可以单独设计 `trusted_shell` 模式，并在导入时明确提示风险。

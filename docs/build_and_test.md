@@ -21,7 +21,7 @@ Tauri commands require the stable Rust toolchain and the platform prerequisites 
 
 The test suite has three layers, run in order by `npm test`:
 
-Tauri Rust tests run separately with `cargo test --manifest-path src-tauri/Cargo.toml`. They cover atomic JSON replacement, configuration persistence, session isolation, retry state, concurrent saves, game card imports, schema parity, path safety, session-preserving card replacement, resource authorization, MIME and audio Range responses.
+Tauri Rust tests run separately with `cargo test --manifest-path src-tauri/Cargo.toml`. They cover atomic JSON replacement, configuration persistence, session isolation, retry state, concurrent saves, game card imports, schema parity, path safety, session-preserving card replacement, resource authorization, MIME and audio Range responses, plus model request validation, streaming bytes and cancellation.
 
 ### Unit Tests (`test/**/*.test.js`, excluding `*.integration.test.js`)
 - **Framework**: Jest + jsdom + Testing Library
@@ -68,6 +68,8 @@ Unit and integration tests are grouped by ownership:
 - Vite development routes model API requests through a local same-origin streaming proxy so providers without browser CORS headers remain usable; production Electron continues to request providers directly.
 - Tauri development uses the same Vite config at `http://localhost:1420`; the fixed port prevents the native shell from loading a different server.
 - Tauri dev/build commands pass `--mode tauri`; other Vite modes compile the Electron adapter as the fixed desktop target.
+- Tauri model requests use Rust `reqwest` and Channel; Electron keeps browser `fetch`, while Electron development can use the Vite same-origin proxy.
+- Roboto and Roboto Mono font assets are bundled from `@fontsource`; renderer startup does not require Google Fonts.
 - Production and Electron E2E load `dist/renderer/index.html`.
 - Tauri production bundles the same `dist/renderer/` output through `src-tauri/tauri.conf.json`.
 - The preload boundary remains available as `window.electronAPI`; platform modules are imported with standard ESM syntax.

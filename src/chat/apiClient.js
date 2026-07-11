@@ -1,6 +1,7 @@
 import { buildAnthropicParams, buildOpenAIParams } from './modelGenerationParams.js';
 import { adaptMessagesToProtocol } from '../../shared/game-card/protocol/protocolAdapter.js';
 import { createSSEParser } from './sseParser.js';
+import { modelFetch } from '../platform/modelFetch.js';
 
 const DEV_MODEL_PROXY_PATH = '/__chatapp_model_proxy';
 const DEV_MODEL_TARGET_HEADER = 'X-ChatApp-Target-Url';
@@ -116,7 +117,7 @@ async function readSSEStream(reader, protocol, callbacks) {
 
 async function sendChatRequest(config, callbacks = {}) {
   const { url, options, protocol } = resolveRequestTransport(buildRequest(config));
-  const response = await fetch(url, options);
+  const response = await modelFetch(url, options);
   if (!response.ok) {
     let message = `API 错误: ${response.status}`;
     try { message = (await response.json())?.error?.message || message; } catch { /* keep status */ }

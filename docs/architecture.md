@@ -10,6 +10,7 @@
 - **设置运行时 (`src/settings/`)**：管理模型与背景配置的加载、latest-wins 保存队列及设置页状态；`src/components` 只保留可渲染 UI。
 - **游戏卡核心 (`shared/game-card/`)**：平台无关的规则、content、state、schema 与协议适配逻辑。只处理普通数据，并通过显式依赖接入文件读取和脚本执行。
 - **平台适配层 (`src/platform/`)**：定义 renderer 使用的游戏卡与配置、背景、会话、卡片仓库接口，并提供 Electron、Tauri 与内存实现。Vite 在构建期选择桌面 adapter，不在业务组件或 shared core 中判断平台。
+- **模型传输 (`src/platform/modelFetch.js`)**：Electron 复用 browser `fetch`；Tauri 将 Rust HTTP Channel 适配为 `ReadableStream` 响应，聊天层继续使用平台无关 SSE parser。
 - **IPC 处理器 (`ipc/`)**：处理器模块通过 `ipc/storage` 的异步原子 JSON store 读写 `userData`；聊天保存按 session 串行，目录导入使用异步文件 API。
 
 ## Renderer 样式
@@ -17,6 +18,8 @@
 `src/main.jsx` 只导入 `src/styles/renderer.css`。该文件是平台 CSS 的唯一入口，并显式确定颜色、动画、组件和 utility 的加载顺序；`index.html` 不加载平台 CSS。
 
 游戏卡样式不并入平台入口。`display.stylesheet`、`visual.stylesheet` 和 `ui.stylesheet` 通过 `src/gameCard` runtime 从当前卡目录读取，写入带 card id 和资源来源标记的独立 `<style>`，切换游戏卡时替换或清理。游戏卡 CSS 必须使用卡主题 class 或稳定的 `data-gc-part` hook 限定作用域。
+
+Tauri CSP 明确允许游戏卡动态组件需要的受控 `Function`、Blob Worker 和运行时样式，并只允许受控 `local` 协议加载图片和音频。模型外网连接由 Rust command 完成；WebView CSP 与 `core:default` capability 不提供文件系统、shell 或任意外网权限。平台字体由 Vite 本地打包，不加载远程 CSS 或字体。
 
 ## 交互流程
 

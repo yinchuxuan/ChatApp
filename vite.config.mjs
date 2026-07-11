@@ -14,7 +14,7 @@ export default defineConfig(({ command, mode }) => {
     clearScreen: false,
     define: {
       __CHATAPP_DESKTOP_TARGET__: JSON.stringify(desktopTarget),
-      'globalThis.__CHATAPP_DEV_MODEL_PROXY__': JSON.stringify(command === 'serve')
+      'globalThis.__CHATAPP_DEV_MODEL_PROXY__': JSON.stringify(command === 'serve' && desktopTarget === 'electron')
     },
     plugins: [react(), createDevModelProxyPlugin()],
     envPrefix: ['VITE_', 'TAURI_ENV_*'],

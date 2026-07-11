@@ -36,6 +36,8 @@
 
 Tauri Rust 后端已实现 model/background config、完整 session/history command、游戏卡仓库、目录导入、文本资源及受控图片/音频协议。游戏卡导入由 Rust dialog 选择目录，在临时目录校验后替换并保留同 id 卡片的 session。用户背景同样由 Rust dialog 选择，真实路径只存于 native 配置。
 
+模型网络同样位于平台边界。Electron 使用 browser `fetch`，开发模式可经 Vite 同源代理；Tauri 使用 Rust HTTP command 和 Channel。Tauri adapter 将 Channel 字节包装为 `ReadableStream` 兼容响应，因此 `src/chat/apiClient.js` 继续复用同一套 OpenAI/Anthropic SSE parser。`AbortSignal` 通过 request id 映射到 native cancel command。
+
 `memoryGameCardPlatform.js` 是测试 adapter。它从内存中的 card、文本、图片 URL 和音频 URL 读取资源，并复用受控脚本执行器。聊天管线和 shared core 测试应优先使用它，只有 Electron 边界测试才直接 mock preload API。
 
 `controlledScriptExecutor.js` 属于 renderer adapter：它提供受控 JavaScript 执行环境。脚本上下文和返回值协议位于 `shared/game-card/exec`，不属于具体平台。

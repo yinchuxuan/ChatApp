@@ -1,6 +1,6 @@
-import { convertFileSrc, invoke } from '@tauri-apps/api/core';
+import { Channel, convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
-const tauriBridge = Object.freeze({ convertFileSrc, invoke, listen });
+const tauriBridge = Object.freeze({ Channel, convertFileSrc, invoke, listen });
 
 export { tauriBridge };
