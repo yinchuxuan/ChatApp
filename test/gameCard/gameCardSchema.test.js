@@ -8,11 +8,11 @@ const schemaText = fs.readFileSync(schemaPath, 'utf8');
 const schema = JSON.parse(schemaText);
 
 function compileSchema() {
-  return new Ajv({ allErrors: true, strict: false }).compile(schema);
+  return new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
 }
 
 function compileDefinition(name) {
-  const ajv = new Ajv({ allErrors: true, strict: false });
+  const ajv = new Ajv({ $data: true, allErrors: true, strict: false });
   ajv.addSchema(schema);
   return ajv.getSchema(`${schema.$id}#/definitions/${name}`);
 }

@@ -18,6 +18,11 @@
   ],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
+    "babelOptions": {
+      "parserOpts": {
+        "plugins": ["deprecatedImportAssert"]
+      }
+    },
     "ecmaFeatures": {
       "jsx": true
     },

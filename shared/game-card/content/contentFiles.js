@@ -1,8 +1,6 @@
 import { extractUniqueFileSection } from './fileSections.js';
 import { getStateValue, hasStateValue } from '../state/statePaths.js';
 
-const FILE_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.(md|txt|json)$/i;
-
 function readDeclaredFile(filePath, options) {
   if (options.fileContents && Object.prototype.hasOwnProperty.call(options.fileContents, filePath)) {
     return options.fileContents[filePath];
@@ -40,17 +38,4 @@ function resolveFileSource(ref, options) {
   return extractUniqueFileSection(content, heading);
 }
 
-function validateContentFiles(files, path = 'files') {
-  const errors = [];
-  if (files === undefined) return errors;
-  if (!files || typeof files !== 'object' || Array.isArray(files)) return [`${path}: must be an object`];
-  Object.entries(files).forEach(([key, filePath]) => {
-    if (!key) errors.push(`${path}: file id must be non-empty`);
-    if (typeof filePath !== 'string' || !FILE_PATH_PATTERN.test(filePath)) {
-      errors.push(`${path}.${key}: path must be a safe relative text file`);
-    }
-  });
-  return errors;
-}
-
-export { FILE_PATH_PATTERN, resolveFileSource, validateContentFiles };
+export { resolveFileSource };

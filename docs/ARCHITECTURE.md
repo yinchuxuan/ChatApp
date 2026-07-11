@@ -28,6 +28,8 @@
 
 游戏卡调用方向为 `src/gameCard` renderer 适配层或 `ipc/` Electron 适配层指向 `shared/game-card`。Shared core 不依赖 DOM、React、Electron、Node 文件系统或本地绝对路径。
 
+游戏卡结构协议由 `shared/game-card/schema/game-card.schema.json` 唯一定义。导入和运行时共用 shared Ajv validator；Electron 只在结构校验通过后处理 import 循环、schema 注解声明的文件存在性及 state schema 内容等跨文件语义。未来平台后端必须复用同一 schema，而不是复制结构规则。
+
 Renderer 中的游戏卡运行时通过以下接口访问平台能力：
 
 ```js

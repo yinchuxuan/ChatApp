@@ -116,7 +116,8 @@ describe('Game Card Directory Import', () => {
 
   test('expands imported audio visual display ui and content file configs', async () => {
     const cardDir = path.join(tempDir, 'asset-import-card');
-    fs.mkdirSync(cardDir, { recursive: true });
+    fs.mkdirSync(path.join(cardDir, 'audio'), { recursive: true });
+    fs.mkdirSync(path.join(cardDir, 'images'), { recursive: true });
     fs.writeFileSync(path.join(cardDir, 'card.json'), JSON.stringify({
       version: '1.0',
       id: 'asset_import',
@@ -143,6 +144,8 @@ describe('Game Card Directory Import', () => {
     fs.writeFileSync(path.join(cardDir, 'ui.json'), JSON.stringify({
       stylesheet: 'ui.css'
     }), 'utf-8');
+    ['audio/daily.mp3', 'images/school.jpg', 'roleplay_rules.md', 'display.css', 'ui.css']
+      .forEach(file => fs.writeFileSync(path.join(cardDir, file), '', 'utf-8'));
     dialog.showOpenDialog.mockResolvedValue({ canceled: false, filePaths: [cardDir] });
 
     const importResult = await ipcMain.handlers['import-game-card-from-directory']();

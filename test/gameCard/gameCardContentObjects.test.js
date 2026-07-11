@@ -89,7 +89,7 @@ describe('game card content include/select objects', () => {
   });
 
   test('validators accept content objects and reject malformed branches', () => {
-    const validateAction = new Ajv({ allErrors: true, strict: false })
+    const validateAction = new Ajv({ $data: true, allErrors: true, strict: false })
       .addSchema(schema)
       .getSchema(`${schema.$id}#/definitions/action`);
     const action = cardWithContent({ include: [{ when: { state: { route: 'kazusa' } }, content: 'x' }] }).rules[0].then[0];

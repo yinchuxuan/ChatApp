@@ -20,7 +20,7 @@ function card(ui) {
 
 describe('game card ui schema', () => {
   test('accepts ui stylesheet config', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const config = {
       stylesheet: 'ui.css',
       root: {
@@ -36,7 +36,7 @@ describe('game card ui schema', () => {
   });
 
   test('rejects unsafe ui stylesheet paths and unsupported fields', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const unsafe = [
       { stylesheet: '../ui.css' },
       { stylesheet: '/tmp/ui.css' },

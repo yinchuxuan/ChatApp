@@ -19,7 +19,7 @@ function cardWithDisplay(display) {
 
 describe('game card display rule schema', () => {
   test('accepts assistant regex replace rules', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     expect(validate(cardWithDisplay({
       stylesheet: 'display.css',
       assistant: [{
@@ -33,7 +33,7 @@ describe('game card display rule schema', () => {
   });
 
   test('rejects unsupported display rule fields', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     expect(validate(cardWithDisplay({
       assistant: [{ stage: 'after_markdown', type: 'regex_replace', pattern: 'x' }]
     }))).toBe(false);

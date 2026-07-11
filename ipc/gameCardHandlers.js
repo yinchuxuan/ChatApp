@@ -37,7 +37,7 @@ async function readImportCard(fs, store, selectedDir) {
   if (!(await store.exists(cardPath))) throw new Error('Selected folder must contain card.json');
   const card = await readGameCardJsonAsync(store, cardPath);
   if (!card || !isSafeGameCardId(card.id)) throw new Error('Game card must have a safe id');
-  await validateImportedGameCard(fs, card, selectedDir);
+  await validateImportedGameCard(store, card, selectedDir);
   return card;
 }
 

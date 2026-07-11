@@ -1,54 +1,47 @@
-import { validateAudioConfig } from './audioConfig.js';
-import { validateContentFiles } from '../content/contentFiles.js';
-import { validateFind } from './validateFind.js';
-import { validateUiConfig } from './uiConfig.js';
-import { validateAction, validatePredicate, validateWhen } from './validatePredicates.js';
-import { validateVisualConfig } from './visualConfig.js';
+import Ajv from 'ajv';
+import gameCardSchema from './game-card.schema.json' assert { type: 'json' };
 
-function addError(errors, path, message) {
-  errors.push(`${path}: ${message}`);
+const ajv = new Ajv({ $data: true, allErrors: true, strict: false, strictNumbers: true });
+const validateSchema = ajv.compile(gameCardSchema);
+const GAME_CARD_SCHEMA_VERSION = gameCardSchema['x-schema-version'];
+
+function decodePointerPart(value) {
+  return value.replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
-function validateRule(rule, path, errors) {
-  if (!rule || typeof rule !== 'object' || Array.isArray(rule)) {
-    addError(errors, path, 'must be an object');
-    return;
+function pointerToPath(pointer) {
+  const parts = pointer.split('/').slice(1).map(decodePointerPart);
+  return parts.reduce((path, part) => {
+    if (/^\d+$/.test(part)) return `${path}[${part}]`;
+    return path ? `${path}.${part}` : part;
+  }, '');
+}
+
+function errorPath(error) {
+  const path = pointerToPath(error.instancePath || '');
+  if (error.keyword === 'required') {
+    return path ? `${path}.${error.params.missingProperty}` : error.params.missingProperty;
   }
+  if (error.keyword === 'additionalProperties') {
+    return path ? `${path}.${error.params.additionalProperty}` : error.params.additionalProperty;
+  }
+  return path || 'card';
+}
 
-  if (rule.when === undefined) addError(errors, path, 'requires when');
-  else validateWhen(rule.when, path + '.when', errors);
-  validateFind(rule.find, path + '.find', errors, validatePredicate);
+function errorMessage(error) {
+  if (error.keyword === 'required') return 'is required';
+  if (error.keyword === 'additionalProperties') return 'is not allowed';
+  return error.message || `failed ${error.keyword} validation`;
+}
 
-  if (!Array.isArray(rule.then) || rule.then.length === 0) addError(errors, path + '.then', 'must be a non-empty array');
-  else rule.then.forEach((action, i) => validateAction(action, path + '.then[' + i + ']', errors));
+function formatSchemaErrors(errors = []) {
+  const actionable = errors.filter(error => error.keyword !== 'if');
+  return [...new Set(actionable.map(error => `${errorPath(error)}: ${errorMessage(error)}`))];
 }
 
 function validateGameCard(card) {
-  const errors = [];
-
-  if (!card || typeof card !== 'object' || Array.isArray(card)) {
-    errors.push('card must be an object');
-    return { valid: false, errors };
-  }
-
-  for (const field of ['version', 'id', 'name', 'rules']) {
-    if (card[field] === undefined) addError(errors, field, 'is required');
-  }
-
-  if (!Array.isArray(card.rules)) {
-    errors.push('rules must be an array');
-    return { valid: errors.length === 0, errors };
-  }
-
-  errors.push(
-    ...validateAudioConfig(card.audio),
-    ...validateVisualConfig(card.visual),
-    ...validateUiConfig(card.ui),
-    ...validateContentFiles(card.files)
-  );
-  card.rules.forEach((rule, i) => validateRule(rule, 'rules[' + i + ']', errors));
-
-  return { valid: errors.length === 0, errors };
+  const valid = validateSchema(card);
+  return { valid, errors: valid ? [] : formatSchemaErrors(validateSchema.errors) };
 }
 
-export { validateGameCard, validateRule };
+export { GAME_CARD_SCHEMA_VERSION, formatSchemaErrors, validateGameCard };

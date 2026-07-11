@@ -1,32 +1,7 @@
-const IMAGE_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.(png|jpg|jpeg|webp|gif|bmp)$/i;
-const STYLE_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.css$/i;
 const TEXT_PANEL_VALUES = ['center', 'left', 'right'];
 
 function isObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
-}
-
-function validateVisualConfig(visual, path = 'visual') {
-  const errors = [];
-  if (visual === undefined) return errors;
-  if (!isObject(visual)) return [`${path}: must be an object`];
-  if (visual.stylesheet !== undefined && (typeof visual.stylesheet !== 'string' || !STYLE_PATH_PATTERN.test(visual.stylesheet))) {
-    errors.push(`${path}.stylesheet: path must be a safe relative css file`);
-  }
-
-  Object.entries(visual).forEach(([group, entries]) => {
-    if (group === 'stylesheet') return;
-    if (!isObject(entries)) {
-      errors.push(`${path}.${group}: must be an object`);
-      return;
-    }
-    Object.entries(entries).forEach(([key, relativePath]) => {
-      if (typeof relativePath !== 'string' || !IMAGE_PATH_PATTERN.test(relativePath)) {
-        errors.push(`${path}.${group}.${key}: path must be a safe relative image file`);
-      }
-    });
-  });
-  return errors;
 }
 
 function getBackgroundRelativePath(card, gameState) {
@@ -67,11 +42,8 @@ function normalizeTextPanel(value) {
 }
 
 export {
-  IMAGE_PATH_PATTERN,
-  STYLE_PATH_PATTERN,
   TEXT_PANEL_VALUES,
   getBackgroundRelativePath,
   getVisualStateSchema,
-  normalizeTextPanel,
-  validateVisualConfig
+  normalizeTextPanel
 };

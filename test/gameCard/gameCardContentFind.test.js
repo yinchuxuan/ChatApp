@@ -59,7 +59,7 @@ describe('game card content find descriptors', () => {
       messages: [{ role: 'system', content: 'seen' }, { role: 'user', content: 'a' }]
     });
 
-    expect(result.trace.errors[0]).toContain('must be a non-empty array');
+    expect(result.trace.errors[0]).toBe('rules[0].then[0].find: must be array');
   });
 
   test('list-aware transforms extract format and join find state values', () => {

@@ -20,7 +20,7 @@ function card(visual) {
 
 describe('game card visual schema', () => {
   test('accepts background resource tables', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const config = {
       stylesheet: 'visual.css',
       background: { school: 'images/school.jpg', night: 'images/night.webp' }
@@ -31,7 +31,7 @@ describe('game card visual schema', () => {
   });
 
   test('rejects unsafe background resource paths', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const unsafe = [
       { background: { school: '../school.jpg' } },
       { background: { school: '/tmp/school.jpg' } },
@@ -45,7 +45,7 @@ describe('game card visual schema', () => {
   });
 
   test('rejects unsafe visual stylesheet paths', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const unsafe = [
       { stylesheet: '../visual.css', background: { school: 'images/school.jpg' } },
       { stylesheet: '/tmp/visual.css', background: { school: 'images/school.jpg' } },

@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://chatapp.local/schemas/game-card.schema.json",
+  "$id": "https://chatapp.local/schemas/game-card/v1/schema.json",
+  "x-schema-version": "1.0.0",
   "title": "Game Card",
   "type": "object",
   "additionalProperties": false,
@@ -11,7 +12,7 @@
     "name": { "type": "string", "minLength": 1 },
     "description": { "type": "string" },
     "author": { "type": "string" },
-    "stateSchema": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.json$" },
+    "stateSchema": { "$ref": "#/definitions/jsonFile" },
     "files": { "$ref": "#/definitions/textFiles" },
     "state": { "type": "object" },
     "audio": { "$ref": "#/definitions/audio" }, "visual": { "$ref": "#/definitions/visual" },
@@ -20,25 +21,24 @@
   },
   "definitions": {
     "audio": { "type": "object", "additionalProperties": false, "properties": { "bgm": { "$ref": "#/definitions/audioMap" } } },
-    "audioMap": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(mp3|ogg|wav|m4a)$" } },
-    "textFiles": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(md|txt|json)$" } },
-    "visual": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.css$" }, "background": { "$ref": "#/definitions/imageMap" } } },
-    "imageMap": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(png|jpg|jpeg|webp|gif|bmp)$" } },
-    "ui": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.css$" }, "root": { "$ref": "#/definitions/uiRoot" }, "scripts": { "type": "object", "additionalProperties": { "anyOf": [{ "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.js$" }, { "type": "object", "additionalProperties": false, "required": ["sourceFile"], "properties": { "sourceFile": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.js$" } } }] } } } },
-    "uiRoot": { "type": "object", "additionalProperties": false, "required": ["source"], "properties": { "type": { "const": "react" }, "source": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.jsx?$" }, "style": { "type": "string", "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.css$" }, "props": { "type": "object" } } },
-    "display": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "type": "string", "pattern": "^[^/\\\\][^\\\\]*$" }, "assistant": { "type": "array", "items": { "$ref": "#/definitions/displayRule" } } } },
+    "audioMap": { "type": "object", "additionalProperties": { "$ref": "#/definitions/audioFile" } },
+    "textFiles": { "type": "object", "additionalProperties": { "$ref": "#/definitions/textFile" } },
+    "visual": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "$ref": "#/definitions/styleFile" }, "background": { "$ref": "#/definitions/imageMap" } } },
+    "imageMap": { "type": "object", "additionalProperties": { "$ref": "#/definitions/imageFile" } },
+    "ui": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "$ref": "#/definitions/styleFile" }, "root": { "$ref": "#/definitions/uiRoot" }, "scripts": { "type": "object", "additionalProperties": { "anyOf": [{ "$ref": "#/definitions/scriptFile" }, { "type": "object", "additionalProperties": false, "required": ["sourceFile"], "properties": { "sourceFile": { "$ref": "#/definitions/scriptFile" } } }] } } } },
+    "uiRoot": { "type": "object", "additionalProperties": false, "required": ["source"], "properties": { "type": { "const": "react" }, "source": { "$ref": "#/definitions/reactSourceFile" }, "style": { "$ref": "#/definitions/styleFile" }, "props": { "type": "object" } } },
+    "display": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "$ref": "#/definitions/styleFile" }, "assistant": { "$ref": "#/definitions/displayRules" }, "user": { "$ref": "#/definitions/displayRules" } } },
+    "displayRules": { "type": "array", "items": { "$ref": "#/definitions/displayRule" } },
+    "safeFile": { "type": "string", "pattern": "^(?![/\\\\])(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$", "x-file": true },
+    "jsonFile": { "allOf": [{ "$ref": "#/definitions/safeFile" }, { "pattern": "\\.json$" }] },
+    "textFile": { "allOf": [{ "$ref": "#/definitions/safeFile" }, { "pattern": "\\.(md|txt|json)$" }] },
+    "styleFile": { "allOf": [{ "$ref": "#/definitions/safeFile" }, { "pattern": "\\.css$" }] },
+    "scriptFile": { "allOf": [{ "$ref": "#/definitions/safeFile" }, { "pattern": "\\.js$" }] },
+    "reactSourceFile": { "allOf": [{ "$ref": "#/definitions/safeFile" }, { "pattern": "\\.jsx?$" }] },
+    "audioFile": { "allOf": [{ "$ref": "#/definitions/safeFile" }, { "pattern": "\\.(mp3|ogg|wav|m4a)$" }] },
+    "imageFile": { "allOf": [{ "$ref": "#/definitions/safeFile" }, { "pattern": "\\.(png|jpg|jpeg|webp|gif|bmp)$" }] },
     "displayRule": { "type": "object", "additionalProperties": false, "required": ["stage", "type", "pattern"], "properties": { "id": { "type": "string", "minLength": 1 }, "enabled": { "type": "boolean" }, "stage": { "const": "before_markdown" }, "type": { "const": "regex_replace" }, "pattern": { "type": "string", "maxLength": 1000 }, "flags": { "type": "string", "pattern": "^[gimsu]*$" }, "replace": { "type": "string" } } },
-    "rule": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["when", "then"],
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "when": { "$ref": "#/definitions/when" },
-        "find": { "$ref": "#/definitions/find" },
-        "then": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/action" } }
-      }
-    },
+    "rule": { "type": "object", "additionalProperties": false, "required": ["when", "then"], "properties": { "id": { "type": "string", "minLength": 1 }, "when": { "$ref": "#/definitions/when" }, "find": { "$ref": "#/definitions/find" }, "then": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/action" } } } },
     "when": {
       "type": "object",
       "additionalProperties": false,
@@ -65,16 +65,20 @@
       }
     },
     "action": {
-      "oneOf": [
-        { "$ref": "#/definitions/insertAction" },
-        { "$ref": "#/definitions/removeAction" },
-        { "$ref": "#/definitions/replaceAction" },
-        { "$ref": "#/definitions/execAction" },
-        { "$ref": "#/definitions/stateValueAction" },
-        { "$ref": "#/definitions/stateDeleteAction" },
-        { "$ref": "#/definitions/stateRollAction" },
-        { "$ref": "#/definitions/stateRandomIntAction" }, { "$ref": "#/definitions/actionGroup" }
-      ]
+      "type": "object",
+      "if": { "required": ["type"] },
+      "then": { "allOf": [
+          { "properties": { "type": { "enum": ["insert", "remove", "replace", "exec", "state.set", "state.append", "state.remove", "state.delete", "state.advance", "state.roll", "state.randomInt"] } } },
+          { "if": { "properties": { "type": { "const": "insert" } } }, "then": { "$ref": "#/definitions/insertAction" } },
+          { "if": { "properties": { "type": { "const": "remove" } } }, "then": { "$ref": "#/definitions/removeAction" } },
+          { "if": { "properties": { "type": { "const": "replace" } } }, "then": { "$ref": "#/definitions/replaceAction" } },
+          { "if": { "properties": { "type": { "const": "exec" } } }, "then": { "$ref": "#/definitions/execAction" } },
+          { "if": { "properties": { "type": { "enum": ["state.set", "state.append", "state.remove"] } } }, "then": { "$ref": "#/definitions/stateValueAction" } },
+          { "if": { "properties": { "type": { "enum": ["state.delete", "state.advance"] } } }, "then": { "$ref": "#/definitions/stateDeleteAction" } },
+          { "if": { "properties": { "type": { "const": "state.roll" } } }, "then": { "$ref": "#/definitions/stateRollAction" } },
+          { "if": { "properties": { "type": { "const": "state.randomInt" } } }, "then": { "$ref": "#/definitions/stateRandomIntAction" } }
+      ] },
+      "else": { "$ref": "#/definitions/actionGroup" }
     },
     "insertAction": {
       "type": "object",
@@ -117,13 +121,13 @@
         "_meta": { "$ref": "#/definitions/messageMeta" }
       }
     },
-    "execAction": { "type": "object", "additionalProperties": false, "required": ["type"], "oneOf": [{ "required": ["source"] }, { "required": ["sourceFile"] }], "properties": { "type": { "const": "exec" }, "when": { "$ref": "#/definitions/contentWhen" }, "source": { "type": "string", "minLength": 1 }, "sourceFile": { "type": "string", "minLength": 1 } } },
+    "execAction": { "type": "object", "additionalProperties": false, "required": ["type"], "oneOf": [{ "required": ["source"] }, { "required": ["sourceFile"] }], "properties": { "type": { "const": "exec" }, "when": { "$ref": "#/definitions/contentWhen" }, "source": { "type": "string", "minLength": 1 }, "sourceFile": { "$ref": "#/definitions/scriptFile" } } },
     "statePath": { "type": "string", "pattern": "^[^.[\\]]+(\\.[^.[\\]]+)*$" },
     "jsonValue": { "anyOf": [{ "type": ["string", "number", "boolean", "null"] }, { "type": "array", "items": { "$ref": "#/definitions/jsonValue" } }, { "type": "object", "additionalProperties": { "$ref": "#/definitions/jsonValue" } }] },
     "stateValueAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "value"], "properties": { "type": { "enum": ["state.set", "state.append", "state.remove"] }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "value": { "$ref": "#/definitions/jsonValue" } } },
     "stateDeleteAction": { "type": "object", "additionalProperties": false, "required": ["type", "path"], "properties": { "type": { "enum": ["state.delete", "state.advance"] }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" } } },
     "stateRollAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "dice"], "properties": { "type": { "const": "state.roll" }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "dice": { "type": "string", "pattern": "^([1-9]\\d*)?d([1-9]\\d*)$" } } },
-    "stateRandomIntAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "min", "max"], "properties": { "type": { "const": "state.randomInt" }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "min": { "type": "integer" }, "max": { "type": "integer" } } }, "actionGroup": { "type": "object", "additionalProperties": false, "required": ["when", "then"], "properties": { "when": { "$ref": "#/definitions/contentWhen" }, "find": { "$ref": "#/definitions/find" }, "then": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/action" } } } },
+    "stateRandomIntAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "min", "max"], "properties": { "type": { "const": "state.randomInt" }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "min": { "type": "integer" }, "max": { "type": "integer", "minimum": { "$data": "1/min" } } } }, "actionGroup": { "type": "object", "additionalProperties": false, "required": ["when", "then"], "properties": { "when": { "$ref": "#/definitions/contentWhen" }, "find": { "$ref": "#/definitions/find" }, "then": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/action" } } } },
     "find": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/findItem" } },
     "findItem": { "type": "object", "additionalProperties": false, "required": ["name", "from"], "properties": { "name": { "type": "string", "minLength": 1 }, "from": { "$ref": "#/definitions/predicate" }, "select": { "enum": ["content", "thinking", "role", "_meta.source"] }, "match": { "$ref": "#/definitions/findMatch" }, "many": { "type": "boolean" }, "join": { "type": "string" }, "default": { "$ref": "#/definitions/jsonValue" } } },
     "findMatch": { "type": "object", "additionalProperties": false, "required": ["regex"], "properties": { "regex": { "type": "string", "minLength": 1 }, "group": { "type": "integer", "minimum": 0 } } },

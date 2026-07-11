@@ -20,7 +20,7 @@ describe('game card runtime step 2', () => {
 
     expect(result.messages).toEqual([]);
     expect(result.state).toEqual({});
-    expect(result.trace.errors).toEqual(['card must be an object']);
+    expect(result.trace.errors).toEqual(['card: must be object']);
   });
 
   test('returns cloned messages and empty state for missing cards', () => {
@@ -33,7 +33,7 @@ describe('game card runtime step 2', () => {
     expect(result.messages[0]).not.toBe(messages[0]);
     expect(result.messages[0]._meta).not.toBe(messages[0]._meta);
     expect(result.state).toEqual({});
-    expect(result.trace.errors).toEqual(['card must be an object']);
+    expect(result.trace.errors).toEqual(['card: must be object']);
   });
 
   test('returns validation errors when rules is missing', () => {

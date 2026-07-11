@@ -7,7 +7,7 @@ const schemaPath = path.join(__dirname, '../../shared/game-card/schema/game-card
 const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
 function compileSchema() {
-  return new Ajv({ allErrors: true, strict: false }).compile(schema);
+  return new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
 }
 
 function cardWithFind(find) {
@@ -38,7 +38,7 @@ describe('game card find schema', () => {
     });
 
     expect(validate(card)).toBe(false);
-    expect(validateGameCard(card).errors[0]).toContain('must be a non-empty array');
+    expect(validateGameCard(card).errors[0]).toBe('rules[0].then[0].find: must be array');
   });
 
   test('accepts list find on rules and actions', () => {
@@ -73,7 +73,7 @@ describe('game card find schema', () => {
     const card = cardWithFind([{ name: 'items', from: { role: 'assistant' }, field: 'content' }]);
 
     expect(validate(card)).toBe(false);
-    expect(validateGameCard(card).errors[0]).toContain('unknown find key: field');
+    expect(validateGameCard(card).errors[0]).toBe('rules[0].then[0].find[0].field: is not allowed');
   });
 
   test('rejects malformed list find declarations', () => {

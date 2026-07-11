@@ -58,8 +58,8 @@ describe('game card file content source', () => {
   test('validates declared text file paths', () => {
     expect(validateGameCard(card).valid).toBe(true);
     expect(validateGameCard(cardWithFiles({ bad: '../secret.md' })).errors[0])
-      .toContain('path must be a safe relative text file');
+      .toContain('files.bad: must match pattern');
     expect(validateGameCard(cardWithFiles({ bad: 'images/bg.png' })).errors[0])
-      .toContain('path must be a safe relative text file');
+      .toContain('files.bad: must match pattern');
   });
 });

@@ -6,7 +6,7 @@ const schemaPath = path.join(__dirname, '../../shared/game-card/schema/game-card
 const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
 function compileAction() {
-  const ajv = new Ajv({ allErrors: true, strict: false });
+  const ajv = new Ajv({ $data: true, allErrors: true, strict: false });
   ajv.addSchema(schema);
   return ajv.getSchema(`${schema.$id}#/definitions/action`);
 }

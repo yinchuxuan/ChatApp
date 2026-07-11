@@ -20,7 +20,7 @@ function card(audio) {
 
 describe('game card audio schema', () => {
   test('accepts bgm resource tables', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const config = { bgm: { intro: 'audio/intro.mp3', quiet: 'audio/quiet.ogg' } };
 
     expect(validate(card(config))).toBe(true);
@@ -28,7 +28,7 @@ describe('game card audio schema', () => {
   });
 
   test('rejects unsafe audio resource paths', () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const unsafe = [
       { bgm: { intro: '../intro.mp3' } },
       { bgm: { intro: '/tmp/intro.mp3' } },

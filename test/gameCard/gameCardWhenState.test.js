@@ -126,6 +126,6 @@ describe('when.state predicates', () => {
       }
     ]));
     expect(result.valid).toBe(false);
-    expect(result.errors[0]).toContain('unknown state op');
+    expect(result.errors).toContain('rules[0].when.state.route.startsWith: is not allowed');
   });
 });

@@ -13,3 +13,4 @@ game card visual: docs/game_card/game_card_visual.md
 game card visual panel: docs/game_card/game_card_visual_panel.md
 game card ui runtime: docs/game_card/game_card_ui_runtime.md
 game card imports: docs/game_card/game_card_imports.md
+game card schema: docs/game_card/game_card_schema.md

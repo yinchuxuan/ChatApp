@@ -154,11 +154,15 @@ scriptExecutor.run(source, context, options)
 
 ## 阶段 7：统一游戏卡协议校验
 
+状态：已完成（2026-07-11）。
+
 - 选择 `game-card.schema.json` 作为结构协议的唯一事实源。
 - 在导入和运行前使用同一个 JSON Schema validator。
 - 手写校验只保留文件存在性、循环引用等跨文件语义检查。
 - 为 schema 增加独立版本，并明确版本升级规则。
 - Electron 和未来 Tauri 后端共享同一份 schema 文件。
+
+实现结果：`shared/game-card/schema/game-card.schema.json` 成为结构协议唯一事实源，shared core 使用 Ajv 在导入和运行前执行同一校验并统一格式化错误。旧 predicate、content、find、state action 和资源配置手写 validator 已删除；schema 的 `x-file` 注解驱动 Electron 导入阶段的文件存在性检查，import 循环等语义检查保留在 import resolver。协议 schema 使用独立 `x-schema-version`，与游戏卡自身 `version` 分离。
 
 验收条件：新增或删除语法只需修改一份结构定义，导入校验和运行时校验结果一致。
 
