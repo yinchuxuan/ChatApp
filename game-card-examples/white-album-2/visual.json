@@ -12,6 +12,7 @@
     "ktv": "images/ktv.png",
     "home_party": "images/home_party.png",
     "agreement": "images/agreement.png",
-    "GameEnd1": "images/GameEnd1.png"
+    "GameEnd1": "images/GameEnd1.png",
+    "event1":"images/event1.png"
   }
 }

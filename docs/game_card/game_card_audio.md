@@ -125,6 +125,7 @@ gameState.audio.bgm
 - 用户提交消息后立即停止当前 BGM；仅键入输入不停止
 - LLM 只输出 thinking/reasoning 时保持停止
 - 正文第一个 token 开始流式输出时，按当前 `gameState.audio.bgm` 从头加载并播放
+- 非生成期间由本地 UI 修改 `gameState.audio.bgm` 时，立即切换并播放新的 BGM
 
 行为要求：
 

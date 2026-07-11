@@ -50,8 +50,10 @@ function enqueueEventsAfterSlotTransition(state, rawSlot, ctx) {
   if (previousSlot !== 'FixedPlot1' || rawSlot.id === 'FixedPlot1') return;
   enqueueChapter2Event(state, {
     id: 'chapter2_after_fixedplot1_rehearsal_memory',
-    title: '梦中的余音',
+    title: '事件：梦中的声音',
     time: '2007.10.25 星期五 晚上',
+    background: 'event1',
+    bgm: 'love_dream',
     body: ctx.files.read('event.chapter2.afterFixedPlot1.rehearsalMemory'),
     options: [
       { id: 'piano', label: '隔壁的钢琴声', effects: { 'touma.affection': 1 } },

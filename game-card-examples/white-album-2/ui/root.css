@@ -1,22 +1,27 @@
 .game-card-theme-white-album-2 .wa2-event-root {
   --wa2-event-trigger-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5h14l-1.25 9H6.25L5 7.5Z' stroke='%2307131f' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M8.2 7.5l1.35-2.2h4.9l1.35 2.2M8.4 12.2h7.2' stroke='%2307131f' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  --wa2-event-return-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.8 5.2c2.6-.8 5-.4 7.2 1.2v12.4c-2.2-1.6-4.6-2-7.2-1.2V5.2Z' stroke='%2307131f' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M19.2 5.2c-2.6-.8-5-.4-7.2 1.2v12.4c2.2-1.6 4.6-2 7.2-1.2V5.2Z' stroke='%2307131f' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M8 8.5h1.7M14.3 8.5H16M8 11.4h1.7M14.3 11.4H16' stroke='%2307131f' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   --wa2-event-time-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19Zm0 2a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15Zm1 3.2h-2v5.5l4.7 2.8 1-1.7-3.7-2.2V7.7Z' fill='%2307131f'/%3E%3C/svg%3E");
   --wa2-event-panel-top: var(--game-card-panel-edge-gap, 22px);
   --wa2-event-panel-right: var(--game-card-panel-edge-gap, 22px);
   --wa2-event-panel-bottom: var(--game-card-panel-edge-gap, 22px);
   --wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)));
-  --wa2-event-trigger-left: calc(var(--wa2-event-panel-left) + 36px);
   position: fixed;
-  top: calc(var(--wa2-event-panel-top) - 2px);
-  right: auto;
-  left: var(--wa2-event-trigger-left);
+  top: calc(var(--wa2-event-panel-top) + 10px);
+  right: var(--wa2-event-panel-right);
+  left: var(--wa2-event-panel-left);
   z-index: 120;
+  display: flex;
+  justify-content: center;
   font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
   pointer-events: none;
 }
 
-.game-card-theme-white-album-2 .wa2-event-trigger,
-.game-card-theme-white-album-2 .wa2-event-panel {
+.game-card-theme-white-album-2 .wa2-event-trigger {
+  pointer-events: auto;
+}
+
+.game-card-theme-white-album-2 .wa2-event-root[data-open="true"] .wa2-event-panel {
   pointer-events: auto;
 }
 
@@ -25,9 +30,10 @@
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  min-height: 22px;
-  padding: 1px 8px 1px 5px;
-  gap: 5px;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 4px;
   border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
@@ -39,6 +45,12 @@
   font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   font-weight: 300;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.58);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 220ms ease,
+    color 180ms ease,
+    transform 180ms ease;
 }
 
 .game-card-theme-white-album-2 .wa2-event-trigger:hover,
@@ -47,6 +59,7 @@
   background: transparent;
   color: rgba(3, 10, 18, 1);
   box-shadow: none;
+  transform: translateY(-1px);
 }
 
 .game-card-theme-white-album-2 .wa2-event-root[data-has-events="true"] .wa2-event-trigger {
@@ -59,8 +72,13 @@
     0 4px 14px rgba(72, 112, 146, 0.12);
 }
 
-.game-card-theme-white-album-2 .wa2-event-root[data-has-events="true"] .wa2-event-trigger-text {
-  font-weight: 600;
+.game-card-theme-white-album-2 .wa2-event-root[data-open="true"][data-has-events="true"] .wa2-event-trigger {
+  color: rgba(7, 19, 31, 0.92);
+  border-color: rgba(7, 19, 31, 0.18);
+  background: rgba(255, 255, 255, 0.54);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 6px 18px rgba(55, 88, 118, 0.16);
 }
 
 .game-card-theme-white-album-2 .wa2-event-trigger:focus-visible {
@@ -79,19 +97,33 @@
   mask: var(--wa2-event-trigger-icon) center / contain no-repeat;
 }
 
-.game-card-theme-white-album-2 .wa2-event-trigger-text {
-  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  font-size: 12px;
-  font-weight: 300;
-  line-height: 1.35;
-  white-space: nowrap;
+.game-card-theme-white-album-2 .wa2-event-root[data-open="true"] .wa2-event-trigger-icon {
+  -webkit-mask-image: var(--wa2-event-return-icon);
+  mask-image: var(--wa2-event-return-icon);
 }
 
 .app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) [data-gc-part="collapsed-message-view"],
 .app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) .chat-messages-layer,
 .app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) .msg-history-card {
   opacity: 0;
+  filter: blur(4px);
+  transform: translateY(-6px);
   pointer-events: none;
+}
+
+.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) [data-gc-part="chat-input"],
+.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) [data-gc-part="chat-input-trigger"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"],
+.app-container.game-card-theme-white-album-2 .chat-messages-layer,
+.app-container.game-card-theme-white-album-2 .msg-history-card {
+  transition:
+    opacity 240ms ease,
+    filter 280ms ease,
+    transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .game-card-theme-white-album-2 .wa2-event-panel {
@@ -109,6 +141,11 @@
   box-sizing: border-box;
   overflow: hidden;
   isolation: isolate;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  filter: blur(5px);
+  transform: translate3d(0, 12px, 0) scale(0.985);
   background: rgba(255, 255, 255, 0.18);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.74),
@@ -119,6 +156,24 @@
   color: #07131f;
   backdrop-filter: blur(7px) saturate(1.08) brightness(1);
   -webkit-backdrop-filter: blur(7px) saturate(1.08) brightness(1);
+  transition:
+    opacity 260ms ease,
+    filter 300ms ease,
+    transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s linear 260ms;
+  will-change: opacity, filter, transform;
+}
+
+.game-card-theme-white-album-2 .wa2-event-panel[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    opacity 280ms ease,
+    filter 360ms ease,
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0s;
 }
 
 .game-card-theme-white-album-2 .wa2-event-panel::before,
@@ -162,6 +217,18 @@
 .game-card-theme-white-album-2 .wa2-event-empty {
   position: relative;
   z-index: 2;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 240ms ease,
+    transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.game-card-theme-white-album-2 .wa2-event-panel[data-visible="true"] .wa2-event-content,
+.game-card-theme-white-album-2 .wa2-event-panel[data-visible="true"] .wa2-event-empty {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 70ms;
 }
 
 .game-card-theme-white-album-2 .wa2-event-content {
@@ -302,11 +369,22 @@
     --wa2-event-panel-right: 14px;
     --wa2-event-panel-top: 15px;
     --wa2-event-panel-bottom: 15px;
-    --wa2-event-trigger-left: calc(var(--wa2-event-panel-left) + 18px);
-    right: auto;
   }
 
   .game-card-theme-white-album-2 .wa2-event-panel {
     padding: 54px 26px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"],
+  .app-container.game-card-theme-white-album-2 .chat-messages-layer,
+  .app-container.game-card-theme-white-album-2 .msg-history-card,
+  .game-card-theme-white-album-2 .wa2-event-panel,
+  .game-card-theme-white-album-2 .wa2-event-content,
+  .game-card-theme-white-album-2 .wa2-event-empty {
+    transition: none;
+    transform: none;
+    filter: none;
   }
 }

@@ -166,9 +166,10 @@ function GameCardUIRoot({ card, gameState = {}, setGameState, messages = [], isL
   }, [card, messages, setGameState]);
   const assets = R.useMemo(() => ({
     readFile: (filePath) => window.electronAPI?.readGameCardFile?.(cardId, filePath),
+    getBackgroundUrl: (key) => card?.visual?.background?.[key] ? window.electronAPI?.getGameCardImageUrl?.(card.visual.background[key]) : Promise.resolve({ success: false }),
     getImageUrl: (filePath) => window.electronAPI?.getGameCardImageUrl?.(filePath),
     getAudioUrl: (filePath) => window.electronAPI?.getGameCardAudioUrl?.(filePath)
-  }), [cardId]);
+  }), [cardId, card]);
   const ui = R.useMemo(() => ({
     cardId,
     isLoading,

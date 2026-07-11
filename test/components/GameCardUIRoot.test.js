@@ -128,6 +128,32 @@ describe('GameCardUIRoot', () => {
     expect(container.querySelector('.event-message .quoted-text')).toHaveTextContent('“高亮”');
   });
 
+  test('resolves visual background keys for card React root assets', async () => {
+    window.electronAPI.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///classroom.png' });
+    window.electronAPI.readGameCardFile.mockResolvedValue({
+      success: true,
+      content: `
+        function Root({ React, assets }) {
+          const [url, setUrl] = React.useState('');
+          React.useEffect(() => {
+            assets.getBackgroundUrl('classroom').then((result) => setUrl(result.url));
+          }, [assets]);
+          return React.createElement('div', null, url);
+        }
+      `
+    });
+    const card = {
+      id: 'visual-card',
+      visual: { background: { classroom: 'images/classroom.png' } },
+      ui: { root: { source: 'ui/root.js' } }
+    };
+
+    render(React.createElement(GameCardUIRoot, { card, gameState: {}, messages: [], isLoading: false }));
+
+    await screen.findByText('local:///classroom.png');
+    expect(window.electronAPI.getGameCardImageUrl).toHaveBeenCalledWith('images/classroom.png');
+  });
+
   test('runs controlled game scripts from card React root', async () => {
     const setGameState = jest.fn();
     window.electronAPI.readGameCardFile.mockImplementation(async (_id, filePath) => ({

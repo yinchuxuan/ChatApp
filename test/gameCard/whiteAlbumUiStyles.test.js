@@ -175,15 +175,13 @@ describe('white album ui styles', () => {
     expect(css).toContain('color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F))');
     expect(css).toContain('text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F)) 52%, transparent)');
   });
-
   test('styles the local event panel as a frosted ui widget', () => {
     expect(eventRootCss).toContain('.wa2-event-root');
     expect(eventRootCss).toContain('.wa2-event-trigger');
     expect(eventRootCss).toContain('.wa2-event-panel');
     expect(eventRootCss).toContain('--wa2-event-trigger-icon: url("data:image/svg+xml');
     expect(eventRootCss).toContain('--wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)))');
-    expect(eventRootCss).toContain('--wa2-event-trigger-left: calc(var(--wa2-event-panel-left) + 36px)');
-    expect(eventRootCss).toContain('top: calc(var(--wa2-event-panel-top) - 2px)');
+    expect(eventRootCss).toContain('top: calc(var(--wa2-event-panel-top) + 10px)');
     expect(eventRootCss).toContain('font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif');
     expect(eventRootCss).toContain('-webkit-mask: var(--wa2-event-trigger-icon) center / contain no-repeat');
     expect(eventRootCss).toMatch(/border: 1px solid transparent[\s\S]*border-radius: 999px[\s\S]*color: rgba\(3, 10, 18, 0\.96\)[\s\S]*font-weight: 600[\s\S]*border-color: color-mix[\s\S]*width: 22px/);
@@ -192,7 +190,9 @@ describe('white album ui styles', () => {
     expect(eventRootCss).toContain('pointer-events: auto');
     expect(eventRootCss).toContain(':has(.wa2-event-root[data-open="true"])');
     expect(eventRootCss).toContain('[data-gc-part="collapsed-message-view"]');
+    expect(eventRootCss).toContain('[data-gc-part="chat-input"]');
     expect(eventRootCss).toContain('opacity: 0');
+    expect(eventRootCss).not.toContain('.wa2-event-backdrop');
     expect(eventRootCss).toMatch(/background: rgba\(255, 255, 255, 0\.18\)[\s\S]*backdrop-filter: blur\(7px\) saturate\(1\.08\) brightness\(1\)/);
     expect(eventRootCss).toMatch(/radial-gradient\(circle at 52% 88%[\s\S]*background: rgba\(255, 255, 255, 0\.70\)[\s\S]*-webkit-mask: none[\s\S]*z-index: 2/);
     expect(eventRootCss).toMatch(/\.wa2-event-content[\s\S]*overflow-y: auto[\s\S]*\.wa2-event-body \.chat-message-bubble[\s\S]*\.wa2-event-body \.chat-bubble-content p/);

@@ -98,6 +98,60 @@ describe('GameCardBgmPlayer', () => {
     expect(document.querySelector('audio').currentTime).toBe(0);
   });
 
+  test('plays immediately when game state changes outside generation', async () => {
+    window.electronAPI.getGameCardAudioUrl.mockImplementation(async (path) => ({
+      success: true,
+      url: `local:///${path.split('/').pop()}`
+    }));
+    const card = { audio: { bgm: { intro: 'audio/intro.mp3', dream: 'audio/dream.ogg' } } };
+    const { rerender } = render(React.createElement(GameCardBgmPlayer, {
+      card,
+      gameState: { audio: { bgm: 'intro' } }
+    }));
+    await waitFor(() => expect(document.querySelector('audio').getAttribute('src')).toBe('local:///intro.mp3'));
+
+    rerender(React.createElement(GameCardBgmPlayer, {
+      card,
+      gameState: { audio: { bgm: 'dream' } }
+    }));
+    await waitFor(() => expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(1));
+    await act(async () => { playResolvers.splice(0).forEach(resolve => resolve()); });
+
+    expect(document.querySelector('audio').getAttribute('src')).toBe('local:///dream.ogg');
+  });
+
+  test('defers state-driven bgm changes while generation is active', async () => {
+    window.electronAPI.getGameCardAudioUrl.mockImplementation(async (path) => ({
+      success: true,
+      url: `local:///${path.split('/').pop()}`
+    }));
+    const card = { audio: { bgm: { intro: 'audio/intro.mp3', sad: 'audio/sad.mp3' } } };
+    const { rerender } = render(React.createElement(GameCardBgmPlayer, {
+      card,
+      gameState: { audio: { bgm: 'intro' } },
+      defer: false
+    }));
+    await waitFor(() => expect(document.querySelector('audio').getAttribute('src')).toBe('local:///intro.mp3'));
+
+    rerender(React.createElement(GameCardBgmPlayer, {
+      card,
+      gameState: { audio: { bgm: 'sad' } },
+      defer: true,
+      resumeToken: 0
+    }));
+    await waitFor(() => expect(document.querySelector('audio').getAttribute('src')).toBe('local:///sad.mp3'));
+    expect(window.HTMLMediaElement.prototype.play).not.toHaveBeenCalled();
+
+    rerender(React.createElement(GameCardBgmPlayer, {
+      card,
+      gameState: { audio: { bgm: 'sad' } },
+      defer: true,
+      resumeToken: 1
+    }));
+    await waitFor(() => expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(1));
+    await act(async () => { playResolvers.splice(0).forEach(resolve => resolve()); });
+  });
+
   test('manual button toggles audio enabled state with music icons', async () => {
     render(React.createElement(GameCardBgmPlayer, {
       card: { audio: { bgm: { intro: 'audio/intro.mp3' } } },

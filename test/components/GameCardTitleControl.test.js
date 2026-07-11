@@ -96,16 +96,22 @@ describe('GameCardTitleControl', () => {
     render(<GameCardTitleControl />);
 
     await screen.findByText('未加载游戏卡');
-    expect(screen.getByRole('button', { name: '管理聊天会话' }).querySelector('.material-icons')).toHaveTextContent('inventory_2');
+    const sessionButton = screen.getByRole('button', { name: '管理聊天会话' });
+    expect(sessionButton.querySelector('.material-icons')).toHaveTextContent('inventory_2');
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: '管理聊天会话' }));
+      fireEvent.click(sessionButton);
     });
 
     expect(document.querySelector('.chat-session-panel-title')).toHaveTextContent('会话');
+    expect(document.querySelector('[data-gc-part="chat-session-panel"]')).toHaveAttribute('data-state', 'open');
+    expect(sessionButton).toHaveAttribute('aria-expanded', 'true');
     expect(document.querySelector('[data-gc-part="chat-session-manager"]')).toBeTruthy();
     expect(document.querySelector('[data-gc-part="chat-session-row"]')).toBeTruthy();
     expect(screen.getByText('默认会话')).toBeInTheDocument();
     expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
+    fireEvent.click(sessionButton);
+    expect(document.querySelector('[data-gc-part="chat-session-panel"]')).toHaveAttribute('data-state', 'closing');
+    expect(sessionButton).toHaveAttribute('aria-expanded', 'false');
   });
 
   test('renders audio control in the title bar', async () => {

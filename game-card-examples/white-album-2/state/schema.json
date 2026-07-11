@@ -120,6 +120,21 @@
       "llmRead": false,
       "llmWrite": false
     },
+    "events.panel": {
+      "type": "object",
+      "default": {
+        "open": false,
+        "eventId": "",
+        "returnScene": {
+          "background": null,
+          "bgm": null
+        }
+      },
+      "description": "事件面板的持久化显示状态，以及返回主线时需要恢复的背景和音乐。",
+      "llmRead": false,
+      "llmWrite": false,
+      "uiVisible": true
+    },
     "visual.textPanel": {
       "type": "enum",
       "values": ["center", "left", "right"],

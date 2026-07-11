@@ -15,6 +15,24 @@ function queueFromState(state) {
   return Array.isArray(queue) ? queue : [];
 }
 
+function closedEventPanel() {
+  return { open: false, eventId: '', returnScene: { background: null, bgm: null } };
+}
+
+function panelFromState(state) {
+  const panel = state && state.events && state.events.panel;
+  if (!panel || typeof panel !== 'object') return closedEventPanel();
+  const returnScene = panel.returnScene && typeof panel.returnScene === 'object' ? panel.returnScene : {};
+  return {
+    open: panel.open === true,
+    eventId: typeof panel.eventId === 'string' ? panel.eventId : '',
+    returnScene: {
+      background: typeof returnScene.background === 'string' ? returnScene.background : null,
+      bgm: typeof returnScene.bgm === 'string' ? returnScene.bgm : null
+    }
+  };
+}
+
 function optionEffects(option) {
   return option && option.effects && typeof option.effects === 'object' && !Array.isArray(option.effects)
     ? option.effects
@@ -31,10 +49,52 @@ function buildEffectActions(state, option) {
   }, []);
 }
 
-function buildConsumeActions(state, queue, option) {
+function restoreSceneActions(panel) {
+  const scene = panel.returnScene;
+  return [
+    scene.background
+      ? { type: 'state.set', path: 'visual.background', value: scene.background }
+      : { type: 'state.delete', path: 'visual.background' },
+    scene.bgm
+      ? { type: 'state.set', path: 'audio.bgm', value: scene.bgm }
+      : { type: 'state.delete', path: 'audio.bgm' }
+  ];
+}
+
+function buildCloseActions(panel) {
+  return [
+    ...restoreSceneActions(panel),
+    { type: 'state.set', path: 'events.panel', value: closedEventPanel() }
+  ];
+}
+
+function buildOpenActions(state, eventItem) {
+  const actions = [{
+    type: 'state.set',
+    path: 'events.panel',
+    value: {
+      open: true,
+      eventId: eventItem && eventItem.id ? String(eventItem.id) : '',
+      returnScene: {
+        background: readPath(state, 'visual.background') || null,
+        bgm: readPath(state, 'audio.bgm') || null
+      }
+    }
+  }];
+  if (eventItem && eventItem.background) {
+    actions.push({ type: 'state.set', path: 'visual.background', value: String(eventItem.background) });
+  }
+  if (eventItem && eventItem.bgm) {
+    actions.push({ type: 'state.set', path: 'audio.bgm', value: String(eventItem.bgm) });
+  }
+  return actions;
+}
+
+function buildConsumeActions(state, queue, option, panel) {
   return [
     ...buildEffectActions(state, option),
-    { type: 'state.set', path: 'events.queue', value: queue.slice(1) }
+    { type: 'state.set', path: 'events.queue', value: queue.filter((item) => item && item.id !== panel.eventId) },
+    ...buildCloseActions(panel)
   ];
 }
 
@@ -103,23 +163,26 @@ function renderEventBody(C, ui, body) {
 function Root({ React, state, emit, ui }) {
   const C = React.createElement;
   const queue = queueFromState(state);
-  const eventItem = queue[0];
-  const eventId = eventItem && eventItem.id ? String(eventItem.id) : '';
+  const panel = panelFromState(state);
+  const queuedEvent = queue[0];
+  const activeEvent = panel.eventId ? queue.find((item) => item && String(item.id) === panel.eventId) : queuedEvent;
+  const eventItem = panel.open ? activeEvent : queuedEvent;
   const options = eventItem && Array.isArray(eventItem.options) ? eventItem.options : [];
-  const [open, setOpen] = React.useState(false);
+  const open = panel.open;
   const contentRef = React.useRef(null);
 
-  React.useEffect(() => {
-    setOpen(false);
-  }, [eventId]);
-
   function consume(option) {
-    const result = emit({
+    emit({
       type: 'game.state.apply',
-      actions: buildConsumeActions(state, queue, option)
+      actions: buildConsumeActions(state, queue, option, panel)
     });
-    if (result && typeof result.then === 'function') result.then((applied) => { if (applied) setOpen(false); });
-    else setOpen(false);
+  }
+
+  function togglePanel() {
+    emit({
+      type: 'game.state.apply',
+      actions: open ? buildCloseActions(panel) : buildOpenActions(state, eventItem)
+    });
   }
 
   function scrollPanel(event) {
@@ -159,6 +222,8 @@ function Root({ React, state, emit, ui }) {
     );
   }
 
+  const triggerLabel = open ? '返回主剧情' : '打开事件';
+
   return C('div', {
     className: 'wa2-event-root',
     'data-open': open ? 'true' : 'false',
@@ -167,14 +232,22 @@ function Root({ React, state, emit, ui }) {
     C('button', {
       type: 'button',
       className: 'wa2-event-trigger',
-      onClick: () => setOpen((value) => !value),
-      'aria-label': open ? '关闭事件' : '打开事件',
+      onClick: togglePanel,
+      title: triggerLabel,
+      'aria-label': triggerLabel,
+      'aria-controls': 'wa2-event-panel',
       'aria-pressed': open ? 'true' : 'false'
     },
-    C('span', { className: 'material-icons wa2-event-trigger-icon', 'aria-hidden': 'true' }, 'inbox'),
-    C('span', { className: 'wa2-event-trigger-text' }, '事件')),
-    open ? C('section', { className: 'wa2-event-panel', 'aria-label': '事件', onWheel: scrollPanel },
+    C('span', { className: 'material-icons wa2-event-trigger-icon', 'aria-hidden': 'true' }, open ? 'keyboard_return' : 'inbox')),
+    C('section', {
+      id: 'wa2-event-panel',
+      className: 'wa2-event-panel',
+      'data-visible': open ? 'true' : 'false',
+      'aria-label': '事件',
+      'aria-hidden': open ? 'false' : 'true',
+      onWheel: scrollPanel
+    },
       eventItem ? renderEvent() : renderEmpty()
-    ) : null
+    )
   );
 }

@@ -175,7 +175,7 @@ function ChatPanel() {
           onBeforeSessionChange: saveCurrentSession,
           onSessionChanged: handleSessionChanged,
           onImportError: setGameCardActionError,
-          audioControl: BgmPlayer ? C(BgmPlayer, { card: activeGameCard, gameState, stopToken: audioStopToken, resumeToken: streamContentStartToken }) : null
+          audioControl: BgmPlayer ? C(BgmPlayer, { card: activeGameCard, gameState, stopToken: audioStopToken, resumeToken: streamContentStartToken, defer: isLoading }) : null
         }) : C('span', { className: 'header-title' }, '未加载游戏卡'))
       ),
       gameCardActionError && ErrorPanel ? C(ErrorPanel, { error: gameCardActionError, variant: 'import', onClose: () => setGameCardActionError(null) }) : null,

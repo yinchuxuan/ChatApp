@@ -1,6 +1,7 @@
 function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
   const R = window.React || React;
   const [open, setOpen] = R.useState(false), [sessions, setSessions] = R.useState([]), [activeId, setActiveId] = R.useState(null);
+  const [panelMounted, setPanelMounted] = R.useState(false);
   const [editingId, setEditingId] = R.useState(null), [draftTitle, setDraftTitle] = R.useState(''), [busy, setBusy] = R.useState(false);
 
   const loadSessions = R.useCallback(async () => {
@@ -14,6 +15,11 @@ function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
     window.addEventListener('game-card-changed', handler);
     return () => window.removeEventListener('game-card-changed', handler);
   }, [loadSessions]);
+  R.useEffect(() => {
+    if (open || !panelMounted) return undefined;
+    const timer = setTimeout(() => setPanelMounted(false), 180);
+    return () => clearTimeout(timer);
+  }, [open, panelMounted]);
 
   const activate = async (id) => {
     if (id === activeId || busy) return;
@@ -75,6 +81,12 @@ function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
   };
 
   const C = R.createElement;
+  const togglePanel = (event) => {
+    event.stopPropagation();
+    const nextOpen = !open;
+    if (nextOpen) { setPanelMounted(true); loadSessions(); }
+    setOpen(nextOpen);
+  };
   const renderSession = (session) => C('div', { key: session.id, className: `chat-session-row${session.id === activeId ? ' active' : ''}`, 'data-gc-part': 'chat-session-row', onClick: (event) => { event.stopPropagation(); activate(session.id); } },
     C('span', { className: 'chat-session-row-state', 'data-gc-part': 'chat-session-row-state', 'aria-hidden': 'true' }),
     C('div', { className: 'chat-session-row-main', 'data-gc-part': 'chat-session-row-main' },
@@ -91,8 +103,8 @@ function ChatSessionManager({ onBeforeSessionChange, onSessionChanged }) {
   );
 
   return C('div', { className: 'chat-session-manager', 'data-gc-part': 'chat-session-manager' },
-    C('button', { className: 'chat-session-btn', 'data-gc-part': 'chat-session-button', onClick: (event) => { event.stopPropagation(); setOpen(!open); if (!open) loadSessions(); }, title: '管理聊天会话', 'aria-label': '管理聊天会话' }, C('span', { className: 'material-icons' }, 'inventory_2')),
-    open ? C('div', { className: 'chat-session-panel', 'data-gc-part': 'chat-session-panel', onClick: (event) => event.stopPropagation() },
+    C('button', { className: 'chat-session-btn', 'data-gc-part': 'chat-session-button', onClick: togglePanel, title: '管理聊天会话', 'aria-label': '管理聊天会话', 'aria-expanded': open ? 'true' : 'false', 'aria-controls': 'chat-session-panel' }, C('span', { className: 'material-icons' }, 'inventory_2')),
+    panelMounted ? C('div', { id: 'chat-session-panel', className: 'chat-session-panel', 'data-gc-part': 'chat-session-panel', 'data-state': open ? 'open' : 'closing', 'aria-hidden': open ? 'false' : 'true', onClick: (event) => event.stopPropagation() },
       C('div', { className: 'chat-session-panel-head', 'data-gc-part': 'chat-session-panel-head' },
         C('span', { className: 'chat-session-panel-title' }, '会话'),
         C('div', { className: 'chat-session-head-actions' },
