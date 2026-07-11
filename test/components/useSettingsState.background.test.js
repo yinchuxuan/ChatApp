@@ -15,9 +15,6 @@ describe('useSettingsState Hook - Background Handlers', () => {
     });
     electronAPI.saveBackgroundConfig.mockResolvedValue({ success: true });
     electronAPI.selectBackgroundImage.mockResolvedValue({ success: false, canceled: true });
-    electronAPI.readBackgroundImage.mockResolvedValue({
-      success: true, localUrl: 'local-url', mimeType: 'image/jpeg'
-    });
   });
 
   test('should load background config on mount', async () => {
@@ -72,11 +69,11 @@ describe('useSettingsState Hook - Background Handlers', () => {
   test('should handle handleSelectBackgroundImage successfully with auto-save', async () => {
     electronAPI.selectBackgroundImage.mockResolvedValue({
       success: true,
-      filePath: '/path/to/image.jpg'
+      localUrl: 'local://user-background/current'
     });
-    electronAPI.readBackgroundImage.mockResolvedValue({
+    electronAPI.saveBackgroundConfig.mockResolvedValue({
       success: true,
-      localUrl: 'local://image.jpg'
+      config: { backgroundImageUrl: 'local://user-background/current', backgroundOpacity: 0.5 }
     });
 
     const useSettingsState = require('../../src/components/useSettingsState.js').default;
@@ -87,8 +84,11 @@ describe('useSettingsState Hook - Background Handlers', () => {
     await hookAct(async () => { await result.current.handleSelectBackgroundImage(); });
 
     expect(electronAPI.selectBackgroundImage).toHaveBeenCalled();
-    expect(electronAPI.readBackgroundImage).toHaveBeenCalledWith('/path/to/image.jpg');
-    expect(result.current.backgroundConfig.backgroundImageUrl).toBe('local://image.jpg');
+    expect(electronAPI.saveBackgroundConfig).toHaveBeenCalledWith({
+      backgroundImageUrl: 'local://user-background/current',
+      backgroundOpacity: 0.5
+    });
+    expect(result.current.backgroundConfig.backgroundImageUrl).toBe('local://user-background/current');
   });
 
   test('should handle canceled image selection', async () => {
@@ -106,12 +106,11 @@ describe('useSettingsState Hook - Background Handlers', () => {
     expect(result.current.backgroundConfig.backgroundImageUrl).toBe(initialUrl);
   });
 
-  test('should handle failed image read', async () => {
+  test('should keep the previous image when selection fails', async () => {
     electronAPI.selectBackgroundImage.mockResolvedValue({
-      success: true,
-      filePath: '/path/to/image.jpg'
+      success: false,
+      error: 'Invalid image'
     });
-    electronAPI.readBackgroundImage.mockResolvedValue({ success: false, error: 'Read failed' });
 
     const useSettingsState = require('../../src/components/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));

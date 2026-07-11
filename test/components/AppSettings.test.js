@@ -60,6 +60,5 @@ describe('App Component Integration', () => {
     expect(electronAPI.getBackgroundConfig).toBeDefined();
     expect(electronAPI.saveBackgroundConfig).toBeDefined();
     expect(electronAPI.selectBackgroundImage).toBeDefined();
-    expect(electronAPI.readBackgroundImage).toBeDefined();
   });
 });

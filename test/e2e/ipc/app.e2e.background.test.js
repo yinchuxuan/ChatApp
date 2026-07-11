@@ -5,10 +5,22 @@
 
 const { test, expect } = require('@playwright/test');
 const { ElectronAppHelper } = require('../electronAppHelper');
+const fs = require('fs');
 const path = require('path');
 
 let appHelper;
 const REAL_IMAGE_PATH = path.join(__dirname, '../../fixtures/lisa1.jpg');
+const LOCAL_BACKGROUND_URL = 'local://user-background/current';
+
+function seedLocalBackground(opacity) {
+  const configPath = path.join(appHelper.userDataDir, 'config', 'background.json');
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
+  fs.writeFileSync(configPath, JSON.stringify({
+    backgroundImageUrl: LOCAL_BACKGROUND_URL,
+    backgroundImagePath: REAL_IMAGE_PATH,
+    backgroundOpacity: opacity
+  }));
+}
 
 test.beforeAll(async () => {
   appHelper = new ElectronAppHelper();
@@ -50,12 +62,10 @@ test.describe('Background Settings UI', () => {
 
 test.describe('Background Settings IPC', () => {
   test('should save background configuration via IPC with local:// URL', async () => {
-    const imageResult = await appHelper.readBackgroundImage(REAL_IMAGE_PATH);
-    expect(imageResult.success).toBe(true);
-    expect(imageResult.localUrl).toContain('local://');
+    seedLocalBackground(0.5);
 
     const testBgConfig = {
-      backgroundImageUrl: imageResult.localUrl,
+      backgroundImageUrl: LOCAL_BACKGROUND_URL,
       backgroundOpacity: 0.7
     };
 
@@ -66,7 +76,8 @@ test.describe('Background Settings IPC', () => {
     const bgConfigResult = await appHelper.getBackgroundConfig();
     expect(bgConfigResult).toBeTruthy();
     expect(bgConfigResult.success).toBe(true);
-    expect(bgConfigResult.config.backgroundImageUrl).toBe(imageResult.localUrl);
+    expect(bgConfigResult.config.backgroundImageUrl).toBe(LOCAL_BACKGROUND_URL);
+    expect(bgConfigResult.config.backgroundImagePath).toBeUndefined();
     expect(bgConfigResult.config.backgroundOpacity).toBe(testBgConfig.backgroundOpacity);
   });
 });
@@ -79,12 +90,10 @@ test.describe('Background Image Class Toggle', () => {
     });
     await appHelper.waitForTimeout(300);
 
-    const imageResult = await appHelper.readBackgroundImage(REAL_IMAGE_PATH);
-    expect(imageResult.success).toBe(true);
-    const testBgUrl = imageResult.localUrl;
+    seedLocalBackground(0.5);
 
     const saveResult = await appHelper.saveBackgroundConfig({
-      backgroundImageUrl: testBgUrl,
+      backgroundImageUrl: LOCAL_BACKGROUND_URL,
       backgroundOpacity: 0.5
     });
     expect(saveResult.success).toBe(true);
@@ -105,11 +114,10 @@ test.describe('Background Image Class Toggle', () => {
 
   test('should remove has-background-image class when background is cleared via IPC', async () => {
     // First set a background
-    const imageResult = await appHelper.readBackgroundImage(REAL_IMAGE_PATH);
-    const testBgUrl = imageResult.localUrl;
+    seedLocalBackground(0.5);
 
     await appHelper.saveBackgroundConfig({
-      backgroundImageUrl: testBgUrl,
+      backgroundImageUrl: LOCAL_BACKGROUND_URL,
       backgroundOpacity: 0.5
     });
     await appHelper.waitForTimeout(500);
@@ -137,11 +145,10 @@ test.describe('Background Image Class Toggle', () => {
 
 test.describe('Background Config Persistence', () => {
   test('should persist background configuration across sessions with local:// URL', async () => {
-    const imageResult = await appHelper.readBackgroundImage(REAL_IMAGE_PATH);
-    expect(imageResult.success).toBe(true);
+    seedLocalBackground(0.5);
 
     const persistConfig = {
-      backgroundImageUrl: imageResult.localUrl,
+      backgroundImageUrl: LOCAL_BACKGROUND_URL,
       backgroundOpacity: 0.8
     };
 
@@ -153,7 +160,7 @@ test.describe('Background Config Persistence', () => {
 
     const retrievedConfig = await appHelper.getBackgroundConfig();
     expect(retrievedConfig.success).toBe(true);
-    expect(retrievedConfig.config.backgroundImageUrl).toBe(imageResult.localUrl);
+    expect(retrievedConfig.config.backgroundImageUrl).toBe(LOCAL_BACKGROUND_URL);
     expect(retrievedConfig.config.backgroundOpacity).toBe(persistConfig.backgroundOpacity);
   });
 });

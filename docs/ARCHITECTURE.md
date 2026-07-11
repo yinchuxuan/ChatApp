@@ -53,3 +53,12 @@ userData/
 - **同步调用**：渲染进程调用 `ipcRenderer.invoke()` → 主进程通过 `ipcMain.handle()` 处理 → 返回结果。
 - **异步事件**：主进程通过 `ipcRenderer.on('background-config-changed')` 向渲染进程推送配置变更通知。
 - **安全隔离**：`contextIsolation: true`，`nodeIntegration: false` — 渲染进程不直接访问 Node API。
+
+## 本地资源协议
+
+renderer 只能通过受控的 `local://` URL 加载本地图片和音频：
+
+- `local://game-card/<card-id>/<image|audio>/<relative-path>` 只解析当前活动且已安装游戏卡目录内的资源。
+- `local://user-background/current` 只解析当前背景配置记录的用户背景文件。
+- 主进程在每次请求时校验资源类型、扩展名和 `realpath`；路径穿越、符号链接逃逸及其它 `local://` URL 均被拒绝。
+- 游戏卡资源 IPC 和背景配置 IPC 不向 renderer 返回真实绝对路径。用户背景的绝对路径只保存在主进程读取的配置字段中。

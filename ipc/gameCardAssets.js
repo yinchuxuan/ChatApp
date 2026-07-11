@@ -12,15 +12,14 @@ function getCardAssetPath(fs, cardsDir, id, relativePath, label = 'game card fil
   if (filePath !== baseDir && !filePath.startsWith(baseDir + path.sep)) {
     throw new Error(`${label} path must stay inside game card directory`);
   }
-  if (fs.existsSync(filePath)) {
-    const realPath = fs.realpathSync(filePath);
-    const realBaseDir = fs.existsSync(baseDir) ? fs.realpathSync(baseDir) : baseDir;
-    if (realPath !== realBaseDir && !realPath.startsWith(realBaseDir + path.sep)) {
-      throw new Error(`${label} path must stay inside game card directory`);
-    }
-  }
   if (!fs.existsSync(filePath)) throw new Error(`${label} file not found`);
-  return filePath;
+  const realPath = fs.realpathSync(filePath);
+  const realBaseDir = fs.realpathSync(baseDir);
+  if (realPath !== realBaseDir && !realPath.startsWith(realBaseDir + path.sep)) {
+    throw new Error(`${label} path must stay inside game card directory`);
+  }
+  if (!fs.statSync(realPath).isFile()) throw new Error(`${label} must be a file`);
+  return realPath;
 }
 
 function assertAudioExtension(filePath) {

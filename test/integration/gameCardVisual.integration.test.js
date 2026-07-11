@@ -33,8 +33,8 @@ describe('Game Card Visual IPC', () => {
     const result = await ipcMain.handlers['get-game-card-image-url']({}, 'images/school.jpg');
 
     expect(result.success).toBe(true);
-    expect(result.url).toContain('local://');
-    expect(result.path.endsWith(path.join('visual-card', 'images', 'school.jpg'))).toBe(true);
+    expect(result.url).toBe('local://game-card/visual-card/image/images/school.jpg');
+    expect(result.path).toBeUndefined();
   });
 
   test('rejects traversal and non-image paths', async () => {

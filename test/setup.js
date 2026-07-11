@@ -47,7 +47,6 @@ global.window.electronAPI = {
   getBackgroundConfig: jest.fn(),
   saveBackgroundConfig: jest.fn(),
   selectBackgroundImage: jest.fn(),
-  readBackgroundImage: jest.fn(),
   getChatHistory: jest.fn().mockResolvedValue({ success: true, messages: [] }),
   saveChatHistory: jest.fn().mockResolvedValue({ success: true }),
   listChatSessions: jest.fn().mockResolvedValue({ success: true, sessions: [], activeId: null }),

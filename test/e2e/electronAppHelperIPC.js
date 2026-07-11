@@ -35,13 +35,6 @@ class ElectronAppHelperIPC {
     });
   }
 
-  async readBackgroundImage(filePath) {
-    return await this.window.evaluate(async ({ filePath }) => {
-      if (window.electronAPI) return await window.electronAPI.readBackgroundImage(filePath);
-      return { success: false, error: 'electronAPI not available' };
-    }, { filePath });
-  }
-
   async saveChatHistory(messages) {
     return await this.window.evaluate(async ({ messages }) => {
       if (window.electronAPI) return await window.electronAPI.saveChatHistory(messages);

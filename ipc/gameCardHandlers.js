@@ -10,6 +10,7 @@ const {
 } = require('./gameCardStorage');
 const { readGameCardJson } = require('./gameCardImportResolver');
 const { validateImportedGameCard } = require('./gameCardImportValidation');
+const { createGameCardResourceUrl } = require('./localResourceProtocol');
 
 function asErrorResult(err, fallback = {}) {
   console.error('Error handling game card IPC:', err);
@@ -171,8 +172,8 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameC
     try {
       const active = readJsonFile(fs, activePath, { id: null });
       if (!active?.id) throw new Error('No active game card');
-      const filePath = getCardAudioPath(fs, cardsDir, active.id, relativePath);
-      return { success: true, url: `local://${filePath}`, path: filePath };
+      getCardAudioPath(fs, cardsDir, active.id, relativePath);
+      return { success: true, url: createGameCardResourceUrl(active.id, 'audio', relativePath) };
     } catch (err) {
       return asErrorResult(err, { url: '' });
     }
@@ -182,8 +183,8 @@ function registerGameCardHandlers(ipcMain, gameCardsDir, fs, dialog, legacyGameC
     try {
       const active = readJsonFile(fs, activePath, { id: null });
       if (!active?.id) throw new Error('No active game card');
-      const filePath = getCardImagePath(fs, cardsDir, active.id, relativePath);
-      return { success: true, url: `local://${filePath}`, path: filePath };
+      getCardImagePath(fs, cardsDir, active.id, relativePath);
+      return { success: true, url: createGameCardResourceUrl(active.id, 'image', relativePath) };
     } catch (err) {
       return asErrorResult(err, { url: '' });
     }

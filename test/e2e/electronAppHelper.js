@@ -32,7 +32,6 @@ class ElectronAppHelper extends ElectronAppHelperCore {
   getModelConfig() { return this._ipcHelper.getModelConfig(); }
   saveBackgroundConfig(config) { return this._ipcHelper.saveBackgroundConfig(config); }
   getBackgroundConfig() { return this._ipcHelper.getBackgroundConfig(); }
-  readBackgroundImage(filePath) { return this._ipcHelper.readBackgroundImage(filePath); }
   saveChatHistory(messages) { return this._ipcHelper.saveChatHistory(messages); }
   getChatHistory() { return this._ipcHelper.getChatHistory(); }
   listChatSessions() { return this._ipcHelper.listChatSessions(); }

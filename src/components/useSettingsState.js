@@ -82,21 +82,14 @@ function useSettingsState(onBackgroundChange) {
   const handleSelectBackgroundImage = async () => {
     if (window.electronAPI) {
       const result = await window.electronAPI.selectBackgroundImage();
-      if (result.success && result.filePath) {
-        const imageResult = await window.electronAPI.readBackgroundImage(result.filePath);
-        if (imageResult.success) {
-          setBackgroundConfig(prev => {
-            const updated = { ...prev, backgroundImageUrl: imageResult.localUrl };
-            if (window.electronAPI) {
-              window.electronAPI.saveBackgroundConfig(updated).then(saveResult => {
-                if (saveResult.success) {
-                  window.dispatchEvent(new CustomEvent('background-config-changed', { detail: updated }));
-                  if (onBackgroundChange) onBackgroundChange(updated);
-                }
-              });
-            }
-            return updated;
-          });
+      if (result.success && result.localUrl) {
+        const updated = { ...backgroundConfig, backgroundImageUrl: result.localUrl };
+        const saveResult = await window.electronAPI.saveBackgroundConfig(updated);
+        if (saveResult.success) {
+          const savedConfig = saveResult.config || updated;
+          setBackgroundConfig(savedConfig);
+          window.dispatchEvent(new CustomEvent('background-config-changed', { detail: savedConfig }));
+          if (onBackgroundChange) onBackgroundChange(savedConfig);
         }
       }
     }

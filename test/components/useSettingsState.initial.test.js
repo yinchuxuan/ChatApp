@@ -20,9 +20,6 @@ describe('useSettingsState Hook - Initial State', () => {
     });
     electronAPI.saveBackgroundConfig.mockResolvedValue({ success: true });
     electronAPI.selectBackgroundImage.mockResolvedValue({ success: false, canceled: true });
-    electronAPI.readBackgroundImage.mockResolvedValue({
-      success: true, localUrl: 'local-url', mimeType: 'image/jpeg'
-    });
   });
 
   test('should initialize with empty config', async () => {

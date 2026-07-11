@@ -6,8 +6,10 @@ const mockFs = {
   readdirSync: jest.fn().mockReturnValue([]),
   statSync: jest.fn().mockReturnValue({
     isDirectory: () => false,
+    isFile: () => true,
     mtime: new Date()
   }),
+  realpathSync: jest.fn(filePath => filePath),
   writeFileSync: jest.fn(),
   unlinkSync: jest.fn(),
   copyFileSync: jest.fn(),

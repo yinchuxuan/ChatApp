@@ -7,6 +7,7 @@ const { registerConfigHandlers } = require('./ipc/configHandlers');
 const { registerBackgroundHandlers } = require('./ipc/backgroundHandlers');
 const { registerChatHistoryHandlers } = require('./ipc/chatHistoryHandlers');
 const { registerGameCardHandlers } = require('./ipc/gameCardHandlers');
+const { registerLocalResourceProtocol } = require('./ipc/localResourceProtocol');
 const { getUserDataPaths } = require('./ipc/userDataPaths');
 
 // Data directory path
@@ -59,11 +60,11 @@ app.whenReady().then(() => {
   gameCardsDir = paths.gameCardsDir;
   legacyGameCardsDir = paths.legacyGameCardsDir;
 
-  // Register local:// protocol for serving local files
-  protocol.registerFileProtocol('local', (request, callback) => {
-    const requestUrl = request.url.substr(8);
-    const decodedPath = decodeURIComponent(requestUrl);
-    callback({ path: decodedPath });
+  registerLocalResourceProtocol(protocol, {
+    fs,
+    cardsDir: path.join(gameCardsDir, 'cards'),
+    activePath: path.join(gameCardsDir, 'active.json'),
+    backgroundConfigPath
   });
 
   // Register all IPC handlers

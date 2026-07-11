@@ -13,6 +13,8 @@ describe('Background IPC Handlers', () => {
     mockFs.existsSync.mockReturnValue(true);
     mockFs.readFileSync.mockReturnValue('');
     mockFs.writeFileSync.mockReturnValue(undefined);
+    mockFs.realpathSync.mockImplementation(filePath => filePath);
+    mockFs.statSync.mockReturnValue({ isFile: () => true, isDirectory: () => false });
     electronMock.dialog.showOpenDialog.mockResolvedValue({ canceled: true, filePaths: [] });
   });
 
@@ -31,6 +33,19 @@ describe('Background IPC Handlers', () => {
       expect(result.success).toBe(true);
       expect(result.config.backgroundImageUrl).toBe('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD');
       expect(result.config.backgroundOpacity).toBe(0.7);
+    });
+
+    test('should not expose the stored background path', async () => {
+      mockFs.readFileSync.mockReturnValue(JSON.stringify({
+        backgroundImageUrl: 'local://user-background/current',
+        backgroundImagePath: '/private/background.jpg',
+        backgroundOpacity: 0.7
+      }));
+
+      const result = await electronMock._registeredHandlers['get-background-config']();
+
+      expect(result.success).toBe(true);
+      expect(result.config.backgroundImagePath).toBeUndefined();
     });
 
     test('should return default config when file missing', async () => {
@@ -104,7 +119,7 @@ describe('Background IPC Handlers', () => {
       expect(result.canceled).toBe(true);
     });
 
-    test('should return file path when file selected', async () => {
+    test('should return an authorized URL without the file path', async () => {
       electronMock.dialog.showOpenDialog.mockResolvedValue({
         canceled: false,
         filePaths: ['/test/image.jpg']
@@ -115,43 +130,54 @@ describe('Background IPC Handlers', () => {
 
       const result = await handler({});
       expect(result.success).toBe(true);
-      expect(result.filePath).toBe('/test/image.jpg');
+      expect(result.localUrl).toBe('local://user-background/current');
+      expect(result.filePath).toBeUndefined();
+    });
+
+    test('should reject a selected file with an invalid extension', async () => {
+      electronMock.dialog.showOpenDialog.mockResolvedValue({
+        canceled: false,
+        filePaths: ['/test/secret.txt']
+      });
+      const handler = electronMock._registeredHandlers['select-background-image'];
+
+      const result = await handler({});
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Unsupported background image type');
     });
   });
 
-  describe('read-background-image handler', () => {
-    test('should return local:// URL for JPG file successfully', async () => {
-      mockFs.existsSync.mockReturnValue(true);
+  test('should persist a selected path without returning it', async () => {
+    electronMock.dialog.showOpenDialog.mockResolvedValue({
+      canceled: false,
+      filePaths: ['/test/background.jpg']
+    });
+    mockFs.existsSync.mockImplementation(filePath => filePath === '/test/background.jpg');
+    const handlers = electronMock._registeredHandlers;
+    const selected = await handlers['select-background-image']();
 
-      const handlers = electronMock._registeredHandlers;
-      const handler = handlers['read-background-image'];
-
-      const result = await handler({}, '/test/background.jpg');
-      expect(result.success).toBe(true);
-      expect(result.localUrl).toBe('local:///test/background.jpg');
-      expect(result.mimeType).toBe('image/jpeg');
+    const result = await handlers['save-background-config']({}, {
+      backgroundImageUrl: selected.localUrl,
+      backgroundOpacity: 0.6
     });
 
-    test('should read PNG file with correct mime type', async () => {
-      mockFs.existsSync.mockReturnValue(true);
+    expect(result.success).toBe(true);
+    expect(result.config.backgroundImagePath).toBeUndefined();
+    expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+      expect.stringContaining('background.json'),
+      expect.stringContaining('"backgroundImagePath": "/test/background.jpg"'),
+      'utf-8'
+    );
+  });
 
-      const handlers = electronMock._registeredHandlers;
-      const handler = handlers['read-background-image'];
-
-      const result = await handler({}, '/test/image.png');
-      expect(result.success).toBe(true);
-      expect(result.mimeType).toBe('image/png');
+  test('should reject an arbitrary local background URL', async () => {
+    const result = await electronMock._registeredHandlers['save-background-config']({}, {
+      backgroundImageUrl: 'local:///etc/passwd',
+      backgroundOpacity: 0.5
     });
 
-    test('should handle file not found', async () => {
-      mockFs.existsSync.mockReturnValue(false);
-
-      const handlers = electronMock._registeredHandlers;
-      const handler = handlers['read-background-image'];
-
-      const result = await handler({}, '/missing/image.jpg');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('File not found');
-    });
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Local background URL is not authorized');
   });
 });

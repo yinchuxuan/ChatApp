@@ -33,8 +33,8 @@ describe('Game Card Audio IPC', () => {
     const result = await ipcMain.handlers['get-game-card-audio-url']({}, 'audio/intro.mp3');
 
     expect(result.success).toBe(true);
-    expect(result.url).toContain('local://');
-    expect(result.path.endsWith(path.join('audio-card', 'audio', 'intro.mp3'))).toBe(true);
+    expect(result.url).toBe('local://game-card/audio-card/audio/audio/intro.mp3');
+    expect(result.path).toBeUndefined();
   });
 
   test('rejects traversal and non-audio paths', async () => {
