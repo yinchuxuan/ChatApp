@@ -30,7 +30,9 @@
 
 ## 实现
 
-`electronGameCardPlatform.js` 是生产 adapter。它通过 `window.electronAPI` 调用 preload IPC，并将 `{ success, content/url/card }` 返回值解包为 contract 的直接返回值或异常。
+`electronGameCardPlatform.js` 通过 `window.electronAPI` 调用 preload IPC，并将 `{ success, content/url/card }` 返回值解包为 contract 的直接返回值或异常。
+
+`tauriGameCardPlatform.js` 和 `tauriRendererServices.js` 通过 Tauri `invoke` 调用业务 command，并通过 `listen` 订阅背景配置变更。adapter 接受 Rust `Result` 的直接 payload 和迁移期 `{ success, ... }` envelope，并将取消、业务错误、文件及校验详情归一化为 JavaScript `Error`。
 
 `memoryGameCardPlatform.js` 是测试 adapter。它从内存中的 card、文本、图片 URL 和音频 URL 读取资源，并复用受控脚本执行器。聊天管线和 shared core 测试应优先使用它，只有 Electron 边界测试才直接 mock preload API。
 
@@ -47,6 +49,12 @@ React / src/gameCard runtime
       -> preload window.electronAPI
         -> IPC handlers
 
+React / src/gameCard runtime
+  -> game card platform contract
+    -> Tauri adapter
+      -> invoke / listen
+        -> Rust commands / events
+
 React / src/gameCard runtime tests
   -> memory adapter
 ```
@@ -57,7 +65,7 @@ React / src/gameCard runtime tests
 
 ## 新平台
 
-未来 Tauri renderer adapter 必须实现同一 contract，并负责将 Tauri command 返回值转换成 contract 结果。不要在 shared core 中增加运行时平台判断，也不要复制游戏卡 schema 或规则引擎。
+Vite 使用构建常量选择 Electron 或 Tauri adapter。不要在 shared core 或 React 业务组件中增加运行时平台判断，也不要复制游戏卡 schema 或规则引擎。
 
 新 adapter 至少需要通过：
 

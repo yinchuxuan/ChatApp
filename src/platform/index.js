@@ -1,9 +1,18 @@
 import { createElectronGameCardPlatform } from './electronGameCardPlatform.js';
 import { createElectronRendererServices } from './electronRendererServices.js';
+import { createPlatformAdapters, getDesktopTarget } from './platformTarget.js';
+import { createTauriGameCardPlatform } from './tauriGameCardPlatform.js';
+import { createTauriRendererServices } from './tauriRendererServices.js';
 
-/** @type {import('./contracts.js').GameCardPlatform} */
-const gameCardPlatform = createElectronGameCardPlatform();
-/** @type {import('./contracts.js').RendererServices} */
-const rendererServices = createElectronRendererServices();
+const { gameCardPlatform, rendererServices } = createPlatformAdapters(getDesktopTarget(), {
+  electron: {
+    createGameCardPlatform: createElectronGameCardPlatform,
+    createRendererServices: createElectronRendererServices
+  },
+  tauri: {
+    createGameCardPlatform: createTauriGameCardPlatform,
+    createRendererServices: createTauriRendererServices
+  }
+});
 
 export { gameCardPlatform, rendererServices };

@@ -2,14 +2,14 @@
 
 ## 组成部分
 
-- **Tauri 桌面壳 (`src-tauri/`)**：阶段 1 桌面 target，复用 Vite renderer；当前只负责窗口和 bundle 元数据，native backend 与 renderer adapter 在后续迁移阶段接入。
+- **Tauri 桌面壳 (`src-tauri/`)**：复用 Vite renderer，并通过构建期 target 使用 Tauri renderer adapter；当前尚未实现 native 业务 commands，配置和存储从阶段 3 开始迁移。
 - **主进程 (`main.js`)**：Electron 主进程，创建 `BrowserWindow`，管理应用生命周期，注册 IPC 处理器处理文件 I/O（模型配置、背景配置、聊天历史）。
 - **预加载脚本 (`preload.js`)**：通过 `contextBridge` 桥接主进程与渲染进程，暴露 `window.electronAPI` 供渲染进程调用。
 - **渲染进程 (`src/`)**：Vite 构建的 React 单页应用。`main.jsx` 是唯一入口，`App.jsx` 为根组件；平台模块通过 ESM `import/export` 连接，不依赖 HTML 脚本顺序或 `window.*` 模块注册。
 - **聊天运行时 (`src/chat/`)**：通过独立 hook 管理 session、持久化、生成、重试、中止和滚动；`GameCardRuntimeProvider` 管理当前游戏卡、gameState 与运行时错误。
 - **设置运行时 (`src/settings/`)**：管理模型与背景配置的加载、latest-wins 保存队列及设置页状态；`src/components` 只保留可渲染 UI。
 - **游戏卡核心 (`shared/game-card/`)**：平台无关的规则、content、state、schema 与协议适配逻辑。只处理普通数据，并通过显式依赖接入文件读取和脚本执行。
-- **平台适配层 (`src/platform/`)**：定义 renderer 使用的游戏卡与配置、背景、会话、卡片仓库接口，并提供 Electron 与内存实现。未来 Tauri 前端需实现同一接口，不在 shared core 中增加平台判断。
+- **平台适配层 (`src/platform/`)**：定义 renderer 使用的游戏卡与配置、背景、会话、卡片仓库接口，并提供 Electron、Tauri 与内存实现。Vite 在构建期选择桌面 adapter，不在业务组件或 shared core 中判断平台。
 - **IPC 处理器 (`ipc/`)**：处理器模块通过 `ipc/storage` 的异步原子 JSON store 读写 `userData`；聊天保存按 session 串行，目录导入使用异步文件 API。
 
 ## Renderer 样式
@@ -51,6 +51,8 @@ scriptExecutor.run(source, context, options)
 ```
 
 `src/platform/electronGameCardPlatform.js` 将这些调用适配到现有 preload API；`sendPipeline` 只接收显式传入的 platform。脚本上下文构造和结果校验属于 shared core，受控 JavaScript 的具体执行环境属于 renderer adapter。
+
+`src/platform/tauriGameCardPlatform.js` 和 `tauriRendererServices.js` 将相同 contract 映射为 Tauri `invoke` 与 event `listen`。Tauri 配置以 `--mode tauri` 注入构建常量；普通 Vite、Electron 和 Jest 构建默认选择 Electron adapter。
 
 完整 adapter contract、调用方向和未来平台接入要求见 [Platform Adapter](./platform_adapter.md)。
 

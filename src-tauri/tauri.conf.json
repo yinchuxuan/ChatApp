@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "identifier": "com.airp.chatapp",
   "build": {
-    "beforeDevCommand": "npm run renderer:dev",
+    "beforeDevCommand": "npm run renderer:dev -- --mode tauri",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run build -- --mode tauri",
     "frontendDist": "../dist/renderer"
   },
   "app": {

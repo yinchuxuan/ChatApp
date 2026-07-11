@@ -1,3 +1,5 @@
+import { normalizePlatformError, unwrapCommandResult } from './platformCommand.js';
+
 function electronApi() {
   return typeof window === 'undefined' ? null : window.electronAPI;
 }
@@ -15,19 +17,12 @@ function subscribeToBackground(listener) {
 }
 
 async function invoke(method, args = [], field) {
-  const result = await requireApi(method)[method](...args);
-  if (!result?.success) {
-    const error = new Error(result?.error || `${method} failed`);
-    error.canceled = result?.canceled === true;
-    error.stage = result?.stage;
-    error.file = result?.file;
-    error.details = result?.details;
-    throw error;
+  try {
+    const result = await requireApi(method)[method](...args);
+    return unwrapCommandResult(result, field, `${method} failed`);
+  } catch (error) {
+    throw normalizePlatformError(error, `${method} failed`);
   }
-  if (field) return result[field];
-  const payload = { ...result };
-  delete payload.success;
-  return payload;
 }
 
 /** @returns {import('./contracts.js').RendererServices} */

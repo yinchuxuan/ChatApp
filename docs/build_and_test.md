@@ -14,7 +14,7 @@ Vite requires Node.js `^20.19.0` or `>=22.12.0` for local build and development 
 | `npm run lint` | Run ESLint on all `.js`/`.jsx` files |
 | `npm run lint:fix` | Run ESLint with auto-fix |
 
-Tauri commands require the stable Rust toolchain and the platform prerequisites from the Tauri 2 documentation. Stage 1 provides the desktop shell only; native services remain on the Electron target until the later migration phases.
+Tauri commands require the stable Rust toolchain and the platform prerequisites from the Tauri 2 documentation. Stage 2 provides the renderer adapters; native configuration and storage commands remain pending until the later migration phases.
 
 ## Testing
 
@@ -63,6 +63,7 @@ Unit and integration tests are grouped by ownership:
 - `src/index.html` contains one module script; Vite resolves the complete JavaScript and CSS dependency graph.
 - Development uses Vite React refresh through `scripts/dev.js`.
 - Tauri development uses the same Vite config at `http://localhost:1420`; the fixed port prevents the native shell from loading a different server.
+- Tauri dev/build commands pass `--mode tauri`; other Vite modes compile the Electron adapter as the fixed desktop target.
 - Production and Electron E2E load `dist/renderer/index.html`.
 - Tauri production bundles the same `dist/renderer/` output through `src-tauri/tauri.conf.json`.
 - The preload boundary remains available as `window.electronAPI`; platform modules are imported with standard ESM syntax.

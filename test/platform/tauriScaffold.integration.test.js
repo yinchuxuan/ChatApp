@@ -12,9 +12,9 @@ describe('Tauri desktop scaffold', () => {
     const config = readJson('src-tauri/tauri.conf.json');
 
     expect(config.build).toEqual({
-      beforeDevCommand: 'npm run renderer:dev',
+      beforeDevCommand: 'npm run renderer:dev -- --mode tauri',
       devUrl: 'http://localhost:1420',
-      beforeBuildCommand: 'npm run build',
+      beforeBuildCommand: 'npm run build -- --mode tauri',
       frontendDist: '../dist/renderer'
     });
     expect(config.app.windows).toEqual([

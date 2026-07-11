@@ -55,7 +55,7 @@
 - Electron 开发和构建命令不受影响。
 - macOS、Windows、Linux 至少都能完成空壳编译。
 
-## 阶段 2：实现 Tauri Renderer Adapter
+## 阶段 2：实现 Tauri Renderer Adapter（已完成，2026-07-11）
 
 - 新增 `tauriRendererServices`，实现 config、background、sessions 和 cards contract。
 - 新增 `tauriGameCardPlatform`，实现资源读取、active card 和受控脚本 contract。
