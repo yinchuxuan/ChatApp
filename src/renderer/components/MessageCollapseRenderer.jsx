@@ -29,7 +29,7 @@ function CollapsedMessageList({ messages, isLoading, typewriter, renderUserMessa
       </div> : null}
       <MessageList messages={before} lastUserIndex={-1} renderUser={renderUserItem}
         renderAssistant={renderAssistantMessage} renderRetryButton={() => null} keyPrefix="history" />
-      {lastUserIndex >= 0 ? <div className="pinned-divider" /> : null}
+      {lastUserIndex >= 0 ? <div className="pinned-divider" data-gc-part="message-divider" /> : null}
       <MessageList messages={pinned} lastUserIndex={lastUserIndex >= 0 ? 0 : -1}
         renderUser={renderUserItem} renderAssistant={renderAssistantMessage}
         renderRetryButton={retry} keyPrefix="pinned" />

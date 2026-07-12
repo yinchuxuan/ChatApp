@@ -31,9 +31,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  padding: 4px;
+  width: 44px;
+  height: 44px;
+  padding: 11px;
   border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
@@ -103,8 +103,8 @@
 }
 
 .app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) [data-gc-part="collapsed-message-view"],
-.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) .chat-messages-layer,
-.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) .msg-history-card {
+.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) [data-gc-part="message-surface"],
+.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) [data-gc-part="message-history"] {
   opacity: 0;
   filter: blur(4px);
   transform: translateY(-6px);
@@ -118,8 +118,8 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"],
-.app-container.game-card-theme-white-album-2 .chat-messages-layer,
-.app-container.game-card-theme-white-album-2 .msg-history-card {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-surface"],
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history"] {
   transition:
     opacity 240ms ease,
     filter 280ms ease,
@@ -209,8 +209,6 @@
 
 .game-card-theme-white-album-2 .wa2-event-panel::after {
   background: rgba(255, 255, 255, 0.70);
-  -webkit-mask: none;
-  mask: none;
 }
 
 .game-card-theme-white-album-2 .wa2-event-content,
@@ -285,7 +283,7 @@
   color: rgba(7, 19, 31, 0.84);
 }
 
-.game-card-theme-white-album-2 .wa2-event-body .chat-message-bubble {
+.game-card-theme-white-album-2 .wa2-event-body [data-gc-part="message-bubble"] {
   padding: 8px 0;
   background: transparent;
   box-shadow: none;
@@ -296,12 +294,12 @@
   line-height: var(--gc-message-line-height, 1.96);
 }
 
-.game-card-theme-white-album-2 .wa2-event-body .chat-bubble-content p {
+.game-card-theme-white-album-2 .wa2-event-body [data-gc-part="message-content"] p {
   margin: 0 0 1em;
   line-height: var(--game-card-paragraph-line-height, 2.12);
 }
 
-.game-card-theme-white-album-2 .wa2-event-body .chat-bubble-content p:last-child {
+.game-card-theme-white-album-2 .wa2-event-body [data-gc-part="message-content"] p:last-child {
   margin-bottom: 0;
 }
 
@@ -378,8 +376,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"],
-  .app-container.game-card-theme-white-album-2 .chat-messages-layer,
-  .app-container.game-card-theme-white-album-2 .msg-history-card,
+  .app-container.game-card-theme-white-album-2 [data-gc-part="message-surface"],
+  .app-container.game-card-theme-white-album-2 [data-gc-part="message-history"],
   .game-card-theme-white-album-2 .wa2-event-panel,
   .game-card-theme-white-album-2 .wa2-event-content,
   .game-card-theme-white-album-2 .wa2-event-empty {

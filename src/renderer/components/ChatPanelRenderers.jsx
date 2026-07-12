@@ -16,8 +16,10 @@ const ChatPanelRenderers = {
       if (msg.ttl !== undefined) result.ttl = msg.ttl;
       return result;
     });
-    return <div className="msg-history-card">
-      <pre className="msg-history-json">{JSON.stringify({ msgs: msgsArray }, null, 2)}</pre>
+    return <div className="msg-history-card" data-gc-part="message-history">
+      <pre className="msg-history-json" data-gc-part="message-history-content">
+        {JSON.stringify({ msgs: msgsArray }, null, 2)}
+      </pre>
     </div>;
   }
 };

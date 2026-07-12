@@ -86,6 +86,15 @@ function Root({ React, state, emit, ui }) {
   const options = eventItem && Array.isArray(eventItem.options) ? eventItem.options : [];
   const open = panel.open;
   const contentRef = React.useRef(null);
+  const panelRef = React.useRef(null);
+  const triggerRef = React.useRef(null);
+  const wasOpenRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (open) panelRef.current?.focus();
+    else if (wasOpenRef.current) triggerRef.current?.focus();
+    wasOpenRef.current = open;
+  }, [open]);
 
   function consume(option) {
     emit({
@@ -112,6 +121,12 @@ function Root({ React, state, emit, ui }) {
     if (!content || event.target.closest?.('.wa2-event-content')) return;
     if (content.scrollHeight <= content.clientHeight) return;
     content.scrollTop += event.deltaY;
+  }
+
+  function handlePanelKeyDown(event) {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    togglePanel();
   }
 
   function renderEmpty() {
@@ -154,22 +169,27 @@ function Root({ React, state, emit, ui }) {
     C('button', {
       type: 'button',
       className: 'wa2-event-trigger',
+      ref: triggerRef,
       onClick: togglePanel,
       title: triggerLabel,
       'aria-label': triggerLabel,
       'aria-controls': 'wa2-event-panel',
-      'aria-pressed': open ? 'true' : 'false'
+      'aria-expanded': open ? 'true' : 'false'
     },
     C('span', { className: 'material-icons wa2-event-trigger-icon', 'aria-hidden': 'true' }, open ? 'keyboard_return' : 'inbox')),
     C('section', {
       id: 'wa2-event-panel',
       className: 'wa2-event-panel',
+      ref: panelRef,
+      role: 'region',
+      tabIndex: open ? -1 : undefined,
       'data-visible': open ? 'true' : 'false',
       'aria-label': '事件',
       'aria-hidden': open ? 'false' : 'true',
-      onWheel: scrollPanel
+      onWheel: scrollPanel,
+      onKeyDown: handlePanelKeyDown
     },
-      eventItem ? renderEvent() : renderEmpty()
+      open ? (eventItem ? renderEvent() : renderEmpty()) : null
     )
   );
 }

@@ -46,6 +46,7 @@ describe('white album 2 event panel', () => {
     }));
 
     expect(container.firstChild).toHaveAttribute('data-has-events', 'false');
+    expect(container.querySelector('[role="region"]')).toHaveAttribute('aria-hidden', 'true');
     fireEvent.click(screen.getByRole('button', { name: '打开事件' }));
     expect(emit).toHaveBeenLastCalledWith({
       type: 'game.script.run',
@@ -58,8 +59,19 @@ describe('white album 2 event panel', () => {
       state: { events: { queue: [], panel: { ...closedPanel, open: true } } },
       emit
     }));
-    expect(screen.getByRole('button', { name: '返回主剧情' })).toHaveAttribute('aria-pressed', 'true');
+    const panel = screen.getByRole('region', { name: '事件' });
+    expect(screen.getByRole('button', { name: '返回主剧情' })).toHaveAttribute('aria-expanded', 'true');
+    expect(panel).toHaveFocus();
     expect(screen.getByText('当前无事件')).toBeInTheDocument();
+
+    fireEvent.keyDown(panel, { key: 'Escape' });
+    expect(emit).toHaveBeenLastCalledWith({
+      type: 'game.script.run', name: 'eventControl', payload: { action: 'close' }
+    });
+    rerender(React.createElement(Root, {
+      React, state: { events: { queue: [], panel: closedPanel } }, emit
+    }));
+    expect(screen.getByRole('button', { name: '打开事件' })).toHaveFocus();
   });
 
   test('switches event media and restores the main scene on return or consume', () => {
@@ -67,6 +79,7 @@ describe('white album 2 event panel', () => {
     const initialState = eventState();
     const { container, rerender } = render(React.createElement(Root, { React, state: initialState, emit }));
 
+    expect(screen.queryByRole('button', { name: '认真道谢' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '打开事件' }));
     expect(emit).toHaveBeenLastCalledWith({
       type: 'game.script.run',

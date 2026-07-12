@@ -28,8 +28,10 @@ describe('MsgHistoryDisplay Card', () => {
     const parsed = JSON.parse(pre.props.children);
 
     expect(result.props.className).toBe('msg-history-card');
+    expect(result.props['data-gc-part']).toBe('message-history');
     expect(pre.type).toBe('pre');
     expect(pre.props.className).toBe('msg-history-json');
+    expect(pre.props['data-gc-part']).toBe('message-history-content');
     expect(parsed.msgs['0']).toEqual(messages[0]);
     expect(parsed.msgs['1']).toEqual(messages[1]);
   });
@@ -79,6 +81,7 @@ describe('ChatPanelMessageRenderers streaming layout', () => {
     );
 
     const { container } = render(result);
+    expect(container.querySelector('[data-gc-part="message-surface"]')).not.toBeNull();
     const streamingRow = container.querySelector('.streaming-message-row');
     expect(streamingRow).not.toBeNull();
     expect(streamingRow.querySelector('.chat-message.assistant')).toHaveStyle({ flex: '1', minWidth: '0' });

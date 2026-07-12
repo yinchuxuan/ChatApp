@@ -121,7 +121,7 @@ const ChatPanelMessageRenderers = {
         renderAssistantMsg, renderRetryBtn, isHistoryExpanded, handleExpandHistory);
     }
     const lastUserIndex = findLastRoleIndex(visibleMessages, 'user');
-    return <div className="chat-messages-layer">
+    return <div className="chat-messages-layer" data-gc-part="message-surface">
       <MessageList messages={visibleMessages} lastUserIndex={lastUserIndex}
         renderUser={renderUserMessage} renderAssistant={renderAssistantMsg}
         renderRetryButton={retrySource => renderRetryBtn(retrySource, isLoading)} />

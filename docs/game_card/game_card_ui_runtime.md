@@ -1,7 +1,6 @@
 # 游戏卡 UI Runtime 设计草案
 
 ## 目标
-
 游戏卡需要两类前端扩展能力：
 
 - 风格化已有平台 UI：输入框、消息区、气泡、标题栏、BGM 控件、阅读遮罩等。
@@ -44,11 +43,14 @@ platform 负责状态权威、消息发送、保存和调试
 实现上复用当前 `display.stylesheet` / `visual.stylesheet` 的加载机制。
 
 平台给主要 UI 节点提供稳定 style hooks：
-
 ```html
 <div data-gc-part="app">
 <div data-gc-part="chat-panel">
 <div data-gc-part="chat-history">
+<div data-gc-part="message-surface">
+<div data-gc-part="message-history">
+<pre data-gc-part="message-history-content">
+<div data-gc-part="message-divider">
 <div data-gc-part="message-row" data-role="assistant">
 <div data-gc-part="message-bubble">
 <div data-gc-part="message-content">
@@ -56,7 +58,6 @@ platform 负责状态权威、消息发送、保存和调试
 <textarea data-gc-part="chat-input-textarea">
 <button data-gc-part="chat-send-button">
 ```
-
 游戏卡 CSS 必须按主题作用域编写：
 
 ```css
@@ -82,7 +83,6 @@ platform 负责状态权威、消息发送、保存和调试
 CSS 只负责视觉，不负责点击逻辑、状态变更和消息发送。
 
 ## 自定义 React UI Root
-
 复杂交互应通过游戏卡自定义 React UI 实现。平台提供一个覆盖整个窗口的托管 root：
 
 ```html

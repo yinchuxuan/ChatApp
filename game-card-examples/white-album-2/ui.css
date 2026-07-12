@@ -278,8 +278,8 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"],
-.app-container.game-card-theme-white-album-2 .chat-messages-layer,
-.app-container.game-card-theme-white-album-2 .msg-history-card {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-surface"],
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history"] {
   position: relative;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -335,12 +335,12 @@
   display: none;
 }
 
-.app-container.game-card-theme-white-album-2 .chat-messages-layer {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-surface"] {
   gap: 10px;
   overflow-y: auto;
 }
 
-.app-container.game-card-theme-white-album-2 .msg-history-card {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history"] {
   width: 100%;
   max-width: 100%;
   margin-left: auto;
@@ -349,11 +349,11 @@
   scrollbar-width: none;
 }
 
-.app-container.game-card-theme-white-album-2 .msg-history-card::-webkit-scrollbar {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history"]::-webkit-scrollbar {
   display: none;
 }
 
-.app-container.game-card-theme-white-album-2 .msg-history-card:hover {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history"]:hover {
   transform: none;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.74),
@@ -363,7 +363,7 @@
     0 18px 54px rgba(71, 104, 134, 0.08);
 }
 
-.app-container.game-card-theme-white-album-2 .msg-history-json {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history-content"] {
   position: relative;
   z-index: 2;
   height: 100%;
@@ -372,13 +372,13 @@
   scrollbar-width: none;
 }
 
-.app-container.game-card-theme-white-album-2 .msg-history-json::-webkit-scrollbar {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history-content"]::-webkit-scrollbar {
   display: none;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"]::before,
-.app-container.game-card-theme-white-album-2 .chat-messages-layer::before,
-.app-container.game-card-theme-white-album-2 .msg-history-card::before {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-surface"]::before,
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history"]::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -419,8 +419,8 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"]::after,
-.app-container.game-card-theme-white-album-2 .chat-messages-layer::after,
-.app-container.game-card-theme-white-album-2 .msg-history-card::after {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-surface"]::after,
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-history"]::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -428,16 +428,6 @@
   border-radius: inherit;
   pointer-events: none;
   background: rgba(255, 255, 255, 0.70);
-  -webkit-mask:
-    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 10px, rgba(0, 0, 0, 0.16) 15px, rgba(0, 0, 0, 0.32) 20px, rgba(0, 0, 0, 0.50) 25px, rgba(0, 0, 0, 0.68) 30px, rgba(0, 0, 0, 0.84) 35px, rgba(0, 0, 0, 0.94) 40px, rgba(0, 0, 0, 0.99) 45px, #000 50px, #000 calc(100% - 50px), rgba(0, 0, 0, 0.99) calc(100% - 45px), rgba(0, 0, 0, 0.94) calc(100% - 40px), rgba(0, 0, 0, 0.84) calc(100% - 35px), rgba(0, 0, 0, 0.68) calc(100% - 30px), rgba(0, 0, 0, 0.50) calc(100% - 25px), rgba(0, 0, 0, 0.32) calc(100% - 20px), rgba(0, 0, 0, 0.16) calc(100% - 15px), rgba(0, 0, 0, 0.06) calc(100% - 10px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%),
-    linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 11px, rgba(0, 0, 0, 0.16) 16px, rgba(0, 0, 0, 0.32) 22px, rgba(0, 0, 0, 0.50) 27px, rgba(0, 0, 0, 0.68) 32px, rgba(0, 0, 0, 0.84) 38px, rgba(0, 0, 0, 0.94) 43px, rgba(0, 0, 0, 0.99) 49px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.99) calc(100% - 49px), rgba(0, 0, 0, 0.94) calc(100% - 43px), rgba(0, 0, 0, 0.84) calc(100% - 38px), rgba(0, 0, 0, 0.68) calc(100% - 32px), rgba(0, 0, 0, 0.50) calc(100% - 27px), rgba(0, 0, 0, 0.32) calc(100% - 22px), rgba(0, 0, 0, 0.16) calc(100% - 16px), rgba(0, 0, 0, 0.06) calc(100% - 11px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask:
-    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 10px, rgba(0, 0, 0, 0.16) 15px, rgba(0, 0, 0, 0.32) 20px, rgba(0, 0, 0, 0.50) 25px, rgba(0, 0, 0, 0.68) 30px, rgba(0, 0, 0, 0.84) 35px, rgba(0, 0, 0, 0.94) 40px, rgba(0, 0, 0, 0.99) 45px, #000 50px, #000 calc(100% - 50px), rgba(0, 0, 0, 0.99) calc(100% - 45px), rgba(0, 0, 0, 0.94) calc(100% - 40px), rgba(0, 0, 0, 0.84) calc(100% - 35px), rgba(0, 0, 0, 0.68) calc(100% - 30px), rgba(0, 0, 0, 0.50) calc(100% - 25px), rgba(0, 0, 0, 0.32) calc(100% - 20px), rgba(0, 0, 0, 0.16) calc(100% - 15px), rgba(0, 0, 0, 0.06) calc(100% - 10px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%),
-    linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.01) 5px, rgba(0, 0, 0, 0.06) 11px, rgba(0, 0, 0, 0.16) 16px, rgba(0, 0, 0, 0.32) 22px, rgba(0, 0, 0, 0.50) 27px, rgba(0, 0, 0, 0.68) 32px, rgba(0, 0, 0, 0.84) 38px, rgba(0, 0, 0, 0.94) 43px, rgba(0, 0, 0, 0.99) 49px, #000 54px, #000 calc(100% - 54px), rgba(0, 0, 0, 0.99) calc(100% - 49px), rgba(0, 0, 0, 0.94) calc(100% - 43px), rgba(0, 0, 0, 0.84) calc(100% - 38px), rgba(0, 0, 0, 0.68) calc(100% - 32px), rgba(0, 0, 0, 0.50) calc(100% - 27px), rgba(0, 0, 0, 0.32) calc(100% - 22px), rgba(0, 0, 0, 0.16) calc(100% - 16px), rgba(0, 0, 0, 0.06) calc(100% - 11px), rgba(0, 0, 0, 0.01) calc(100% - 5px), transparent 100%);
-  mask-composite: intersect;
-  -webkit-mask: none;
-  mask: none;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-list"],
@@ -451,12 +441,12 @@
   z-index: 2;
 }
 
-.app-container.game-card-theme-white-album-2 .pinned-divider {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-divider"] {
   display: none;
 }
 
-.app-container.game-card-theme-white-album-2 [data-role="assistant"] .chat-message.assistant [data-gc-part="message-bubble"],
-.app-container.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"] {
+.app-container.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"],
+.app-container.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"] {
   overflow: visible;
   padding: 0;
   border: 0;
@@ -475,18 +465,18 @@
     0 0 10px rgba(238, 248, 255, 0.32);
 }
 
-.app-container.game-card-theme-white-album-2 [data-role="assistant"] .chat-message.assistant [data-gc-part="message-bubble"]::before,
-.app-container.game-card-theme-white-album-2 [data-role="assistant"] .chat-message.assistant [data-gc-part="message-bubble"]::after,
-.app-container.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"]::before,
-.app-container.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"]::after {
+.app-container.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"]::before,
+.app-container.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"]::after,
+.app-container.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"]::before,
+.app-container.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"]::after {
   content: "";
   position: absolute;
   pointer-events: none;
   display: none;
 }
 
-.app-container.game-card-theme-white-album-2 [data-role="assistant"] .chat-message.assistant [data-gc-part="message-bubble"]::before,
-.app-container.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"]::before {
+.app-container.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"]::before,
+.app-container.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"]::before {
   inset: 0;
   background:
     linear-gradient(115deg, rgba(255, 255, 255, 0.40), transparent 34%),
@@ -494,8 +484,8 @@
     radial-gradient(circle at 86% 82%, rgba(189, 218, 237, 0.16), transparent 38%);
 }
 
-.app-container.game-card-theme-white-album-2 [data-role="assistant"] .chat-message.assistant [data-gc-part="message-bubble"]::after,
-.app-container.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"]::after {
+.app-container.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"]::after,
+.app-container.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"]::after {
   inset: 1px;
   border: 1px solid rgba(255, 255, 255, 0.30);
   border-radius: inherit;
@@ -504,34 +494,19 @@
     inset 0 0 1px rgba(114, 148, 176, 0.10);
 }
 
-.app-container.game-card-theme-white-album-2 .chat-message.assistant .chat-bubble-content .quoted-text,
-.app-container.game-card-theme-white-album-2 .chat-message.user .chat-bubble-content .quoted-text {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-content"] .quoted-text {
   background: transparent;
-  color: var(--gc-assistant-bubble-text);
-  border-radius: 0;
-  padding: 0;
-  font-weight: 500;
-  text-decoration-color: color-mix(in srgb, var(--gc-assistant-bubble-text) 36%, transparent);
-  text-decoration-thickness: 0.06em;
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.78),
-    0 0 10px rgba(238, 248, 255, 0.32);
-}
-
-[data-theme="dark"] .app-container.game-card-theme-white-album-2 .chat-message.assistant .chat-bubble-content .quoted-text,
-[data-theme="dark"] .app-container.game-card-theme-white-album-2 .chat-message.user .chat-bubble-content .quoted-text {
-  background: transparent;
-  color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F));
+  color: var(--game-card-highlight-color);
   border-radius: 0;
   padding: 0;
   font-weight: 700;
-  text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color-light, var(--game-card-highlight-color, #1E3A5F)) 52%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color) 52%, transparent);
   text-decoration-thickness: 0.06em;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.40);
 }
 
-.app-container.game-card-theme-white-album-2 [data-role="assistant"] .chat-message.assistant [data-gc-part="message-content"],
-.app-container.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-content"] {
+.app-container.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-content"],
+.app-container.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-content"] {
   position: relative;
   z-index: 1;
 }
@@ -541,7 +516,7 @@
   margin-bottom: 6px;
 }
 
-.app-container.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"] {
+.app-container.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"] {
   overflow: hidden;
   padding: 9px 18px 9px 34px;
   border: 1px solid rgba(255, 255, 255, 0.32);
@@ -561,7 +536,7 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.32);
 }
 
-.app-container.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"]::before {
+.app-container.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"]::before {
   display: block;
   inset: 9px auto 9px 15px;
   width: 3px;
@@ -570,7 +545,7 @@
   box-shadow: 0 0 10px rgba(160, 202, 231, 0.36);
 }
 
-:root:not([data-theme="dark"]) .app-container.has-background-image.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"] {
+:root:not([data-theme="dark"]) .app-container.has-background-image.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"] {
   color: #f5fbff;
 }
 
@@ -607,15 +582,15 @@
   background: transparent;
 }
 
-[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 .chat-message.assistant [data-gc-part="message-bubble"],
-[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 .chat-message.user [data-gc-part="message-bubble"] {
+[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"],
+[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"] {
   color: var(--gc-assistant-bubble-text);
   text-shadow:
     0 1px 0 rgba(255, 255, 255, 0.78),
     0 0 10px rgba(238, 248, 255, 0.32);
 }
 
-[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 [data-role="user"] .chat-message.user [data-gc-part="message-bubble"] {
+[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"] {
   color: #f5fbff;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.32);
 }
