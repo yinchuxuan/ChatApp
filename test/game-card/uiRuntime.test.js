@@ -2,26 +2,18 @@ const React = require('react');
 const {
   compileGameCardUiRootSource,
   isSafeUiRootSourcePath,
-  isSafeUiRootStylePath,
-  loadGameCardUiRoot,
-  loadGameCardUiRootStyle,
-  removeGameCardUiRootStyle
+  loadGameCardUiRoot
 } = require('../../src/renderer/gameCard/uiRuntime');
 
 describe('game card ui runtime', () => {
-  afterEach(() => {
-    removeGameCardUiRootStyle(document);
-    jest.clearAllMocks();
-  });
+  afterEach(() => jest.clearAllMocks());
 
-  test('validates ui root source and style paths', () => {
+  test('validates ui root source paths', () => {
     expect(isSafeUiRootSourcePath('ui/root.js')).toBe(true);
     expect(isSafeUiRootSourcePath('ui/root.jsx')).toBe(true);
     expect(isSafeUiRootSourcePath('../root.js')).toBe(false);
     expect(isSafeUiRootSourcePath('/root.js')).toBe(false);
     expect(isSafeUiRootSourcePath('ui/root.tsx')).toBe(false);
-    expect(isSafeUiRootStylePath('ui/root.css')).toBe(true);
-    expect(isSafeUiRootStylePath('../root.css')).toBe(false);
   });
 
   test('compiles Root component sources', () => {
@@ -51,25 +43,19 @@ describe('game card ui runtime', () => {
       .toThrow('blocked browser runtime token');
   });
 
-  test('loads ui root source and optional style from card resources', async () => {
+  test('loads ui root source from card resources', async () => {
     const resources = {
-      readText: jest.fn(async (_id, filePath) => (
-        filePath.endsWith('.css')
-          ? '.choice { pointer-events: auto; }'
-          : 'function Root() { return null; }'
-      ))
+      readText: jest.fn().mockResolvedValue('function Root() { return null; }')
     };
     const card = {
       id: 'choice-card',
       ui: { root: { source: 'ui/root.js', style: 'ui/root.css', props: { label: 'A' } } }
     };
 
-    await expect(loadGameCardUiRootStyle(card, resources, document)).resolves.toBe(true);
     const root = await loadGameCardUiRoot(card, resources, React);
 
     expect(root.Component).toEqual(expect.any(Function));
     expect(root.props).toEqual({ label: 'A' });
-    expect(document.getElementById('game-card-ui-root-style').textContent)
-      .toContain('pointer-events');
+    expect(resources.readText).toHaveBeenCalledWith('choice-card', 'ui/root.js');
   });
 });

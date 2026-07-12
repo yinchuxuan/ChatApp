@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import GameCardStyleHost from '../../src/renderer/components/GameCardStyleHost.jsx';
 import GameCardUIRoot from '../../src/renderer/components/GameCardUIRoot.jsx';
 import { subscribeChatInputCommands } from '../../src/renderer/chat/chatInputCommands.js';
 
@@ -34,12 +35,15 @@ describe('GameCardUIRoot', () => {
       ui: { root: { source: 'ui/root.js', style: 'ui/root.css', props: { label: 'A' } } }
     };
 
-    render(React.createElement(GameCardUIRoot, {
-      card,
-      gameState: { turn: 2 },
-      messages: [],
-      isLoading: false
-    }));
+    render(React.createElement(React.Fragment, null,
+      React.createElement(GameCardStyleHost, { card }),
+      React.createElement(GameCardUIRoot, {
+        card,
+        gameState: { turn: 2 },
+        messages: [],
+        isLoading: false
+      })
+    ));
 
     const button = await screen.findByRole('button', { name: 'A' });
     fireEvent.click(button);

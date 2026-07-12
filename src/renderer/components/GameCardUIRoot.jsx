@@ -55,7 +55,6 @@ function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = 
   const [error, setError] = R.useState(null);
   const cardId = card?.id || '';
   const rootSource = card?.ui?.root?.source || '';
-  const rootStyle = card?.ui?.root?.style || '';
   const C = R.createElement;
 
   const emitStateEvent = useUiStateEventQueue({
@@ -69,7 +68,6 @@ function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = 
     async function loadRoot() {
       if (!runtime) return;
       try {
-        await runtime.loadGameCardUiRootStyle(card, gameCardPlatform.resources, document);
         const root = await runtime.loadGameCardUiRoot(card, gameCardPlatform.resources, R);
         if (!canceled) setLoadedRoot(root);
       } catch (err) {
@@ -83,9 +81,7 @@ function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = 
     return () => {
       canceled = true;
     };
-  }, [cardId, rootSource, rootStyle]);
-
-  R.useEffect(() => () => runtime?.removeGameCardUiRootStyle?.(document), [runtime]);
+  }, [cardId, rootSource]);
 
   const safeState = R.useMemo(() => readonly(gameState || {}), [gameState]);
   const safeMessages = R.useMemo(() => readonly(messages || []), [messages]);

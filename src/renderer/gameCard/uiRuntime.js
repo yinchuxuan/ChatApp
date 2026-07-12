@@ -1,18 +1,7 @@
-const UI_ROOT_STYLE_ID = 'game-card-ui-root-style';
 const UI_ROOT_SOURCE_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.jsx?$/i;
-const UI_ROOT_STYLE_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.css$/i;
 
 function isSafeUiRootSourcePath(path) {
   return typeof path === 'string' && UI_ROOT_SOURCE_PATTERN.test(path);
-}
-
-function isSafeUiRootStylePath(path) {
-  return typeof path === 'string' && UI_ROOT_STYLE_PATTERN.test(path);
-}
-
-function removeGameCardUiRootStyle(doc = document) {
-  const existing = doc.getElementById(UI_ROOT_STYLE_ID);
-  if (existing) existing.remove();
 }
 
 function normalizeUiRootSource(source) {
@@ -100,27 +89,8 @@ async function loadGameCardUiRoot(card, resources, ReactRef) {
   };
 }
 
-async function loadGameCardUiRootStyle(card, resources, doc = document) {
-  removeGameCardUiRootStyle(doc);
-  const stylePath = card?.ui?.root?.style;
-  if (!card?.id || !isSafeUiRootStylePath(stylePath) || typeof resources?.readText !== 'function') return false;
-  let content;
-  try { content = await resources.readText(card.id, stylePath); } catch (_) { return false; }
-  if (!content) return false;
-  const style = doc.createElement('style');
-  style.id = UI_ROOT_STYLE_ID;
-  style.dataset.gameCardId = card.id;
-  style.dataset.source = stylePath;
-  style.textContent = content;
-  doc.head.appendChild(style);
-  return true;
-}
-
 export {
   compileGameCardUiRootSource,
   isSafeUiRootSourcePath,
-  isSafeUiRootStylePath,
-  loadGameCardUiRoot,
-  loadGameCardUiRootStyle,
-  removeGameCardUiRootStyle
+  loadGameCardUiRoot
 };

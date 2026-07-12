@@ -8,16 +8,14 @@ import ChatPanelRenderers from '../components/ChatPanelRenderers.jsx';
 import GameCardBackgroundRuntime from '../components/GameCardBackgroundRuntime.js';
 import GameCardBgmPlayer from '../components/GameCardBgmPlayer.jsx';
 import GameCardErrorPanel from '../components/GameCardErrorPanel.jsx';
+import GameCardStyleHost from '../components/GameCardStyleHost.jsx';
 import GameCardTitleControl from '../components/GameCardTitleControl.jsx';
 import GameCardUIRoot from '../components/GameCardUIRoot.jsx';
 import MessageCollapseRenderer from '../components/MessageCollapseRenderer.jsx';
 import { highlightQuotes } from '../components/highlightQuotes.js';
 import useLastUserMessageEdit from './useLastUserMessageEdit.js';
 import useTypewriter from './useTypewriter.js';
-import { loadGameCardDisplayStyle } from '../gameCard/displayStyles.js';
-import { loadGameCardUiStyle } from '../gameCard/uiStyles.js';
-import { loadGameCardVisualStyle } from '../gameCard/visualStyles.js';
-import { gameCardPlatform, rendererServices } from '../platform/index.js';
+import { rendererServices } from '../platform/index.js';
 import { useGameCardRuntime } from './GameCardRuntimeProvider.jsx';
 import useChatGeneration from './useChatGeneration.js';
 import useChatPersistence from './useChatPersistence.js';
@@ -75,12 +73,6 @@ function ChatRuntime({
   });
   const editUserMessage = useLastUserMessageEdit(React, messages, isLoading);
 
-  React.useEffect(() => {
-    loadGameCardDisplayStyle(runtime.activeCard, gameCardPlatform.resources);
-    loadGameCardVisualStyle(runtime.activeCard, gameCardPlatform.resources);
-    loadGameCardUiStyle(runtime.activeCard, gameCardPlatform.resources);
-  }, [runtime.activeCard]);
-
   const handleRetry = React.useCallback(async () => {
     const ok = await generation.retry(editUserMessage.isActive ? editUserMessage.content : undefined);
     if (ok) editUserMessage.finish();
@@ -117,6 +109,7 @@ function ChatRuntime({
   );
 
   return <div className="chat-panel" data-gc-part="chat-panel">
+    <GameCardStyleHost card={runtime.activeCard} />
     <BackgroundRuntime card={runtime.activeCard} gameState={runtime.gameState} defer={isLoading} revealToken={streamStartToken} onBackgroundChange={onBackgroundChange} onVisualPanelChange={onVisualPanelChange} />
     <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState} setGameState={runtime.setGameState} messages={messages} isLoading={isLoading} uiScopeKey={session.revision} onError={runtime.setRuntimeError} />
     <div className="chat-main" data-gc-part="chat-main">
