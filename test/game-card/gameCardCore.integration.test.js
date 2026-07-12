@@ -1,5 +1,5 @@
-const { applyGameCard } = require('../../shared/game-card/engine/engine.js');
-const { adaptMessagesToProtocol } = require('../../shared/game-card/protocol/protocolAdapter.js');
+const { applyGameCard } = require('../../src/shared/game-card/engine/engine.js');
+const { adaptMessagesToProtocol } = require('../../src/shared/game-card/protocol/protocolAdapter.js');
 
 describe('platform-independent game card core', () => {
   test('runs rules and content resolution without browser globals', () => {

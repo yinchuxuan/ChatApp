@@ -1,6 +1,6 @@
 {
   "build": {
-    "beforeBuildCommand": "npm run renderer:build -- --mode tauri-e2e"
+    "beforeBuildCommand": "npm --prefix .. run renderer:build -- --mode tauri-e2e"
   },
   "app": {
     "withGlobalTauri": true,

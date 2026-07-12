@@ -17,7 +17,7 @@ describe('useSettingsState Hook - Utilities', () => {
 
   describe('maskApiKey', () => {
     test('should mask long API key', async () => {
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => { await Promise.resolve(); });
@@ -27,7 +27,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should mask short API key as ****', async () => {
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => { await Promise.resolve(); });
@@ -37,7 +37,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should return empty string for null key', async () => {
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => { await Promise.resolve(); });
@@ -47,7 +47,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should return empty string for empty key', async () => {
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => { await Promise.resolve(); });
@@ -57,7 +57,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should mask 8-character key as ****', async () => {
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => { await Promise.resolve(); });
@@ -67,7 +67,7 @@ describe('useSettingsState Hook - Utilities', () => {
     });
 
     test('should mask 9-character key correctly', async () => {
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => { await Promise.resolve(); });
@@ -84,7 +84,7 @@ describe('useSettingsState Hook - Utilities', () => {
         config: { apiUrl: '', apiKey: '', modelName: '' }
       });
 
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => {
@@ -100,7 +100,7 @@ describe('useSettingsState Hook - Utilities', () => {
         config: { apiUrl: 'http://api.com', apiKey: '', modelName: '' }
       });
 
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => {
@@ -116,7 +116,7 @@ describe('useSettingsState Hook - Utilities', () => {
         config: { apiUrl: '', apiKey: 'key', modelName: '' }
       });
 
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => {
@@ -132,7 +132,7 @@ describe('useSettingsState Hook - Utilities', () => {
         config: { apiUrl: '', apiKey: '', modelName: 'model' }
       });
 
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => {
@@ -148,7 +148,7 @@ describe('useSettingsState Hook - Utilities', () => {
         config: { apiUrl: 'http://api.com', apiKey: 'key', modelName: 'model' }
       });
 
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => {
@@ -161,7 +161,7 @@ describe('useSettingsState Hook - Utilities', () => {
 
   describe('Return Value', () => {
     test('should return all required properties', async () => {
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       const { result } = renderHook(() => useSettingsState(jest.fn()));
 
       await hookAct(async () => { await Promise.resolve(); });
@@ -181,7 +181,7 @@ describe('useSettingsState Hook - Utilities', () => {
 
   describe('Module Export', () => {
     test('should be available as a default module export', () => {
-      const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+      const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
       expect(useSettingsState).toEqual(expect.any(Function));
       expect(window.useSettingsState).toBeUndefined();
     });

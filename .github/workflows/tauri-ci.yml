@@ -41,11 +41,11 @@ jobs:
           components: rustfmt, clippy
       - uses: swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri -> target
+          workspaces: src/tauri -> target
       - run: npm ci
-      - run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
-      - run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
-      - run: cargo test --manifest-path src-tauri/Cargo.toml
+      - run: cargo fmt --manifest-path src/tauri/Cargo.toml --check
+      - run: cargo clippy --manifest-path src/tauri/Cargo.toml --all-targets -- -D warnings
+      - run: cargo test --manifest-path src/tauri/Cargo.toml
       - name: Tauri E2E
         if: runner.os != 'Linux'
         run: npm run test:tauri
@@ -57,5 +57,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: chatapp-${{ runner.os }}
-          path: src-tauri/target/release/bundle/**
+          path: src/tauri/target/release/bundle/**
           if-no-files-found: error

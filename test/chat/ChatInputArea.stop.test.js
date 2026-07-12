@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ChatInputArea from '../../src/ChatInputArea.jsx';
+import ChatInputArea from '../../src/renderer/ChatInputArea.jsx';
 
 function renderLoadingInput(stopGeneration = jest.fn()) {
   render(React.createElement(ChatInputArea, {

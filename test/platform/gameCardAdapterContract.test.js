@@ -1,5 +1,5 @@
-import { createMemoryGameCardPlatform } from '../../src/platform/memoryGameCardPlatform.js';
-import { createTauriGameCardPlatform } from '../../src/platform/tauriGameCardPlatform.js';
+import { createMemoryGameCardPlatform } from '../../src/renderer/platform/memoryGameCardPlatform.js';
+import { createTauriGameCardPlatform } from '../../src/renderer/platform/tauriGameCardPlatform.js';
 import { verifyGameCardPlatform } from './adapterContracts.js';
 
 function tauriPlatform() {

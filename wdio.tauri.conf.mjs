@@ -8,7 +8,7 @@ const dataDir = path.join(runtimeDir, 'data');
 const importDir = path.join(runtimeDir, 'card');
 const backgroundPath = path.join(root, 'test', 'fixtures', 'lisa1.jpg');
 const binaryName = process.platform === 'win32' ? 'chatapp-tauri.exe' : 'chatapp-tauri';
-const binaryPath = path.join(root, 'src-tauri', 'target', 'debug', binaryName);
+const binaryPath = path.join(root, 'src', 'tauri', 'target', 'debug', binaryName);
 
 function silentWav() {
   const bytes = Buffer.alloc(45);

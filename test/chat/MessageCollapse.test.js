@@ -3,7 +3,7 @@
  * Verifies last user message pinning and history collapse
  */
 
-const MessageCollapseRenderer = require('../../src/components/MessageCollapseRenderer.jsx').default;
+const MessageCollapseRenderer = require('../../src/renderer/components/MessageCollapseRenderer.jsx').default;
 const R = require('react');
 const { render: _render } = require('@testing-library/react');
 

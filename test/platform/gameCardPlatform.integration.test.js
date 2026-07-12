@@ -2,10 +2,10 @@ const {
   prepareAfterResponseMessages,
   prepareInitMessages,
   preparePreSendMessages
-} = require('../../src/gameCard/sendPipeline.js');
-const { controlledScriptExecutor } = require('../../src/platform/controlledScriptExecutor.js');
-const { createMemoryGameCardPlatform } = require('../../src/platform/memoryGameCardPlatform.js');
-const { createTauriGameCardPlatform } = require('../../src/platform/tauriGameCardPlatform.js');
+} = require('../../src/renderer/gameCard/sendPipeline.js');
+const { controlledScriptExecutor } = require('../../src/renderer/platform/controlledScriptExecutor.js');
+const { createMemoryGameCardPlatform } = require('../../src/renderer/platform/memoryGameCardPlatform.js');
+const { createTauriGameCardPlatform } = require('../../src/renderer/platform/tauriGameCardPlatform.js');
 
 function testCard() {
   return {

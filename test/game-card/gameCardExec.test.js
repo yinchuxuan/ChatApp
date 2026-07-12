@@ -1,6 +1,6 @@
 const path = require('node:path');
-const { applyGameCard } = require('../../src/gameCard/engine');
-const { applyAction } = require('../../src/gameCard/actions');
+const { applyGameCard } = require('../../src/renderer/gameCard/engine');
+const { applyAction } = require('../../src/renderer/gameCard/actions');
 
 function cardWithExec(source) {
   return cardWithActions([{ type: 'exec', source }]);

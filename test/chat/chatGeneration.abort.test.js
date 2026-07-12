@@ -1,5 +1,5 @@
-const ChatGeneration = require('../../src/chat/chatGeneration.js');
-const generationServices = require('../../src/chat/generationServices.js').default;
+const ChatGeneration = require('../../src/renderer/chat/chatGeneration.js');
+const generationServices = require('../../src/renderer/chat/generationServices.js').default;
 
 function makeTypewriter(content = 'partial answer') {
   return {

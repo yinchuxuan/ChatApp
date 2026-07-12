@@ -11,7 +11,7 @@ describe('SettingsBackground Component - Opacity', () => {
   });
 
   test('should display opacity value in card when background is set', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.7 },
@@ -28,7 +28,7 @@ describe('SettingsBackground Component - Opacity', () => {
   });
 
   test('should display opacity slider when clicked for editing', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
@@ -52,7 +52,7 @@ describe('SettingsBackground Component - Opacity', () => {
   });
 
   test('should call onBackgroundChange when opacity slider changed and blurred', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const onBackgroundChange = jest.fn();
     const props = {

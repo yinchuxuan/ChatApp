@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { card } = require('./whiteAlbumTestCard');
-const { validateGameCard } = require('../../shared/game-card/schema/validateGameCard');
+const { validateGameCard } = require('../../src/shared/game-card/schema/validateGameCard');
 
 const css = fs.readFileSync(
   path.join(__dirname, '../../game-card-examples/white-album-2/ui.css'),

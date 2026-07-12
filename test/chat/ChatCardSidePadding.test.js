@@ -7,7 +7,7 @@ const { execSync } = require('child_process');
 
 describe('Chat Area Reading Column Width', () => {
   test('chat-history defines 660px reading column and responsive side padding', () => {
-    const cssPath = require('path').join(__dirname, '../../src/styles/components.chat-panel.css');
+    const cssPath = require('path').join(__dirname, '../../src/renderer/styles/components.chat-panel.css');
     const cssContent = execSync(`cat "${cssPath}"`, { encoding: 'utf8' });
 
     expect(cssContent).toMatch(/\.chat-history\s*\{[\s\S]*?--chat-reading-width:\s*660px/);
@@ -16,7 +16,7 @@ describe('Chat Area Reading Column Width', () => {
   });
 
   test('chat-message rows use the shared reading column', () => {
-    const cssPath = require('path').join(__dirname, '../../src/styles/components.chat-messages.css');
+    const cssPath = require('path').join(__dirname, '../../src/renderer/styles/components.chat-messages.css');
     const cssContent = execSync(`cat "${cssPath}"`, { encoding: 'utf8' });
 
     expect(cssContent).toMatch(/\.chat-messages-layer\s*\{[\s\S]*?z-index:\s*1/);
@@ -26,7 +26,7 @@ describe('Chat Area Reading Column Width', () => {
   });
 
   test('retry button is a transparent edge action on the user message', () => {
-    const cssPath = require('path').join(__dirname, '../../src/styles/components.chat-messages.css');
+    const cssPath = require('path').join(__dirname, '../../src/renderer/styles/components.chat-messages.css');
     const cssContent = execSync(`cat "${cssPath}"`, { encoding: 'utf8' });
 
     expect(cssContent).toMatch(/\.chat-message\.user \.chat-message-bubble\s*\{[\s\S]*?padding:\s*18px\s+28px/);
@@ -54,8 +54,8 @@ describe('Chat Area Reading Column Width', () => {
   });
 
   test('reading column veil is wider than text column for side breathing room', () => {
-    const cssPath = require('path').join(__dirname, '../../src/styles/components.chat-panel.css');
-    const readabilityPath = require('path').join(__dirname, '../../src/styles/components.background-readability.css');
+    const cssPath = require('path').join(__dirname, '../../src/renderer/styles/components.chat-panel.css');
+    const readabilityPath = require('path').join(__dirname, '../../src/renderer/styles/components.background-readability.css');
     const cssContent = execSync(`cat "${cssPath}"`, { encoding: 'utf8' });
     const readabilityCss = execSync(`cat "${readabilityPath}"`, { encoding: 'utf8' });
 
@@ -73,7 +73,7 @@ describe('Chat Area Reading Column Width', () => {
   });
 
   test('visual panel position moves collapsed message text with the veil', () => {
-    const readabilityPath = require('path').join(__dirname, '../../src/styles/components.background-readability.css');
+    const readabilityPath = require('path').join(__dirname, '../../src/renderer/styles/components.background-readability.css');
     const readabilityCss = execSync(`cat "${readabilityPath}"`, { encoding: 'utf8' });
 
     expect(readabilityCss).toMatch(/\.app-container\.game-card-visual-position-right \.chat-history\s*\{[\s\S]*?padding-left:\s*calc\(50% - var\(--game-card-panel-edge-gap\) \+ var\(--game-card-panel-inner-gap\)\);[\s\S]*?padding-right:\s*calc\(var\(--game-card-panel-edge-gap\) \+ var\(--game-card-panel-inner-gap\)\)/);
@@ -83,9 +83,9 @@ describe('Chat Area Reading Column Width', () => {
   });
 
   test('quote highlighting styles are centralized in chat-quotes stylesheet', () => {
-    const messagesCssPath = require('path').join(__dirname, '../../src/styles/components.chat-messages.css');
-    const quotesCssPath = require('path').join(__dirname, '../../src/styles/components.chat-quotes.css');
-    const entryPath = require('path').join(__dirname, '../../src/styles/renderer.css');
+    const messagesCssPath = require('path').join(__dirname, '../../src/renderer/styles/components.chat-messages.css');
+    const quotesCssPath = require('path').join(__dirname, '../../src/renderer/styles/components.chat-quotes.css');
+    const entryPath = require('path').join(__dirname, '../../src/renderer/styles/renderer.css');
     const messagesCss = execSync(`cat "${messagesCssPath}"`, { encoding: 'utf8' });
     const quotesCss = execSync(`cat "${quotesCssPath}"`, { encoding: 'utf8' });
     const entryCss = execSync(`cat "${entryPath}"`, { encoding: 'utf8' });
@@ -96,14 +96,14 @@ describe('Chat Area Reading Column Width', () => {
   });
 
   test('chat content stylesheet is loaded by the app shell', () => {
-    const entryPath = require('path').join(__dirname, '../../src/styles/renderer.css');
+    const entryPath = require('path').join(__dirname, '../../src/renderer/styles/renderer.css');
     const entryCss = execSync(`cat "${entryPath}"`, { encoding: 'utf8' });
 
     expect(entryCss).toContain('./components.chat-content.css');
   });
 
   test('dark assistant text falls back to the dark surface text color', () => {
-    const readabilityPath = require('path').join(__dirname, '../../src/styles/components.background-readability.css');
+    const readabilityPath = require('path').join(__dirname, '../../src/renderer/styles/components.background-readability.css');
     const readabilityCss = execSync(`cat "${readabilityPath}"`, { encoding: 'utf8' });
 
     expect(readabilityCss).toMatch(/\[data-theme="dark"\] \.app-container\.has-background-image \.chat-message\.assistant \.chat-message-bubble\s*\{[\s\S]*?color:\s*var\(--game-card-text-color-dark,\s*var\(--game-card-text-color,\s*var\(--md-on-surface,\s*#E6E1E5\)\)\)/);

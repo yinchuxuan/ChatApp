@@ -4,7 +4,7 @@
 
 const React = require('react');
 const { render, screen, fireEvent, act } = require('@testing-library/react');
-const { sendChatRequest } = require('../../src/chat/apiClient.js');
+const { sendChatRequest } = require('../../src/renderer/chat/apiClient.js');
 
 const platformMock = global.platformMock;
 
@@ -31,7 +31,7 @@ describe('ChatPanel - Msg History Display from File', () => {
     ];
     platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -68,7 +68,7 @@ describe('ChatPanel - Msg History Display from File', () => {
     ];
     platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
     render(React.createElement(ChatPanel));
 
     await act(async () => {

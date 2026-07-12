@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const React = require('react');
 const { render, screen, fireEvent } = require('@testing-library/react');
-const { compileGameCardUiRootSource } = require('../../src/gameCard/uiRuntime');
+const { compileGameCardUiRootSource } = require('../../src/renderer/gameCard/uiRuntime');
 
 const rootSource = fs.readFileSync(
   path.join(__dirname, '../../game-card-examples/white-album-2/ui/root.js'),

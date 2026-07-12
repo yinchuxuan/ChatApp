@@ -8,7 +8,7 @@ Tauri 是唯一桌面 target；memory adapter 用于 unit test，不参与生产
 
 ## Game Card Contract
 
-`src/platform/gameCardPlatform.js` 创建并冻结以下接口：
+`src/renderer/platform/gameCardPlatform.js` 创建并冻结以下接口：
 
 ```js
 {
@@ -28,7 +28,7 @@ Tauri 是唯一桌面 target；memory adapter 用于 unit test，不参与生产
 
 ## Renderer Services
 
-配置、背景、Session 与卡片导入 contract 集中定义在 `src/platform/contracts.js`：
+配置、背景、Session 与卡片导入 contract 集中定义在 `src/renderer/platform/contracts.js`：
 
 ```txt
 rendererServices.config
@@ -41,13 +41,13 @@ rendererServices.cards
 
 ## 模型网络
 
-`tauriModelFetch.js` 使用 Rust `stream_model_request` 和 Channel，将响应包装成兼容 `fetch` 的 `ReadableStream`。`src/chat/apiClient.js` 因此继续复用 OpenAI/Anthropic SSE parser。
+`tauriModelFetch.js` 使用 Rust `stream_model_request` 和 Channel，将响应包装成兼容 `fetch` 的 `ReadableStream`。`src/renderer/chat/apiClient.js` 因此继续复用 OpenAI/Anthropic SSE parser。
 
 `AbortSignal` 通过 request id 映射到 `cancel_model_stream`。renderer 不直接连接模型外网，也不维护额外 CORS 代理。
 
 ## 受控脚本
 
-`controlledScriptExecutor.js` 在独立 Worker 中执行游戏卡 JavaScript，超时会终止 Worker。脚本 context 和 result 协议位于 `shared/game-card/exec`；DOM、native command 和本地文件能力不会进入脚本上下文。
+`controlledScriptExecutor.js` 在独立 Worker 中执行游戏卡 JavaScript，超时会终止 Worker。脚本 context 和 result 协议位于 `src/shared/game-card/exec`；DOM、native command 和本地文件能力不会进入脚本上下文。
 
 ## 调用方向
 

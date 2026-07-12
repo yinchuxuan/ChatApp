@@ -1,7 +1,7 @@
 const {
   applyLatestAssistantStatePatch,
   extractLatestAssistantStatePatches
-} = require('../../shared/game-card/state/statePatch');
+} = require('../../src/shared/game-card/state/statePatch');
 
 describe('LLM state patch runtime', () => {
   test('extracts patches only from the latest assistant message', () => {

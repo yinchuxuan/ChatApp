@@ -1,5 +1,5 @@
 import { act } from '@testing-library/react';
-import generationServices from '../../src/chat/generationServices.js';
+import generationServices from '../../src/renderer/chat/generationServices.js';
 import { renderRetryGeneration } from './useChatGenerationTestHarness.js';
 
 describe('useChatGeneration retry audio timing', () => {

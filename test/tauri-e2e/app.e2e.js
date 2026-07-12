@@ -62,6 +62,18 @@ describe('Tauri desktop application', () => {
       const style = await $('.app-background-layer-current').getAttribute('style');
       return style.includes('local');
     });
+    const backgroundLoaded = await browser.execute(async () => {
+      const source = document.querySelector('.app-background-layer-current')
+        ?.style.backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1];
+      if (!source) return false;
+      return new Promise(resolve => {
+        const image = new Image();
+        image.onload = () => resolve(image.naturalWidth > 0 && image.naturalHeight > 0);
+        image.onerror = () => resolve(false);
+        image.src = source;
+      });
+    });
+    expect(backgroundLoaded).toBe(true);
     const audioSource = await $('.game-card-bgm-player audio').getAttribute('src');
     expect(audioSource).toContain('local');
     expect((await invoke('get_game_cards')).map(card => card.id)).toContain('tauri-e2e-card');

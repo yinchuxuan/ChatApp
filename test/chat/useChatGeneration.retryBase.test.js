@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import useChatGeneration from '../../src/chat/useChatGeneration.js';
+import useChatGeneration from '../../src/renderer/chat/useChatGeneration.js';
 
 test('useChatGeneration saves retry base without transient context', async () => {
   global.fetch.mockResolvedValue(global.createStreamingMock('ok'));

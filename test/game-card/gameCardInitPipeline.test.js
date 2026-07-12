@@ -1,4 +1,4 @@
-const { prepareInitMessages } = require('../../src/gameCard/sendPipeline');
+const { prepareInitMessages } = require('../../src/renderer/gameCard/sendPipeline');
 
 function initCard() {
   return {

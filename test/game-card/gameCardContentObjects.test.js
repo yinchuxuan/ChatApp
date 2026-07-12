@@ -1,10 +1,10 @@
 const fs = require('node:fs');
 const path = require('path');
 const Ajv = require('ajv');
-const { applyGameCard } = require('../../shared/game-card/engine/engine');
-const { validateGameCard } = require('../../shared/game-card/schema/validateGameCard');
+const { applyGameCard } = require('../../src/shared/game-card/engine/engine');
+const { validateGameCard } = require('../../src/shared/game-card/schema/validateGameCard');
 
-const schemaPath = path.join(__dirname, '../../shared/game-card/schema/game-card.schema.json');
+const schemaPath = path.join(__dirname, '../../src/shared/game-card/schema/game-card.schema.json');
 const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
 function cardWithContent(content) {

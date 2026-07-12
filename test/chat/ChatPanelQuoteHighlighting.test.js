@@ -25,7 +25,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(React.createElement(ChatPanel, null));
 
@@ -46,7 +46,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(React.createElement(ChatPanel, null));
 
@@ -66,7 +66,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(React.createElement(ChatPanel, null));
 
@@ -86,7 +86,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(React.createElement(ChatPanel, null));
 
@@ -105,7 +105,7 @@ describe('ChatPanel Component - Quote Highlighting', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(React.createElement(ChatPanel, null));
 

@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import useChatSession from '../../src/chat/useChatSession.js';
+import useChatSession from '../../src/renderer/chat/useChatSession.js';
 
 function createOptions(repository) {
   return {

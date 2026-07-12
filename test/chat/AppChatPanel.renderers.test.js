@@ -6,7 +6,7 @@ const _React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, act } = require('@testing-library/react');
 
 const platformMock = global.platformMock;
-const chatPanelRenderers = require('../../src/components/ChatPanelRenderers').default;
+const chatPanelRenderers = require('../../src/renderer/components/ChatPanelRenderers').default;
 
 describe('ChatPanel Component - Renderers', () => {
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('ChatPanel Component - Renderers', () => {
   });
 
   test('should render with ChatPanelRenderers', async () => {
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -37,7 +37,7 @@ describe('ChatPanel Component - Renderers', () => {
     const renderHistory = jest.spyOn(chatPanelRenderers, 'renderMsgHistoryDisplay')
       .mockReturnValue(_React.createElement('div', null, 'Msg History Display'));
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -55,7 +55,7 @@ describe('ChatPanel Component - Renderers', () => {
   });
 
   test('should render through imported renderers without globals', async () => {
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -69,7 +69,7 @@ describe('ChatPanel Component - Renderers', () => {
   });
 
   test('should render a stable reading veil layer inside chat history', async () => {
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -86,7 +86,7 @@ describe('ChatPanel Component - Renderers', () => {
   test('should not poll for globally registered renderers', async () => {
     const intervalSpy = jest.spyOn(global, 'setInterval');
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     const { unmount } = _render(_React.createElement(ChatPanel, null));
 

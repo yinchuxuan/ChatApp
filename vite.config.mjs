@@ -5,9 +5,9 @@ const host = process.env.TAURI_DEV_HOST;
 
 export default defineConfig(({ mode }) => {
   return {
-    root: 'src',
+    root: 'src/renderer',
     base: './',
-    cacheDir: '../node_modules/.vite',
+    cacheDir: '../../node_modules/.vite',
     clearScreen: false,
     define: {
       __CHATAPP_TAURI_E2E__: JSON.stringify(mode === 'tauri-e2e')
@@ -20,14 +20,14 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       hmr: host ? { protocol: 'ws', host, port: 1421 } : undefined,
       watch: {
-        ignored: ['**/src-tauri/**']
+        ignored: ['**/tauri/**']
       }
     },
     build: {
       target: process.env.TAURI_ENV_PLATFORM === 'windows' ? 'chrome105' : 'safari15',
       minify: process.env.TAURI_ENV_DEBUG ? false : 'esbuild',
       sourcemap: Boolean(process.env.TAURI_ENV_DEBUG),
-      outDir: '../dist/renderer',
+      outDir: '../../dist/renderer',
       emptyOutDir: true
     }
   };

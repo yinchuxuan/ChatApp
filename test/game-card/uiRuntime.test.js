@@ -6,7 +6,7 @@ const {
   loadGameCardUiRoot,
   loadGameCardUiRootStyle,
   removeGameCardUiRootStyle
-} = require('../../src/gameCard/uiRuntime');
+} = require('../../src/renderer/gameCard/uiRuntime');
 
 describe('game card ui runtime', () => {
   afterEach(() => {

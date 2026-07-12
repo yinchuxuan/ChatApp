@@ -55,7 +55,7 @@ function App() {
   }, []);
 
   const backgroundImageUrl = gameCardBackgroundUrl || backgroundConfig.backgroundImageUrl;
-  const cssUrl = (url) => `url("${encodeURI(String(url)).replace(/["\\]/g, '\\$&')}")`;
+  const cssUrl = (url) => `url("${String(url).replace(/["\\]/g, '\\$&')}")`;
   const gameCardThemeClass = React.useMemo(() => {
     if (!visualPanel.cardId) return '';
     return ` game-card-theme-${visualPanel.cardId.toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}`;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
-import ChatInputArea from '../../src/ChatInputArea.jsx';
-import { dispatchChatInputCommand } from '../../src/chat/chatInputCommands.js';
+import ChatInputArea from '../../src/renderer/ChatInputArea.jsx';
+import { dispatchChatInputCommand } from '../../src/renderer/chat/chatInputCommands.js';
 
 function renderInputArea(props = {}) {
   return render(React.createElement(ChatInputArea, {

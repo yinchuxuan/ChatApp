@@ -1,7 +1,7 @@
 const React = require('react');
 const { render } = require('@testing-library/react');
-const ChatPanelMessageRenderers = require('../../src/components/ChatPanelMessageRenderers').default;
-const MessageCollapseRenderer = require('../../src/components/MessageCollapseRenderer').default;
+const ChatPanelMessageRenderers = require('../../src/renderer/components/ChatPanelMessageRenderers').default;
+const MessageCollapseRenderer = require('../../src/renderer/components/MessageCollapseRenderer').default;
 
 function renderMarkdown(text) {
   return React.createElement('div', { className: 'content' }, text);

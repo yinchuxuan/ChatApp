@@ -1,7 +1,7 @@
-const { matchesPredicate, matchesWhen } = require('../../shared/game-card/engine/predicate');
-const { applyAction } = require('../../shared/game-card/engine/actions');
-const { applyGameCard } = require('../../shared/game-card/engine/engine');
-const { resolveContent } = require('../../shared/game-card/content/contentResolver');
+const { matchesPredicate, matchesWhen } = require('../../src/shared/game-card/engine/predicate');
+const { applyAction } = require('../../src/shared/game-card/engine/actions');
+const { applyGameCard } = require('../../src/shared/game-card/engine/engine');
+const { resolveContent } = require('../../src/shared/game-card/content/contentResolver');
 
 describe('game card additional unit coverage', () => {
   describe('_meta visibility predicate matching', () => {

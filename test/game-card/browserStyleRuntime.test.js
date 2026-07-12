@@ -1,7 +1,7 @@
-const displayStyles = require('../../src/gameCard/displayStyles');
-const visualStyles = require('../../src/gameCard/visualStyles');
-const uiStyles = require('../../src/gameCard/uiStyles');
-const uiRuntime = require('../../src/gameCard/uiRuntime');
+const displayStyles = require('../../src/renderer/gameCard/displayStyles');
+const visualStyles = require('../../src/renderer/gameCard/visualStyles');
+const uiStyles = require('../../src/renderer/gameCard/uiStyles');
+const uiRuntime = require('../../src/renderer/gameCard/uiRuntime');
 
 describe('browser game card style runtime', () => {
   test('exposes display visual and ui helpers as modules', () => {

@@ -57,6 +57,10 @@ describe('Tauri chat panel UI', () => {
       if (!title || !bgm || !session || !importButton || !header) return null;
       return {
         bgmIcon: bgm.textContent.trim(),
+        vertical: [bgm, session, importButton].map(button => {
+          const rect = button.getBoundingClientRect();
+          return { height: rect.height, center: rect.top + rect.height / 2 };
+        }),
         gap: Math.round(session.getBoundingClientRect().left - bgm.getBoundingClientRect().right),
         paddingRight: getComputedStyle(title).paddingRight,
         rightGap: Math.round(header.getBoundingClientRect().right
@@ -69,5 +73,8 @@ describe('Tauri chat panel UI', () => {
     expect(result.gap).toBeLessThanOrEqual(12);
     expect(result.paddingRight).toBe('54px');
     expect(result.rightGap).toBeGreaterThanOrEqual(70);
+    expect(new Set(result.vertical.map(item => item.height)).size).toBe(1);
+    expect(Math.max(...result.vertical.map(item => item.center))
+      - Math.min(...result.vertical.map(item => item.center))).toBeLessThanOrEqual(0.5);
   });
 });

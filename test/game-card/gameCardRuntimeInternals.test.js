@@ -1,7 +1,7 @@
-const { applyAction, applyActions } = require('../../shared/game-card/engine/actions');
-const { applyGameCard } = require('../../shared/game-card/engine/engine');
-const { compareNumber, matchesWhen } = require('../../shared/game-card/engine/predicate');
-const { decayTTL } = require('../../shared/game-card/engine/ttl');
+const { applyAction, applyActions } = require('../../src/shared/game-card/engine/actions');
+const { applyGameCard } = require('../../src/shared/game-card/engine/engine');
+const { compareNumber, matchesWhen } = require('../../src/shared/game-card/engine/predicate');
+const { decayTTL } = require('../../src/shared/game-card/engine/ttl');
 
 describe('game card runtime internals', () => {
   test('compareNumber supports all documented comparison operators', () => {

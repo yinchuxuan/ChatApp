@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import useChatPersistence from '../../src/chat/useChatPersistence.js';
+import useChatPersistence from '../../src/renderer/chat/useChatPersistence.js';
 
 describe('useChatPersistence', () => {
   test('normalizes retry snapshots and saves all session state together', async () => {

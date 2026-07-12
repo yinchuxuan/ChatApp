@@ -8,14 +8,23 @@ function readJson(relativePath) {
 }
 
 describe('Tauri desktop scaffold', () => {
+  test('keeps all source roots under src', () => {
+    const sourceRoots = fs.readdirSync(path.join(rootDir, 'src'), { withFileTypes: true })
+      .filter(entry => entry.isDirectory())
+      .map(entry => entry.name)
+      .sort();
+
+    expect(sourceRoots).toEqual(['renderer', 'shared', 'tauri']);
+  });
+
   test('uses the shared Vite renderer and existing window dimensions', () => {
-    const config = readJson('src-tauri/tauri.conf.json');
+    const config = readJson('src/tauri/tauri.conf.json');
 
     expect(config.build).toEqual({
-      beforeDevCommand: 'npm run renderer:dev',
+      beforeDevCommand: 'npm --prefix .. run renderer:dev',
       devUrl: 'http://localhost:1420',
-      beforeBuildCommand: 'npm run renderer:build',
-      frontendDist: '../dist/renderer'
+      beforeBuildCommand: 'npm --prefix .. run renderer:build',
+      frontendDist: '../../dist/renderer'
     });
     expect(config.app.windows).toEqual([
       expect.objectContaining({ label: 'main', width: 1200, height: 800 })
@@ -23,7 +32,7 @@ describe('Tauri desktop scaffold', () => {
   });
 
   test('grants only core permissions to the main window', () => {
-    const capability = readJson('src-tauri/capabilities/default.json');
+    const capability = readJson('src/tauri/capabilities/default.json');
 
     expect(capability.windows).toEqual(['main']);
     expect(capability.permissions).toEqual(['core:default']);
@@ -31,11 +40,11 @@ describe('Tauri desktop scaffold', () => {
 
   test('declares scripts and desktop icons used by the bundle', () => {
     const packageJson = readJson('package.json');
-    const config = readJson('src-tauri/tauri.conf.json');
+    const config = readJson('src/tauri/tauri.conf.json');
 
     expect(packageJson.scripts).toEqual(expect.objectContaining({
-      dev: 'tauri dev',
-      build: 'tauri build',
+      dev: 'cd src/tauri && tauri dev',
+      build: 'cd src/tauri && tauri build',
       'renderer:build': 'vite build --config vite.config.mjs',
       'renderer:dev': 'vite --config vite.config.mjs',
       'tauri:dev': 'npm run dev',
@@ -46,14 +55,14 @@ describe('Tauri desktop scaffold', () => {
     expect(packageJson.devDependencies).not.toHaveProperty('playwright');
     expect(packageJson.devDependencies).not.toHaveProperty('@playwright/test');
     config.bundle.icon.forEach(iconPath => {
-      expect(fs.existsSync(path.join(rootDir, 'src-tauri', iconPath))).toBe(true);
+      expect(fs.existsSync(path.join(rootDir, 'src/tauri', iconPath))).toBe(true);
     });
   });
 
   test('registers the game card repository and native directory picker', () => {
-    const cargo = fs.readFileSync(path.join(rootDir, 'src-tauri/Cargo.toml'), 'utf8');
-    const lib = fs.readFileSync(path.join(rootDir, 'src-tauri/src/lib.rs'), 'utf8');
-    const schema = fs.readFileSync(path.join(rootDir, 'src-tauri/src/game_card_schema.rs'), 'utf8');
+    const cargo = fs.readFileSync(path.join(rootDir, 'src/tauri/Cargo.toml'), 'utf8');
+    const lib = fs.readFileSync(path.join(rootDir, 'src/tauri/src/lib.rs'), 'utf8');
+    const schema = fs.readFileSync(path.join(rootDir, 'src/tauri/src/game_card_schema.rs'), 'utf8');
 
     expect(cargo).toContain('tauri-plugin-dialog = "2"');
     expect(lib).toContain('.plugin(tauri_plugin_dialog::init())');

@@ -35,7 +35,7 @@ impl Drop for TestDir {
 }
 
 fn fixture_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../test/fixtures/game-card-import")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../test/fixtures/game-card-import")
 }
 
 #[test]
@@ -190,7 +190,7 @@ async fn repository_rejects_symbolic_links() {
 
 #[test]
 fn white_album_card_expands_and_validates() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../game-card-examples/white-album-2");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../game-card-examples/white-album-2");
     let card = read_card(&root).unwrap();
     validate_card(&card, &root).unwrap();
     assert!(card["files"]["event.chapter2.afterFixedPlot1.rehearsalMemory"].is_string());

@@ -3,7 +3,7 @@
  * Tests the retry logic independently
  */
 
-const MessageCollapseRenderer = require('../../src/components/MessageCollapseRenderer.jsx').default;
+const MessageCollapseRenderer = require('../../src/renderer/components/MessageCollapseRenderer.jsx').default;
 
 describe('Retry helpers', () => {
   test('findLastUserIndex should return last user message index', () => {

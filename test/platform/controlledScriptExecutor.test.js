@@ -1,4 +1,4 @@
-import { runInBrowser } from '../../src/platform/controlledScriptExecutor.js';
+import { runInBrowser } from '../../src/renderer/platform/controlledScriptExecutor.js';
 
 function context() {
   return { messages: [], state: {}, config: {}, event: {}, files: {} };

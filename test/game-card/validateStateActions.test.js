@@ -1,4 +1,4 @@
-const { validateGameCard } = require('../../shared/game-card/schema/validateGameCard');
+const { validateGameCard } = require('../../src/shared/game-card/schema/validateGameCard');
 
 function cardWithAction(action) {
   return {

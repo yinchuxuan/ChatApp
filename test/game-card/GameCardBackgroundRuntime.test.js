@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, waitFor, act } from '@testing-library/react';
-import GameCardBackgroundRuntime from '../../src/components/GameCardBackgroundRuntime';
+import GameCardBackgroundRuntime from '../../src/renderer/components/GameCardBackgroundRuntime';
 
 async function flushEffects() {
   await act(async () => {

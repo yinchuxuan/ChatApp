@@ -2,7 +2,7 @@ const {
   loadGameCardVisualStyle,
   removeGameCardVisualStyle,
   isSafeVisualStylesheetPath
-} = require('../../src/gameCard/visualStyles');
+} = require('../../src/renderer/gameCard/visualStyles');
 
 describe('game card visual styles', () => {
   afterEach(() => {

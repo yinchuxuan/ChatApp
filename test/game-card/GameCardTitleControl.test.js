@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 
-import '../../src/components/ChatSessionManager.jsx';
-import GameCardTitleControl from '../../src/components/GameCardTitleControl.jsx';
-import { GameCardRuntimeProvider } from '../../src/chat/GameCardRuntimeProvider.jsx';
+import '../../src/renderer/components/ChatSessionManager.jsx';
+import GameCardTitleControl from '../../src/renderer/components/GameCardTitleControl.jsx';
+import { GameCardRuntimeProvider } from '../../src/renderer/chat/GameCardRuntimeProvider.jsx';
 
 const platformMock = global.platformMock;
 

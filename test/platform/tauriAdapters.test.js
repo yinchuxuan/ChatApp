@@ -1,5 +1,5 @@
-import { createTauriGameCardPlatform } from '../../src/platform/tauriGameCardPlatform.js';
-import { BACKGROUND_EVENT, createTauriRendererServices } from '../../src/platform/tauriRendererServices.js';
+import { createTauriGameCardPlatform } from '../../src/renderer/platform/tauriGameCardPlatform.js';
+import { BACKGROUND_EVENT, createTauriRendererServices } from '../../src/renderer/platform/tauriRendererServices.js';
 
 describe('Tauri renderer adapters', () => {
   test('maps service calls to command names and named payloads', async () => {

@@ -1,6 +1,6 @@
-const { sendChatRequest } = require('../../src/chat/apiClient.js');
-const { runChatGeneration } = require('../../src/chat/chatGeneration.js');
-const generationServices = require('../../src/chat/generationServices.js').default;
+const { sendChatRequest } = require('../../src/renderer/chat/apiClient.js');
+const { runChatGeneration } = require('../../src/renderer/chat/chatGeneration.js');
+const generationServices = require('../../src/renderer/chat/generationServices.js').default;
 
 describe('sendChatRequest protocol adapter integration', () => {
   beforeEach(() => {

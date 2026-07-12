@@ -2,7 +2,7 @@ const {
   loadGameCardDisplayStyle,
   removeGameCardDisplayStyle,
   isSafeStylesheetPath
-} = require('../../src/gameCard/displayStyles');
+} = require('../../src/renderer/gameCard/displayStyles');
 
 describe('game card display styles', () => {
   afterEach(() => {

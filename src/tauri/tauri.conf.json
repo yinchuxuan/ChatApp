@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "identifier": "com.airp.chatapp",
   "build": {
-    "beforeDevCommand": "npm run renderer:dev",
+    "beforeDevCommand": "npm --prefix .. run renderer:dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run renderer:build",
-    "frontendDist": "../dist/renderer"
+    "beforeBuildCommand": "npm --prefix .. run renderer:build",
+    "frontendDist": "../../dist/renderer"
   },
   "app": {
     "windows": [

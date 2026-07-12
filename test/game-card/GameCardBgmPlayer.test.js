@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
-import GameCardBgmPlayer from '../../src/components/GameCardBgmPlayer';
+import GameCardBgmPlayer from '../../src/renderer/components/GameCardBgmPlayer';
 
 async function flushAudioEffects() {
   await act(async () => {

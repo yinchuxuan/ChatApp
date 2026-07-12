@@ -18,7 +18,7 @@ describe('ChatPanel Component - UI', () => {
   });
 
   test('should render ChatPanel component and toggle header', async () => {
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -35,7 +35,7 @@ describe('ChatPanel Component - UI', () => {
   });
 
   test('should show model name when configured', async () => {
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -52,7 +52,7 @@ describe('ChatPanel Component - UI', () => {
       config: { apiUrl: 'http://api.example.com', apiKey: 'key', modelName: '' }
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -64,7 +64,7 @@ describe('ChatPanel Component - UI', () => {
   });
 
   test('should disable submit button when input is empty', async () => {
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -80,7 +80,7 @@ describe('ChatPanel Component - UI', () => {
   });
 
   test('should enable submit button when input has value', async () => {
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -96,7 +96,7 @@ describe('ChatPanel Component - UI', () => {
   });
 
   test('should not submit when input is only whitespace', async () => {
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -118,7 +118,7 @@ describe('ChatPanel Component - UI', () => {
     const originalPlatformMock = global.platformMock;
     global.platformMock = undefined;
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -135,7 +135,7 @@ describe('ChatPanel Component - UI', () => {
       error: 'Config load failed'
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 

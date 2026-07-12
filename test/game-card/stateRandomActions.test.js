@@ -1,4 +1,4 @@
-const { applyStateAction } = require('../../shared/game-card/state/stateActions');
+const { applyStateAction } = require('../../src/shared/game-card/state/stateActions');
 
 describe('random state actions', () => {
   afterEach(() => {

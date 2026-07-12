@@ -6,7 +6,7 @@ const read = relativePath => fs.readFileSync(path.join(rootDir, relativePath), '
 
 describe('Tauri WebView compatibility policy', () => {
   test('permits only the runtime features used by game cards', () => {
-    const config = JSON.parse(read('src-tauri/tauri.conf.json'));
+    const config = JSON.parse(read('src/tauri/tauri.conf.json'));
     const csp = config.app.security.csp;
 
     expect(csp['script-src']).toContain("'unsafe-eval'");
@@ -19,9 +19,9 @@ describe('Tauri WebView compatibility policy', () => {
   });
 
   test('uses native streaming without broadening native capabilities', () => {
-    const cargo = read('src-tauri/Cargo.toml');
-    const lib = read('src-tauri/src/lib.rs');
-    const capability = JSON.parse(read('src-tauri/capabilities/default.json'));
+    const cargo = read('src/tauri/Cargo.toml');
+    const lib = read('src/tauri/src/lib.rs');
+    const capability = JSON.parse(read('src/tauri/capabilities/default.json'));
 
     expect(cargo).toContain('reqwest =');
     expect(lib).toContain('model_commands::stream_model_request');
@@ -30,8 +30,8 @@ describe('Tauri WebView compatibility policy', () => {
   });
 
   test('bundles platform fonts without remote static resources', () => {
-    const html = read('src/index.html');
-    const styles = read('src/styles/renderer.css');
+    const html = read('src/renderer/index.html');
+    const styles = read('src/renderer/styles/renderer.css');
     const packageJson = JSON.parse(read('package.json'));
 
     expect(html).not.toMatch(/https?:\/\//);

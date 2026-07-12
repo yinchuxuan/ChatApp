@@ -11,7 +11,7 @@ describe('SettingsBackground Component - Basic', () => {
   });
 
   test('should render background settings section', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
@@ -28,7 +28,7 @@ describe('SettingsBackground Component - Basic', () => {
   });
 
   test('should show empty state when no background image', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },
@@ -45,7 +45,7 @@ describe('SettingsBackground Component - Basic', () => {
   });
 
   test('should show configured status when background image is set', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
@@ -62,7 +62,7 @@ describe('SettingsBackground Component - Basic', () => {
   });
 
   test('should show config card with preview and opacity when background is set', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
@@ -81,7 +81,7 @@ describe('SettingsBackground Component - Basic', () => {
   });
 
   test('should show opacity value in display mode', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.7 },
@@ -98,7 +98,7 @@ describe('SettingsBackground Component - Basic', () => {
   });
 
   test('should call onSelectBackgroundImage when empty state clicked', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const onSelectBackgroundImage = jest.fn();
     const props = {
@@ -119,7 +119,7 @@ describe('SettingsBackground Component - Basic', () => {
   });
 
   test('should call onSelectBackgroundImage when preview image clicked', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const onSelectBackgroundImage = jest.fn();
     const props = {

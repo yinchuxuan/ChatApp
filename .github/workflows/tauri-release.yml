@@ -42,7 +42,7 @@ jobs:
           targets: ${{ matrix.rust-target }}
       - uses: swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri -> target
+          workspaces: src/tauri -> target
       - run: npm ci
       - name: Import Apple signing certificate
         if: runner.os == 'macOS'

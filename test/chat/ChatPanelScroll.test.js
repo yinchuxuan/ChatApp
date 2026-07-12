@@ -7,8 +7,8 @@ const _React = require('react');
 const { render: _render, screen: _screen, fireEvent: _fireEvent, waitFor: _waitFor, act } = require('@testing-library/react');
 
 const platformMock = global.platformMock;
-const chatPanelRenderers = require('../../src/components/ChatPanelRenderers').default;
-const generationServices = require('../../src/chat/generationServices.js').default;
+const chatPanelRenderers = require('../../src/renderer/components/ChatPanelRenderers').default;
+const generationServices = require('../../src/renderer/chat/generationServices.js').default;
 
 describe('ChatPanel Component - Auto-scroll', () => {
   let ChatPanel;
@@ -30,7 +30,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
   });
 
   test('should have chat-history element as scrollable message container', async () => {
-    ChatPanel = require('../../src/ChatPanel.jsx').default;
+    ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -55,7 +55,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
       get() { return 500; }
     });
 
-    ChatPanel = require('../../src/ChatPanel.jsx').default;
+    ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -99,7 +99,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
       callbacks.onToken('streaming answer');
       await new Promise(resolve => { finishStream = resolve; });
     });
-    ChatPanel = require('../../src/ChatPanel.jsx').default;
+    ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
     _render(_React.createElement(ChatPanel, null));
 
     await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
@@ -121,7 +121,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
       R.createElement('div', { className: 'chat-msg-history-display' }, 'Msg History Content')
     );
 
-    ChatPanel = require('../../src/ChatPanel.jsx').default;
+    ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -142,7 +142,7 @@ describe('ChatPanel Component - Auto-scroll', () => {
   });
 
   test('should not have custom scrollbar UI components', async () => {
-    ChatPanel = require('../../src/ChatPanel.jsx').default;
+    ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 

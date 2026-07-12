@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import GameCardUIRoot from '../../src/components/GameCardUIRoot.jsx';
+import GameCardUIRoot from '../../src/renderer/components/GameCardUIRoot.jsx';
 
 describe('game card UI error isolation', () => {
   beforeEach(() => jest.clearAllMocks());

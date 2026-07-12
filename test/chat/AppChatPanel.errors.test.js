@@ -22,7 +22,7 @@ describe('ChatPanel Component - Error Handling', () => {
       config: { apiUrl: '', apiKey: '', modelName: '' }
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -51,7 +51,7 @@ describe('ChatPanel Component - Error Handling', () => {
 
     global.fetch.mockRejectedValue(new Error('Network failed'));
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -83,7 +83,7 @@ describe('ChatPanel Component - Error Handling', () => {
       json: async () => ({ error: { message: 'Forbidden' } })
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -109,7 +109,7 @@ describe('ChatPanel Component - Error Handling', () => {
   test('should display response on successful API call', async () => {
     global.fetch.mockResolvedValue(global.createStreamingMock('Hello World'));
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -140,7 +140,7 @@ describe('ChatPanel Component - Error Handling', () => {
 
     global.fetch.mockResolvedValue(global.createStreamingMock('response'));
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 

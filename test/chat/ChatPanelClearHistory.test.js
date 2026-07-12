@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import ChatPanel from '../../src/ChatPanel.jsx';
+import ChatPanel from '../../src/renderer/ChatPanel.jsx';
 
 const platformMock = global.platformMock;
 

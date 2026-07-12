@@ -2,5 +2,5 @@ node_modules/
 coverage/
 test-results/
 dist/
-src-tauri/target/
+src/tauri/target/
 *.min.js

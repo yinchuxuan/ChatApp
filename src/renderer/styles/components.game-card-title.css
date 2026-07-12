@@ -56,6 +56,12 @@
   margin-left: auto;
 }
 
+.game-card-title-actions .game-card-bgm-player,
+.game-card-title-actions .chat-session-manager {
+  display: flex;
+  align-items: center;
+}
+
 .game-card-model-status {
   flex: 0 0 auto;
 }

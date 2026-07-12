@@ -1,4 +1,4 @@
-const { applyUiStateActionEvent, normalizeUiStateActions } = require('../../src/gameCard/uiStateActions');
+const { applyUiStateActionEvent, normalizeUiStateActions } = require('../../src/renderer/gameCard/uiStateActions');
 const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 
 describe('game card ui state actions', () => {

@@ -3,8 +3,8 @@ const path = require('path');
 
 describe('Chat thinking styles', () => {
   const styleFiles = [
-    '../../src/styles/components.chat-messages.css',
-    '../../src/styles/components.chat-content.css'
+    '../../src/renderer/styles/components.chat-messages.css',
+    '../../src/renderer/styles/components.chat-content.css'
   ];
   const css = styleFiles.map((file) => (
     fs.readFileSync(path.join(__dirname, file), 'utf8')

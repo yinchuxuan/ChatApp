@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { GameCardRuntimeProvider, useGameCardRuntime } from '../../src/chat/GameCardRuntimeProvider.jsx';
+import { GameCardRuntimeProvider, useGameCardRuntime } from '../../src/renderer/chat/GameCardRuntimeProvider.jsx';
 import { createTestGameCardPlatform } from '../platform/tauriTestClient.js';
 
 describe('GameCardRuntimeProvider', () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen, act, fireEvent } from '@testing-library/react';
-import ChatPanel from '../../src/ChatPanel.jsx';
-import generationServices from '../../src/chat/generationServices.js';
+import ChatPanel from '../../src/renderer/ChatPanel.jsx';
+import generationServices from '../../src/renderer/chat/generationServices.js';
 
 describe('ChatPanel game card init', () => {
   beforeEach(() => {

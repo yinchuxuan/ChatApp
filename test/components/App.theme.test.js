@@ -17,8 +17,8 @@ const mockChatPanel = (props) => {
 const mockSettingsPanel = ({ onToggleTheme: _onToggleTheme, theme, onBackgroundChange: _onBackgroundChange }) =>
   React.createElement('div', { className: 'settings-panel-mock' }, `Settings: ${theme}`);
 
-jest.mock('../../src/ChatPanel.jsx', () => ({ __esModule: true, default: (props) => mockChatPanel(props) }));
-jest.mock('../../src/components/SettingsPanel.jsx', () => ({ __esModule: true, default: (props) => mockSettingsPanel(props) }));
+jest.mock('../../src/renderer/ChatPanel.jsx', () => ({ __esModule: true, default: (props) => mockChatPanel(props) }));
+jest.mock('../../src/renderer/components/SettingsPanel.jsx', () => ({ __esModule: true, default: (props) => mockSettingsPanel(props) }));
 
 describe('App Component - Theme', () => {
   beforeEach(() => {
@@ -48,7 +48,7 @@ describe('App Component - Theme', () => {
   test('should initialize theme from localStorage', async () => {
     localStorage.setItem('theme', 'dark');
 
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
 
     _render(React.createElement(App, null));
 
@@ -69,7 +69,7 @@ describe('App Component - Theme', () => {
       dispatchEvent: jest.fn()
     }));
 
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
 
     _render(React.createElement(App, null));
 
@@ -91,7 +91,7 @@ describe('App Component - Theme', () => {
       dispatchEvent: jest.fn()
     }));
 
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
 
     _render(React.createElement(App, null));
 
@@ -101,7 +101,7 @@ describe('App Component - Theme', () => {
   });
 
   test('should render app container', async () => {
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
 
     _render(React.createElement(App, null));
 
@@ -112,7 +112,7 @@ describe('App Component - Theme', () => {
   });
 
   test('should render ChatPanel when no document selected', async () => {
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
 
     _render(React.createElement(App, null));
 
@@ -122,19 +122,21 @@ describe('App Component - Theme', () => {
   });
 
   test('uses the initial game card background from the runtime callback', async () => {
-    initialGameCardBackground = 'local:///Users/me/Application Support/ChatApp/invite.png';
-    const App = require('../../src/App.jsx').default;
+    initialGameCardBackground = 'local://localhost/game-card%2Fwhite-album-2%2Fimage%2Fimages%2Finvite.png';
+    const App = require('../../src/renderer/App.jsx').default;
 
     _render(React.createElement(App, null));
 
     await act(async () => { await Promise.resolve(); });
 
     expect(document.querySelector('.app-background-layer-current').style.backgroundImage)
-      .toContain('local:///Users/me/Application%20Support/ChatApp/invite.png');
+      .toContain('game-card%2Fwhite-album-2%2Fimage%2Fimages%2Finvite.png');
+    expect(document.querySelector('.app-background-layer-current').style.backgroundImage)
+      .not.toContain('%252F');
   });
 
   test('should render SettingsPanel component', async () => {
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
 
     _render(React.createElement(App, null));
 

@@ -1,6 +1,6 @@
-const { applyGameCard } = require('../../src/gameCard/engine');
-const { ensureStateDefaults } = require('../../shared/game-card/state/stateSchema');
-const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
+const { applyGameCard } = require('../../src/renderer/gameCard/engine');
+const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
+const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSchemaLoader');
 
 describe('browser game card find runtime', () => {
   test('rule find still resolves after content resolver is loaded', () => {

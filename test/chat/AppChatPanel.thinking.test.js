@@ -6,8 +6,8 @@ const React = require('react');
 const { render, screen, fireEvent, waitFor, act } = require('@testing-library/react');
 
 const platformMock = global.platformMock;
-const ChatPanel = require('../../src/ChatPanel.jsx').default;
-const generationServices = require('../../src/chat/generationServices.js').default;
+const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
+const generationServices = require('../../src/renderer/chat/generationServices.js').default;
 const originalSendChatRequest = generationServices.sendChatRequest;
 
 describe('ChatPanel thinking display', () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import GameCardTitleControl from '../../src/components/GameCardTitleControl.jsx';
-import { GameCardRuntimeProvider } from '../../src/chat/GameCardRuntimeProvider.jsx';
+import GameCardTitleControl from '../../src/renderer/components/GameCardTitleControl.jsx';
+import { GameCardRuntimeProvider } from '../../src/renderer/chat/GameCardRuntimeProvider.jsx';
 
 describe('GameCardTitleControl', () => {
   test('uses the CardRepository game card result directly after import', async () => {

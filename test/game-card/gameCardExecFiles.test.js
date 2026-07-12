@@ -1,4 +1,4 @@
-const { applyGameCard } = require('../../src/gameCard/engine');
+const { applyGameCard } = require('../../src/renderer/gameCard/engine');
 
 function cardWithExec(source) {
   return {

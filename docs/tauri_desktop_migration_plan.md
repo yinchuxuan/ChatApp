@@ -18,8 +18,8 @@
 以下部分可以直接复用：
 
 - `src/` 下由 Vite 构建的 React SPA。
-- `shared/game-card/` 下的平台无关游戏卡规则、state、content 和 schema。
-- `src/platform/contracts.js` 定义的 renderer service 与 Game Card Platform contract。
+- `src/shared/game-card/` 下的平台无关游戏卡规则、state、content 和 schema。
+- `src/renderer/platform/contracts.js` 定义的 renderer service 与 Game Card Platform contract。
 - 聊天生成、流式渲染、retry、中止、动态 UI 和受控游戏卡脚本的 renderer 逻辑。
 - 当前 user data 目录结构和 JSON 数据格式。
 
@@ -36,14 +36,14 @@
 1. Shared core 不增加 Electron/Tauri 条件判断。
 2. Renderer 只依赖现有 platform contracts，不直接调用 Tauri 文件系统插件。
 3. Tauri 后端只暴露业务级窄 command，不向 WebView 暴露任意路径读写能力。
-4. 游戏卡 schema 继续以 `shared/game-card/schema/game-card.schema.json` 为唯一结构规则来源。
+4. 游戏卡 schema 继续以 `src/shared/game-card/schema/game-card.schema.json` 为唯一结构规则来源。
 5. 保持 session、retry state、game state、资源授权和原子写入的现有语义。
 6. 每一阶段保持 Electron target 可运行，并新增对应测试后再进入下一阶段。
 7. 新增 Rust 和配置文件同样遵守单文件不超过 200 行的仓库规则。
 
 ## 阶段 1：建立 Tauri 桌面工程（已完成，2026-07-11）
 
-- 新增 `src-tauri/`、Cargo 配置、Tauri 配置、capability 和桌面图标。
+- 新增 `src/tauri/`、Cargo 配置、Tauri 配置、capability 和桌面图标。
 - 配置 macOS、Windows、Linux 的应用标识、窗口尺寸和 bundle metadata。
 - 让 Tauri 使用现有 Vite dev server 和 `dist/renderer` 输出。
 - 调整 Vite 固定端口、`TAURI_DEV_HOST`、WebKit/Chromium 构建目标和 watch ignore。

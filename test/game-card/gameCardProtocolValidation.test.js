@@ -1,12 +1,12 @@
-const schema = require('../../shared/game-card/schema/game-card.schema.json');
-const { applyGameCard } = require('../../shared/game-card/engine/engine');
+const schema = require('../../src/shared/game-card/schema/game-card.schema.json');
+const { applyGameCard } = require('../../src/shared/game-card/engine/engine');
 const {
   GAME_CARD_SCHEMA_VERSION,
   validateGameCard
-} = require('../../shared/game-card/schema/validateGameCard');
+} = require('../../src/shared/game-card/schema/validateGameCard');
 const {
   collectSchemaFileReferences
-} = require('../../shared/game-card/schema/schemaFileReferences.js');
+} = require('../../src/shared/game-card/schema/schemaFileReferences.js');
 
 function card(overrides = {}) {
   return {

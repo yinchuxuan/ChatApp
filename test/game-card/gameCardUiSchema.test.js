@@ -1,10 +1,10 @@
 const fs = require('node:fs');
 const path = require('path');
 const Ajv = require('ajv');
-const { validateGameCard } = require('../../shared/game-card/schema/validateGameCard');
+const { validateGameCard } = require('../../src/shared/game-card/schema/validateGameCard');
 
 const schema = JSON.parse(fs.readFileSync(
-  path.join(__dirname, '../../shared/game-card/schema/game-card.schema.json'),
+  path.join(__dirname, '../../src/shared/game-card/schema/game-card.schema.json'),
   'utf8'
 ));
 

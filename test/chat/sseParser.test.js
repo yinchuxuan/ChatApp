@@ -1,5 +1,5 @@
-import { createSSEParser } from '../../src/chat/sseParser.js';
-import { sendChatRequest } from '../../src/chat/apiClient.js';
+import { createSSEParser } from '../../src/renderer/chat/sseParser.js';
+import { sendChatRequest } from '../../src/renderer/chat/apiClient.js';
 
 function responseFromChunks(chunks) {
   const encoder = new TextEncoder();

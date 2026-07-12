@@ -1,5 +1,5 @@
-import { createMemoryRendererServices } from '../../src/platform/memoryRendererServices.js';
-import { createTauriRendererServices } from '../../src/platform/tauriRendererServices.js';
+import { createMemoryRendererServices } from '../../src/renderer/platform/memoryRendererServices.js';
+import { createTauriRendererServices } from '../../src/renderer/platform/tauriRendererServices.js';
 import { verifyRendererServices } from './adapterContracts.js';
 
 function mockTauriClient() {

@@ -11,7 +11,7 @@ describe('SettingsModelConfig Component - Basic', () => {
   });
 
   test('should render model config section', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' },
@@ -28,7 +28,7 @@ describe('SettingsModelConfig Component - Basic', () => {
   });
 
   test('should show empty state when not configured', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' },
@@ -46,7 +46,7 @@ describe('SettingsModelConfig Component - Basic', () => {
   });
 
   test('should show configured status when model is configured', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4', protocol: 'openai' },
@@ -63,7 +63,7 @@ describe('SettingsModelConfig Component - Basic', () => {
   });
 
   test('should display config summary values when configured', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: { apiUrl: 'http://api.example.com/v1', apiKey: 'test-api-key-12345', modelName: 'gpt-4', protocol: 'openai' },
@@ -82,7 +82,7 @@ describe('SettingsModelConfig Component - Basic', () => {
   });
 
   test('should display generation parameter fields when configured', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: {

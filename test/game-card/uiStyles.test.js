@@ -2,7 +2,7 @@ const {
   loadGameCardUiStyle,
   removeGameCardUiStyle,
   isSafeUiStylesheetPath
-} = require('../../src/gameCard/uiStyles');
+} = require('../../src/renderer/gameCard/uiStyles');
 
 describe('game card ui styles', () => {
   afterEach(() => {

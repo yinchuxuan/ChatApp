@@ -1,4 +1,4 @@
-import { createTauriGameCardPlatform } from '../../src/platform/tauriGameCardPlatform.js';
+import { createTauriGameCardPlatform } from '../../src/renderer/platform/tauriGameCardPlatform.js';
 
 function resolveApi(apiSource) {
   return typeof apiSource === 'function' ? apiSource() : apiSource;

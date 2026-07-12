@@ -26,9 +26,9 @@ const mockUseSettingsStateReturn = {
 
 const mockUseSettingsState = jest.fn(() => mockUseSettingsStateReturn);
 
-jest.mock('../../src/settings/useSettingsState.js', () => ({ __esModule: true, default: (...args) => mockUseSettingsState(...args) }));
-jest.mock('../../src/components/SettingsBackground.jsx', () => ({ __esModule: true, default: (props) => mockSettingsBackground(props) }));
-jest.mock('../../src/components/SettingsModelConfig.jsx', () => ({ __esModule: true, default: (props) => mockSettingsModelConfig(props) }));
+jest.mock('../../src/renderer/settings/useSettingsState.js', () => ({ __esModule: true, default: (...args) => mockUseSettingsState(...args) }));
+jest.mock('../../src/renderer/components/SettingsBackground.jsx', () => ({ __esModule: true, default: (props) => mockSettingsBackground(props) }));
+jest.mock('../../src/renderer/components/SettingsModelConfig.jsx', () => ({ __esModule: true, default: (props) => mockSettingsModelConfig(props) }));
 
 describe('SettingsPanel Component - Basic', () => {
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('SettingsPanel Component - Basic', () => {
   });
 
   test('should render settings trigger zone', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -59,7 +59,7 @@ describe('SettingsPanel Component - Basic', () => {
   });
 
   test('should render settings panel container', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -74,7 +74,7 @@ describe('SettingsPanel Component - Basic', () => {
   });
 
   test('should render settings header', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -88,7 +88,7 @@ describe('SettingsPanel Component - Basic', () => {
   });
 
   test('should render theme toggle section', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -102,7 +102,7 @@ describe('SettingsPanel Component - Basic', () => {
   });
 
   test('should show correct theme toggle button text for light theme', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -116,7 +116,7 @@ describe('SettingsPanel Component - Basic', () => {
   });
 
   test('should show correct theme toggle button text for dark theme', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -131,7 +131,7 @@ describe('SettingsPanel Component - Basic', () => {
 
   test('should call onToggleTheme when theme button clicked', async () => {
     const onToggleTheme = jest.fn();
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme,
@@ -147,7 +147,7 @@ describe('SettingsPanel Component - Basic', () => {
   });
 
   test('should keep settings trigger zone without edge indicator', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),

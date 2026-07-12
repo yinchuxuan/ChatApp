@@ -1,8 +1,8 @@
-const { applyGameCard } = require('../../shared/game-card/engine/engine');
+const { applyGameCard } = require('../../src/shared/game-card/engine/engine');
 const {
   preparePreSendMessages,
   toApiMessages
-} = require('../../src/gameCard/sendPipeline');
+} = require('../../src/renderer/gameCard/sendPipeline');
 
 function card(rules) {
   return { version: '1', id: 'legacy-migration', name: 'Legacy Migration', rules };

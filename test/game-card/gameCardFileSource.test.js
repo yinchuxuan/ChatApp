@@ -1,5 +1,5 @@
-const { resolveContent } = require('../../shared/game-card/content/contentResolver');
-const { validateGameCard } = require('../../shared/game-card/schema/validateGameCard');
+const { resolveContent } = require('../../src/shared/game-card/content/contentResolver');
+const { validateGameCard } = require('../../src/shared/game-card/schema/validateGameCard');
 
 function cardWithFiles(files) {
   return {

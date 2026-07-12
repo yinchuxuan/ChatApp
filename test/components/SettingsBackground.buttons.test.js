@@ -11,7 +11,7 @@ describe('SettingsBackground Component - Preview Actions', () => {
   });
 
   test('should show preview when background image is set', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: 'test-url', backgroundOpacity: 0.5 },
@@ -32,7 +32,7 @@ describe('SettingsBackground Component - Preview Actions', () => {
   });
 
   test('should call onSelectBackgroundImage when preview clicked', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const onSelectBackgroundImage = jest.fn();
     const props = {
@@ -53,7 +53,7 @@ describe('SettingsBackground Component - Preview Actions', () => {
   });
 
   test('should call onClearBackgroundImage when clear button clicked', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const onClearBackgroundImage = jest.fn();
     const props = {
@@ -76,7 +76,7 @@ describe('SettingsBackground Component - Preview Actions', () => {
   });
 
   test('should not show preview or clear button in empty state', async () => {
-    const SettingsBackground = require('../../src/components/SettingsBackground.jsx').default;
+    const SettingsBackground = require('../../src/renderer/components/SettingsBackground.jsx').default;
 
     const props = {
       backgroundConfig: { backgroundImageUrl: '', backgroundOpacity: 0.5 },

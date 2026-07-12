@@ -24,9 +24,9 @@ const mockUseSettingsStateReturn = {
 
 const mockUseSettingsState = jest.fn(() => mockUseSettingsStateReturn);
 
-jest.mock('../../src/settings/useSettingsState.js', () => ({ __esModule: true, default: (...args) => mockUseSettingsState(...args) }));
-jest.mock('../../src/components/SettingsBackground.jsx', () => ({ __esModule: true, default: (props) => mockSettingsBackground(props) }));
-jest.mock('../../src/components/SettingsModelConfig.jsx', () => ({ __esModule: true, default: (props) => mockSettingsModelConfig(props) }));
+jest.mock('../../src/renderer/settings/useSettingsState.js', () => ({ __esModule: true, default: (...args) => mockUseSettingsState(...args) }));
+jest.mock('../../src/renderer/components/SettingsBackground.jsx', () => ({ __esModule: true, default: (props) => mockSettingsBackground(props) }));
+jest.mock('../../src/renderer/components/SettingsModelConfig.jsx', () => ({ __esModule: true, default: (props) => mockSettingsModelConfig(props) }));
 
 describe('SettingsPanel Component - Components', () => {
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('SettingsPanel Component - Components', () => {
   });
 
   test('should render SettingsBackground component when available', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -48,7 +48,7 @@ describe('SettingsPanel Component - Components', () => {
   });
 
   test('should render SettingsModelConfig component when available', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -62,7 +62,7 @@ describe('SettingsPanel Component - Components', () => {
   });
 
   test('should render SettingsBackground without a global registration', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -76,7 +76,7 @@ describe('SettingsPanel Component - Components', () => {
   });
 
   test('should render SettingsModelConfig without a global registration', async () => {
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -95,7 +95,7 @@ describe('SettingsPanel Component - Components', () => {
       isConfigured: 'http://api.example.com'
     });
 
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),
@@ -115,7 +115,7 @@ describe('SettingsPanel Component - Components', () => {
       isConfigured: false
     });
 
-    const SettingsPanel = require('../../src/components/SettingsPanel.jsx').default;
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 
     _render(React.createElement(SettingsPanel, {
       onToggleTheme: jest.fn(),

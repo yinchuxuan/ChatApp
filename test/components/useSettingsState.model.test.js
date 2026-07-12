@@ -22,7 +22,7 @@ describe('useSettingsState Hook - Model Handlers', () => {
   });
 
   test('should handle handleChange to update and auto-save config', async () => {
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -38,7 +38,7 @@ describe('useSettingsState Hook - Model Handlers', () => {
   });
 
   test('should handle handleChange for apiKey', async () => {
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -48,7 +48,7 @@ describe('useSettingsState Hook - Model Handlers', () => {
   });
 
   test('should handle handleChange for modelName', async () => {
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -58,8 +58,8 @@ describe('useSettingsState Hook - Model Handlers', () => {
   });
 
   test('should publish model config on save', async () => {
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
-    const { subscribeModelConfig } = require('../../src/chat/modelConfigService.js');
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
+    const { subscribeModelConfig } = require('../../src/renderer/chat/modelConfigService.js');
     const listener = jest.fn();
     const unsubscribe = subscribeModelConfig(listener);
 
@@ -81,7 +81,7 @@ describe('useSettingsState Hook - Model Handlers', () => {
     platformMock.saveModelConfig
       .mockImplementationOnce(() => new Promise(resolve => { resolveFirst = resolve; }))
       .mockResolvedValue({ success: true });
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
     await hookAct(async () => { await Promise.resolve(); });
 

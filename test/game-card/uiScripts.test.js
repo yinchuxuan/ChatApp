@@ -1,4 +1,4 @@
-const { applyUiScriptRunEvent, normalizeUiScriptRunEvent } = require('../../src/gameCard/uiScripts');
+const { applyUiScriptRunEvent, normalizeUiScriptRunEvent } = require('../../src/renderer/gameCard/uiScripts');
 const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 
 describe('game card ui scripts', () => {

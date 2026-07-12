@@ -25,7 +25,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -45,7 +45,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -64,7 +64,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -84,7 +84,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -103,7 +103,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -125,7 +125,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -145,7 +145,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 
@@ -164,7 +164,7 @@ describe('ChatPanel Component - Markdown Rendering', () => {
       ]
     });
 
-    const ChatPanel = require('../../src/ChatPanel.jsx').default;
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
 
     _render(_React.createElement(ChatPanel, null));
 

@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
-import generationServices from '../../src/chat/generationServices.js';
-import useChatGeneration from '../../src/chat/useChatGeneration.js';
+import generationServices from '../../src/renderer/chat/generationServices.js';
+import useChatGeneration from '../../src/renderer/chat/useChatGeneration.js';
 
 function createTypewriter() {
   let content = '';

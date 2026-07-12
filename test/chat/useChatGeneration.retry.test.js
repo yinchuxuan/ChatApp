@@ -1,6 +1,6 @@
 import { act } from '@testing-library/react';
-import generationServices from '../../src/chat/generationServices.js';
-import { prepareAfterResponseMessages } from '../../src/gameCard/sendPipeline.js';
+import generationServices from '../../src/renderer/chat/generationServices.js';
+import { prepareAfterResponseMessages } from '../../src/renderer/gameCard/sendPipeline.js';
 import { renderRetryGeneration } from './useChatGenerationTestHarness.js';
 
 describe('useChatGeneration retry pipeline', () => {

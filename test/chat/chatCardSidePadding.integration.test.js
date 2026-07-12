@@ -7,9 +7,9 @@ const fs = require('fs');
 const path = require('path');
 
 describe('Chat Reading Column - Integration', () => {
-  const chatPanelCssPath = path.join(__dirname, '../../src/styles/components.chat-panel.css');
-  const chatMessagesCssPath = path.join(__dirname, '../../src/styles/components.chat-messages.css');
-  const readabilityCssPath = path.join(__dirname, '../../src/styles/components.background-readability.css');
+  const chatPanelCssPath = path.join(__dirname, '../../src/renderer/styles/components.chat-panel.css');
+  const chatMessagesCssPath = path.join(__dirname, '../../src/renderer/styles/components.chat-messages.css');
+  const readabilityCssPath = path.join(__dirname, '../../src/renderer/styles/components.background-readability.css');
 
   test('chat-history defines fixed 660px reading column and responsive page padding', () => {
     const cssContent = fs.readFileSync(chatPanelCssPath, 'utf8');

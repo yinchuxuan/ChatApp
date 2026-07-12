@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import useChatGeneration from '../../src/chat/useChatGeneration.js';
+import useChatGeneration from '../../src/renderer/chat/useChatGeneration.js';
 
 function renderGeneration({ pushResult = 'ok', onAudioSubmit = jest.fn(), onStreamContentStart = jest.fn() } = {}) {
   let content = '';

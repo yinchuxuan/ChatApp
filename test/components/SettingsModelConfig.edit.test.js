@@ -11,7 +11,7 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
   });
 
   test('should show inline editable fields when configured', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4', protocol: 'openai' },
@@ -31,7 +31,7 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
   });
 
   test('should enter edit mode when clicking a field value', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const onChange = jest.fn();
     const props = {
@@ -54,7 +54,7 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
   });
 
   test('should call onChange when inline edit blurs', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const onChange = jest.fn();
     const props = {
@@ -81,7 +81,7 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
   });
 
   test('should show password input for API Key field', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const onChange = jest.fn();
     const props = {
@@ -104,7 +104,7 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
   });
 
   test('should allow entering api url from the empty state', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: { apiUrl: '', apiKey: '', modelName: '', protocol: 'openai' },
@@ -127,7 +127,7 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
   });
 
   test('should allow editing an empty api key field', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: { apiUrl: 'http://api.example.com', apiKey: '', modelName: 'gpt-4', protocol: 'openai' },
@@ -150,7 +150,7 @@ describe('SettingsModelConfig Component - Inline Editing', () => {
   });
 
   test('should allow editing numeric generation fields', async () => {
-    const SettingsModelConfig = require('../../src/components/SettingsModelConfig.jsx').default;
+    const SettingsModelConfig = require('../../src/renderer/components/SettingsModelConfig.jsx').default;
 
     const props = {
       config: {

@@ -27,7 +27,7 @@ describe('useSettingsState Hook - Config Loading', () => {
       config: { apiUrl: 'http://api.test.com', apiKey: 'key123', modelName: 'model-1' }
     });
 
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => {
@@ -52,7 +52,7 @@ describe('useSettingsState Hook - Config Loading', () => {
     });
 
     const onBackgroundChange = jest.fn();
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(onBackgroundChange));
 
     await hookAct(async () => {
@@ -69,7 +69,7 @@ describe('useSettingsState Hook - Config Loading', () => {
     platformMock.getBackgroundConfig.mockResolvedValue({ success: true, config: bgConfig });
 
     const onBackgroundChange = jest.fn();
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     renderHook(() => useSettingsState(onBackgroundChange));
 
     await hookAct(async () => {
@@ -83,7 +83,7 @@ describe('useSettingsState Hook - Config Loading', () => {
     platformMock.getModelConfig.mockResolvedValue({ success: false, error: 'Failed' });
     platformMock.getBackgroundConfig.mockResolvedValue({ success: false, error: 'Failed' });
 
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => {
@@ -98,7 +98,7 @@ describe('useSettingsState Hook - Config Loading', () => {
     const originalPlatformMock = global.platformMock;
     global.platformMock = undefined;
 
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });

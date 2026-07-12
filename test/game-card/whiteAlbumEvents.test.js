@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { applyGameCard } = require('../../src/gameCard/engine');
-const { ensureStateDefaults } = require('../../shared/game-card/state/stateSchema');
+const { applyGameCard } = require('../../src/renderer/gameCard/engine');
+const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
 const { stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
 
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');

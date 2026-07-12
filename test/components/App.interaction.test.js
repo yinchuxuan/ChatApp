@@ -19,8 +19,8 @@ const mockSettingsPanel = ({ onToggleTheme, theme, onBackgroundChange: _onBackgr
   );
 let mockCurrentSettingsPanel = mockSettingsPanel;
 
-jest.mock('../../src/ChatPanel.jsx', () => ({ __esModule: true, default: (props) => mockChatPanel(props) }));
-jest.mock('../../src/components/SettingsPanel.jsx', () => ({
+jest.mock('../../src/renderer/ChatPanel.jsx', () => ({ __esModule: true, default: (props) => mockChatPanel(props) }));
+jest.mock('../../src/renderer/components/SettingsPanel.jsx', () => ({
   __esModule: true,
   default: (props) => mockCurrentSettingsPanel(props)
 }));
@@ -62,7 +62,7 @@ describe('App Component - Interaction', () => {
 
     localStorage.setItem('theme', 'light');
 
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
     _render(React.createElement(App, null));
 
     await act(async () => { await Promise.resolve(); });
@@ -90,7 +90,7 @@ describe('App Component - Interaction', () => {
 
     mockCurrentSettingsPanel = mockSettingsPanelWithBgChange;
 
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
     _render(React.createElement(App, null));
 
     await act(async () => { await Promise.resolve(); });
@@ -116,7 +116,7 @@ describe('App Component - Interaction', () => {
 
     mockCurrentSettingsPanel = mockSettingsPanelWithBgChange;
 
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
     _render(React.createElement(App, null));
 
     await act(async () => { await Promise.resolve(); });
@@ -138,7 +138,7 @@ describe('App Component - Interaction', () => {
   });
 
   test('should apply visual panel position and scoped game card theme class', async () => {
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
     _render(React.createElement(App, null));
 
     await act(async () => { await Promise.resolve(); });
@@ -155,7 +155,7 @@ describe('App Component - Interaction', () => {
   });
 
   test('should render ChatPanel without a global registration', async () => {
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
     _render(React.createElement(App, null));
 
     await act(async () => { await Promise.resolve(); });
@@ -164,7 +164,7 @@ describe('App Component - Interaction', () => {
   });
 
   test('should render SettingsPanel without a global registration', async () => {
-    const App = require('../../src/App.jsx').default;
+    const App = require('../../src/renderer/App.jsx').default;
     _render(React.createElement(App, null));
 
     await act(async () => { await Promise.resolve(); });

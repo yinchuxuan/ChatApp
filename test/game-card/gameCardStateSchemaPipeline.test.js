@@ -2,7 +2,7 @@ const {
   prepareAfterResponseMessages,
   prepareInitMessages,
   preparePreSendMessages
-} = require('../../src/gameCard/sendPipeline');
+} = require('../../src/renderer/gameCard/sendPipeline');
 const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 const platform = createTestGameCardPlatform(() => global.platformMock);
 const preparePreSend = (options) => preparePreSendMessages({ ...options, platform });

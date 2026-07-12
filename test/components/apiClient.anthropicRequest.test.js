@@ -1,7 +1,7 @@
 /**
  * Tests for apiClient - sendChatRequest with Anthropic protocol
  */
-const { sendChatRequest } = require('../../src/chat/apiClient.js');
+const { sendChatRequest } = require('../../src/renderer/chat/apiClient.js');
 
 describe('sendChatRequest - Anthropic protocol', () => {
   beforeEach(() => {

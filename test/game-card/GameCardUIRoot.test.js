@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import GameCardUIRoot from '../../src/components/GameCardUIRoot.jsx';
-import { subscribeChatInputCommands } from '../../src/chat/chatInputCommands.js';
+import GameCardUIRoot from '../../src/renderer/components/GameCardUIRoot.jsx';
+import { subscribeChatInputCommands } from '../../src/renderer/chat/chatInputCommands.js';
 
 describe('GameCardUIRoot', () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 const React = require('react');
 const { render } = require('@testing-library/react');
-const ChatPanelRenderers = require('../../src/components/ChatPanelRenderers').default;
-const MessageRenderers = require('../../src/components/ChatPanelMessageRenderers').default;
+const ChatPanelRenderers = require('../../src/renderer/components/ChatPanelRenderers').default;
+const MessageRenderers = require('../../src/renderer/components/ChatPanelMessageRenderers').default;
 
 describe('MsgHistoryDisplay Card', () => {
   test('renders empty state when messages are absent', () => {

@@ -26,7 +26,7 @@ describe('useSettingsState Hook - Initial State', () => {
     platformMock.getModelConfig.mockResolvedValue({ success: false, error: 'Not found' });
     platformMock.getBackgroundConfig.mockResolvedValue({ success: false, error: 'Not found' });
 
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -37,7 +37,7 @@ describe('useSettingsState Hook - Initial State', () => {
   });
 
   test('should initialize protocol as openai', async () => {
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });
@@ -45,7 +45,7 @@ describe('useSettingsState Hook - Initial State', () => {
   });
 
   test('should initialize backgroundConfig with default values', async () => {
-    const useSettingsState = require('../../src/settings/useSettingsState.js').default;
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { result } = renderHook(() => useSettingsState(jest.fn()));
 
     await hookAct(async () => { await Promise.resolve(); });

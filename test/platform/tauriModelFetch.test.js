@@ -1,5 +1,5 @@
-import { readSSEStream } from '../../src/chat/apiClient.js';
-import { createTauriModelFetch } from '../../src/platform/tauriModelFetch.js';
+import { readSSEStream } from '../../src/renderer/chat/apiClient.js';
+import { createTauriModelFetch } from '../../src/renderer/platform/tauriModelFetch.js';
 
 class TestChannel {
   constructor() {

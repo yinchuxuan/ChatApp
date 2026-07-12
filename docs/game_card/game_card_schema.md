@@ -2,7 +2,7 @@
 
 ## 唯一事实源
 
-`shared/game-card/schema/game-card.schema.json` 是游戏卡结构协议的唯一事实源。字段、action、predicate、content、资源路径及 UI 配置的增删只修改该文件，不再同步维护手写结构 validator。
+`src/shared/game-card/schema/game-card.schema.json` 是游戏卡结构协议的唯一事实源。字段、action、predicate、content、资源路径及 UI 配置的增删只修改该文件，不再同步维护手写结构 validator。
 
 协议在两个边界校验：
 

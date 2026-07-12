@@ -2,7 +2,7 @@
  * Tests for highlightQuotes utility
  */
 
-const { highlightQuotes, wrapQuotesInText } = require('../../src/components/highlightQuotes.js');
+const { highlightQuotes, wrapQuotesInText } = require('../../src/renderer/components/highlightQuotes.js');
 
 describe('highlightQuotes utility', () => {
   describe('wrapQuotesInText', () => {

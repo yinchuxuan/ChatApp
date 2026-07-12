@@ -1,7 +1,7 @@
 /**
  * Tests for apiClient - sendChatRequest with OpenAI protocol
  */
-const { sendChatRequest } = require('../../src/chat/apiClient.js');
+const { sendChatRequest } = require('../../src/renderer/chat/apiClient.js');
 
 describe('sendChatRequest - OpenAI protocol', () => {
   beforeEach(() => {

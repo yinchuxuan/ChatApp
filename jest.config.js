@@ -12,9 +12,9 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   collectCoverageFrom: [
-    'src/**/*.jsx',
-    'src/**/*.js',
-    'shared/**/*.js',
+    'src/renderer/**/*.jsx',
+    'src/renderer/**/*.js',
+    'src/shared/**/*.js',
     '!**/node_modules/**'
   ],
   coverageThreshold: {
@@ -24,5 +24,5 @@ module.exports = {
     '^.+\\.jsx?$': 'babel-jest'
   },
   transformIgnorePatterns: ['/node_modules/(?!marked/)'],
-  moduleDirectories: ['node_modules', 'src']
+  moduleDirectories: ['node_modules', 'src/renderer']
 };

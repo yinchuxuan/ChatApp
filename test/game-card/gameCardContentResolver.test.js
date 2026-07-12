@@ -1,5 +1,5 @@
-const { resolveContent } = require('../../shared/game-card/content/contentResolver');
-const { applyGameCard } = require('../../shared/game-card/engine/engine');
+const { resolveContent } = require('../../src/shared/game-card/content/contentResolver');
+const { applyGameCard } = require('../../src/shared/game-card/engine/engine');
 
 function createCard(content, files) {
   return {

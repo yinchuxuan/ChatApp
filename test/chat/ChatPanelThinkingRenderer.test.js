@@ -2,8 +2,8 @@ const React = require('react');
 const { render, fireEvent } = require('@testing-library/react');
 const DOMPurify = require('dompurify')(window);
 const { marked } = require('marked');
-const renderers = require('../../src/components/ChatPanelMessageRenderers').default;
-const MessageCollapseRenderer = require('../../src/components/MessageCollapseRenderer').default;
+const renderers = require('../../src/renderer/components/ChatPanelMessageRenderers').default;
+const MessageCollapseRenderer = require('../../src/renderer/components/MessageCollapseRenderer').default;
 
 function renderAssistant(msg, toggle = jest.fn()) {
   return render(renderers.renderAssistantMsg(

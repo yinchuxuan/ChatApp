@@ -1,6 +1,6 @@
-const { applyGameCard } = require('../../src/gameCard/engine');
-const { matchesState, matchesWhen } = require('../../shared/game-card/engine/predicate');
-const { validateGameCard } = require('../../shared/game-card/schema/validateGameCard');
+const { applyGameCard } = require('../../src/renderer/gameCard/engine');
+const { matchesState, matchesWhen } = require('../../src/shared/game-card/engine/predicate');
+const { validateGameCard } = require('../../src/shared/game-card/schema/validateGameCard');
 
 function runtimeCard(rules) {
   return { version: '1', id: 'state-card', name: 'State Card', rules };

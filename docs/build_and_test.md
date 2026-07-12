@@ -23,8 +23,8 @@ Tauri is the only desktop target.
 
 ## Renderer
 
-- `src/main.jsx` is the single renderer entry.
-- `src/styles/renderer.css` is the single platform CSS entry.
+- `src/renderer/main.jsx` is the single renderer entry.
+- `src/renderer/styles/renderer.css` is the single platform CSS entry.
 - Tauri development starts Vite through `beforeDevCommand`.
 - Tauri production and E2E build Vite through `beforeBuildCommand`.
 - Production output uses WebKit/Chromium-compatible targets and local bundled fonts.
@@ -40,7 +40,7 @@ Coverage thresholds remain 70% branches, 80% functions, 85% lines and 82% statem
 
 ## Rust
 
-`cargo test --manifest-path src-tauri/Cargo.toml` covers:
+`cargo test --manifest-path src/tauri/Cargo.toml` covers:
 
 - atomic JSON storage and serialized session saves;
 - config, history, retry state and session isolation;

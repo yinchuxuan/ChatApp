@@ -3,9 +3,9 @@ const { fireEvent, render } = require('@testing-library/react');
 const DOMPurify = require('dompurify')(window);
 const { marked } = require('marked');
 const { card } = require('./whiteAlbumTestCard');
-const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/gameCard/displayRules');
-const renderers = require('../../src/components/ChatPanelMessageRenderers').default;
-const { subscribeChatInputCommands } = require('../../src/chat/chatInputCommands');
+const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/renderer/gameCard/displayRules');
+const renderers = require('../../src/renderer/components/ChatPanelMessageRenderers').default;
+const { subscribeChatInputCommands } = require('../../src/renderer/chat/chatInputCommands');
 
 const sample = [
   '【时间地点】2007.10.20: 15:00 星期六｜峰城大附属第二音乐室',

@@ -1,10 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
-const { applyGameCard } = require('../../src/gameCard/engine');
-const { ensureStateDefaults } = require('../../shared/game-card/state/stateSchema');
-const { mergeAudioStateSchema } = require('../../src/gameCard/stateSchemaLoader');
-const { applyLatestAssistantStatePatch } = require('../../shared/game-card/state/statePatch');
+const { applyGameCard } = require('../../src/renderer/gameCard/engine');
+const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
+const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSchemaLoader');
+const { applyLatestAssistantStatePatch } = require('../../src/shared/game-card/state/statePatch');
 
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
