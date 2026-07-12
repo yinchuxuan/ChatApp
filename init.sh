@@ -2,9 +2,6 @@
 
 set -euo pipefail
 
-# Stop tracking local changes to feature list
-git update-index --assume-unchanged docs/feature_list.json 2>/dev/null || true
-
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 

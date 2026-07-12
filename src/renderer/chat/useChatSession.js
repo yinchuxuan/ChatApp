@@ -13,7 +13,8 @@ function useChatSession({
   onResetView,
   repository = rendererServices.sessions
 }) {
-  const load = React.useCallback(async () => {
+  const [revision, setRevision] = React.useState(0);
+  const loadCurrent = React.useCallback(async () => {
     try {
       const result = await repository.loadHistory();
       persistence.hydrate(result);
@@ -35,6 +36,11 @@ function useChatSession({
     }
   }, [persistence, repository, setGameState, setMessages, setRuntimeError]);
 
+  const load = React.useCallback(() => {
+    setRevision(value => value + 1);
+    return loadCurrent();
+  }, [loadCurrent]);
+
   React.useEffect(() => { void load(); }, [load]);
 
   const saveCurrent = React.useCallback(async () => {
@@ -50,13 +56,17 @@ function useChatSession({
   }, [load, onResetView, persistence, typewriter]);
 
   const switchSession = React.useCallback(async (id) => {
+    setRevision(value => value + 1);
     await saveCurrent();
     const result = await repository.setActive(id);
-    await reload();
+    persistence.reset();
+    typewriter.clearStreaming();
+    onResetView?.();
+    await loadCurrent();
     return { success: true, ...result };
-  }, [reload, repository, saveCurrent]);
+  }, [loadCurrent, onResetView, persistence, repository, saveCurrent, typewriter]);
 
-  return { load, reload, saveCurrent, switchSession };
+  return { load, reload, revision, saveCurrent, switchSession };
 }
 
 export default useChatSession;

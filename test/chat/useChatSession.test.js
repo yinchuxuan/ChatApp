@@ -37,11 +37,13 @@ describe('useChatSession', () => {
     const options = createOptions(repository);
     const { result } = renderHook(() => useChatSession(options));
     await waitFor(() => expect(repository.loadHistory).toHaveBeenCalledTimes(1));
+    expect(result.current.revision).toBe(1);
     await act(async () => { await result.current.switchSession('chapter-2'); });
     expect(options.persistence.save).toHaveBeenCalled();
     expect(repository.setActive).toHaveBeenCalledWith('chapter-2');
     expect(options.persistence.reset).toHaveBeenCalled();
     expect(options.typewriter.clearStreaming).toHaveBeenCalled();
     expect(repository.loadHistory).toHaveBeenCalledTimes(2);
+    expect(result.current.revision).toBe(2);
   });
 });

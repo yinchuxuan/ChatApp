@@ -4,12 +4,11 @@ import React from 'react';
 import ChatPanelMessageRenderers from './ChatPanelMessageRenderers.jsx';
 import { highlightQuotes } from './highlightQuotes.js';
 import * as runtime from '../gameCard/uiRuntime.js';
-import { applyUiScriptRunEvent } from '../gameCard/uiScripts.js';
-import { applyUiStateActionEvent } from '../gameCard/uiStateActions.js';
 import { gameCardPlatform } from '../platform/index.js';
 import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
 import GameCardUIErrorBoundary from './GameCardUIErrorBoundary.jsx';
 import { readonly } from '../gameCard/uiReadonly.js';
+import useUiStateEventQueue from '../gameCard/useUiStateEventQueue.js';
 import { gameCard, gameState, message, PropTypes } from './componentPropTypes.js';
 
 async function resourceResult(field, load) {
@@ -21,50 +20,10 @@ async function resourceResult(field, load) {
   }
 }
 
-function emitInputAction(event) {
-  return dispatchChatInputCommand(event);
-}
-
-async function emitStateAction(event, options) {
-  if (typeof options?.setGameState !== 'function') return false;
-  const result = await applyUiStateActionEvent({
-    event,
-    state: options.stateRef.current,
-    messages: options.messages,
-    card: options.card,
-    platform: gameCardPlatform
-  });
-  if (result.trace?.error) throw new Error(result.trace.error);
-  if (result.trace?.reason) return false;
-  options.stateRef.current = result.state;
-  options.setGameState(result.state);
-  return result.applied;
-}
-
-async function emitScriptRun(event, options) {
-  if (typeof options?.setGameState !== 'function') return false;
-  const result = await applyUiScriptRunEvent({
-    event,
-    state: options.stateRef.current,
-    messages: options.messages,
-    card: options.card,
-    platform: gameCardPlatform
-  });
-  if (result.trace?.error) throw new Error(result.trace.error);
-  if (result.trace?.reason) return false;
-  options.stateRef.current = result.state;
-  options.setGameState(result.state);
-  return result.applied;
-}
-
-function handleUiEvent(event, options) {
-  const type = event?.type;
-  const inputTypes = ['chat.input.set', 'chat.input.append', 'chat.input.clear', 'chat.input.focus', 'chat.input.submit', 'chat.send'];
-  if (inputTypes.includes(type)) return emitInputAction(event);
-  if (type === 'game.state.apply') return emitStateAction(event, options);
-  if (type === 'game.script.run') return emitScriptRun(event, options);
-  return false;
-}
+const inputEventTypes = new Set([
+  'chat.input.set', 'chat.input.append', 'chat.input.clear',
+  'chat.input.focus', 'chat.input.submit', 'chat.send'
+]);
 
 function renderAssistantMessage(R, content, card, options = {}) {
   const renderers = ChatPanelMessageRenderers;
@@ -94,13 +53,14 @@ function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = 
   const R = React;
   const [loadedRoot, setLoadedRoot] = R.useState(null);
   const [error, setError] = R.useState(null);
-  const stateRef = R.useRef(gameState || {});
   const cardId = card?.id || '';
   const rootSource = card?.ui?.root?.source || '';
   const rootStyle = card?.ui?.root?.style || '';
   const C = R.createElement;
 
-  R.useEffect(() => { stateRef.current = gameState || {}; }, [gameState]);
+  const emitStateEvent = useUiStateEventQueue({
+    card, gameState, messages, setGameState, onError: setError
+  });
 
   R.useEffect(() => {
     let canceled = false;
@@ -131,19 +91,13 @@ function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = 
   const safeMessages = R.useMemo(() => readonly(messages || []), [messages]);
   const emit = R.useCallback((event) => {
     try {
-      const result = handleUiEvent(event, { card, messages, setGameState, stateRef });
-      if (result && typeof result.catch === 'function') {
-        return result.catch((err) => {
-          setError(err);
-          return false;
-        });
-      }
-      return result;
+      if (inputEventTypes.has(event?.type)) return dispatchChatInputCommand(event);
+      return emitStateEvent(event);
     } catch (err) {
       setError(err);
       return false;
     }
-  }, [card, messages, setGameState]);
+  }, [emitStateEvent]);
   const assets = R.useMemo(() => ({
     readFile: (filePath) => resourceResult('content', () => gameCardPlatform.resources.readText(cardId, filePath)),
     getBackgroundUrl: (key) => card?.visual?.background?.[key]
@@ -179,7 +133,7 @@ function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = 
 function GameCardUIRoot(props) {
   const root = props.card?.ui?.root;
   if (!root?.source) return null;
-  const resetKey = `${props.card?.id || ''}:${root?.source || ''}:${root?.style || ''}`;
+  const resetKey = `${props.card?.id || ''}:${root?.source || ''}:${root?.style || ''}:${props.uiScopeKey || 0}`;
   return <GameCardUIErrorBoundary key={resetKey} onError={props.onError}>
     <GameCardUIRootContent {...props} />
   </GameCardUIErrorBoundary>;
@@ -191,6 +145,7 @@ const gameCardUIRootPropTypes = {
   setGameState: PropTypes.func,
   messages: PropTypes.arrayOf(message),
   isLoading: PropTypes.bool,
+  uiScopeKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onError: PropTypes.func
 };
 GameCardUIRootContent.propTypes = gameCardUIRootPropTypes;
