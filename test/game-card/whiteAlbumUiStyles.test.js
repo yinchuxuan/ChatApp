@@ -133,7 +133,7 @@ describe('white album ui styles', () => {
     expect(css).toContain('--gc-assistant-bubble-text: #07131f');
     expect(css).toContain('--game-card-text-color: #07131f');
     expect(css).toContain('--game-card-text-color-dark: #07131f');
-    expect(css).toContain('--game-card-highlight-color-dark: #3f78a8');
+    expect(css).toContain('color: #f5fbff !important');
     expect(css).toContain('--game-card-text-weight: 400');
     expect(css).toContain('--gc-message-font: "Songti SC"');
     expect(css).toContain('--gc-message-font-size: 14px');
@@ -170,19 +170,19 @@ describe('white album ui styles', () => {
 
   test('uses the same quoted dialogue highlight in light and dark WA2 modes', () => {
     expect(css).toContain('[data-gc-part="message-content"] .quoted-text');
-    expect(css).toContain('color: var(--game-card-highlight-color)');
+    expect(css).toContain('color: var(--wa2-highlight-text-color)');
     expect(css).toContain('font-weight: 700');
-    expect(css).toContain('text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color) 52%, transparent)');
-    expect(css).not.toMatch(/\[data-theme="dark"\][^{]*\.quoted-text/);
+    expect(css).toContain('text-decoration-color: color-mix(in srgb, var(--wa2-highlight-text-color) 52%, transparent)');
+    expect(css).toMatch(/\[data-theme="dark"\][^{]*\.quoted-text/);
   });
   test('styles the local event panel as a frosted ui widget', () => {
     expect(eventRootCss).toContain('--wa2-event-trigger-icon: url("data:image/svg+xml');
     expect(eventRootCss).toContain('--wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)))');
-    expect(eventRootCss).toContain('top: calc(var(--wa2-event-panel-top) + 10px)');
+    expect(eventRootCss).toContain('top: calc(var(--wa2-event-panel-top) + 4px)');
     expect(eventRootCss).toContain('font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif');
     expect(eventRootCss).toContain('-webkit-mask: var(--wa2-event-trigger-icon) center / contain no-repeat');
-    expect(eventRootCss).toMatch(/width: 44px[\s\S]*height: 44px[\s\S]*padding: 11px/);
-    expect(eventRootCss).toMatch(/\.wa2-event-trigger-icon[\s\S]*width: 22px[\s\S]*height: 22px/);
+    expect(eventRootCss).toMatch(/width: 44px[\s\S]*height: 44px[\s\S]*padding: 13px[\s\S]*\.wa2-event-trigger::before[\s\S]*inset: 4px/);
+    expect(eventRootCss).toMatch(/\.wa2-event-trigger-icon[\s\S]*width: 18px[\s\S]*height: 18px/);
     expect(eventRootCss).toContain('padding: 54px 64px 30px');
     expect(eventRootCss).toContain(':has(.wa2-event-root[data-open="true"])');
     expect(eventRootCss).toContain('[data-gc-part="collapsed-message-view"]');

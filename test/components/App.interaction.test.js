@@ -154,6 +154,19 @@ describe('App Component - Interaction', () => {
     expect(appContainer.className).toContain('game-card-theme-white-album-2');
   });
 
+  test('should render and clear the game card portrait layer', async () => {
+    const App = require('../../src/renderer/App.jsx').default;
+    _render(React.createElement(App, null));
+
+    await act(async () => chatPanelProps.onPortraitChange({ url: 'portrait-url' }));
+    const portrait = document.querySelector('[data-gc-part="portrait-layer"] img');
+    expect(portrait.getAttribute('src')).toBe('portrait-url');
+    expect(document.querySelector('.app-container').className).toContain('has-portrait');
+
+    await act(async () => chatPanelProps.onPortraitChange({ url: '' }));
+    expect(document.querySelector('[data-gc-part="portrait-layer"]')).toBeNull();
+  });
+
   test('should render ChatPanel without a global registration', async () => {
     const App = require('../../src/renderer/App.jsx').default;
     _render(React.createElement(App, null));

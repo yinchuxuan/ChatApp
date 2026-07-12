@@ -92,6 +92,12 @@ describe('Tauri desktop application', () => {
   it('streams a reply and retries the last user message', async () => {
     await sendMessage('正常请求');
     await browser.waitUntil(async () => (await $('.chat-history').getText()).includes('Tauri 回复 1'));
+    expect((await invoke('get_chat_history')).gameState.visual.portrait).toBe('test');
+    await browser.waitUntil(async () => browser.execute(() => {
+      const image = document.querySelector('[data-gc-part="portrait-layer"] img');
+      return !!image && image.src.includes('local') && image.complete
+        && image.naturalWidth > 0 && image.naturalHeight > 0;
+    }));
     const retry = await $('.retry-btn');
     await retry.waitForExist();
     await browser.execute(element => element.click(), retry);

@@ -19,15 +19,31 @@ function card(visual) {
 }
 
 describe('game card visual schema', () => {
-  test('accepts background resource tables', () => {
+  test('accepts background and portrait resource tables', () => {
     const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const config = {
       stylesheet: 'visual.css',
-      background: { school: 'images/school.jpg', night: 'images/night.webp' }
+      background: { school: 'images/school.jpg', night: 'images/night.webp' },
+      portrait: { touma: 'images/touma.png', setsuna: 'images/setsuna.webp' }
     };
 
     expect(validate(card(config))).toBe(true);
     expect(validateGameCard(card(config))).toEqual({ valid: true, errors: [] });
+  });
+
+  test('rejects unsafe portrait resource paths and the reserved none key', () => {
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
+    const unsafe = [
+      { portrait: { touma: '../touma.png' } },
+      { portrait: { touma: '/tmp/touma.png' } },
+      { portrait: { touma: 'images/touma.txt' } },
+      { portrait: { none: 'images/empty.png' } }
+    ];
+
+    unsafe.forEach(visual => {
+      expect(validate(card(visual))).toBe(false);
+      expect(validateGameCard(card(visual)).valid).toBe(false);
+    });
   });
 
   test('rejects unsafe background resource paths', () => {

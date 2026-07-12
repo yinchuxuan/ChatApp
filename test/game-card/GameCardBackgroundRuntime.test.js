@@ -29,6 +29,21 @@ describe('GameCardBackgroundRuntime', () => {
     expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
   });
 
+  test('dispatches resolved portrait url from game state', async () => {
+    global.platformMock.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///touma.png' });
+    const handler = jest.fn();
+
+    render(React.createElement(GameCardBackgroundRuntime, {
+      card: { id: 'wa2', visual: { portrait: { touma: 'images/touma.png' } } },
+      gameState: { visual: { portrait: 'touma' } },
+      onPortraitChange: handler
+    }));
+    await flushEffects();
+
+    await waitFor(() => expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledWith('wa2', 'images/touma.png'));
+    expect(handler).toHaveBeenCalledWith({ url: 'local:///touma.png' });
+  });
+
   test('clears background when key is missing', async () => {
     const handler = jest.fn();
 
@@ -110,6 +125,49 @@ describe('GameCardBackgroundRuntime', () => {
     await act(async () => resolveImage({ success: true, url: 'local:///school.jpg' }));
 
     expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
+  });
+
+  test('retries a canceled portrait resolution when defer ends', async () => {
+    const resolvers = [];
+    global.platformMock.getGameCardImageUrl.mockImplementation(() => (
+      new Promise(resolve => resolvers.push(resolve))
+    ));
+    const handler = jest.fn();
+    const card = { id: 'wa2', visual: { portrait: { touma: 'images/touma.png' } } };
+    const gameState = { visual: { portrait: 'touma' } };
+    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
+      card, gameState, defer: true, onPortraitChange: handler
+    }));
+    await waitFor(() => expect(resolvers).toHaveLength(1));
+
+    rerender(React.createElement(GameCardBackgroundRuntime, {
+      card, gameState, defer: false, onPortraitChange: handler
+    }));
+    await waitFor(() => expect(resolvers).toHaveLength(2));
+    await act(async () => resolvers[0]({ success: true, url: 'local:///stale.png' }));
+    expect(handler).not.toHaveBeenCalledWith({ url: 'local:///stale.png' });
+    await act(async () => resolvers[1]({ success: true, url: 'local:///touma.png' }));
+
+    expect(handler).toHaveBeenCalledWith({ url: 'local:///touma.png' });
+  });
+
+  test('retries a pending portrait when defer ends before reveal renders', async () => {
+    global.platformMock.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///touma.png' });
+    const handler = jest.fn();
+    const card = { id: 'wa2', visual: { portrait: { touma: 'images/touma.png' } } };
+    const gameState = { visual: { portrait: 'touma' } };
+    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
+      card, gameState, defer: true, revealToken: 0, onPortraitChange: handler
+    }));
+    await flushEffects();
+    expect(handler).not.toHaveBeenCalled();
+
+    rerender(React.createElement(GameCardBackgroundRuntime, {
+      card, gameState, defer: false, revealToken: 1, onPortraitChange: handler
+    }));
+    await flushEffects();
+
+    expect(handler).toHaveBeenCalledWith({ url: 'local:///touma.png' });
   });
 
   test('dispatches visual panel state and normalizes invalid values', async () => {

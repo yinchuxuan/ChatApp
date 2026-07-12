@@ -28,8 +28,8 @@
 
 ## 四、交互与动效
 - 状态层: Hover 8% / Focus 12% / Pressed 12% 透明度
-- 动画: Emphasized easing, 200-300ms, 含 subtle-pulse / gradient-flow / fade-scale-in
-- Header 底部渐变进度条: primary → secondary 8s 循环流动
+- 动画: Emphasized easing, 200-300ms，用于显隐、入场和交互状态变化
+- Header 底部使用静态 primary → secondary 渐变条，不使用常驻循环动画
 - Elevation: 5级阴影系统 (dark/light 独立)
 
 ## 五、可访问性 (WCAG AA)

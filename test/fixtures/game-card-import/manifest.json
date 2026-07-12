@@ -4,6 +4,7 @@
   { "name": "invalid-random-range", "valid": false, "stage": "validate_card" },
   { "name": "invalid-state-schema", "valid": false, "stage": "validate_state_schema" },
   { "name": "missing-resource", "valid": false, "stage": "validate_files" },
+  { "name": "missing-portrait", "valid": false, "stage": "validate_files" },
   { "name": "import-cycle", "valid": false, "errorIncludes": "circular game card import" },
   { "name": "unsafe-import", "valid": false, "errorIncludes": "inside game card directory" }
 ]

@@ -14,5 +14,8 @@
     "agreement": "images/agreement.png",
     "GameEnd1": "images/GameEnd1.png",
     "event1":"images/event1.png"
+  },
+  "portrait": {
+    "touma_normal": "images/touma_normal_alpha.png"
   }
 }

@@ -11,6 +11,7 @@ function App() {
     backgroundOpacity: 0.5
   });
   const [gameCardBackgroundUrl, setGameCardBackgroundUrl] = React.useState('');
+  const [gameCardPortraitUrl, setGameCardPortraitUrl] = React.useState('');
   const [backgroundLayers, setBackgroundLayers] = React.useState({ current: '', previous: '' });
   const [visualPanel, setVisualPanel] = React.useState({ textPanel: 'center', cardId: '' });
 
@@ -47,6 +48,10 @@ function App() {
 
   const handleGameCardBackgroundChange = React.useCallback((detail) => {
     setGameCardBackgroundUrl(detail?.url || '');
+  }, []);
+
+  const handleGameCardPortraitChange = React.useCallback((detail) => {
+    setGameCardPortraitUrl(detail?.url || '');
   }, []);
 
   const handleVisualPanelChange = React.useCallback((detail) => {
@@ -99,15 +104,19 @@ function App() {
 
   return (
     <div
-      className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}`}
+      className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}${gameCardPortraitUrl ? ' has-portrait' : ''}`}
       data-gc-part="app"
     >
       {backgroundLayers.previous && <div className="app-background-layer app-background-layer-previous" style={getBackgroundStyle(backgroundLayers.previous)} />}
       {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} />}
       {backgroundImageUrl && <div data-gc-part="background-overlay" style={getOverlayStyle()} />}
+      {gameCardPortraitUrl && <div className="app-portrait-layer" data-gc-part="portrait-layer" aria-hidden="true">
+        <img key={gameCardPortraitUrl} className="app-portrait-image" src={gameCardPortraitUrl} alt="" />
+      </div>}
       <div className="app-content-wrapper">
         <ChatPanel
           onBackgroundChange={handleGameCardBackgroundChange}
+          onPortraitChange={handleGameCardPortraitChange}
           onVisualPanelChange={handleVisualPanelChange}
         />
       </div>

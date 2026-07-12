@@ -7,7 +7,7 @@
   --wa2-event-panel-bottom: var(--game-card-panel-edge-gap, 22px);
   --wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)));
   position: fixed;
-  top: calc(var(--wa2-event-panel-top) + 10px);
+  top: calc(var(--wa2-event-panel-top) + 4px);
   right: var(--wa2-event-panel-right);
   left: var(--wa2-event-panel-left);
   z-index: 120;
@@ -33,8 +33,8 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  padding: 11px;
-  border: 1px solid transparent;
+  padding: 13px;
+  border: 0;
   border-radius: 999px;
   background: transparent;
   color: rgba(3, 10, 18, 0.96);
@@ -46,25 +46,39 @@
   font-weight: 300;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.58);
   transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    box-shadow 220ms ease,
     color 180ms ease,
     transform 180ms ease;
+}
+
+.game-card-theme-white-album-2 .wa2-event-trigger::before {
+  position: absolute;
+  inset: 4px;
+  z-index: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
+  content: "";
+  pointer-events: none;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 220ms ease;
 }
 
 .game-card-theme-white-album-2 .wa2-event-trigger:hover,
 .game-card-theme-white-album-2 .wa2-event-trigger:focus-visible,
 .game-card-theme-white-album-2 .wa2-event-root[data-open="true"] .wa2-event-trigger {
-  background: transparent;
   color: rgba(3, 10, 18, 1);
-  box-shadow: none;
   transform: translateY(-1px);
 }
 
 .game-card-theme-white-album-2 .wa2-event-root[data-has-events="true"] .wa2-event-trigger {
   color: var(--game-card-highlight-color-light, var(--game-card-highlight-color, #3f78a8));
   font-weight: 600;
+}
+
+.game-card-theme-white-album-2 .wa2-event-root[data-has-events="true"] .wa2-event-trigger::before {
   border-color: color-mix(in srgb, currentColor 48%, rgba(255, 255, 255, 0.82));
   background: rgba(255, 255, 255, 0.28);
   box-shadow:
@@ -74,6 +88,9 @@
 
 .game-card-theme-white-album-2 .wa2-event-root[data-open="true"][data-has-events="true"] .wa2-event-trigger {
   color: rgba(7, 19, 31, 0.92);
+}
+
+.game-card-theme-white-album-2 .wa2-event-root[data-open="true"][data-has-events="true"] .wa2-event-trigger::before {
   border-color: rgba(7, 19, 31, 0.18);
   background: rgba(255, 255, 255, 0.54);
   box-shadow:
@@ -87,9 +104,11 @@
 }
 
 .game-card-theme-white-album-2 .wa2-event-trigger-icon {
+  position: relative;
+  z-index: 1;
   display: inline-block;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   background: currentColor;
   font-size: 0;
   line-height: 1;

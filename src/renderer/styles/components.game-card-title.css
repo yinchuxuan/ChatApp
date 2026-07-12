@@ -25,7 +25,6 @@
   flex: 0 0 auto;
   font-size: 28px;
   color: var(--md-primary);
-  animation: subtle-pulse 3s ease-in-out infinite;
 }
 
 .game-card-title-name {

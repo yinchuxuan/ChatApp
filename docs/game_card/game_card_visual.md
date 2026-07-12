@@ -4,7 +4,7 @@
 
 Visual 定义游戏卡可使用的本地视觉资源，并通过 `gameState` 控制当前展示内容。
 
-第一版只设计背景图：游戏卡声明背景 key 到资源路径的映射，运行时自动派生当前背景 key 的隐藏 state schema，现有 state action 修改当前背景 key，前端监听 `gameState.visual.background` 并显示对应资源。
+游戏卡声明背景和立绘 key 到资源路径的映射。运行时自动派生隐藏 state schema，现有 state action 可以修改当前背景或立绘 key。前端将单张 `visual.portrait` 透明图片叠加在背景与剧情内容之间。
 
 Visual 不进入 LLM prompt，不写入消息正文，也不由 display rules 处理。
 
@@ -28,6 +28,10 @@ Visual 不进入 LLM prompt，不写入消息正文，也不由 display rules �
       "school": "images/school.jpg",
       "music_room": "images/music_room.webp",
       "night": "images/night.png"
+    },
+    "portrait": {
+      "touma": "images/portraits/touma.png",
+      "setsuna": "images/portraits/setsuna.webp"
     }
   }
 }
@@ -54,12 +58,15 @@ Visual 不进入 LLM prompt，不写入消息正文，也不由 display rules �
 
 schema 的 `values` 与 `card.visual.background` 的 key 对齐，`default` 使用资源表的第一个 key。
 
+声明 `card.visual.portrait` 后，运行时还会派生 `visual.portrait` 枚举。`values` 为保留值 `none` 加所有立绘 key，默认值为 `none`；`none` 表示不展示立绘，不能用作资源 key。
+
 运行时 state 保存为嵌套 JSON：
 
 ```json
 {
   "visual": {
-    "background": "school"
+    "background": "school",
+    "portrait": "none"
   }
 }
 ```
@@ -161,31 +168,29 @@ card.visual.background + gameState.visual.background
 
 两者都应自动派生隐藏 state schema，避免游戏卡作者在 `state.schema` 中重复声明运行时资源 key。
 
-## 后续扩展
+## 立绘状态设置
 
-可以在相同结构下扩展其它视觉类型：
+立绘使用与背景相同的语义 key 模式：
 
 ```json
 {
-  "visual": {
-    "background": {
-      "school": "images/school.jpg"
-    },
-    "portrait": {
-      "setsuna": "images/setsuna.png"
-    }
-  }
+  "type": "state.set",
+  "path": "visual.portrait",
+  "value": "setsuna"
 }
 ```
 
-`portrait` 是否进入 state、如何布局、是否支持多角色同屏需要另行设计；第一版只实现全局背景图。
+`visual.portrait` 跟随 session 保存和恢复，不进入 LLM prompt。当前使用单张全屏透明画布、底部对齐并在切换时淡入；自定义位置和多角色同屏仍需另行设计。
 
 ## 测试范围
 
 - game card schema 接受 `visual.background` 资源表并拒绝非法路径
+- game card schema 接受 `visual.portrait` 资源表，拒绝非法路径和保留 key `none`
 - state schema enum 默认值能初始化 `gameState.visual.background`
+- state schema 默认 `gameState.visual.portrait` 为 `none`，state action 能更新立绘 key
 - state action 能更新 `visual.background`
 - 资源协议拒绝路径穿越和非图片扩展名
 - 前端在 key 变化时解析背景资源，并在正文开始流式输出时展示本轮背景
+- 前端在 key 变化时解析立绘资源，并在正文开始流式输出时叠加单张透明立绘
 - 切换游戏卡或 session 时清理或恢复正确背景
 - 游戏卡背景缺失时回落到用户设置背景

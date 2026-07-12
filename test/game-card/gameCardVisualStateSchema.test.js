@@ -9,10 +9,16 @@ function visualCard() {
     id: 'visual-state-card',
     name: 'Visual State Card',
     stateSchema: 'state/schema.json',
-    visual: { background: { school: 'images/school.jpg', night: 'images/night.png' } },
+    visual: {
+      background: { school: 'images/school.jpg', night: 'images/night.png' },
+      portrait: { touma: 'images/touma.png', setsuna: 'images/setsuna.webp' }
+    },
     rules: [{
       when: { phase: 'pre_send' },
-      then: [{ type: 'state.set', path: 'visual.background', value: 'night' }]
+      then: [
+        { type: 'state.set', path: 'visual.background', value: 'night' },
+        { type: 'state.set', path: 'visual.portrait', value: 'touma' }
+      ]
     }]
   };
 }
@@ -26,7 +32,7 @@ describe('game card visual state schema', () => {
     });
   });
 
-  test('derives and applies visual background state schema', async () => {
+  test('derives and applies visual state schema', async () => {
     const result = await preparePreSendMessages({
       card: visualCard(),
       messages: [{ role: 'user', content: 'start' }],
@@ -48,9 +54,18 @@ describe('game card visual state schema', () => {
       llmRead: false,
       llmWrite: false
     });
+    expect(result.card.state.schema.schema['visual.portrait']).toMatchObject({
+      type: 'enum',
+      values: ['none', 'touma', 'setsuna'],
+      default: 'none',
+      llmRead: false,
+      llmWrite: false
+    });
     expect(result.state.visual.background).toBe('night');
+    expect(result.state.visual.portrait).toBe('touma');
     expect(result.state.visual.textPanel).toBe('center');
     expect(result.stateTrace.changedKeys).toContain('visual.background');
+    expect(result.stateTrace.changedKeys).toContain('visual.portrait');
     expect(result.stateTrace.changedKeys).toContain('visual.textPanel');
   });
 });

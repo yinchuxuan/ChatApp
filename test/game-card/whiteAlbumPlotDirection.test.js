@@ -87,6 +87,11 @@ describe('white album plot direction guide', () => {
     expect(runWithRandom(0.891).state.audio.bgm).toBe('happy');
   });
 
+  test('shows the Touma portrait only during free plots', () => {
+    expect(runWithRandom(0.5).state.visual.portrait).toBe('touma_normal');
+    expect(runAtSlot('2007.10.21: 16:00 星期日').state.visual.portrait).toBe('none');
+  });
+
   test('loads plot guidance from the current timeline time', () => {
     const opening = runWithRandom(0.5);
     const guide = opening.messages.find((msg) => msg.role === 'user');

@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 const gameCard = PropTypes.shape({
   id: PropTypes.string,
   audio: PropTypes.shape({ bgm: PropTypes.objectOf(PropTypes.string) }),
-  visual: PropTypes.shape({ background: PropTypes.objectOf(PropTypes.string) }),
+  visual: PropTypes.shape({
+    background: PropTypes.objectOf(PropTypes.string),
+    portrait: PropTypes.objectOf(PropTypes.string)
+  }),
   ui: PropTypes.shape({
     root: PropTypes.shape({ source: PropTypes.string, style: PropTypes.string })
   })

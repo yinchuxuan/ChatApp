@@ -3,7 +3,10 @@
   "id": "tauri-e2e-card",
   "name": "Tauri E2E Card",
   "audio": { "bgm": { "test": "audio/silence.wav" } },
-  "visual": { "background": { "test": "images/scene.jpg" } },
+  "visual": {
+    "background": { "test": "images/scene.jpg" },
+    "portrait": { "test": "images/scene.jpg" }
+  },
   "ui": { "root": { "source": "ui/root.js" } },
   "rules": [
     {
@@ -14,6 +17,13 @@
         { "type": "state.set", "path": "visual.background", "value": "test" },
         { "type": "state.set", "path": "audio.bgm", "value": "test" },
         { "type": "state.set", "path": "score", "value": 1 }
+      ]
+    },
+    {
+      "id": "show-portrait",
+      "when": { "phase": "pre_send" },
+      "then": [
+        { "type": "state.set", "path": "visual.portrait", "value": "test" }
       ]
     }
   ]

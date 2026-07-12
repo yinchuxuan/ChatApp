@@ -1,69 +1,80 @@
 import React from 'react';
-import { normalizeTextPanel } from '../../shared/game-card/schema/visualConfig.js';
+import {
+  getBackgroundRelativePath,
+  getPortraitRelativePath,
+  normalizeTextPanel
+} from '../../shared/game-card/schema/visualConfig.js';
 import { gameCardPlatform } from '../platform/index.js';
 import { gameCard, gameState, PropTypes } from './componentPropTypes.js';
 
-function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, revealToken = 0, onBackgroundChange, onVisualPanelChange }) {
-  const R = React;
-  const lastSourceRef = R.useRef('');
-  const pendingUrlRef = R.useRef(null), revealRequestedRef = R.useRef(false);
-  const relativePath = R.useMemo(() => {
-    const key = gameState?.visual?.background;
-    return typeof key === 'string' ? (card?.visual?.background?.[key] || '') : '';
-  }, [card, gameState]);
-  const sourceKey = `${card?.id || ''}:${relativePath}`;
-  const textPanel = normalizeTextPanel(gameState?.visual?.textPanel);
+function useDeferredImage({ cardId, relativePath, defer, revealToken, onChange, label }) {
+  const lastSourceRef = React.useRef('');
+  const pendingUrlRef = React.useRef(null), revealRequestedRef = React.useRef(false);
+  const sourceKey = `${cardId}:${relativePath}`;
+  const dispatchImage = React.useCallback((url) => onChange?.({ url }), [onChange]);
 
-  const dispatchBackground = R.useCallback((url) => {
-    onBackgroundChange?.({ url });
-  }, [onBackgroundChange]);
-  const dispatchVisualPanel = R.useCallback((detail) => {
-    onVisualPanelChange?.(detail);
-  }, [onVisualPanelChange]);
-
-  R.useEffect(() => {
+  React.useEffect(() => {
     let canceled = false;
     async function resolveImageUrl() {
       if (defer) { pendingUrlRef.current = null; revealRequestedRef.current = false; }
       if (!relativePath) {
         lastSourceRef.current = '';
         if (defer) pendingUrlRef.current = '';
-        else dispatchBackground('');
+        else dispatchImage('');
         return;
       }
       if (sourceKey === lastSourceRef.current) return;
-      lastSourceRef.current = sourceKey;
       let nextUrl = '';
       try {
-        nextUrl = await gameCardPlatform.resources.getImageUrl(card?.id || '', relativePath);
+        nextUrl = await gameCardPlatform.resources.getImageUrl(cardId, relativePath);
       } catch (error) {
-        console.error('Failed to load game card background:', error.message);
+        console.error(`Failed to load game card ${label}:`, error.message);
       }
       if (canceled) return;
       if (nextUrl) {
         if (defer && !revealRequestedRef.current) pendingUrlRef.current = nextUrl;
-        else dispatchBackground(nextUrl);
+        else {
+          lastSourceRef.current = sourceKey;
+          dispatchImage(nextUrl);
+        }
       } else {
         if (defer) pendingUrlRef.current = '';
-        else dispatchBackground('');
+        else {
+          lastSourceRef.current = sourceKey;
+          dispatchImage('');
+        }
       }
     }
     resolveImageUrl();
     return () => { canceled = true; };
-  }, [card?.id, relativePath, sourceKey, defer, dispatchBackground]);
+  }, [cardId, relativePath, sourceKey, defer, dispatchImage, label]);
 
-  R.useEffect(() => {
+  React.useEffect(() => {
     if (!defer || revealToken <= 0) return;
     revealRequestedRef.current = true;
-    if (pendingUrlRef.current !== null) dispatchBackground(pendingUrlRef.current);
-  }, [defer, revealToken, dispatchBackground]);
+    if (pendingUrlRef.current !== null) {
+      lastSourceRef.current = sourceKey;
+      dispatchImage(pendingUrlRef.current);
+      pendingUrlRef.current = null;
+    }
+  }, [defer, revealToken, dispatchImage, sourceKey]);
 
-  R.useEffect(() => {
-    dispatchVisualPanel({ textPanel, cardId: card?.id || '' });
-  }, [card?.id, textPanel, dispatchVisualPanel]);
+  React.useEffect(() => () => dispatchImage(''), [dispatchImage]);
+}
 
-  R.useEffect(() => () => dispatchBackground(''), [dispatchBackground]);
-  R.useEffect(() => () => dispatchVisualPanel({ textPanel: 'center', cardId: '' }), [dispatchVisualPanel]);
+function GameCardBackgroundRuntime({ card, gameState = {}, defer = false, revealToken = 0, onBackgroundChange, onPortraitChange, onVisualPanelChange }) {
+  const cardId = card?.id || '';
+  const backgroundPath = getBackgroundRelativePath(card, gameState);
+  const portraitPath = getPortraitRelativePath(card, gameState);
+  const textPanel = normalizeTextPanel(gameState?.visual?.textPanel);
+  useDeferredImage({ cardId, relativePath: backgroundPath, defer, revealToken, onChange: onBackgroundChange, label: 'background' });
+  useDeferredImage({ cardId, relativePath: portraitPath, defer, revealToken, onChange: onPortraitChange, label: 'portrait' });
+
+  React.useEffect(() => {
+    onVisualPanelChange?.({ textPanel, cardId });
+  }, [cardId, textPanel, onVisualPanelChange]);
+
+  React.useEffect(() => () => onVisualPanelChange?.({ textPanel: 'center', cardId: '' }), [onVisualPanelChange]);
   return null;
 }
 
@@ -73,6 +84,7 @@ GameCardBackgroundRuntime.propTypes = {
   defer: PropTypes.bool,
   revealToken: PropTypes.number,
   onBackgroundChange: PropTypes.func,
+  onPortraitChange: PropTypes.func,
   onVisualPanelChange: PropTypes.func
 };
 

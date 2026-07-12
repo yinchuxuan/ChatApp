@@ -49,7 +49,6 @@
 
 .settings-indicator .material-icons {
   font-size: 20px;
-  animation: indicator-pulse 2s ease-in-out infinite;
 }
 
 .settings-panel {

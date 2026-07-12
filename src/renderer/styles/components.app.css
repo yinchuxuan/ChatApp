@@ -53,7 +53,29 @@
   animation: app-background-fade-in 420ms ease-out both;
 }
 
+.app-portrait-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.app-portrait-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  animation: app-portrait-fade-in 240ms ease-out both;
+}
+
 @keyframes app-background-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes app-portrait-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }

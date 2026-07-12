@@ -53,6 +53,7 @@ function run(ctx) {
     state.temp.setsunaAttitudeSection = resolveAttitudeSection('SetsunaAttitude', state.setsuna && state.setsuna.affection);
     state.audio.bgm = mood;
     state.visual.background = result.background || 'school';
+    state.visual.portrait = 'touma_normal';
   }
 
   function applyFixedPlot(result) {
@@ -64,6 +65,7 @@ function run(ctx) {
     state.temp.setsunaAttitudeSection = '';
     state.audio.bgm = result.bgm;
     state.visual.background = result.background;
+    state.visual.portrait = 'none';
   }
 
   const resolvers = { chapter_1: resolveChapter1Timeline, chapter_2: resolveChapter2Timeline };

@@ -69,13 +69,10 @@
   right: 0;
   height: 3px;
   background: linear-gradient(90deg, var(--md-primary) 0%, var(--md-primary-light) 30%, var(--md-secondary) 60%, var(--md-secondary-light) 100%);
-  background-size: 200% 100%;
-  animation: gradient-flow 8s linear infinite;
 }
 .chat-header .material-icons {
   color: var(--md-primary);
   font-size: 28px;
-  animation: subtle-pulse 3s ease-in-out infinite;
 }
 .chat-header .header-title {
   font-size: 22px;
@@ -117,7 +114,6 @@
   height: 6px;
   background: var(--md-secondary);
   border-radius: var(--md-shape-corner-full);
-  animation: dot-pulse 2s ease-in-out infinite;
 }
 .chat-header-clear-btn { margin-left: auto; color: var(--md-error, #B3261E); width: 40px; height: 40px; padding: 8px; border-radius: var(--md-shape-corner-full); }
 .chat-header-clear-btn:hover { background: color-mix(in srgb, var(--md-error, #B3261E) 8%, transparent); }

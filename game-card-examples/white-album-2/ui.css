@@ -19,6 +19,7 @@
   --game-card-text-color-dark: #07131f;
   --game-card-highlight-color: #3f78a8;
   --game-card-highlight-color-dark: #3f78a8;
+  --wa2-highlight-text-color: #1f4f73;
   --game-card-text-weight: 400;
   --game-card-text-line-height: 1.96;
   --game-card-paragraph-line-height: 2.12;
@@ -494,13 +495,15 @@
     inset 0 0 1px rgba(114, 148, 176, 0.10);
 }
 
-.app-container.game-card-theme-white-album-2 [data-gc-part="message-content"] .quoted-text {
+.app-container.game-card-theme-white-album-2 [data-gc-part="message-content"] .quoted-text,
+:root .app-container.has-background-image.game-card-theme-white-album-2 [data-role] [data-gc-part="message-content"] .quoted-text,
+[data-theme="dark"] .app-container.game-card-theme-white-album-2 [data-role] [data-gc-part="message-content"] .quoted-text {
   background: transparent;
-  color: var(--game-card-highlight-color);
+  color: var(--wa2-highlight-text-color);
   border-radius: 0;
   padding: 0;
   font-weight: 700;
-  text-decoration-color: color-mix(in srgb, var(--game-card-highlight-color) 52%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--wa2-highlight-text-color) 52%, transparent);
   text-decoration-thickness: 0.06em;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.40);
 }
@@ -523,14 +526,14 @@
   border-radius: 7px;
   background:
     linear-gradient(90deg, rgba(62, 84, 105, 0.62), rgba(31, 48, 66, 0.54)),
-    linear-gradient(rgba(22, 34, 50, 0.42), rgba(22, 34, 50, 0.42));
+    linear-gradient(rgba(22, 34, 50, 0.42), rgba(22, 34, 50, 0.42)) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.30),
     inset 0 0 18px rgba(255, 255, 255, 0.10),
     0 8px 20px rgba(22, 34, 50, 0.16);
   backdrop-filter: blur(18px) saturate(1.22);
   -webkit-backdrop-filter: blur(18px) saturate(1.22);
-  color: #f5fbff;
+  color: #f5fbff !important;
   font-size: 14px;
   line-height: 1.86;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.32);
@@ -543,10 +546,6 @@
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(205, 228, 244, 0.72), rgba(113, 157, 191, 0.74));
   box-shadow: 0 0 10px rgba(160, 202, 231, 0.36);
-}
-
-:root:not([data-theme="dark"]) .app-container.has-background-image.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"] {
-  color: #f5fbff;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-session-panel"] {
@@ -582,15 +581,9 @@
   background: transparent;
 }
 
-[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"],
-[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"] {
+[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"] {
   color: var(--gc-assistant-bubble-text);
   text-shadow:
     0 1px 0 rgba(255, 255, 255, 0.78),
     0 0 10px rgba(238, 248, 255, 0.32);
-}
-
-[data-theme="dark"] .app-container.has-background-image.game-card-theme-white-album-2 [data-role="user"] [data-gc-part="message-bubble"] {
-  color: #f5fbff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.32);
 }

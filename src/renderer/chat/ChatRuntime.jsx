@@ -27,6 +27,7 @@ function ChatRuntime({
   BgmPlayer = GameCardBgmPlayer,
   BackgroundRuntime = GameCardBackgroundRuntime,
   onBackgroundChange,
+  onPortraitChange,
   onVisualPanelChange
 }) {
   const [messages, setMessages] = React.useState([]);
@@ -112,7 +113,7 @@ function ChatRuntime({
 
   return <div className="chat-panel" data-gc-part="chat-panel">
     <GameCardStyleHost card={runtime.activeCard} />
-    <BackgroundRuntime card={runtime.activeCard} gameState={runtime.gameState} defer={isLoading} revealToken={streamStartToken} onBackgroundChange={onBackgroundChange} onVisualPanelChange={onVisualPanelChange} />
+    <BackgroundRuntime card={runtime.activeCard} gameState={runtime.gameState} defer={isLoading} revealToken={streamStartToken} onBackgroundChange={onBackgroundChange} onPortraitChange={onPortraitChange} onVisualPanelChange={onVisualPanelChange} />
     <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState} setGameState={runtime.setGameState} messages={messages} isLoading={isLoading} uiScopeKey={session.revision} onError={runtime.setRuntimeError} />
     <div className="chat-main" data-gc-part="chat-main">
       <div className="chat-header-hover-trigger" data-gc-part="chat-header-trigger" onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)} />
@@ -143,6 +144,7 @@ ChatRuntime.propTypes = {
   BgmPlayer: PropTypes.elementType,
   BackgroundRuntime: PropTypes.elementType,
   onBackgroundChange: PropTypes.func,
+  onPortraitChange: PropTypes.func,
   onVisualPanelChange: PropTypes.func
 };
 

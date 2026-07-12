@@ -1,0 +1,7 @@
+{
+  "version": "1.0",
+  "id": "fixture_missing_portrait",
+  "name": "Missing portrait fixture",
+  "visual": { "portrait": { "touma": "images/missing.png" } },
+  "rules": []
+}
