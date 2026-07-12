@@ -1,101 +1,17 @@
-const WA2_AFFECTION_PATHS = ['setsuna.affection', 'touma.affection'];
-
-function readPath(source, path) {
-  return path.split('.').reduce((target, key) => (target ? target[key] : undefined), source);
-}
-
-function clampAffection(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return 0;
-  return Math.min(100, Math.max(0, number));
-}
+const EVENT_CONTROL_SCRIPT = 'eventControl';
 
 function queueFromState(state) {
   const queue = state && state.events && state.events.queue;
   return Array.isArray(queue) ? queue : [];
 }
 
-function closedEventPanel() {
-  return { open: false, eventId: '', returnScene: { background: null, bgm: null } };
-}
-
 function panelFromState(state) {
   const panel = state && state.events && state.events.panel;
-  if (!panel || typeof panel !== 'object') return closedEventPanel();
-  const returnScene = panel.returnScene && typeof panel.returnScene === 'object' ? panel.returnScene : {};
+  if (!panel || typeof panel !== 'object') return { open: false, eventId: '' };
   return {
     open: panel.open === true,
-    eventId: typeof panel.eventId === 'string' ? panel.eventId : '',
-    returnScene: {
-      background: typeof returnScene.background === 'string' ? returnScene.background : null,
-      bgm: typeof returnScene.bgm === 'string' ? returnScene.bgm : null
-    }
+    eventId: typeof panel.eventId === 'string' ? panel.eventId : ''
   };
-}
-
-function optionEffects(option) {
-  return option && option.effects && typeof option.effects === 'object' && !Array.isArray(option.effects)
-    ? option.effects
-    : {};
-}
-
-function buildEffectActions(state, option) {
-  const effects = optionEffects(option);
-  return WA2_AFFECTION_PATHS.reduce((actions, path) => {
-    const delta = Number(effects[path]);
-    if (!Number.isFinite(delta) || delta === 0) return actions;
-    const current = clampAffection(readPath(state, path));
-    return [...actions, { type: 'state.set', path, value: clampAffection(current + delta) }];
-  }, []);
-}
-
-function restoreSceneActions(panel) {
-  const scene = panel.returnScene;
-  return [
-    scene.background
-      ? { type: 'state.set', path: 'visual.background', value: scene.background }
-      : { type: 'state.delete', path: 'visual.background' },
-    scene.bgm
-      ? { type: 'state.set', path: 'audio.bgm', value: scene.bgm }
-      : { type: 'state.delete', path: 'audio.bgm' }
-  ];
-}
-
-function buildCloseActions(panel) {
-  return [
-    ...restoreSceneActions(panel),
-    { type: 'state.set', path: 'events.panel', value: closedEventPanel() }
-  ];
-}
-
-function buildOpenActions(state, eventItem) {
-  const actions = [{
-    type: 'state.set',
-    path: 'events.panel',
-    value: {
-      open: true,
-      eventId: eventItem && eventItem.id ? String(eventItem.id) : '',
-      returnScene: {
-        background: readPath(state, 'visual.background') || null,
-        bgm: readPath(state, 'audio.bgm') || null
-      }
-    }
-  }];
-  if (eventItem && eventItem.background) {
-    actions.push({ type: 'state.set', path: 'visual.background', value: String(eventItem.background) });
-  }
-  if (eventItem && eventItem.bgm) {
-    actions.push({ type: 'state.set', path: 'audio.bgm', value: String(eventItem.bgm) });
-  }
-  return actions;
-}
-
-function buildConsumeActions(state, queue, option, panel) {
-  return [
-    ...buildEffectActions(state, option),
-    { type: 'state.set', path: 'events.queue', value: queue.filter((item) => item && item.id !== panel.eventId) },
-    ...buildCloseActions(panel)
-  ];
 }
 
 function optionLabel(option, index) {
@@ -173,15 +89,21 @@ function Root({ React, state, emit, ui }) {
 
   function consume(option) {
     emit({
-      type: 'game.state.apply',
-      actions: buildConsumeActions(state, queue, option, panel)
+      type: 'game.script.run',
+      name: EVENT_CONTROL_SCRIPT,
+      payload: {
+        action: 'consume',
+        eventId: eventItem && eventItem.id ? String(eventItem.id) : '',
+        optionId: option && option.id ? String(option.id) : ''
+      }
     });
   }
 
   function togglePanel() {
     emit({
-      type: 'game.state.apply',
-      actions: open ? buildCloseActions(panel) : buildOpenActions(state, eventItem)
+      type: 'game.script.run',
+      name: EVENT_CONTROL_SCRIPT,
+      payload: { action: open ? 'close' : 'open' }
     });
   }
 

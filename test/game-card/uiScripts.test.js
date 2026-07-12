@@ -36,6 +36,27 @@ describe('game card ui scripts', () => {
     expect(result.trace.changedKeys).toEqual(['score', 'events']);
   });
 
+  test('resolves named scripts from imported ui config', async () => {
+    const api = {
+      readGameCardFile: jest.fn(async (_id, filePath) => ({
+        success: true,
+        content: filePath === 'ui.json'
+          ? JSON.stringify({ scripts: { pick: 'ui/pick.js' } })
+          : 'function run(ctx) { ctx.state.picked = ctx.event.payload.id; return { state: ctx.state }; }'
+      }))
+    };
+    const result = await applyUiScriptRunEvent({
+      event: { type: 'game.script.run', name: 'pick', payload: { id: 'answer' } },
+      state: {},
+      card: { id: 'card', ui: { $import: 'ui.json' } },
+      platform: createTestGameCardPlatform(api)
+    });
+
+    expect(result.state).toEqual({ picked: 'answer' });
+    expect(api.readGameCardFile).toHaveBeenCalledWith('card', 'ui.json');
+    expect(api.readGameCardFile).toHaveBeenCalledWith('card', 'ui/pick.js');
+  });
+
   test('rejects ui scripts that try to modify messages', async () => {
     const api = {
       readGameCardFile: jest.fn(async () => ({

@@ -1,5 +1,5 @@
 import { runExecAction } from './execRunner.js';
-import { loadCachedUiScriptResources } from './gameCardRuntimeCache.js';
+import { loadCachedRuntimeCard, loadCachedUiScriptResources } from './gameCardRuntimeCache.js';
 import { cloneJson } from '../../shared/game-card/utils/jsonValue.js';
 
 const SCRIPT_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.js$/i;
@@ -42,7 +42,15 @@ function normalizeUiScriptRunEvent(event, card = null) {
 }
 
 async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = null, platform = null } = {}) {
-  const normalized = normalizeUiScriptRunEvent(event, card);
+  if (event?.type !== 'game.script.run') return fail('unsupported_event', state);
+
+  let runtimeCard;
+  try {
+    runtimeCard = await loadCachedRuntimeCard(card, platform?.resources);
+  } catch (error) {
+    return fail('load_card_failed', state, { error: error.message });
+  }
+  const normalized = normalizeUiScriptRunEvent(event, runtimeCard);
   if (!normalized.ok) return fail(normalized.reason, state);
 
   try {

@@ -48,12 +48,9 @@ describe('white album 2 event panel', () => {
     expect(container.firstChild).toHaveAttribute('data-has-events', 'false');
     fireEvent.click(screen.getByRole('button', { name: '打开事件' }));
     expect(emit).toHaveBeenLastCalledWith({
-      type: 'game.state.apply',
-      actions: [{
-        type: 'state.set',
-        path: 'events.panel',
-        value: { open: true, eventId: '', returnScene: { background: null, bgm: null } }
-      }]
+      type: 'game.script.run',
+      name: 'eventControl',
+      payload: { action: 'open' }
     });
 
     rerender(React.createElement(Root, {
@@ -72,20 +69,9 @@ describe('white album 2 event panel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '打开事件' }));
     expect(emit).toHaveBeenLastCalledWith({
-      type: 'game.state.apply',
-      actions: [
-        {
-          type: 'state.set',
-          path: 'events.panel',
-          value: {
-            open: true,
-            eventId: 'sample-event',
-            returnScene: { background: 'school', bgm: 'daily' }
-          }
-        },
-        { type: 'state.set', path: 'visual.background', value: 'event1' },
-        { type: 'state.set', path: 'audio.bgm', value: 'dream' }
-      ]
+      type: 'game.script.run',
+      name: 'eventControl',
+      payload: { action: 'open' }
     });
 
     const openPanel = {
@@ -108,25 +94,16 @@ describe('white album 2 event panel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '返回主剧情' }));
     expect(emit).toHaveBeenLastCalledWith({
-      type: 'game.state.apply',
-      actions: [
-        { type: 'state.set', path: 'visual.background', value: 'school' },
-        { type: 'state.set', path: 'audio.bgm', value: 'daily' },
-        { type: 'state.set', path: 'events.panel', value: closedPanel }
-      ]
+      type: 'game.script.run',
+      name: 'eventControl',
+      payload: { action: 'close' }
     });
 
     fireEvent.click(screen.getByRole('button', { name: '认真道谢' }));
     expect(emit).toHaveBeenLastCalledWith({
-      type: 'game.state.apply',
-      actions: [
-        { type: 'state.set', path: 'setsuna.affection', value: 100 },
-        { type: 'state.set', path: 'touma.affection', value: 0 },
-        { type: 'state.set', path: 'events.queue', value: [{ id: 'next-event' }] },
-        { type: 'state.set', path: 'visual.background', value: 'school' },
-        { type: 'state.set', path: 'audio.bgm', value: 'daily' },
-        { type: 'state.set', path: 'events.panel', value: closedPanel }
-      ]
+      type: 'game.script.run',
+      name: 'eventControl',
+      payload: { action: 'consume', eventId: 'sample-event', optionId: 'thank' }
     });
   });
 });
