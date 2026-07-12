@@ -1,8 +1,8 @@
 import React from 'react';
-import * as displayRules from '../gameCard/displayRules.js';
 import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
 import { findLastRoleIndex, selectVisibleMessages } from '../chat/messageSelection.js';
 import { MessageList, StreamingMessageRow } from './MessageList.jsx';
+import MessageContent from './MessageContent.jsx';
 
 function inputActionValue(target) {
   const directValue = target.getAttribute('data-gc-chat-input-value');
@@ -16,19 +16,21 @@ function inputActionValue(target) {
   return label && text ? `${label}. ${text.replace(/\s+/g, ' ').trim()}` : '';
 }
 
+function handleInputActionClick(event) {
+  const target = event.target?.closest?.(
+    '[data-gc-chat-input-value], [data-gc-chat-input-value-from], [data-gc-chat-input-label]'
+  );
+  if (!target) return false;
+  const value = inputActionValue(target);
+  if (!value) return false;
+  event.preventDefault();
+  event.stopPropagation();
+  dispatchChatInputCommand({ type: 'chat.input.set', value, focus: true });
+  return true;
+}
+
 const ChatPanelMessageRenderers = {
-  handleInputActionClick(event) {
-    const target = event.target?.closest?.(
-      '[data-gc-chat-input-value], [data-gc-chat-input-value-from], [data-gc-chat-input-label]'
-    );
-    if (!target) return false;
-    const value = inputActionValue(target);
-    if (!value) return false;
-    event.preventDefault();
-    event.stopPropagation();
-    dispatchChatInputCommand({ type: 'chat.input.set', value, focus: true });
-    return true;
-  },
+  handleInputActionClick,
 
   resolveInputActionValue: inputActionValue,
 
@@ -36,23 +38,18 @@ const ChatPanelMessageRenderers = {
     return selectVisibleMessages(messages);
   },
 
-  renderMarkdown(_React, text, marked, DOMPurify, highlightQuotes) {
-    const rawHtml = marked ? marked.parse(text) : text;
-    const sanitizedHtml = DOMPurify ? DOMPurify.sanitize(rawHtml) : rawHtml;
-    const html = highlightQuotes(sanitizedHtml);
+  renderMarkdown(_React, text, marked, DOMPurify, highlightQuotes, role = 'user', display, displayRevision) {
     return <div className="chat-message-bubble" data-gc-part="message-bubble">
-      <div className="chat-bubble-content" data-gc-part="message-content"
-        onClick={event => this.handleInputActionClick(event)}
-        dangerouslySetInnerHTML={{ __html: html }} />
+      <MessageContent content={text} role={role} display={display} displayRevision={displayRevision}
+        markdown={marked} sanitizer={DOMPurify} quoteHighlighter={highlightQuotes}
+        onClick={handleInputActionClick} />
     </div>;
   },
 
-  renderUserMsg(R, msg, marked, DOMPurify, highlightQuotes, display) {
-    const rules = this.getDisplayRules();
-    const content = rules?.applyUserDisplayRules
-      ? rules.applyUserDisplayRules(msg.content, display)
-      : msg.content;
-    return this.renderMarkdown(R, content, marked, DOMPurify, highlightQuotes);
+  renderUserMsg(R, msg, marked, DOMPurify, highlightQuotes, display, displayRevision) {
+    return this.renderMarkdown(
+      R, msg.content, marked, DOMPurify, highlightQuotes, 'user', display, displayRevision
+    );
   },
 
   renderEditableUserMsg(R, msg, renderIndex, renderMarkdown, editUserMessage) {
@@ -74,22 +71,12 @@ const ChatPanelMessageRenderers = {
     });
   },
 
-  getDisplayRules() {
-    return displayRules;
-  },
-
   renderAssistantMsg(_React, msg, idx, isStreaming, tw, currentThinking, showStreamThinking,
-    setShowStreamThinking, toggleThinkingForMessage, marked, DOMPurify, highlightQuotes, display) {
+    setShowStreamThinking, toggleThinkingForMessage, marked, DOMPurify, highlightQuotes, display,
+    displayRevision) {
     const thinking = isStreaming ? currentThinking : msg._thinking;
     const showThinking = isStreaming ? showStreamThinking : msg._thinkingVisible === true;
     const rawContent = isStreaming ? msg.slice(0, tw.displayedCount) : msg.content;
-    const rules = this.getDisplayRules();
-    const displayContent = rules?.applyAssistantDisplayRules
-      ? rules.applyAssistantDisplayRules(rawContent, display)
-      : rawContent;
-    const rawHtml = marked ? marked.parse(displayContent) : displayContent;
-    const sanitizedHtml = DOMPurify ? DOMPurify.sanitize(rawHtml) : rawHtml;
-    const html = highlightQuotes(sanitizedHtml);
     const bubbleClass = thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
     const handleClick = thinking ? () => {
       if (isStreaming) setShowStreamThinking(value => !value);
@@ -99,9 +86,9 @@ const ChatPanelMessageRenderers = {
       {thinking && showThinking ? <div className="chat-thinking-text" data-gc-part="message-thinking">
         {thinking}
       </div> : null}
-      <div className="chat-bubble-content" data-gc-part="message-content"
-        onClick={event => this.handleInputActionClick(event)}
-        dangerouslySetInnerHTML={{ __html: html }} />
+      <MessageContent content={rawContent} role="assistant" display={display}
+        displayRevision={displayRevision} markdown={marked} sanitizer={DOMPurify}
+        quoteHighlighter={highlightQuotes} onClick={handleInputActionClick} />
     </div>;
   },
 

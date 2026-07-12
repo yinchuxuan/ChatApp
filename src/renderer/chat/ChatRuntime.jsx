@@ -95,12 +95,14 @@ function ChatRuntime({
   )));
   const streamThinking = typewriter.getThinkingContent();
   const currentThinking = isLoading && streamThinking ? streamThinking : null;
+  const display = runtime.activeCard?.display;
+  const displayRevision = React.useMemo(() => JSON.stringify(display ?? null), [display]);
   const renderUser = text => ChatPanelMessageRenderers.renderUserMsg(
-    React, { content: text }, marked, DOMPurify, highlightQuotes, runtime.activeCard?.display
+    React, { content: text }, marked, DOMPurify, highlightQuotes, display, displayRevision
   );
   const renderAssistant = (msg, index, streaming) => ChatPanelMessageRenderers.renderAssistantMsg(
     React, msg, index, streaming, typewriter, currentThinking, showStreamThinking,
-    setShowStreamThinking, toggleThinking, marked, DOMPurify, highlightQuotes, runtime.activeCard?.display
+    setShowStreamThinking, toggleThinking, marked, DOMPurify, highlightQuotes, display, displayRevision
   );
   const renderedMessages = ChatPanelMessageRenderers.renderMessages(
     React, messages, isLoading, typewriter, currentThinking, showStreamThinking, renderUser, renderAssistant,
