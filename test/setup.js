@@ -9,6 +9,9 @@ global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
 const mockTauriApi = require('./tauriApiMock.js');
+const { invalidateGameCardRuntimeCache } = require('../src/renderer/gameCard/gameCardRuntimeCache.js');
+
+beforeEach(() => invalidateGameCardRuntimeCache());
 
 jest.mock('@tauri-apps/api/core', () => ({
   Channel: mockTauriApi.MockChannel,

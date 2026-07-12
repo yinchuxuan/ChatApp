@@ -90,7 +90,7 @@ WA2 游戏卡前端：
 - 新 token 到达时，已完成历史消息不重新解析。
 - 停止、retry、thinking 和可点击选项行为保持不变。
 
-### 4. 缓存游戏卡 UI runtime 资源
+### 4. 缓存游戏卡 UI runtime 资源（已完成）
 
 问题：
 每次 UI action 都可能重新展开 `$import`、读取 state schema、读取脚本和声明文件。事件面板影响有限，但战斗等高频本地 UI 会产生明显延迟。

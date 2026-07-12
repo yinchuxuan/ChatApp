@@ -1,9 +1,7 @@
-import { expandCardImports } from './cardImportExpander.js';
 import { applyGameCardAsync } from './engine.js';
 import { adaptMessagesToProtocol } from '../../shared/game-card/protocol/protocolAdapter.js';
-import { collectExecSourcePaths, collectFileContentPaths, extractExecIncludes, resolveExecIncludePath } from './resourcePreload.js';
+import { loadCachedCardResources, loadCachedRuntimeCard } from './gameCardRuntimeCache.js';
 import { ensureStateDefaults } from '../../shared/game-card/state/stateSchema.js';
-import { loadExternalStateSchema } from './stateSchemaLoader.js';
 import { applyLatestAssistantStatePatch } from '../../shared/game-card/state/statePatch.js';
 import { decayTTL } from '../../shared/game-card/engine/ttl.js';
 
@@ -16,38 +14,8 @@ async function loadActiveGameCard(platform) {
   }
 }
 
-async function loadFileContents(card, resources) {
-  if (!card?.id) return {};
-  const contentPaths = collectFileContentPaths(card);
-  const execPaths = collectExecSourcePaths(card);
-  if (contentPaths.length === 0 && execPaths.length === 0) return {};
-  if (typeof resources?.readText !== 'function') throw new Error('game card files require resources.readText');
-  const fileContents = {};
-  async function read(filePath) {
-    if (Object.prototype.hasOwnProperty.call(fileContents, filePath)) return fileContents[filePath];
-    fileContents[filePath] = await resources.readText(card.id, filePath) || '';
-    return fileContents[filePath];
-  }
-  await Promise.all(contentPaths.map(read));
-  const queue = [...execPaths];
-  for (let i = 0; i < queue.length; i += 1) {
-    const source = await read(queue[i]);
-    extractExecIncludes(source).forEach((filePath) => {
-      const resolvedPath = resolveExecIncludePath(queue[i], filePath);
-      if (!queue.includes(resolvedPath)) queue.push(resolvedPath);
-    });
-  }
-  return fileContents;
-}
-
 async function loadCardResources(card, platform) {
-  const resources = platform?.resources;
-  const expandedCard = await expandCardImports(card, resources);
-  const cardWithSchema = await loadExternalStateSchema(expandedCard, resources);
-  return {
-    card: cardWithSchema,
-    fileContents: await loadFileContents(cardWithSchema, resources)
-  };
+  return loadCachedCardResources(card, platform?.resources);
 }
 
 function runtimeDependencies(platform) {
@@ -140,8 +108,7 @@ async function prepareInitMessages({ messages = [], state = {}, event = {}, card
 
   if (messages.length > 0) {
     try {
-      const expandedCard = await expandCardImports(activeCard, platform?.resources);
-      const cardWithSchema = await loadExternalStateSchema(expandedCard, platform?.resources);
+      const cardWithSchema = await loadCachedRuntimeCard(activeCard, platform?.resources);
       const prepared = prepareState(cardWithSchema, state);
       return {
         messages,

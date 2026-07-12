@@ -1,3 +1,5 @@
+import { readCachedCardText } from './gameCardRuntimeCache.js';
+
 const UI_ROOT_SOURCE_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.jsx?$/i;
 
 function isSafeUiRootSourcePath(path) {
@@ -80,7 +82,7 @@ async function loadGameCardUiRoot(card, resources, ReactRef) {
   if (!card?.id || !root || !isSafeUiRootSourcePath(root.source) || typeof resources?.readText !== 'function') {
     return null;
   }
-  const content = await resources.readText(card.id, root.source);
+  const content = await readCachedCardText(card, resources, root.source);
   if (!content) throw new Error('failed to read ui root source');
   return {
     Component: compileGameCardUiRootSource(content, ReactRef),

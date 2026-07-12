@@ -2,6 +2,7 @@ import React from 'react';
 import { PropTypes } from '../components/componentPropTypes.js';
 import { normalizeGameCardError } from '../gameCard/runtimeError.js';
 import { gameCardPlatform } from '../platform/index.js';
+import { invalidateGameCardRuntimeCache } from '../gameCard/gameCardRuntimeCache.js';
 
 const GameCardRuntimeContext = React.createContext(null);
 
@@ -11,6 +12,7 @@ function GameCardRuntimeProvider({ children, platform = gameCardPlatform }) {
   const [runtimeError, setRuntimeError] = React.useState(null);
 
   const reloadActiveCard = React.useCallback(async () => {
+    invalidateGameCardRuntimeCache();
     try {
       const card = await platform.repository.getActiveCard();
       setActiveCard(card || null);
@@ -24,6 +26,7 @@ function GameCardRuntimeProvider({ children, platform = gameCardPlatform }) {
   React.useEffect(() => { reloadActiveCard(); }, [reloadActiveCard]);
 
   const changeActiveCard = React.useCallback((card) => {
+    invalidateGameCardRuntimeCache();
     setRuntimeError(null);
     setActiveCard(card || null);
   }, []);

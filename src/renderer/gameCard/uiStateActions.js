@@ -1,7 +1,6 @@
-import { expandCardImports } from './cardImportExpander.js';
 import { applyStateAction } from '../../shared/game-card/state/stateActions.js';
 import { cloneJson } from '../../shared/game-card/utils/jsonValue.js';
-import { loadExternalStateSchema } from './stateSchemaLoader.js';
+import { loadCachedRuntimeCard } from './gameCardRuntimeCache.js';
 
 const MAX_UI_STATE_ACTIONS = 50;
 
@@ -29,19 +28,13 @@ function normalizeUiStateActions(event) {
   return { ok: true, actions: cloneJson(rawActions) };
 }
 
-async function loadUiStateActionCard(card, resources) {
-  if (!card) return null;
-  const expandedCard = await expandCardImports(card, resources);
-  return loadExternalStateSchema(expandedCard, resources);
-}
-
 async function applyUiStateActionEvent({ event, state = {}, messages = [], card = null, platform = null } = {}) {
   const normalized = normalizeUiStateActions(event);
   if (!normalized.ok) return fail(normalized.reason, state);
 
   let runtimeCard;
   try {
-    runtimeCard = await loadUiStateActionCard(card, platform?.resources);
+    runtimeCard = await loadCachedRuntimeCard(card, platform?.resources);
   } catch (error) {
     return fail('load_card_failed', state, { error: error.message });
   }

@@ -42,6 +42,33 @@ describe('Tauri renderer adapters', () => {
     expect(invoke).toHaveBeenCalledTimes(2);
   });
 
+  test('reuses the active card until an import advances the runtime revision', async () => {
+    let activeCard = { id: 'card', version: '1' };
+    const invoke = jest.fn(async command => {
+      if (command === 'import_game_card_from_directory') {
+        activeCard = { id: 'card', version: '2' };
+        return { success: true, card: activeCard };
+      }
+      return { success: true, card: activeCard };
+    });
+    const client = { invoke, listen: jest.fn(), convertFileSrc: jest.fn() };
+    const platform = createTauriGameCardPlatform(client);
+    const services = createTauriRendererServices(client);
+
+    const first = await platform.repository.getActiveCard();
+    const repeated = await platform.repository.getActiveCard();
+    await services.cards.importDirectory();
+    const reloaded = await platform.repository.getActiveCard();
+
+    expect(repeated).toBe(first);
+    expect(reloaded).toEqual({ id: 'card', version: '2' });
+    expect(invoke.mock.calls.map(([command]) => command)).toEqual([
+      'get_active_game_card',
+      'import_game_card_from_directory',
+      'get_active_game_card'
+    ]);
+  });
+
   test('normalizes rejected and business errors with validation details', async () => {
     const failure = { error: 'invalid card', stage: 'validate', file: 'card.json', details: [{ message: 'bad' }] };
     const rejected = createTauriGameCardPlatform({ invoke: async () => { throw failure; } });

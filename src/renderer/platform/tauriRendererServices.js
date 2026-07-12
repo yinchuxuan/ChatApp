@@ -1,5 +1,6 @@
 import { tauriBridge } from './tauriBridge.js';
 import { invokeTauriCommand } from './tauriCommand.js';
+import { invalidateGameCardRuntimeCache } from '../gameCard/gameCardRuntimeCache.js';
 import {
   toRendererBackground,
   toStoredBackground,
@@ -62,7 +63,11 @@ function createTauriRendererServices(client = tauriBridge) {
       delete: id => call('delete_chat_session', { id })
     }),
     cards: Object.freeze({
-      importDirectory: () => call('import_game_card_from_directory', {}, 'card')
+      importDirectory: async () => {
+        const card = await call('import_game_card_from_directory', {}, 'card');
+        invalidateGameCardRuntimeCache();
+        return card;
+      }
     })
   });
 }

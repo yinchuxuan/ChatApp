@@ -1,7 +1,5 @@
-import { expandCardImports } from './cardImportExpander.js';
 import { runExecAction } from './execRunner.js';
-import { extractExecIncludes, resolveExecIncludePath } from './execSource.js';
-import { loadExternalStateSchema } from './stateSchemaLoader.js';
+import { loadCachedUiScriptResources } from './gameCardRuntimeCache.js';
 import { cloneJson } from '../../shared/game-card/utils/jsonValue.js';
 
 const SCRIPT_PATH_PATTERN = /^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.js$/i;
@@ -43,59 +41,16 @@ function normalizeUiScriptRunEvent(event, card = null) {
   };
 }
 
-async function readCardScript(cardId, filePath, resources) {
-  if (!cardId || typeof resources?.readText !== 'function') {
-    throw new Error('game.script.run requires resources.readText');
-  }
-  return resources.readText(cardId, filePath);
-}
-
-async function loadScriptFileContents(cardId, sourceFile, resources, fileContents = {}, stack = []) {
-  const normalizedPath = normalizeScriptPath(sourceFile);
-  if (!normalizedPath) throw new Error('invalid script sourceFile');
-  if (stack.includes(normalizedPath)) throw new Error(`circular exec include: ${normalizedPath}`);
-  if (stack.length > 20) throw new Error('exec include depth exceeded');
-  if (Object.prototype.hasOwnProperty.call(fileContents, normalizedPath)) return fileContents;
-
-  const source = await readCardScript(cardId, normalizedPath, resources);
-  fileContents[normalizedPath] = source;
-  const includes = extractExecIncludes(source).map((includePath) => {
-    return resolveExecIncludePath(normalizedPath, includePath);
-  });
-  for (const includePath of includes) {
-    await loadScriptFileContents(cardId, includePath, resources, fileContents, [...stack, normalizedPath]);
-  }
-  return fileContents;
-}
-
-async function loadRuntimeCard(card, resources) {
-  if (!card) return null;
-  const expandedCard = await expandCardImports(card, resources);
-  return loadExternalStateSchema(expandedCard, resources);
-}
-
-async function loadDeclaredFiles(card, resources, fileContents) {
-  const paths = Object.values(card?.files || {});
-  await Promise.all(paths.map(async (filePath) => {
-    if (!Object.prototype.hasOwnProperty.call(fileContents, filePath)) {
-      fileContents[filePath] = await resources.readText(card.id, filePath);
-    }
-  }));
-  return fileContents;
-}
-
 async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = null, platform = null } = {}) {
   const normalized = normalizeUiScriptRunEvent(event, card);
   if (!normalized.ok) return fail(normalized.reason, state);
 
   try {
-    const runtimeCard = await loadRuntimeCard(card, platform?.resources);
-    const fileContents = await loadScriptFileContents(card?.id, normalized.sourceFile, platform?.resources);
-    await loadDeclaredFiles(runtimeCard, platform?.resources, fileContents);
+    const loaded = await loadCachedUiScriptResources(card, platform?.resources, normalized.sourceFile);
     const result = await runExecAction(messages, state, { type: 'exec', sourceFile: normalized.sourceFile }, {
-      card: runtimeCard,
+      card: loaded.card,
       event: { type: 'game.script.run', name: normalized.name, sourceFile: normalized.sourceFile, payload: normalized.payload },
-      fileContents,
+      fileContents: loaded.fileContents,
       scriptExecutor: platform?.scriptExecutor
     });
     if (JSON.stringify(result.messages) !== JSON.stringify(messages)) return fail('messages_not_supported', state);
@@ -103,7 +58,7 @@ async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = 
     return {
       applied: result.trace?.applied || changedKeys.length > 0,
       state: result.state,
-      card: runtimeCard,
+      card: loaded.card,
       trace: { type: 'game.script.run', applied: true, sourceFile: normalized.sourceFile, changedKeys, exec: result.trace }
     };
   } catch (error) {
@@ -111,4 +66,4 @@ async function applyUiScriptRunEvent({ event, state = {}, messages = [], card = 
   }
 }
 
-export { applyUiScriptRunEvent, loadScriptFileContents, normalizeUiScriptRunEvent };
+export { applyUiScriptRunEvent, normalizeUiScriptRunEvent };
