@@ -1,6 +1,7 @@
 import generationServices from './generationServices.js';
 import { createChatMessage } from './messageIds.js';
 import { cloneJson as cloneChatValue } from '../../shared/game-card/utils/jsonValue.js';
+import { sendStreamedGeneration } from './streamGeneration.js';
 
 function stripTurnContext(content) {
   return typeof content === 'string'
@@ -53,8 +54,21 @@ async function runChatGeneration(options) {
     options.onGameCardError?.(null);
     if (preSend.state && setGameState) setGameState(preSend.state);
     if (preSend.applied) setMessages(preSend.messages);
-    await sendGenerationRequest(preSend, modelConfig, tw, options.onStreamContentStart, abortSignal);
-    return finishGeneration(preSend, messages, state, options);
+    await options.onPresentationEffects?.(preSend.presentationEffects, {
+      card: preSend.card,
+      phase: 'pre_send',
+      state: preSend.state
+    });
+    const streamResult = await sendStreamedGeneration({
+      preSend,
+      modelConfig,
+      tw,
+      abortSignal,
+      onStreamContentStart: options.onStreamContentStart,
+      onStreamPreviewState: options.onStreamPreviewState,
+      onGameCardError: options.onGameCardError
+    });
+    return await finishGeneration(preSend, messages, state, options, streamResult);
   } catch (err) {
     return handleGenerationException(err, options, preSend, messages, abortSignal);
   } finally {
@@ -62,37 +76,15 @@ async function runChatGeneration(options) {
   }
 }
 
-async function sendGenerationRequest(preSend, modelConfig, tw, onStreamContentStart, abortSignal) {
-  let contentStarted = false;
-  const notifyContentStart = () => {
-    if (contentStarted) return;
-    contentStarted = true;
-    onStreamContentStart?.();
-  };
-  await generationServices.sendChatRequest({
-    apiUrl: modelConfig.apiUrl,
-    apiKey: modelConfig.apiKey,
-    modelName: modelConfig.modelName,
-    protocol: modelConfig.protocol || 'openai',
-    maxTokens: modelConfig.maxTokens,
-    temperature: modelConfig.temperature,
-    topP: modelConfig.topP,
-    frequencyPenalty: modelConfig.frequencyPenalty,
-    presencePenalty: modelConfig.presencePenalty,
-    signal: abortSignal,
-    messages: generationServices.toGameCardApiMessages(preSend.messages)
-  }, {
-    onToken: (text) => { if (tw.pushContent(text)) notifyContentStart(); },
-    onThinkingToken: (text) => tw.pushContent(text, 'reasoning')
-  });
-}
-
-async function finishGeneration(preSend, baseMessages, baseState, options) {
+async function finishGeneration(preSend, baseMessages, baseState, options, streamResult = {}) {
   const { setMessages, setGameState, setIsLoading, tw } = options;
-  setIsLoading(false);
   tw.finishStreaming();
-  const content = tw.getAccumulatedContent();
-  if (!content) return true;
+  const content = `${streamResult.leadingPatchBlock || ''}${tw.getAccumulatedContent()}`;
+  if (!content) {
+    setIsLoading(false);
+    tw.clearStreaming();
+    return true;
+  }
   const assistantMessage = createChatMessage({ role: 'assistant', content, _thinking: tw.getThinkingContent(), thinking: tw.getThinkingContent() });
   const base = preSend.applied ? preSend.messages : baseMessages;
   const after = await generationServices.prepareAfterResponseMessages({
@@ -101,9 +93,15 @@ async function finishGeneration(preSend, baseMessages, baseState, options) {
     card: preSend.card || null
   });
   if (after.state && setGameState) setGameState(after.state);
+  await options.onPresentationEffects?.(after.presentationEffects, {
+    card: after.card || preSend.card,
+    phase: 'after_response',
+    state: after.state
+  });
   if (after.applied) setMessages(after.messages);
   else if (options.appendAssistantWithUpdater) setMessages(prev => [...prev, assistantMessage]);
   else setMessages([...base, assistantMessage]);
+  setIsLoading(false);
   tw.clearStreaming();
   return true;
 }

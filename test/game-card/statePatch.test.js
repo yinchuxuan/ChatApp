@@ -1,5 +1,6 @@
 const {
   applyLatestAssistantStatePatch,
+  applyStatePatchPreview,
   extractLatestAssistantStatePatches
 } = require('../../src/shared/game-card/state/statePatch');
 
@@ -49,5 +50,29 @@ describe('LLM state patch runtime', () => {
       patches: [{ applied: false, reason: 'invalid_json' }],
       changedKeys: []
     });
+  });
+
+  test('previews only explicitly streamable llm state.set paths', () => {
+    const schema = {
+      'scene.portrait': {
+        type: 'enum',
+        values: ['none', 'touma_normal'],
+        llmWrite: true,
+        streamPreview: true
+      },
+      score: { type: 'number', llmWrite: true }
+    };
+    const result = applyStatePatchPreview(JSON.stringify([
+      { type: 'state.set', path: 'scene.portrait', value: 'touma_normal' },
+      { type: 'state.set', path: 'score', value: 8 },
+      { type: 'state.delete', path: 'scene.portrait' }
+    ]), { scene: { portrait: 'none' }, score: 0 }, schema);
+
+    expect(result.state).toEqual({
+      scene: { portrait: 'touma_normal' },
+      score: 0
+    });
+    expect(result.trace.changedKeys).toEqual(['scene.portrait']);
+    expect(result.trace.ignoredPaths).toEqual(['score', 'scene.portrait']);
   });
 });

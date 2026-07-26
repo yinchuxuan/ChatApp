@@ -114,11 +114,7 @@ gameState.visual.background = "music_room";
 
 ## 前端渲染
 
-前端背景运行时输入为：
-
-- active game card
-- current `gameState.visual.background`
-- 用户设置背景配置
+前端 presentation controller 提供 `updateBackground(card, state)` 和 `updatePortrait(card, state)`。state 更新只改变目标值，不直接改变实际画面。
 
 解析流程：
 
@@ -136,7 +132,9 @@ gameState.visual.background
 - 切换游戏卡时清理旧游戏卡背景。
 - 切换 session 后按恢复出的 `gameState.visual.background` 展示背景。
 - 相同 key 不重复解析资源 URL。
-- LLM 回复期间的背景变更等到正文第一个 token 开始流式输出时展示。
+- 平台默认在首个正文 token 到达时调用两个 update 函数；首 token 前失败或取消不会自动切换画面。
+- `presentation.autoUpdateOnFirstToken: false` 可关闭默认调用；卡片可在 `pre_send` / `after_response` 使用 `visual.updateBackground`、`visual.updatePortrait` 手动发布。
+- update 每次读取传入 state 的目标 key；异步资源解析只允许最新的通道请求生效，不维护待发布 visual snapshot。
 - 游戏卡背景只覆盖背景图片，不覆盖用户设置的遮罩透明度；透明度仍使用现有 `backgroundOpacity`。
 
 ## 资源安全
@@ -180,7 +178,7 @@ card.visual.background + gameState.visual.background
 }
 ```
 
-`visual.portrait` 跟随 session 保存和恢复，不进入 LLM prompt。当前使用单张全屏透明画布、底部对齐并在切换时淡入；自定义位置和多角色同屏仍需另行设计。
+`visual.portrait` 跟随 session 保存和恢复，不进入 LLM prompt。当前使用单张全屏透明画布、底部对齐，并在背景淡入完成后以较长时长淡入；自定义位置和多角色同屏仍需另行设计。
 
 ## 测试范围
 

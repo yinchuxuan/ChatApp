@@ -25,10 +25,7 @@
       "$import": "rules/tail-timeline-guide.json"
     },
     {
-      "$import": "rules/scene-location.json"
-    },
-    {
-      "$import": "rules/resolve-portrait.json"
+      "$import": "rules/stream-preview.json"
     }
   ]
 }

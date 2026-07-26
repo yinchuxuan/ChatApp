@@ -21,6 +21,7 @@ import useChatGeneration from './useChatGeneration.js';
 import useChatPersistence from './useChatPersistence.js';
 import useChatScroll from './useChatScroll.js';
 import useChatSession from './useChatSession.js';
+import useGameCardPresentation from './useGameCardPresentation.js';
 import useModelConfig from './useModelConfig.js';
 
 function ChatRuntime({
@@ -39,14 +40,18 @@ function ChatRuntime({
   const [isInputHovered, setIsInputHovered] = React.useState(false);
   const [isInputTriggerHovered, setIsInputTriggerHovered] = React.useState(false);
   const [actionError, setActionError] = React.useState(null);
-  const [audioStopToken, setAudioStopToken] = React.useState(0);
-  const [streamStartToken, setStreamStartToken] = React.useState(0);
   const runtime = useGameCardRuntime();
   const modelConfig = useModelConfig();
   const typewriter = useTypewriter(React);
+  const presentation = useGameCardPresentation();
   const persistence = useChatPersistence({ messages, gameState: runtime.gameState, isLoading });
-  const handleAudioSubmit = React.useCallback(() => setAudioStopToken(value => value + 1), []);
-  const handleStreamStart = React.useCallback(() => setStreamStartToken(value => value + 1), []);
+  const handleStreamStart = React.useCallback(({ card, state }) => {
+    if (card?.presentation?.autoUpdateOnFirstToken === false) return;
+    presentation.updateAll(card, state);
+  }, [presentation.updateAll]);
+  const handleSessionLoaded = React.useCallback(({ card, state }) => {
+    presentation.updateAll(card, state);
+  }, [presentation.updateAll]);
   const generation = useChatGeneration({
     messages,
     setMessages,
@@ -59,7 +64,8 @@ function ChatRuntime({
     setIsLoading,
     setRuntimeError: runtime.setRuntimeError,
     setShowStreamThinking,
-    onAudioSubmit: handleAudioSubmit,
+    onAudioSubmit: presentation.stopBgm,
+    onPresentationEffects: presentation.applyEffects,
     onStreamContentStart: handleStreamStart
   });
   const scroll = useChatScroll({ messages, isLoading, displayedCount: typewriter.displayedCount, showMsgHistory });
@@ -70,7 +76,8 @@ function ChatRuntime({
     isLoading,
     persistence,
     typewriter,
-    onResetView: scroll.collapseHistory
+    onResetView: scroll.collapseHistory,
+    onSessionLoaded: handleSessionLoaded
   });
   const editUserMessage = useLastUserMessageEdit(React, messages, isLoading);
 
@@ -113,7 +120,7 @@ function ChatRuntime({
 
   return <div className="chat-panel" data-gc-part="chat-panel">
     <GameCardStyleHost card={runtime.activeCard} />
-    <BackgroundRuntime card={runtime.activeCard} gameState={runtime.gameState} defer={isLoading} revealToken={streamStartToken} onBackgroundChange={onBackgroundChange} onPortraitChange={onPortraitChange} onVisualPanelChange={onVisualPanelChange} />
+    <BackgroundRuntime backgroundRequest={presentation.backgroundRequest} portraitRequest={presentation.portraitRequest} onBackgroundChange={onBackgroundChange} onPortraitChange={onPortraitChange} onVisualPanelChange={onVisualPanelChange} />
     <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState} setGameState={runtime.setGameState} messages={messages} isLoading={isLoading} uiScopeKey={session.revision} onError={runtime.setRuntimeError} />
     <div className="chat-main" data-gc-part="chat-main">
       <div className="chat-header-hover-trigger" data-gc-part="chat-header-trigger" onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)} />
@@ -125,7 +132,7 @@ function ChatRuntime({
           onSwitchSession={session.switchSession}
           onActiveCardChanged={handleCardChanged}
           onImportError={setActionError}
-          audioControl={<BgmPlayer card={runtime.activeCard} gameState={runtime.gameState} stopToken={audioStopToken} resumeToken={streamStartToken} defer={isLoading} />}
+          audioControl={<BgmPlayer updateRequest={presentation.bgmRequest} stopToken={presentation.bgmStopToken} />}
         />}
       </div>
       {actionError ? <GameCardErrorPanel error={actionError} variant="import" onClose={() => setActionError(null)} /> : null}

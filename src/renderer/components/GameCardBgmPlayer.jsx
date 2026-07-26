@@ -1,21 +1,24 @@
 import React from 'react';
 import { gameCardPlatform } from '../platform/index.js';
-import { gameCard, gameState, PropTypes } from './componentPropTypes.js';
+import { PropTypes } from './componentPropTypes.js';
 
-function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 0, defer = false }) {
-  const audioRef = React.useRef(null), lastPathRef = React.useRef('');
+function getBgmPath(request) {
+  const key = request?.state?.audio?.bgm;
+  return typeof key === 'string' ? (request?.card?.audio?.bgm?.[key] || '') : '';
+}
+
+function GameCardBgmPlayer({ updateRequest, stopToken = 0 }) {
+  const audioRef = React.useRef(null);
+  const sourceRef = React.useRef({ signature: null, revision: 0, url: '' });
+  const pendingPlayRef = React.useRef(false);
   const playingRef = React.useRef(false);
-  const pendingResumeRef = React.useRef(false);
-  const deferRef = React.useRef(defer);
-  const [audioSource, setAudioSource] = React.useState({ path: '', url: '' });
-  const [blocked, setBlocked] = React.useState(false), [enabled, setEnabled] = React.useState(true);
-  deferRef.current = defer;
-
-  const relativePath = React.useMemo(() => {
-    const key = gameState?.audio?.bgm;
-    return typeof key === 'string' ? (card?.audio?.bgm?.[key] || '') : '';
-  }, [card, gameState]);
-  const src = audioSource.path === relativePath ? audioSource.url : '';
+  const enabledRef = React.useRef(true);
+  const mountedRef = React.useRef(true);
+  const lastStopTokenRef = React.useRef(stopToken);
+  const [audioSource, setAudioSource] = React.useState('');
+  const [blocked, setBlocked] = React.useState(false);
+  const [enabled, setEnabled] = React.useState(true);
+  enabledRef.current = enabled;
 
   const stop = React.useCallback(() => {
     const audio = audioRef.current;
@@ -25,75 +28,85 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
 
   const playCurrent = React.useCallback(async (forceEnabled = false) => {
     const audio = audioRef.current;
-    if (!audio || !src || (!enabled && !forceEnabled)) return false;
+    if (!audio || !sourceRef.current.url || (!enabledRef.current && !forceEnabled)) return false;
     try {
       audio.currentTime = 0;
       await audio.play();
       playingRef.current = true;
-      pendingResumeRef.current = false;
+      pendingPlayRef.current = false;
       setBlocked(false);
       return true;
     } catch (_) {
       playingRef.current = false;
-      pendingResumeRef.current = false;
+      pendingPlayRef.current = false;
       setBlocked(true);
       return false;
     }
-  }, [src, enabled]);
+  }, []);
 
   React.useEffect(() => {
-    let canceled = false;
-    async function resolveAudioUrl() {
-      if (relativePath === lastPathRef.current) return;
-      stop();
-      setBlocked(false);
-      pendingResumeRef.current = !deferRef.current;
-      if (!relativePath) {
-        setAudioSource({ path: '', url: '' });
-        lastPathRef.current = '';
-        pendingResumeRef.current = false;
-        return;
+    if (!updateRequest) return;
+    const cardId = updateRequest.card?.id || '';
+    const relativePath = getBgmPath(updateRequest);
+    const signature = `${cardId}\0${relativePath}`;
+    pendingPlayRef.current = true;
+    if (signature === sourceRef.current.signature) {
+      if (sourceRef.current.url && updateRequest.restart !== false) {
+        stop();
+        void playCurrent();
       }
-      lastPathRef.current = relativePath;
-      try {
-        const url = await gameCardPlatform.resources.getAudioUrl(card?.id || '', relativePath);
-        if (!canceled) setAudioSource({ path: relativePath, url });
-      } catch (error) {
-        if (canceled) return;
+      return;
+    }
+
+    stop();
+    setBlocked(false);
+    const revision = sourceRef.current.revision + 1;
+    sourceRef.current = { signature, revision, url: '' };
+    setAudioSource('');
+    if (!relativePath) {
+      pendingPlayRef.current = false;
+      return;
+    }
+    gameCardPlatform.resources.getAudioUrl(cardId, relativePath)
+      .then(url => {
+        if (!mountedRef.current || sourceRef.current.revision !== revision) return;
+        sourceRef.current = { signature, revision, url };
+        setAudioSource(url);
+      })
+      .catch(error => {
+        if (!mountedRef.current || sourceRef.current.revision !== revision) return;
         console.error('Failed to load game card audio:', error.message);
-        setAudioSource({ path: relativePath, url: '' });
-        pendingResumeRef.current = false;
-      }
-    }
-    resolveAudioUrl();
-    return () => { canceled = true; };
-  }, [card?.id, relativePath, stop]);
+        pendingPlayRef.current = false;
+      });
+  }, [playCurrent, stop, updateRequest]);
 
-  React.useEffect(() => { pendingResumeRef.current = false; stop(); }, [stopToken, stop]);
   React.useEffect(() => {
-    if (resumeToken > 0) {
-      pendingResumeRef.current = true;
-      playCurrent();
-    }
-  }, [resumeToken]);
+    if (audioSource && pendingPlayRef.current) void playCurrent();
+  }, [audioSource, playCurrent]);
   React.useEffect(() => {
-    if (pendingResumeRef.current && src) playCurrent();
-  }, [src, playCurrent]);
-  React.useEffect(() => () => stop(), [stop]);
+    if (stopToken === lastStopTokenRef.current) return;
+    lastStopTokenRef.current = stopToken;
+    pendingPlayRef.current = false;
+    stop();
+  }, [stop, stopToken]);
+  React.useEffect(() => () => {
+    mountedRef.current = false;
+    stop();
+  }, [stop]);
 
   const toggle = event => {
     event.stopPropagation();
     const nextEnabled = !enabled;
     setEnabled(nextEnabled);
     if (!nextEnabled) stop();
-    else playCurrent(true);
+    else void playCurrent(true);
   };
   const icon = enabled ? 'music_note' : 'music_off';
   const title = blocked ? '浏览器需要手动播放 BGM' : (enabled ? '关闭 BGM' : '开启 BGM');
   return <div className="game-card-bgm-player" data-gc-part="bgm-player">
-    <audio ref={audioRef} src={src} loop />
+    <audio ref={audioRef} src={audioSource} loop />
     <button type="button"
-      className={`md-btn md-btn-icon game-card-bgm-btn${blocked ? ' blocked' : ''}${!src ? ' no-source' : ''}`}
+      className={`md-btn md-btn-icon game-card-bgm-btn${blocked ? ' blocked' : ''}${!audioSource ? ' no-source' : ''}`}
       data-gc-part="bgm-button" onClick={toggle} title={title} aria-label={title}>
       <span className="material-icons">{icon}</span>
     </button>
@@ -101,11 +114,13 @@ function GameCardBgmPlayer({ card, gameState = {}, stopToken = 0, resumeToken = 
 }
 
 GameCardBgmPlayer.propTypes = {
-  card: gameCard,
-  gameState,
-  stopToken: PropTypes.number,
-  resumeToken: PropTypes.number,
-  defer: PropTypes.bool
+  updateRequest: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    card: PropTypes.object,
+    state: PropTypes.object.isRequired,
+    restart: PropTypes.bool
+  }),
+  stopToken: PropTypes.number
 };
 
 export default GameCardBgmPlayer;

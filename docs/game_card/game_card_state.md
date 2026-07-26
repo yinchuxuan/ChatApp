@@ -127,6 +127,7 @@ append user message
   -> send to LLM
   -> append assistant message
   -> ensureStateDefaults(schema, gameState)
+  -> apply assistant state patches
   -> run after_response rules
   -> save messages + gameState
 ```
@@ -193,6 +194,6 @@ state 随聊天历史保存：
 
 动态变量用于开放运行时命名空间，例如 `memory.*`、`flags.*`、`npc.*.notes`。未被 schema 或 dynamic 覆盖的 path 默认不可由 LLM 创建或写入。后续可按实际需求补充 `inc`、`toggle`、`merge` 等便利 action。
 
-LLM 不直接写持久化 state，而是在回复中输出隐藏 `<state_patch>`，由 `after_response` action 解析、校验、应用并移除源 block。解析或校验失败不应中断聊天，只记录 warning 并跳过非法补丁。复杂状态逻辑在此之前继续使用 `exec`。
+LLM 不直接写持久化 state，而是在回复中输出隐藏 `<state_patch>`，由响应管线解析、校验并应用，再把更新后的 state 交给 `after_response` 规则。前导 patch 中声明 `streamPreview: true` 的字段会提前写入当前运行时 state，失败或取消后保留；retry 使用发送前的独立 snapshot。解析或校验失败不应中断聊天，只记录 warning 并跳过非法补丁。复杂状态逻辑继续使用 `exec`。
 
 每次 state 读取失败、补丁失败或修改成功都应记录 trace，至少包含 phase、rule/action 位置、变更 diff、校验错误和 LLM patch reason。

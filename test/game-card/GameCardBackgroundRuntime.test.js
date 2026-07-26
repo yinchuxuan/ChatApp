@@ -1,6 +1,21 @@
 import React from 'react';
-import { render, waitFor, act } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import GameCardBackgroundRuntime from '../../src/renderer/components/GameCardBackgroundRuntime';
+
+const card = {
+  id: 'wa2',
+  visual: {
+    background: {
+      school: 'images/school.jpg',
+      room: 'images/room.jpg'
+    },
+    portrait: { touma: 'images/touma.png' }
+  }
+};
+
+function request(id, state, targetCard = card) {
+  return { id, card: targetCard, state };
+}
 
 async function flushEffects() {
   await act(async () => {
@@ -9,184 +24,133 @@ async function flushEffects() {
   });
 }
 
-describe('GameCardBackgroundRuntime', () => {
+describe('GameCardBackgroundRuntime explicit updates', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    global.platformMock.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///school.jpg' });
-  });
-
-  test('dispatches resolved background url from game state', async () => {
-    const handler = jest.fn();
-
-    render(React.createElement(GameCardBackgroundRuntime, {
-      card: { visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school' } },
-      onBackgroundChange: handler
+    global.platformMock.getGameCardImageUrl.mockImplementation(async (_cardId, path) => ({
+      success: true,
+      url: `local:///${path}`
     }));
-    await flushEffects();
-
-    await waitFor(() => expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledWith('', 'images/school.jpg'));
-    expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
   });
 
-  test('dispatches resolved portrait url from game state', async () => {
-    global.platformMock.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///touma.png' });
-    const handler = jest.fn();
-
+  test('resolves only the explicitly requested background channel', async () => {
+    const background = jest.fn();
+    const portrait = jest.fn();
     render(React.createElement(GameCardBackgroundRuntime, {
-      card: { id: 'wa2', visual: { portrait: { touma: 'images/touma.png' } } },
-      gameState: { visual: { portrait: 'touma' } },
-      onPortraitChange: handler
+      backgroundRequest: request(1, {
+        visual: { background: 'school', portrait: 'touma' }
+      }),
+      onBackgroundChange: background,
+      onPortraitChange: portrait
     }));
-    await flushEffects();
 
-    await waitFor(() => expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledWith('wa2', 'images/touma.png'));
-    expect(handler).toHaveBeenCalledWith({ url: 'local:///touma.png' });
+    await waitFor(() => expect(background).toHaveBeenCalledWith({
+      url: 'local:///images/school.jpg'
+    }));
+    expect(portrait).not.toHaveBeenCalled();
   });
 
-  test('clears background when key is missing', async () => {
-    const handler = jest.fn();
-
+  test('resolves a portrait only after updatePortrait requests it', async () => {
+    const portrait = jest.fn();
     render(React.createElement(GameCardBackgroundRuntime, {
-      card: { visual: { background: {} } },
-      gameState: { visual: { background: 'missing' } },
-      onBackgroundChange: handler
+      portraitRequest: request(1, { visual: { portrait: 'touma' } }),
+      onPortraitChange: portrait
+    }));
+
+    await waitFor(() => expect(portrait).toHaveBeenCalledWith({
+      url: 'local:///images/touma.png'
+    }));
+    expect(global.platformMock.getGameCardImageUrl)
+      .toHaveBeenCalledWith('wa2', 'images/touma.png');
+  });
+
+  test('clears a requested channel when its state key is missing', async () => {
+    const background = jest.fn();
+    render(React.createElement(GameCardBackgroundRuntime, {
+      backgroundRequest: request(1, { visual: { background: 'missing' } }),
+      onBackgroundChange: background
     }));
     await flushEffects();
 
     expect(global.platformMock.getGameCardImageUrl).not.toHaveBeenCalled();
-    expect(handler).toHaveBeenCalledWith({ url: '' });
+    expect(background).toHaveBeenCalledWith({ url: '' });
   });
 
-  test('resolves again when card changes with the same relative path', async () => {
-    global.platformMock.getGameCardImageUrl
-      .mockResolvedValueOnce({ success: true, url: 'local:///a/school.jpg' })
-      .mockResolvedValueOnce({ success: true, url: 'local:///b/school.jpg' });
+  test('does not resolve the same card and path twice', async () => {
     const state = { visual: { background: 'school' } };
-    const first = { id: 'card-a', visual: { background: { school: 'images/school.jpg' } } };
-    const second = { id: 'card-b', visual: { background: { school: 'images/school.jpg' } } };
-
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
-      card: first,
-      gameState: state
+      backgroundRequest: request(1, state)
     }));
     await flushEffects();
-    rerender(React.createElement(GameCardBackgroundRuntime, { card: second, gameState: state }));
+    rerender(React.createElement(GameCardBackgroundRuntime, {
+      backgroundRequest: request(2, state)
+    }));
+    await flushEffects();
+
+    expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledTimes(1);
+  });
+
+  test('resolves again when the card changes with the same path', async () => {
+    const state = { visual: { background: 'school' } };
+    const secondCard = {
+      id: 'other',
+      visual: { background: { school: 'images/school.jpg' } }
+    };
+    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
+      backgroundRequest: request(1, state)
+    }));
+    await flushEffects();
+    rerender(React.createElement(GameCardBackgroundRuntime, {
+      backgroundRequest: request(2, state, secondCard)
+    }));
     await flushEffects();
 
     expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledTimes(2);
   });
 
-  test('defers background dispatch until response body starts', async () => {
-    const handler = jest.fn();
-
-    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
-      card: { visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school' } },
-      defer: true,
-      revealToken: 0,
-      onBackgroundChange: handler
-    }));
-    await flushEffects();
-
-    await waitFor(() => expect(global.platformMock.getGameCardImageUrl).toHaveBeenCalledWith('', 'images/school.jpg'));
-    expect(handler).not.toHaveBeenCalled();
-    rerender(React.createElement(GameCardBackgroundRuntime, {
-      card: { visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school' } },
-      defer: true,
-      revealToken: 1,
-      onBackgroundChange: handler
-    }));
-    await flushEffects();
-
-    expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
-  });
-
-  test('reveals deferred background after the image resolves late', async () => {
-    let resolveImage;
-    global.platformMock.getGameCardImageUrl.mockReturnValue(new Promise(resolve => { resolveImage = resolve; }));
-    const handler = jest.fn();
-
-    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
-      card: { visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school' } },
-      defer: true,
-      revealToken: 0,
-      onBackgroundChange: handler
-    }));
-    rerender(React.createElement(GameCardBackgroundRuntime, {
-      card: { visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school' } },
-      defer: true,
-      revealToken: 1,
-      onBackgroundChange: handler
-    }));
-    await act(async () => resolveImage({ success: true, url: 'local:///school.jpg' }));
-
-    expect(handler).toHaveBeenCalledWith({ url: 'local:///school.jpg' });
-  });
-
-  test('retries a canceled portrait resolution when defer ends', async () => {
+  test('ignores a stale image resolution after a newer update', async () => {
     const resolvers = [];
     global.platformMock.getGameCardImageUrl.mockImplementation(() => (
       new Promise(resolve => resolvers.push(resolve))
     ));
-    const handler = jest.fn();
-    const card = { id: 'wa2', visual: { portrait: { touma: 'images/touma.png' } } };
-    const gameState = { visual: { portrait: 'touma' } };
+    const background = jest.fn();
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
-      card, gameState, defer: true, onPortraitChange: handler
+      backgroundRequest: request(1, { visual: { background: 'school' } }),
+      onBackgroundChange: background
     }));
     await waitFor(() => expect(resolvers).toHaveLength(1));
-
     rerender(React.createElement(GameCardBackgroundRuntime, {
-      card, gameState, defer: false, onPortraitChange: handler
+      backgroundRequest: request(2, { visual: { background: 'room' } }),
+      onBackgroundChange: background
     }));
     await waitFor(() => expect(resolvers).toHaveLength(2));
-    await act(async () => resolvers[0]({ success: true, url: 'local:///stale.png' }));
-    expect(handler).not.toHaveBeenCalledWith({ url: 'local:///stale.png' });
-    await act(async () => resolvers[1]({ success: true, url: 'local:///touma.png' }));
 
-    expect(handler).toHaveBeenCalledWith({ url: 'local:///touma.png' });
+    await act(async () => {
+      resolvers[1]({ success: true, url: 'local:///room.jpg' });
+      resolvers[0]({ success: true, url: 'local:///school.jpg' });
+    });
+    expect(background).toHaveBeenCalledTimes(1);
+    expect(background).toHaveBeenCalledWith({ url: 'local:///room.jpg' });
   });
 
-  test('retries a pending portrait when defer ends before reveal renders', async () => {
-    global.platformMock.getGameCardImageUrl.mockResolvedValue({ success: true, url: 'local:///touma.png' });
-    const handler = jest.fn();
-    const card = { id: 'wa2', visual: { portrait: { touma: 'images/touma.png' } } };
-    const gameState = { visual: { portrait: 'touma' } };
+  test('updates the text panel with an explicit background request', async () => {
+    const panel = jest.fn();
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
-      card, gameState, defer: true, revealToken: 0, onPortraitChange: handler
-    }));
-    await flushEffects();
-    expect(handler).not.toHaveBeenCalled();
-
-    rerender(React.createElement(GameCardBackgroundRuntime, {
-      card, gameState, defer: false, revealToken: 1, onPortraitChange: handler
-    }));
-    await flushEffects();
-
-    expect(handler).toHaveBeenCalledWith({ url: 'local:///touma.png' });
-  });
-
-  test('dispatches visual panel state and normalizes invalid values', async () => {
-    const handler = jest.fn();
-
-    const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
-      card: { id: 'wa2', visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school', textPanel: 'right' } },
-      onVisualPanelChange: handler
+      backgroundRequest: request(1, {
+        visual: { background: 'school', textPanel: 'right' }
+      }),
+      onVisualPanelChange: panel
     }));
     await flushEffects();
     rerender(React.createElement(GameCardBackgroundRuntime, {
-      card: { id: 'wa2', visual: { background: { school: 'images/school.jpg' } } },
-      gameState: { visual: { background: 'school', textPanel: 'bottom' } },
-      onVisualPanelChange: handler
+      backgroundRequest: request(2, {
+        visual: { background: 'school', textPanel: 'bottom' }
+      }),
+      onVisualPanelChange: panel
     }));
     await flushEffects();
 
-    expect(handler).toHaveBeenCalledWith({ textPanel: 'right', cardId: 'wa2' });
-    expect(handler).toHaveBeenCalledWith({ textPanel: 'center', cardId: 'wa2' });
+    expect(panel).toHaveBeenCalledWith({ textPanel: 'right', cardId: 'wa2' });
+    expect(panel).toHaveBeenCalledWith({ textPanel: 'center', cardId: 'wa2' });
   });
 });

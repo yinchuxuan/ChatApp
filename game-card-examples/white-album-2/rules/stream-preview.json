@@ -1,0 +1,22 @@
+[
+  {
+    "id": "wa2-stream-preview",
+    "when": {
+      "phase": "stream_preview",
+      "state": { "temp.plotKind": "free" }
+    },
+    "then": [
+      { "type": "exec", "sourceFile": "scripts/stream-preview.js" }
+    ]
+  },
+  {
+    "id": "wa2-response-visual",
+    "when": {
+      "phase": "after_response",
+      "state": { "temp.plotKind": "free" }
+    },
+    "then": [
+      { "type": "exec", "sourceFile": "scripts/stream-preview.js" }
+    ]
+  }
+]

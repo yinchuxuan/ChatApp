@@ -11,6 +11,7 @@ function useChatSession({
   persistence,
   typewriter,
   onResetView,
+  onSessionLoaded,
   repository = rendererServices.sessions
 }) {
   const [revision, setRevision] = React.useState(0);
@@ -26,6 +27,7 @@ function useChatSession({
       setRuntimeError(init.error ? normalizeGameCardError(init) : null);
       setMessages(nextMessages);
       setGameState(nextState);
+      onSessionLoaded?.({ card: init.card || null, state: nextState });
       if (init.changed) await persistence.save(nextMessages, nextState);
       return result;
     } catch (error) {
@@ -34,7 +36,7 @@ function useChatSession({
     } finally {
       persistence.markLoaded();
     }
-  }, [persistence, repository, setGameState, setMessages, setRuntimeError]);
+  }, [onSessionLoaded, persistence, repository, setGameState, setMessages, setRuntimeError]);
 
   const load = React.useCallback(() => {
     setRevision(value => value + 1);

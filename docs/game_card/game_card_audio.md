@@ -4,7 +4,7 @@
 
 Audio 定义游戏卡可使用的本地音频资源，并通过 `gameState` 控制当前播放内容。
 
-第一版只设计 BGM：游戏卡声明 BGM key 到资源路径的映射，state schema 声明当前 BGM key，现有 state action 修改当前 BGM key，前端播放器监听 `gameState.audio.bgm` 并播放对应资源。
+第一版只设计 BGM：游戏卡声明 BGM key 到资源路径的映射，state schema 声明当前 BGM key，state action 修改目标 key，presentation controller 显式发布到播放器。
 
 Audio 不进入 LLM prompt，不写入消息正文，也不由 display rules 处理。
 
@@ -94,9 +94,8 @@ gameState.audio.bgm = "ensemble";
   },
   "then": [
     {
-      "type": "state",
+      "type": "state.set",
       "path": "audio.bgm",
-      "op": "set",
       "value": "ensemble"
     }
   ]
@@ -105,11 +104,7 @@ gameState.audio.bgm = "ensemble";
 
 ## 前端播放器
 
-前端新增 BGM 播放器运行时，输入为：
-
-- active game card
-- current `gameState.audio.bgm`
-- user playback settings
+前端 presentation controller 提供 `updateBgm(card, state, options)`，播放器只响应显式更新请求，不监听 state 变化。
 
 解析流程：
 
@@ -125,7 +120,7 @@ gameState.audio.bgm
 - 用户提交消息后立即停止当前 BGM；仅键入输入不停止
 - LLM 只输出 thinking/reasoning 时保持停止
 - 正文第一个 token 开始流式输出时，按当前 `gameState.audio.bgm` 从头加载并播放
-- 非生成期间由本地 UI 修改 `gameState.audio.bgm` 时，立即切换并播放新的 BGM
+- `pre_send` / `after_response` 可通过 `audio.updateBgm` 手动切换；`restart: false` 可避免同曲重播
 
 行为要求：
 
@@ -190,6 +185,6 @@ display rules 是 UI-only 文本变换，只作用于消息内容渲染；BGM �
 - state schema enum 默认值能初始化 `gameState.audio.bgm`
 - state action 能更新 `audio.bgm`
 - 资源协议拒绝路径穿越和非音频扩展名
-- 组件在 key 变化时切换音频资源
+- 组件只在收到显式 update 请求时切换音频资源
 - 切换游戏卡或 session 时停止或恢复正确 BGM
 - 用户提交时停止播放，正文开始流式输出时按最新 state 播放

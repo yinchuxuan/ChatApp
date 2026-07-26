@@ -64,7 +64,17 @@
       "default": "none",
       "description": "本轮自由剧情的主要立绘人物和表情，由 LLM 写入并投影到 visual.portrait。",
       "llmRead": false,
-      "llmWrite": true
+      "llmWrite": true,
+      "streamPreview": true
+    },
+    "scene.location": {
+      "type": "enum",
+      "values": ["school", "classroom", "third_music_room"],
+      "default": "school",
+      "description": "本轮自由剧情的前导场景地点，由 LLM 在开头写入并投影到 visual.background。",
+      "llmRead": false,
+      "llmWrite": true,
+      "streamPreview": true
     },
     "timeline.currentTime": {
       "type": "string",
@@ -123,21 +133,6 @@
       "default": false,
       "description": "第二章 GameEnd1 结局固定节点是否已经加载。为 true 后后续轮次进入 GameEnd1 日后谈自由剧情。",
       "llmRead": false,
-      "llmWrite": false
-    },
-    "story.location": {
-      "type": "enum",
-      "values": ["school", "classroom", "third_music_room"],
-      "default": "school",
-      "description": "最近一段剧情发生地点的标准化 key，由 after_response 场景解析写入。",
-      "llmRead": true,
-      "llmWrite": false
-    },
-    "story.locationText": {
-      "type": "string",
-      "default": "峰城大附属中学",
-      "description": "最近一段剧情回复中写出的原始地点文本。",
-      "llmRead": true,
       "llmWrite": false
     },
     "events.queue": {

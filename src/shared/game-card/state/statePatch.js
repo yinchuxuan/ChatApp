@@ -1,5 +1,6 @@
 import { applyStateAction } from './stateActions.js';
 import { cloneState } from './statePaths.js';
+import { normalizeStateSchema } from './stateSchema.js';
 
 const PATCH_PATTERN = /<state_patch>([\s\S]*?)<\/state_patch>/g;
 
@@ -38,7 +39,10 @@ function applyParsedPatch(state, patchText, options) {
     };
   }
 
-  const result = actions.reduce((current, action) => {
+  const selectedActions = options.actionFilter
+    ? actions.filter(options.actionFilter)
+    : actions;
+  const result = selectedActions.reduce((current, action) => {
     const applied = applyStateAction(current.state, action, options);
     return {
       state: applied.state,
@@ -51,9 +55,25 @@ function applyParsedPatch(state, patchText, options) {
     trace: {
       applied: result.actions.some((action) => action.applied),
       actions: result.actions,
-      changedKeys: [...summarizeActions(result.actions)]
+      changedKeys: [...summarizeActions(result.actions)],
+      ignoredPaths: actions
+        .filter(action => !selectedActions.includes(action))
+        .map(action => action?.path)
+        .filter(Boolean)
     }
   };
+}
+
+function applyStatePatchPreview(patchText, state = {}, schemaInput = {}) {
+  const schema = normalizeStateSchema(schemaInput).schema;
+  return applyParsedPatch(state, patchText, {
+    schema: schemaInput,
+    actionFilter: action => (
+      action?.type === 'state.set'
+      && schema[action.path]?.llmWrite === true
+      && schema[action.path]?.streamPreview === true
+    )
+  });
 }
 
 function applyLatestAssistantStatePatch(messages = [], state = {}, options = {}) {
@@ -75,4 +95,8 @@ function applyLatestAssistantStatePatch(messages = [], state = {}, options = {})
   }, { state: cloneState(state), trace: { applied: false, patches: [], changedKeys: [] } });
 }
 
-export { applyLatestAssistantStatePatch, extractLatestAssistantStatePatches };
+export {
+  applyLatestAssistantStatePatch,
+  applyStatePatchPreview,
+  extractLatestAssistantStatePatches
+};

@@ -50,6 +50,11 @@
       ],
       "description": "本轮主要立绘。自由剧情必须选择画面焦点人物及其在正文结尾时的表情；固定剧情或没有合适人物时写 none"
     },
+    "scene.location": {
+      "type": "enum",
+      "values": ["school", "classroom", "third_music_room"],
+      "description": "本轮开场地点。校园公共区域写 school，普通教室写 classroom，第三音乐教室写 third_music_room"
+    },
     "timeline.currentTime": {
       "type": "string",
       "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X"

@@ -69,12 +69,14 @@ function App() {
   React.useEffect(() => {
     setBackgroundLayers(prev => prev.current === backgroundImageUrl
       ? prev
-      : { current: backgroundImageUrl, previous: prev.current });
-    const timer = setTimeout(() => {
-      setBackgroundLayers(prev => ({ current: prev.current, previous: '' }));
-    }, 450);
-    return () => clearTimeout(timer);
+      : backgroundImageUrl
+        ? { current: backgroundImageUrl, previous: prev.current }
+        : { current: '', previous: '' });
   }, [backgroundImageUrl]);
+
+  const handleBackgroundAnimationEnd = React.useCallback(() => {
+    setBackgroundLayers(prev => prev.previous ? { ...prev, previous: '' } : prev);
+  }, []);
 
   const getBackgroundStyle = React.useCallback((url) => url ? {
     backgroundImage: cssUrl(url),
@@ -108,7 +110,7 @@ function App() {
       data-gc-part="app"
     >
       {backgroundLayers.previous && <div className="app-background-layer app-background-layer-previous" style={getBackgroundStyle(backgroundLayers.previous)} />}
-      {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} />}
+      {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} onAnimationEnd={handleBackgroundAnimationEnd} />}
       {backgroundImageUrl && <div data-gc-part="background-overlay" style={getOverlayStyle()} />}
       {gameCardPortraitUrl && <div className="app-portrait-layer" data-gc-part="portrait-layer" aria-hidden="true">
         <img key={gameCardPortraitUrl} className="app-portrait-image" src={gameCardPortraitUrl} alt="" />

@@ -128,6 +128,9 @@ describe('App Component - Interaction', () => {
       chatPanelProps.onBackgroundChange({ url: 'game-card-bg-url' });
     });
     expect(document.querySelector('.app-background-layer-current').style.backgroundImage).toContain('game-card-bg-url');
+    expect(document.querySelector('.app-background-layer-previous').style.backgroundImage).toContain('settings-bg-url');
+    _fireEvent.animationEnd(document.querySelector('.app-background-layer-current'));
+    expect(document.querySelector('.app-background-layer-previous')).toBeNull();
     expect(document.querySelector('[data-gc-part="background-overlay"]').style.opacity).toBe('0.3');
 
     await act(async () => {

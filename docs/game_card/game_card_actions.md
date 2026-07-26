@@ -106,6 +106,32 @@
 }
 ```
 
+## presentation actions
+
+state 中的 `visual` / `audio` 只描述目标值。以下 action 会把当前阶段结束时的 state 显式发布到实际展示层：
+
+```json
+{ "type": "visual.updateBackground" }
+{ "type": "visual.updatePortrait" }
+{ "type": "audio.updateBgm" }
+{ "type": "audio.updateBgm", "restart": false }
+```
+
+- `visual.updateBackground`：按 `state.visual.background` 更新当前背景
+- `visual.updatePortrait`：按 `state.visual.portrait` 更新当前立绘
+- `audio.updateBgm`：按 `state.audio.bgm` 更新并播放 BGM；同一 BGM 默认从头播放
+- `restart: false`：同一 BGM 已加载时不重新开始；切换到新 BGM 时仍播放
+
+平台默认在首个正文 token 到达时依次执行三项更新。卡片可以关闭默认行为，完全改由 `pre_send` / `after_response` 规则控制：
+
+```json
+{
+  "presentation": {
+    "autoUpdateOnFirstToken": false
+  }
+}
+```
+
 ## exec
 
 兜底操作，用于声明式操作无法覆盖的游戏逻辑。`exec` 是受限上下文中的纯变换函数。

@@ -4,6 +4,7 @@ import { loadCachedCardResources, loadCachedRuntimeCard } from './gameCardRuntim
 import { ensureStateDefaults } from '../../shared/game-card/state/stateSchema.js';
 import { applyLatestAssistantStatePatch } from '../../shared/game-card/state/statePatch.js';
 import { decayTTL } from '../../shared/game-card/engine/ttl.js';
+import { collectPresentationEffects } from '../../shared/game-card/engine/presentationActions.js';
 
 async function loadActiveGameCard(platform) {
   if (typeof platform?.repository?.getActiveCard !== 'function') return null;
@@ -56,6 +57,7 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
   const result = await applyGameCardAsync({ card: resources.card, phase: 'pre_send', messages: ttl.messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   return {
     ...result,
+    presentationEffects: collectPresentationEffects(result.trace),
     ...(result.trace.errors.length ? { error: result.trace.errors.join('\n') } : {}),
     ttlTrace: ttl.trace,
     stateTrace: prepared.trace,
@@ -79,14 +81,14 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
     return { messages, state, trace: null, ttlTrace: null, stateTrace: null, applied: false, card: null, error: error.message };
   }
   const prepared = prepareState(resources.card, state);
-  const result = await applyGameCardAsync({ card: resources.card, phase: 'after_response', messages, state: prepared.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
-  const patched = applyLatestAssistantStatePatch(result.messages, result.state, {
-    messages: result.messages,
+  const patched = applyLatestAssistantStatePatch(messages, prepared.state, {
+    messages,
     schema: resources.card?.state?.schema
   });
+  const result = await applyGameCardAsync({ card: resources.card, phase: 'after_response', messages, state: patched.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   return {
     ...result,
-    state: patched.state,
+    presentationEffects: collectPresentationEffects(result.trace),
     ttlTrace: null,
     stateTrace: prepared.trace,
     statePatchTrace: patched.trace,

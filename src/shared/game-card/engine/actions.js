@@ -2,6 +2,7 @@ import { resolveContent } from '../content/contentResolver.js';
 import { withFindState } from './findResolver.js';
 import { matchesPredicate, matchesWhen } from './predicate.js';
 import { applyStateAction } from '../state/stateActions.js';
+import { applyPresentationAction, isPresentationAction } from './presentationActions.js';
 
 function findMatchingIndexes(messages, predicate) {
   return messages.reduce((indexes, message, index) => {
@@ -124,6 +125,7 @@ function applyAction(messages, action, options = {}) {
     });
     return { messages, state: result.state, trace: result.trace };
   }
+  if (isPresentationAction(action)) return applyPresentationAction(messages, options.state || {}, action);
   if (action?.type === 'exec') {
     if (typeof options.runExecAction !== 'function') throw new Error('exec runner is required');
     return options.runExecAction(messages, options.state || {}, action, options);
