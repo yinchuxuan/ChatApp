@@ -144,6 +144,16 @@
   transition: opacity 240ms ease;
 }
 
+.app-container.game-card-theme-white-album-2 [data-gc-part="portrait-layer"] .app-portrait-image {
+  position: absolute;
+  left: 17%;
+  bottom: 0;
+  width: auto;
+  height: 75%;
+  max-width: none;
+  transform: translateX(-50%);
+}
+
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"],
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-surface"],
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-history"] {

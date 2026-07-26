@@ -18,6 +18,15 @@ const fileContents = {
 };
 const portraitKeys = Object.keys(loadedCard.visual.portrait);
 
+function pngDimensions(filePath) {
+  const image = fs.readFileSync(filePath);
+  return {
+    width: image.readUInt32BE(16),
+    height: image.readUInt32BE(20),
+    colorType: image[25]
+  };
+}
+
 function patchMessage(value) {
   return {
     role: 'assistant',
@@ -55,7 +64,9 @@ describe('white album portrait selection', () => {
       ['normal', 'happy', 'sad', 'angry', 'surprise'].forEach((expression) => {
         const key = `${character}_${expression}`;
         expect(loadedCard.visual.portrait[key]).toBe(`images/${character}/${expression}.png`);
-        expect(fs.existsSync(path.join(cardDir, loadedCard.visual.portrait[key]))).toBe(true);
+        const imagePath = path.join(cardDir, loadedCard.visual.portrait[key]);
+        expect(fs.existsSync(imagePath)).toBe(true);
+        expect(pngDimensions(imagePath)).toEqual({ width: 2560, height: 1920, colorType: 6 });
       });
     });
   });
