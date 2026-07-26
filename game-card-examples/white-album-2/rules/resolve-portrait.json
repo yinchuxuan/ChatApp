@@ -1,0 +1,13 @@
+[
+  {
+    "id": "wa2-resolve-portrait",
+    "when": {
+      "phase": "after_response",
+      "last": { "role": "assistant" },
+      "state": { "temp.plotKind": "free" }
+    },
+    "then": [
+      { "type": "exec", "sourceFile": "scripts/resolve-portrait.js" }
+    ]
+  }
+]

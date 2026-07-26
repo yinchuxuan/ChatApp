@@ -67,7 +67,8 @@
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
-  animation: app-portrait-fade-in 240ms ease-out both;
+  animation: app-portrait-fade-in var(--md-motion-duration-medium2)
+    var(--md-motion-easing-emphasized-decelerate) both;
 }
 
 @keyframes app-background-fade-in {

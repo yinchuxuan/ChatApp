@@ -52,8 +52,8 @@ function run(ctx) {
     state.temp.toumaAttitudeSection = resolveAttitudeSection('ToumaAttitude', state.touma && state.touma.affection);
     state.temp.setsunaAttitudeSection = resolveAttitudeSection('SetsunaAttitude', state.setsuna && state.setsuna.affection);
     state.audio.bgm = mood;
-    state.visual.background = result.background || 'school';
-    state.visual.portrait = 'touma_normal';
+    if (!state.visual.background) state.visual.background = result.background || 'school';
+    if (!state.visual.portrait) state.visual.portrait = state.scene.portrait || 'none';
   }
 
   function applyFixedPlot(result) {
@@ -65,6 +65,7 @@ function run(ctx) {
     state.temp.setsunaAttitudeSection = '';
     state.audio.bgm = result.bgm;
     state.visual.background = result.background;
+    state.scene.portrait = 'none';
     state.visual.portrait = 'none';
   }
 
@@ -73,6 +74,7 @@ function run(ctx) {
   ensureObject('temp');
   ensureObject('audio');
   ensureObject('visual');
+  ensureObject('scene');
   ensureObject('story');
 
   clampCurrentTimeToSlotEnd();

@@ -10,7 +10,8 @@ const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, relativePath), 'utf-8'); }
 
 const fileContents = {
-  'scripts/scene-location.js': readCardFile('scripts/scene-location.js')
+  'scripts/scene-location.js': readCardFile('scripts/scene-location.js'),
+  'scripts/resolve-portrait.js': readCardFile('scripts/resolve-portrait.js')
 };
 
 function applyAssistant(content, overrides = {}) {

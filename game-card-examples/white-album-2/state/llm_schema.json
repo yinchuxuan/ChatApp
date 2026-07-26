@@ -18,6 +18,38 @@
       "max": 100,
       "description": "学园祭演出熟练度；当本轮剧情包含合奏、练琴、排练、声乐/键盘/吉他磨合等演出练习时可以增加"
     },
+    "scene.portrait": {
+      "type": "enum",
+      "values": [
+        "none",
+        "touma_normal",
+        "touma_happy",
+        "touma_sad",
+        "touma_angry",
+        "touma_surprise",
+        "setsuna_normal",
+        "setsuna_happy",
+        "setsuna_sad",
+        "setsuna_angry",
+        "setsuna_surprise",
+        "mizusawa_normal",
+        "mizusawa_happy",
+        "mizusawa_sad",
+        "mizusawa_angry",
+        "mizusawa_surprise",
+        "takeya_normal",
+        "takeya_happy",
+        "takeya_sad",
+        "takeya_angry",
+        "takeya_surprise",
+        "yanagihara_normal",
+        "yanagihara_happy",
+        "yanagihara_sad",
+        "yanagihara_angry",
+        "yanagihara_surprise"
+      ],
+      "description": "本轮主要立绘。自由剧情必须选择画面焦点人物及其在正文结尾时的表情；固定剧情或没有合适人物时写 none"
+    },
     "timeline.currentTime": {
       "type": "string",
       "description": "当前剧情具体时间点，格式固定为 YYYY.MM.DD: HH:mm 星期X"

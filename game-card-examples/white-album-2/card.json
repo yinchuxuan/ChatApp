@@ -26,6 +26,9 @@
     },
     {
       "$import": "rules/scene-location.json"
+    },
+    {
+      "$import": "rules/resolve-portrait.json"
     }
   ]
 }

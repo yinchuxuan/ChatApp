@@ -124,6 +124,9 @@ describe('white album 2 game card', () => {
     expect(stateContext.content).toContain('state.set');
     expect(stateContext.content).toContain('touma.affection');
     expect(stateContext.content).toContain('setsuna.affection');
+    expect(stateContext.content).toContain('scene.portrait');
+    expect(stateContext.content).toContain('touma_normal');
+    expect(stateContext.content).toContain('yanagihara_surprise');
   });
 
   test('compresses older assistant summaries and keeps latest user and assistant', () => {

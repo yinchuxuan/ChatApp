@@ -87,9 +87,23 @@ describe('white album plot direction guide', () => {
     expect(runWithRandom(0.891).state.audio.bgm).toBe('happy');
   });
 
-  test('shows the Touma portrait only during free plots', () => {
-    expect(runWithRandom(0.5).state.visual.portrait).toBe('touma_normal');
-    expect(runAtSlot('2007.10.21: 16:00 星期日').state.visual.portrait).toBe('none');
+  test('keeps the visible portrait during free plots and clears it during fixed plots', () => {
+    const freeState = ensureStateDefaults(loadedCard.state.schema, {
+      scene: { portrait: 'touma_happy' },
+      visual: { portrait: 'touma_happy' }
+    }).state;
+    const fixedState = ensureStateDefaults(loadedCard.state.schema, {
+      timeline: { currentTime: '2007.10.21: 16:00 星期日' },
+      scene: { portrait: 'touma_happy' },
+      visual: { portrait: 'touma_happy' }
+    }).state;
+    const free = runWithState(freeState);
+    const fixed = runWithState(fixedState);
+
+    expect(free.state.scene.portrait).toBe('touma_happy');
+    expect(free.state.visual.portrait).toBe('touma_happy');
+    expect(fixed.state.scene.portrait).toBe('none');
+    expect(fixed.state.visual.portrait).toBe('none');
   });
 
   test('loads plot guidance from the current timeline time', () => {

@@ -136,6 +136,14 @@
   pointer-events: none;
 }
 
+.app-container.game-card-theme-white-album-2:has(.wa2-event-root[data-open="true"]) [data-gc-part="portrait-layer"] {
+  opacity: 0;
+}
+
+.app-container.game-card-theme-white-album-2 [data-gc-part="portrait-layer"] {
+  transition: opacity 240ms ease;
+}
+
 .app-container.game-card-theme-white-album-2 [data-gc-part="collapsed-message-view"],
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-surface"],
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-history"] {

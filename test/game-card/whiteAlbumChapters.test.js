@@ -95,7 +95,7 @@ describe('white album chapters', () => {
     expect(result.state.story.chapter2SetsunaBranch).toBe('reserved');
     expect(result.state.timeline.currentSlotEnd).toBe('2007.10.29: 22:00 星期一');
     expect(['tragic', 'sad', 'normal', 'daily', 'happy']).toContain(result.state.audio.bgm);
-    expect(result.state.visual.background).toBe('park');
+    expect(result.state.visual.background).toBe('musical_classroom3');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
     expect(guide.content).toContain('剧情走向');
     expect(guide.content).not.toContain('秘密就一个都不剩');

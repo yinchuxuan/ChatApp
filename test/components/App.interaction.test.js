@@ -163,6 +163,11 @@ describe('App Component - Interaction', () => {
     expect(portrait.getAttribute('src')).toBe('portrait-url');
     expect(document.querySelector('.app-container').className).toContain('has-portrait');
 
+    await act(async () => chatPanelProps.onPortraitChange({ url: 'next-portrait-url' }));
+    const nextPortrait = document.querySelector('[data-gc-part="portrait-layer"] img');
+    expect(nextPortrait.getAttribute('src')).toBe('next-portrait-url');
+    expect(nextPortrait).not.toBe(portrait);
+
     await act(async () => chatPanelProps.onPortraitChange({ url: '' }));
     expect(document.querySelector('[data-gc-part="portrait-layer"]')).toBeNull();
   });
