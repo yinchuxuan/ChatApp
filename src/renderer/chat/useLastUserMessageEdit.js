@@ -5,6 +5,9 @@ function useLastUserMessageEdit(R, messages = [], isLoading = false) {
   const [editingIndex, setEditingIndex] = R.useState(null);
   const [content, setContent] = R.useState('');
   const lastUserIndex = helper ? helper.findLastUserIndex(messages) : -1;
+  const retrySource = lastUserIndex >= 0
+    ? helper?.stripTurnContext(messages[lastUserIndex]?.content) || ''
+    : '';
 
   R.useEffect(() => {
     if (editingIndex === null) return;
@@ -19,6 +22,7 @@ function useLastUserMessageEdit(R, messages = [], isLoading = false) {
 
   return {
     content,
+    retrySource,
     isActive: editingIndex !== null,
     isEditing: (index) => editingIndex === index,
     canEdit: (index) => !isLoading && index === lastUserIndex,

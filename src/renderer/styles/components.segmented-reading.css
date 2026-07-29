@@ -1,0 +1,29 @@
+.chat-message.assistant .segmented-reading-bubble {
+  cursor: default;
+}
+
+.chat-message.assistant .segmented-reading-bubble.segmented-reading-ready {
+  cursor: pointer;
+}
+
+.segmented-reading-page {
+  animation: segmented-reading-enter 280ms var(--md-motion-easing-emphasized-decelerate);
+}
+
+@keyframes segmented-reading-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segmented-reading-page {
+    animation: none;
+  }
+}

@@ -35,3 +35,9 @@
 ## 五、可访问性 (WCAG AA)
 - 对比度: 正文 ≥4.5:1 / 大文本 ≥3:1
 - Focus: 2px outline | 点击区域 ≥44×44px
+
+## 六、分段阅读
+- 游戏卡通过 `display.segmentedReading: true` 开启分段阅读，不提供用户级开关。
+- 开启时仅对最新 assistant 回复按 Markdown 自然段分页并隐藏 thinking block，历史回复保持完整。
+- 点击非交互文本区域进入下一段；链接、游戏卡按钮和文字选择不得触发翻页。
+- 关闭时恢复全文展示和原有 thinking 点击行为。

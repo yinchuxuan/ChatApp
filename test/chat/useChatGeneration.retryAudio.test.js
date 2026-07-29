@@ -24,4 +24,27 @@ describe('useChatGeneration retry audio timing', () => {
     await act(async () => { await result.current.retry(); });
     expect(onStreamContentStart).not.toHaveBeenCalled();
   });
+
+  test('stops audio and restores the retry snapshot before generating', async () => {
+    const events = [];
+    const retryState = { visual: { background: 'school', portrait: 'touma' } };
+    generationServices.sendChatRequest = jest.fn(async () => {
+      events.push('request-started');
+    });
+    const { result } = renderRetryGeneration({
+      retryBaseState: retryState,
+      options: {
+        onAudioSubmit: () => events.push('audio-stopped'),
+        onRetryStateRestore: state => events.push(`visual-restored:${state.visual.background}`)
+      }
+    });
+
+    await act(async () => { await result.current.retry(); });
+
+    expect(events).toEqual([
+      'audio-stopped',
+      'visual-restored:school',
+      'request-started'
+    ]);
+  });
 });

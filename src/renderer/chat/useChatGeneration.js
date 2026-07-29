@@ -16,13 +16,14 @@ function useChatGeneration({
   setRuntimeError,
   setShowStreamThinking,
   onAudioSubmit,
+  onRetryStateRestore,
   onStreamContentStart,
   onPresentationEffects
 }) {
   const generationControl = useGenerationAbort();
 
   const run = React.useCallback((nextMessages, nextState, appendAssistantWithUpdater = false) => (
-    chatGeneration.runChatGeneration({
+    generationControl.trackGeneration(chatGeneration.runChatGeneration({
       messages: nextMessages,
       state: nextState,
       modelConfig,
@@ -37,7 +38,7 @@ function useChatGeneration({
       onGameCardError: setRuntimeError,
       ...generationControl,
       appendAssistantWithUpdater
-    })
+    }))
   ), [generationControl, modelConfig, onPresentationEffects, onStreamContentStart, setGameState, setMessages,
     setRuntimeError, setShowStreamThinking, typewriter]);
 
@@ -60,7 +61,10 @@ function useChatGeneration({
   }, [gameState, isLoading, messages, modelConfig, onAudioSubmit, persistence, run, setMessages]);
 
   const retry = React.useCallback(async (editedContent) => {
-    if (!modelConfig?.apiUrl || !modelConfig?.apiKey || isLoading) return false;
+    if (!modelConfig?.apiUrl || !modelConfig?.apiKey) return false;
+    if (chatGeneration.findLastUserIndex(messages) < 0) return false;
+    onAudioSubmit?.();
+    await generationControl.stopGeneration();
     const persisted = await persistence.refreshRetryBase();
     const persistedMessages = Array.isArray(persisted?.retryBaseMessages)
       ? persisted.retryBaseMessages
@@ -75,8 +79,10 @@ function useChatGeneration({
       : {};
     persistence.setRetryBase(retryMessages, retryState);
     setGameState(retryState);
+    onRetryStateRestore?.(retryState);
     return run(retryMessages, retryState);
-  }, [isLoading, messages, modelConfig, persistence, run, setGameState]);
+  }, [generationControl, messages, modelConfig, onAudioSubmit, onRetryStateRestore,
+    persistence, run, setGameState]);
 
   return React.useMemo(() => ({
     isLoading,

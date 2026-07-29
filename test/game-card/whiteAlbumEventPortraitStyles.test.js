@@ -7,6 +7,16 @@ const css = fs.readFileSync(path.join(
 ), 'utf8');
 
 describe('white album event portrait styles', () => {
+  test('hides the event trigger button', () => {
+    document.head.innerHTML = `<style>${css}</style>`;
+    document.body.innerHTML = `
+      <div class="game-card-theme-white-album-2">
+        <button class="wa2-event-trigger"></button>
+      </div>`;
+
+    expect(getComputedStyle(document.querySelector('.wa2-event-trigger')).display).toBe('none');
+  });
+
   test('positions the centered portrait canvas from a shared visual axis', () => {
     document.head.innerHTML = `<style>${css}</style>`;
     document.body.innerHTML = `
@@ -21,7 +31,7 @@ describe('white album event portrait styles', () => {
     expect(style.left).toBe('17%');
     expect(style.bottom).toBe('0px');
     expect(style.width).toBe('auto');
-    expect(style.height).toBe('75%');
+    expect(style.height).toBe('100%');
     expect(style.transform).toBe('translateX(-50%)');
   });
 

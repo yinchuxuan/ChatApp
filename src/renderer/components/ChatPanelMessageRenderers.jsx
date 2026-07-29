@@ -1,6 +1,8 @@
 import React from 'react';
 import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
+import { splitReadingSegments } from '../chat/useSegmentedReading.js';
 import { findLastRoleIndex, selectVisibleMessages } from '../chat/messageSelection.js';
+import { applyAssistantDisplayRules } from '../gameCard/displayRules.js';
 import { MessageList, StreamingMessageRow } from './MessageList.jsx';
 import MessageContent from './MessageContent.jsx';
 
@@ -73,22 +75,36 @@ const ChatPanelMessageRenderers = {
 
   renderAssistantMsg(_React, msg, idx, isStreaming, tw, currentThinking, showStreamThinking,
     setShowStreamThinking, toggleThinkingForMessage, marked, DOMPurify, highlightQuotes, display,
-    displayRevision) {
+    displayRevision, segmentedReading) {
     const thinking = isStreaming ? currentThinking : msg._thinking;
     const showThinking = isStreaming ? showStreamThinking : msg._thinkingVisible === true;
     const rawContent = isStreaming ? msg.slice(0, tw.displayedCount) : msg.content;
-    const bubbleClass = thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
-    const handleClick = thinking ? () => {
+    const segmented = segmentedReading?.enabled === true;
+    const segments = segmented
+      ? splitReadingSegments(applyAssistantDisplayRules(rawContent, display))
+      : [];
+    const pageIndex = Math.min(segmentedReading?.pageIndex || 0, Math.max(segments.length - 1, 0));
+    const hasNext = segmented && pageIndex < segments.length - 1;
+    const bubbleClass = segmented
+      ? `chat-message-bubble segmented-reading-bubble${hasNext ? ' segmented-reading-ready' : ''}`
+      : thinking ? 'chat-message-bubble bubble-clickable' : 'chat-message-bubble';
+    const handleClick = segmented ? undefined : thinking ? () => {
       if (isStreaming) setShowStreamThinking(value => !value);
       else toggleThinkingForMessage(idx);
     } : undefined;
-    return <div className={bubbleClass} data-gc-part="message-bubble" onClick={handleClick}>
-      {thinking && showThinking ? <div className="chat-thinking-text" data-gc-part="message-thinking">
+    const content = segmented ? (segments[pageIndex] || '') : rawContent;
+    const contentNode = <MessageContent content={content} role="assistant"
+      display={segmented ? undefined : display} displayRevision={segmented ? undefined : displayRevision}
+      markdown={marked} sanitizer={DOMPurify} quoteHighlighter={highlightQuotes}
+      onClick={handleInputActionClick} />;
+    return <div className={bubbleClass} data-gc-part="message-bubble" onClick={handleClick}
+      data-segment-count={segmented ? segments.length : undefined}>
+      {!segmented && thinking && showThinking ? <div className="chat-thinking-text" data-gc-part="message-thinking">
         {thinking}
       </div> : null}
-      <MessageContent content={rawContent} role="assistant" display={display}
-        displayRevision={displayRevision} markdown={marked} sanitizer={DOMPurify}
-        quoteHighlighter={highlightQuotes} onClick={handleInputActionClick} />
+      {segmented
+        ? <div key={pageIndex} className="segmented-reading-page">{contentNode}</div>
+        : contentNode}
     </div>;
   },
 

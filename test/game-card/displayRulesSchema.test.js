@@ -22,6 +22,7 @@ describe('game card display rule schema', () => {
     const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     expect(validate(cardWithDisplay({
       stylesheet: 'display.css',
+      segmentedReading: true,
       assistant: [{
         stage: 'before_markdown',
         type: 'regex_replace',
@@ -30,6 +31,11 @@ describe('game card display rule schema', () => {
         replace: ''
       }]
     }))).toBe(true);
+  });
+
+  test('rejects non-boolean segmented reading config', () => {
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
+    expect(validate(cardWithDisplay({ segmentedReading: 'true' }))).toBe(false);
   });
 
   test('rejects unsupported display rule fields', () => {

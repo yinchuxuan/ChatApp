@@ -49,7 +49,17 @@ function renderAssistantMessage(R, content, card, options = {}) {
   );
 }
 
-function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = [], isLoading = false, onError }) {
+function GameCardUIRootContent({
+  card,
+  gameState = {},
+  setGameState,
+  messages = [],
+  isLoading = false,
+  canRetry = false,
+  retrySource = '',
+  onRetry,
+  onError
+}) {
   const R = React;
   const [loadedRoot, setLoadedRoot] = R.useState(null);
   const [error, setError] = R.useState(null);
@@ -88,12 +98,18 @@ function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = 
   const emit = R.useCallback((event) => {
     try {
       if (inputEventTypes.has(event?.type)) return dispatchChatInputCommand(event);
+      if (event?.type === 'chat.retry') {
+        if (event.content !== undefined && typeof event.content !== 'string') {
+          throw Error('chat.retry content must be a string');
+        }
+        return onRetry?.(event.content) ?? false;
+      }
       return emitStateEvent(event);
     } catch (err) {
       setError(err);
       return false;
     }
-  }, [emitStateEvent]);
+  }, [emitStateEvent, onRetry]);
   const assets = R.useMemo(() => ({
     readFile: (filePath) => resourceResult('content', () => gameCardPlatform.resources.readText(cardId, filePath)),
     getBackgroundUrl: (key) => card?.visual?.background?.[key]
@@ -105,9 +121,11 @@ function GameCardUIRootContent({ card, gameState = {}, setGameState, messages = 
   const ui = R.useMemo(() => ({
     cardId,
     isLoading,
+    canRetry,
+    retrySource,
     root: card?.ui?.root || {},
     renderAssistantMessage: (content, options) => renderAssistantMessage(R, content, card, options)
-  }), [R, cardId, isLoading, card]);
+  }), [R, cardId, isLoading, canRetry, retrySource, card]);
 
   if (!loadedRoot?.Component) return null;
   return C('div', {
@@ -141,6 +159,9 @@ const gameCardUIRootPropTypes = {
   setGameState: PropTypes.func,
   messages: PropTypes.arrayOf(message),
   isLoading: PropTypes.bool,
+  canRetry: PropTypes.bool,
+  retrySource: PropTypes.string,
+  onRetry: PropTypes.func,
   uiScopeKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onError: PropTypes.func
 };

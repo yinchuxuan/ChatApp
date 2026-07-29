@@ -6,6 +6,7 @@ const { card } = require('./whiteAlbumTestCard');
 const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/renderer/gameCard/displayRules');
 const renderers = require('../../src/renderer/components/ChatPanelMessageRenderers').default;
 const { subscribeChatInputCommands } = require('../../src/renderer/chat/chatInputCommands');
+const { splitReadingSegments } = require('../../src/renderer/chat/useSegmentedReading');
 
 const sample = [
   '【时间地点】2007.10.20: 15:00 星期六｜峰城大附属第二音乐室',
@@ -45,6 +46,8 @@ describe('white album display rules', () => {
     expect(output).not.toContain('隐藏总结');
     expect(output).not.toContain('<state_patch>');
     expect(output).not.toContain('touma.affection');
+    expect(output).toContain('class="wa2-choice-overlay"');
+    expect(output).toContain('class="wa2-choice-prompt">请选择下一步行动</div>');
     expect(output).toContain('<button type="button"');
     expect(output).toContain('class="wa2-choice"');
     expect(output).toContain('data-gc-chat-input-label="A"');
@@ -55,6 +58,18 @@ describe('white album display rules', () => {
 
   test('keeps option CSS as a game card resource', () => {
     expect(card.display.stylesheet).toBe('display.css');
+    expect(card.display.segmentedReading).toBe(true);
+  });
+
+  test('keeps all choices together on one segmented reading page', () => {
+    const output = applyAssistantDisplayRules(sample, card.display);
+    const choicePages = splitReadingSegments(output)
+      .filter(segment => segment.includes('class="wa2-choice"'));
+
+    expect(choicePages).toHaveLength(1);
+    expect(choicePages[0].match(/class="wa2-choice"/g)).toHaveLength(4);
+    expect(choicePages[0]).toContain('class="wa2-choice-overlay"');
+    expect(choicePages[0]).toContain('请选择下一步行动');
   });
 
   test('hides appended user turn context while keeping player input', () => {
@@ -96,6 +111,8 @@ describe('white album display rules', () => {
     expect(content.textContent).not.toContain('隐藏总结');
     expect(content.textContent).not.toContain('touma.affection');
     expect(content.querySelector('.wa2-scene-meta')).not.toBeNull();
+    expect(content.querySelector('.wa2-choice-overlay')).not.toBeNull();
+    expect(content.querySelector('.wa2-choice-prompt').textContent).toBe('请选择下一步行动');
     expect(content.querySelectorAll('.wa2-choice')).toHaveLength(4);
     expect(content.querySelector('.wa2-choice').tagName).toBe('BUTTON');
   });

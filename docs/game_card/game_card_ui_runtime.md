@@ -165,11 +165,11 @@ emit({ type: "game.script.run", sourceFile: "ui/events/pick.js", payload: { opti
 emit -> 平台受控事件 -> 输入框/发送管线 -> 保存 session -> 重新渲染
 ```
 
-第一批已支持事件：`chat.input.set`、`chat.input.append`、`chat.input.clear`、`chat.input.focus`、`chat.input.submit`、`chat.send`、`game.state.apply`、`game.script.run`。
+第一批已支持事件：`chat.input.set`、`chat.input.append`、`chat.input.clear`、`chat.input.focus`、`chat.input.submit`、`chat.send`、`chat.retry`、`game.state.apply`、`game.script.run`。
 
 `game.state.apply` 支持单个 `action` 或 `actions` 数组，只允许 `state.*` action；`game.script.run` 执行卡内 `sourceFile` 脚本，`payload` 通过 `ctx.event.payload` 传入。平台会加载卡内 schema、执行受控状态更新并保存 session。UI 组件仍不拿可变 `gameState` 引用。
 
-## 输入框行为
+## 聊天事件行为
 
 输入框行为通过平台级 runtime 事件处理，不写入游戏规则 state。
 
@@ -182,9 +182,9 @@ chat.input.clear
 chat.input.focus
 chat.input.submit
 chat.send
+chat.retry
 ```
-
-可点击选项默认行为建议为：填入输入框并聚焦，而不是直接发送。
+`chat.retry` 可带可选字符串 `content` 修改最后一条用户消息；平台停止 BGM 和当前生成，恢复 session retry snapshot，并在默认演出模式下回退背景、立绘后重新生成。可点击选项默认填入输入框并聚焦。
 
 ## 边界
 

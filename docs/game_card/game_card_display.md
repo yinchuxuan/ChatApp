@@ -190,3 +190,9 @@ Display rules 不要求 assistant 输出大量标签。推荐用正则识别轻�
 - 只支持 `before_markdown`
 - 只支持 `regex_replace`
 - 永远 display-only，不写回聊天记录
+
+## 分段阅读
+
+`display.segmentedReading: true` 让平台把最新 assistant 回复按 Markdown 自然段分页并隐藏 thinking block。点击应用画布中的非交互区域或按 Enter 显示下一段；链接、按钮、输入控件和文本选择不会触发推进。历史消息仍完整展示。未声明或设为 `false` 时沿用普通全文展示。
+
+分段发生在 display rules 之后，因此被规则隐藏的协议块不会产生空白页面。

@@ -68,4 +68,45 @@ describe('useChatGeneration retry pipeline', () => {
     await act(async () => { await result.current.retry(); });
     expect(options.setGameState).toHaveBeenLastCalledWith({ score: 2 });
   });
+
+  test('stops an active generation before retrying from its snapshot', async () => {
+    const events = [];
+    generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
+      messages, state, applied: false, card: { id: 'card' }
+    }));
+    generationServices.prepareAfterResponseMessages = jest.fn(async ({ messages, state }) => ({
+      messages, state, applied: false
+    }));
+    generationServices.toGameCardApiMessages = jest.fn(messages => messages);
+    generationServices.sendChatRequest = jest.fn()
+      .mockImplementationOnce((request, callbacks) => new Promise((resolve, reject) => {
+        events.push('active-started');
+        callbacks.onToken('partial');
+        const rejectStopped = () => {
+          events.push('active-stopped');
+          const error = new Error('stopped');
+          error.name = 'AbortError';
+          reject(error);
+        };
+        if (request.signal.aborted) rejectStopped();
+        else request.signal.addEventListener('abort', rejectStopped);
+      }))
+      .mockImplementationOnce(async (_request, callbacks) => {
+        events.push('retry-started');
+        callbacks.onToken('replacement');
+      });
+    const { result, options } = renderRetryGeneration();
+
+    await act(async () => {
+      const active = result.current.send('next action');
+      const retried = result.current.retry('edited action');
+      await Promise.all([active, retried]);
+    });
+
+    expect(events).toEqual(['active-started', 'active-stopped', 'retry-started']);
+    expect(options.setMessages).toHaveBeenLastCalledWith(expect.arrayContaining([
+      expect.objectContaining({ role: 'user', content: 'edited action' }),
+      expect.objectContaining({ role: 'assistant', content: 'replacement' })
+    ]));
+  });
 });

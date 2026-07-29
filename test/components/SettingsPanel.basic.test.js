@@ -146,6 +146,21 @@ describe('SettingsPanel Component - Basic', () => {
     expect(onToggleTheme).toHaveBeenCalled();
   });
 
+  test('does not expose segmented reading as a user setting', async () => {
+    const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
+
+    _render(React.createElement(SettingsPanel, {
+      onToggleTheme: jest.fn(),
+      theme: 'light',
+      onBackgroundChange: jest.fn()
+    }));
+
+    await act(async () => { await Promise.resolve(); });
+
+    expect(_screen.queryByText('开启分段阅读')).toBeNull();
+    expect(_screen.queryByText('关闭分段阅读')).toBeNull();
+  });
+
   test('should keep settings trigger zone without edge indicator', async () => {
     const SettingsPanel = require('../../src/renderer/components/SettingsPanel.jsx').default;
 

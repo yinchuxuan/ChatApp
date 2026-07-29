@@ -61,79 +61,57 @@ describe('white album ui styles', () => {
     expect(css).not.toContain('visibility: visible');
   });
 
-  test('styles the message list as a unified frosted glass text area', () => {
-    expect(css).toContain('[data-gc-part="collapsed-message-view"]::before');
-    expect(css).toContain('[data-gc-part="message-surface"]::before');
-    expect(css).toContain('[data-gc-part="message-history"]::before');
-    expect(css).toContain('[data-gc-part="collapsed-message-view"]::after');
-    expect(css).toContain('[data-gc-part="message-surface"]::after');
-    expect(css).toContain('[data-gc-part="message-history"]::after');
-    expect(css).toContain('backdrop-filter: blur(7px) saturate(1.08) brightness(1)');
-    expect(css).toContain('padding: 54px 64px 30px 64px');
-    expect(css).toContain('--wa2-reading-panel-height: calc(100vh - 44px)');
-    expect(css).toContain('height: var(--wa2-reading-panel-height)');
-    expect(css).toContain('max-height: var(--wa2-reading-panel-height)');
-    expect(css).toContain('min-height: min(560px, var(--wa2-reading-panel-height))');
-    expect(css).toContain('isolation: isolate');
-    expect(css).toContain('max-height: none');
+  test('only shows the input when the segmented reading page contains choices', () => {
+    expect(css).toContain(':has(.segmented-reading-bubble):not(:has(.segmented-reading-bubble .wa2-choice))');
+    expect(css).toContain('[data-gc-part="chat-input-trigger"]');
+    expect(css).not.toContain(':has(.segmented-reading-bubble:not(:has(');
+    expect(css).toMatch(/:has\(\.segmented-reading-bubble\):not\(:has\(\.segmented-reading-bubble \.wa2-choice\)\)[^{]*\[data-gc-part="chat-input"\][\s\S]*?display: none;/);
+  });
+
+  test('places plain text without a glass surface inside the lower cinematic bar', () => {
+    expect(css).toContain('top: var(--wa2-cinema-frame-bottom)');
+    expect(css).toContain('padding: var(--wa2-cinema-text-gap) clamp(24px, 8vw, 160px)');
+    expect(css).toContain('padding: clamp(10px, 1.5vh, 18px) clamp(28px, 6vw, 88px)');
     expect(css).toContain('height: 100%');
     expect(css).toContain('min-height: 0');
     expect(css).toContain('overflow-y: auto');
-    expect(css).toContain('border-radius: 14px');
     expect(css).toContain('[data-gc-part="message-list"]');
-    expect(css).toContain('width: 100%');
     expect(css).toContain('[data-gc-part="message-list"]::-webkit-scrollbar');
     expect(css).toContain('[data-gc-part="message-history-content"]');
     expect(css).toContain('color: var(--gc-assistant-bubble-text)');
-    expect(css).toContain('radial-gradient(circle at 9% 8%');
-    expect(css).toContain('radial-gradient(circle at 48% 92%');
-    expect(css).toContain('background-repeat: no-repeat');
-    expect(css).toContain('background-size: 100% 100%');
-    expect(css).toContain('opacity: 0.46');
-    expect(css).toContain('background: rgba(255, 255, 255, 0.18);');
-    expect(css).toContain('background: rgba(255, 255, 255, 0.70);');
-    expect(css).toContain('filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.18))');
-    expect(css).not.toContain('mask-composite');
-    expect(css).not.toMatch(/(?:-webkit-)?mask:\s*none/);
-    expect(css).not.toContain('content: none');
-    expect(css).not.toContain('inset: 54px 50px');
-    expect(css).not.toContain('0 0 48px 42px rgba(248, 252, 255, 0.22)');
-    expect(css).not.toContain('inset 0 42px 0 rgba(248, 252, 255, 0.96)');
-    expect(css).toContain('[data-gc-part="message-divider"]');
-    expect(css).toContain('display: none');
+    expect(css).toMatch(/\[data-gc-part="message-history"\] \{[\s\S]*?border: 0;[\s\S]*?background: transparent;[\s\S]*?box-shadow: none;[\s\S]*?backdrop-filter: none;/);
+    expect(css).not.toContain('[data-gc-part="collapsed-message-view"]::before');
+    expect(css).not.toContain('[data-gc-part="message-surface"]::after');
   });
 
-  test('keeps the visual panel close to the right app edge', () => {
-    expect(css).toContain('--chat-reading-width: 860px');
-    expect(css).toContain('--game-card-panel-edge-gap: 22px');
-    expect(css).toContain('--game-card-panel-inner-gap: 0px');
-    expect(css).toContain('game-card-visual-position-right [data-gc-part="chat-history"]');
-    expect(css).toContain('padding-left: max(352px, calc(46% - var(--game-card-panel-edge-gap)))');
-    expect(css).toContain('padding-top: 22px');
-    expect(css).toContain('padding-bottom: 22px');
+  test('uses a shared full-width 2.4:1 frame for background and portrait', () => {
+    expect(css).toContain('--wa2-cinema-frame-height: calc(100vw / 2.4)');
+    expect(css).toContain('--wa2-cinema-frame-top: calc((100vh - var(--wa2-cinema-frame-height)) / 2)');
+    expect(css).toContain('--wa2-cinema-frame-bottom: calc(50vh + var(--wa2-cinema-frame-height) / 2)');
+    expect(css).toContain('.app-background-layer');
+    expect(css).toContain('[data-gc-part="portrait-layer"]');
+    expect(css).toContain('inset: var(--wa2-cinema-frame-top) 0 auto');
+    expect(css).toContain('height: var(--wa2-cinema-frame-height)');
+    expect(css).toContain('aspect-ratio: 12 / 5');
   });
 
-  test('keeps user messages styled inside the unified text area', () => {
+  test('hides user messages and centers assistant text like cinematic subtitles', () => {
     expect(css).toContain('[data-role="user"][data-gc-part="message-row"]');
-    expect(css).toContain('margin-top: 6px');
-    expect(css).toContain('margin-bottom: 6px');
-    expect(css).toContain('[data-role="user"] [data-gc-part="message-bubble"]');
-    expect(css).toContain('padding: 9px 18px 9px 34px');
-    expect(css).toContain('font-size: 14px');
-    expect(css).toContain('line-height: 1.86');
-    expect(css).toContain('linear-gradient(90deg, rgba(62, 84, 105, 0.62), rgba(31, 48, 66, 0.54))');
-    expect(css).toContain('backdrop-filter: blur(18px) saturate(1.22)');
-    expect(css).toContain('color: #f5fbff');
-    expect(css).toContain('text-shadow: 0 1px 1px rgba(0, 0, 0, 0.32)');
-    expect(css).toContain('[data-role="user"] [data-gc-part="message-bubble"]::before');
-    expect(css).toContain('background: linear-gradient(180deg, rgba(205, 228, 244, 0.72)');
+    expect(css).toMatch(/\[data-role="user"\]\[data-gc-part="message-row"\] \{\s*display: none;/);
+    expect(css).toContain('[data-role="assistant"][data-gc-part="message-row"]');
+    expect(css).toContain('align-items: center');
+    expect(css).toContain('justify-content: center');
+    expect(css).toContain('font-size: clamp(13px, 0.95vw, 15px)');
+    expect(css).toContain('line-height: 1.55');
+    expect(css).toContain('letter-spacing: 0.04em');
+    expect(css).toContain('text-align: center');
+    expect(css).toContain('text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72)');
   });
 
   test('keeps the WA2 text area white and serif-rendered across themes', () => {
-    expect(css).toContain('--gc-assistant-bubble-text: #07131f');
-    expect(css).toContain('--game-card-text-color: #07131f');
-    expect(css).toContain('--game-card-text-color-dark: #07131f');
-    expect(css).toContain('color: #f5fbff !important');
+    expect(css).toContain('--gc-assistant-bubble-text: #ffffff');
+    expect(css).toContain('--game-card-text-color: #ffffff');
+    expect(css).toContain('--game-card-text-color-dark: #ffffff');
     expect(css).toContain('--game-card-text-weight: 400');
     expect(css).toContain('--gc-message-font: "Songti SC"');
     expect(css).toContain('--gc-message-font-size: 14px');
@@ -141,45 +119,55 @@ describe('white album ui styles', () => {
     expect(css).toContain('--game-card-text-line-height: 1.96');
     expect(css).toContain('--game-card-paragraph-line-height: 2.12');
     expect(displayCss).not.toContain('[data-theme="dark"] .chat-bubble-content .wa2-choice');
-    expect(displayCss).toContain('[data-gc-part="message-content"] .wa2-choice:last-child');
-    expect(displayCss).toContain('padding: 0.58rem 1.28rem 0.58rem 0.88rem');
+    expect(displayCss).toContain('[data-gc-part="message-content"] .wa2-choice-prompt');
+    expect(displayCss).toContain('[data-gc-part="message-content"] .wa2-choice-label::after');
   });
 
-  test('uses user bubble styling for scene meta and choice controls', () => {
+  test('keeps scene meta plain and presents choices as a fullscreen text menu', () => {
     expect(displayCss).toContain('--wa2-icon-time');
     expect(displayCss).toContain('--wa2-icon-place');
-    expect(displayCss).toContain('display: flex');
-    expect(displayCss).toContain('width: 100%');
-    expect(displayCss).toContain('box-sizing: border-box');
-    expect(displayCss).toContain('padding: 0.34rem 1.18rem 0.34rem 2.45rem');
+    expect(displayCss).toMatch(/\.wa2-scene-meta \{[\s\S]*?width: fit-content;[\s\S]*?justify-content: center;[\s\S]*?margin: 0 auto 0\.95rem;[\s\S]*?padding: 0;[\s\S]*?border: 0;[\s\S]*?background: transparent;[\s\S]*?box-shadow: none;/);
     expect(displayCss).toContain('font-size: 13px');
     expect(displayCss).toContain('line-height: 1.42');
     expect(displayCss).toContain('.wa2-scene-time::before');
     expect(displayCss).toContain('background: var(--wa2-icon-time) center / contain no-repeat');
     expect(displayCss).toContain('.wa2-scene-place::before');
     expect(displayCss).toContain('background: var(--wa2-icon-place) center / contain no-repeat');
-    expect(displayCss).toContain('border-left: 1px solid rgba(96, 145, 184, 0.36)');
-    expect(displayCss).toContain('border: 1px solid rgba(255, 255, 255, 0.38)');
-    expect(displayCss).toContain('border-radius: 7px');
-    expect(displayCss).toContain('linear-gradient(var(--gc-user-bubble-bg), var(--gc-user-bubble-bg))');
-    expect(displayCss).toContain('inset 0 0 18px rgba(255, 255, 255, 0.12)');
-    expect(displayCss).toContain('color: var(--gc-assistant-bubble-text)');
+    expect(displayCss).toMatch(/\.wa2-scene-time::before \{[^}]*flex: 0 0 auto;/);
+    expect(displayCss).not.toMatch(/\.wa2-scene-(?:time|place)::before \{[^}]*position: absolute;/);
+    expect(displayCss).toMatch(/\.wa2-scene-place \{[^}]*margin-left: 0\.8rem;[^}]*padding-left: 0\.8rem;[^}]*border-left: 1px solid rgba\(255, 255, 255, 0\.34\);/);
+    expect(displayCss).toMatch(/:has\(\.wa2-choice-overlay\)::after \{[^}]*position: fixed;[^}]*inset: 0;[^}]*z-index: 2;[^}]*background: rgba\(0, 0, 0, 0\.72\);[^}]*pointer-events: none;/);
+    expect(displayCss).toMatch(/\.segmented-reading-page:has\(\.wa2-choice-overlay\) \{[^}]*position: fixed;[^}]*inset: 0;[^}]*z-index: 9;[^}]*opacity: 1;[^}]*visibility: visible;[^}]*animation: none;[^}]*transform: translateZ\(0\);[^}]*backface-visibility: hidden;[^}]*background: transparent;/);
+    expect(displayCss).toMatch(/:has\(\.wa2-choice-overlay\) \[data-gc-part="message-list"\] \{[^}]*transform: none !important;[^}]*will-change: auto;/);
+    expect(displayCss).toMatch(/\[data-gc-part="collapsed-message-view"\],[\s\S]*?\[data-gc-part="message-list"\] \{[^}]*overflow: visible;[^}]*isolation: auto;/);
+    expect(displayCss).toMatch(/:has\(\.wa2-choice-overlay\) \.app-content-wrapper \{[^}]*z-index: 3;/);
+    expect(displayCss).not.toMatch(/:has\(\.wa2-choice-overlay\) \[data-gc-part="chat-history"\] \{[^}]*z-index:/);
+    expect(displayCss).toMatch(/:has\(\.wa2-choice-overlay\) \[data-gc-part="chat-input"\] \{[^}]*z-index: 210;/);
+    expect(displayCss).toMatch(/\[data-gc-part="chat-header-trigger"\],[\s\S]*?\[data-gc-part="chat-input-trigger"\] \{[^}]*z-index: 10;/);
+    expect(displayCss).toMatch(/\.segmented-reading-page:has\(\.wa2-choice-overlay\)[\s\S]*?> \[data-gc-part="message-content"\] \{[^}]*flex: none;[^}]*width: clamp\(280px, 50vw, 680px\);[^}]*max-width: 100%;/);
+    expect(displayCss).toMatch(/\.wa2-choice-overlay \{[^}]*width: 100%;/);
+    expect(displayCss).toMatch(/\.wa2-choice-overlay \{[^}]*align-items: stretch;[^}]*text-align: left;/);
+    expect(displayCss).toContain('[data-gc-part="message-content"] .wa2-choice-prompt');
+    expect(displayCss).toMatch(/\.wa2-choice \{[^}]*width: 100%;[^}]*align-items: flex-start;[^}]*justify-content: flex-start;[^}]*border: 0;[^}]*background: transparent;[^}]*text-align: left;/);
+    expect(displayCss).toMatch(/\.wa2-choice-label \{[^}]*flex: 0 0 auto;[^}]*color: inherit;[^}]*font-weight: inherit;[^}]*letter-spacing: inherit;/);
+    expect(displayCss).not.toMatch(/\.wa2-choice-label \{[^}]*(?:justify-content|text-align):/);
+    expect(displayCss).not.toMatch(/\.wa2-choice:hover,[\s\S]*?transform:/);
     expect(displayCss).not.toContain('-webkit-mask: var(--wa2-icon-time)');
     expect(displayCss).not.toContain('.wa2-choice::before');
   });
 
-  test('uses the same quoted dialogue highlight in light and dark WA2 modes', () => {
+  test('renders quoted dialogue like normal body text in light and dark WA2 modes', () => {
     expect(css).toContain('[data-gc-part="message-content"] .quoted-text');
-    expect(css).toContain('color: var(--wa2-highlight-text-color)');
-    expect(css).toContain('font-weight: 700');
-    expect(css).toContain('text-decoration-color: color-mix(in srgb, var(--wa2-highlight-text-color) 52%, transparent)');
     expect(css).toMatch(/\[data-theme="dark"\][^{]*\.quoted-text/);
+    expect(css).toMatch(/\.quoted-text \{[^}]*color: inherit;[^}]*font-weight: inherit;[^}]*text-decoration: none;[^}]*text-shadow: inherit;/);
+    expect(css).not.toContain('--wa2-highlight-text-color');
   });
-  test('styles the local event panel as a frosted ui widget', () => {
+  test('hides the event button while keeping the local event panel implementation', () => {
     expect(eventRootCss).toContain('--wa2-event-trigger-icon: url("data:image/svg+xml');
     expect(eventRootCss).toContain('--wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)))');
     expect(eventRootCss).toContain('top: calc(var(--wa2-event-panel-top) + 4px)');
     expect(eventRootCss).toContain('font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif');
+    expect(eventRootCss).toMatch(/\.wa2-event-trigger \{[\s\S]*?display: none;/);
     expect(eventRootCss).toContain('-webkit-mask: var(--wa2-event-trigger-icon) center / contain no-repeat');
     expect(eventRootCss).toMatch(/width: 44px[\s\S]*height: 44px[\s\S]*padding: 13px[\s\S]*\.wa2-event-trigger::before[\s\S]*inset: 4px/);
     expect(eventRootCss).toMatch(/\.wa2-event-trigger-icon[\s\S]*width: 18px[\s\S]*height: 18px/);

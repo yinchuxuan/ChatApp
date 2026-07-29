@@ -5,10 +5,12 @@ import ChatPanel from '../../src/renderer/ChatPanel.jsx';
 
 const platformMock = global.platformMock;
 const bgmRequests = [];
+const bgmStops = [];
 const backgroundRequests = [];
 
-function TestBgmPlayer({ updateRequest }) {
+function TestBgmPlayer({ updateRequest, stopToken }) {
   if (updateRequest) bgmRequests.push(updateRequest.id);
+  bgmStops.push(stopToken);
   return React.createElement('div', { 'data-testid': 'bgm-request' });
 }
 
@@ -21,6 +23,7 @@ describe('ChatPanel retry stream start runtime token', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     bgmRequests.length = 0;
+    bgmStops.length = 0;
     backgroundRequests.length = 0;
     platformMock.getModelConfig.mockResolvedValue({
       success: true,
@@ -48,11 +51,13 @@ describe('ChatPanel retry stream start runtime token', () => {
     await waitFor(() => expect(backgroundRequests.length).toBeGreaterThan(0));
     const initialBackground = Math.max(...backgroundRequests);
     const initialBgm = Math.max(...bgmRequests);
+    const initialStop = Math.max(...bgmStops);
 
     fireEvent.click(screen.getByRole('button', { name: '重新生成回复' }));
     await waitFor(() => {
       expect(Math.max(...bgmRequests)).toBeGreaterThan(initialBgm);
       expect(Math.max(...backgroundRequests)).toBeGreaterThan(initialBackground);
+      expect(Math.max(...bgmStops)).toBeGreaterThan(initialStop);
     });
   });
 

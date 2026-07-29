@@ -14,6 +14,8 @@ import GameCardUIRoot from '../components/GameCardUIRoot.jsx';
 import MessageCollapseRenderer from '../components/MessageCollapseRenderer.jsx';
 import { highlightQuotes } from '../components/highlightQuotes.js';
 import useLastUserMessageEdit from './useLastUserMessageEdit.js';
+import { findLastRoleIndex, messageKey } from './messageSelection.js';
+import useSegmentedReading from './useSegmentedReading.js';
 import useTypewriter from './useTypewriter.js';
 import { rendererServices } from '../platform/index.js';
 import { useGameCardRuntime } from './GameCardRuntimeProvider.jsx';
@@ -40,7 +42,9 @@ function ChatRuntime({
   const [isInputHovered, setIsInputHovered] = React.useState(false);
   const [isInputTriggerHovered, setIsInputTriggerHovered] = React.useState(false);
   const [actionError, setActionError] = React.useState(null);
+  const chatPanelRef = React.useRef(null);
   const runtime = useGameCardRuntime();
+  const segmentedReading = runtime.activeCard?.display?.segmentedReading === true;
   const modelConfig = useModelConfig();
   const typewriter = useTypewriter(React);
   const presentation = useGameCardPresentation();
@@ -52,6 +56,11 @@ function ChatRuntime({
   const handleSessionLoaded = React.useCallback(({ card, state }) => {
     presentation.updateAll(card, state);
   }, [presentation.updateAll]);
+  const handleRetryStateRestore = React.useCallback((state) => {
+    if (runtime.activeCard?.presentation?.autoUpdateOnFirstToken === false) return;
+    presentation.updateBackground(runtime.activeCard, state);
+    presentation.updatePortrait(runtime.activeCard, state);
+  }, [presentation.updateBackground, presentation.updatePortrait, runtime.activeCard]);
   const generation = useChatGeneration({
     messages,
     setMessages,
@@ -65,6 +74,7 @@ function ChatRuntime({
     setRuntimeError: runtime.setRuntimeError,
     setShowStreamThinking,
     onAudioSubmit: presentation.stopBgm,
+    onRetryStateRestore: handleRetryStateRestore,
     onPresentationEffects: presentation.applyEffects,
     onStreamContentStart: handleStreamStart
   });
@@ -80,10 +90,25 @@ function ChatRuntime({
     onSessionLoaded: handleSessionLoaded
   });
   const editUserMessage = useLastUserMessageEdit(React, messages, isLoading);
+  const latestAssistantIndex = findLastRoleIndex(messages, 'assistant');
+  const latestAssistant = messages[latestAssistantIndex];
+  const segmented = useSegmentedReading({
+    enabled: segmentedReading,
+    isLoading,
+    messageKey: latestAssistant
+      ? messageKey(latestAssistant, `assistant-${latestAssistantIndex}`)
+      : '',
+    scopeKey: session.revision,
+    surfaceRef: chatPanelRef
+  });
 
-  const handleRetry = React.useCallback(async () => {
-    const ok = await generation.retry(editUserMessage.isActive ? editUserMessage.content : undefined);
+  const handleRetry = React.useCallback(async (content) => {
+    const retryContent = typeof content === 'string'
+      ? content
+      : (editUserMessage.isActive ? editUserMessage.content : undefined);
+    const ok = await generation.retry(retryContent);
     if (ok) editUserMessage.finish();
+    return ok;
   }, [editUserMessage, generation]);
 
   const handleCardChanged = React.useCallback(async () => {
@@ -110,7 +135,11 @@ function ChatRuntime({
   );
   const renderAssistant = (msg, index, streaming) => ChatPanelMessageRenderers.renderAssistantMsg(
     React, msg, index, streaming, typewriter, currentThinking, showStreamThinking,
-    setShowStreamThinking, toggleThinking, marked, DOMPurify, highlightQuotes, display, displayRevision
+    setShowStreamThinking, toggleThinking, marked, DOMPurify, highlightQuotes, display, displayRevision,
+    {
+      enabled: segmentedReading && (streaming || (!isLoading && index === latestAssistantIndex)),
+      pageIndex: segmented.pageIndex
+    }
   );
   const renderedMessages = ChatPanelMessageRenderers.renderMessages(
     React, messages, isLoading, typewriter, currentThinking, showStreamThinking, renderUser, renderAssistant,
@@ -118,10 +147,15 @@ function ChatRuntime({
     MessageCollapseRenderer, scroll.isHistoryExpanded, scroll.expandHistory, modelConfig, editUserMessage
   );
 
-  return <div className="chat-panel" data-gc-part="chat-panel">
+  return <div className="chat-panel" data-gc-part="chat-panel"
+    ref={chatPanelRef} onClick={segmented.advanceVisiblePage}>
     <GameCardStyleHost card={runtime.activeCard} />
     <BackgroundRuntime backgroundRequest={presentation.backgroundRequest} portraitRequest={presentation.portraitRequest} onBackgroundChange={onBackgroundChange} onPortraitChange={onPortraitChange} onVisualPanelChange={onVisualPanelChange} />
-    <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState} setGameState={runtime.setGameState} messages={messages} isLoading={isLoading} uiScopeKey={session.revision} onError={runtime.setRuntimeError} />
+    <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState}
+      setGameState={runtime.setGameState} messages={messages} isLoading={isLoading}
+      canRetry={Boolean(editUserMessage.retrySource && modelConfig?.apiUrl && modelConfig?.apiKey)}
+      retrySource={editUserMessage.retrySource} onRetry={handleRetry}
+      uiScopeKey={session.revision} onError={runtime.setRuntimeError} />
     <div className="chat-main" data-gc-part="chat-main">
       <div className="chat-header-hover-trigger" data-gc-part="chat-header-trigger" onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)} />
       <div className={`chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`} data-gc-part="chat-header" onClick={toggleHistory} onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)}>
