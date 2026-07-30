@@ -12,11 +12,11 @@ describe('white album 2 audio', () => {
     const audioPath = card.audio.bgm[initialized.audio.bgm];
 
     expect(validateGameCard(card)).toEqual({ valid: true, errors: [] });
-    expect(stateSchema.schema['audio.bgm']).toBeUndefined();
+    expect(stateSchema.schema['audio.bgm']).toBeDefined();
     expect(loadedCard.state.schema.schema['audio.bgm']).toMatchObject({
       type: 'enum',
       values: [
-        'daily', 'happy', 'normal', 'sad', 'tragic', 'WA_piano',
+        'none', 'daily', 'happy', 'normal', 'sad', 'tragic', 'WA_piano',
         'WA_3', 'dream', 'snow_scene', 'bad_woman', 'after_all_piano',
         'winter_night', 'things', 'unstoppable_dream', 'love_dream'
       ],

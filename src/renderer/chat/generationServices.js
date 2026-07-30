@@ -6,7 +6,9 @@ import {
   preparePreSendMessages,
   toApiMessages as toGameCardApiMessages
 } from '../gameCard/sendPipeline.js';
-import { prepareStreamPreviewState } from '../gameCard/streamPreviewPipeline.js';
+import {
+  prepareStatePatchAtCursor
+} from '../gameCard/statePatchPipeline.js';
 import { gameCardPlatform } from '../platform/index.js';
 
 function withPlatform(prepare) {
@@ -18,7 +20,7 @@ const generationServices = {
   prepareAfterResponseMessages: withPlatform(prepareAfterResponseMessages),
   prepareInitMessages: withPlatform(prepareInitMessages),
   preparePreSendMessages: withPlatform(preparePreSendMessages),
-  prepareStreamPreviewState: withPlatform(prepareStreamPreviewState),
+  prepareStatePatchAtCursor: withPlatform(prepareStatePatchAtCursor),
   sendChatRequest,
   toGameCardApiMessages
 };

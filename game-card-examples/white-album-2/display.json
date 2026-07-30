@@ -19,22 +19,6 @@
       "replace": ""
     },
     {
-      "id": "wa2-hide-state-patch-block",
-      "stage": "before_markdown",
-      "type": "regex_replace",
-      "pattern": "\\n*---\\s*\\n\\s*<state_patch>[\\s\\S]*?<\\/state_patch>\\s*\\n\\s*---\\s*",
-      "flags": "g",
-      "replace": "\n\n"
-    },
-    {
-      "id": "wa2-hide-state-patch-tag",
-      "stage": "before_markdown",
-      "type": "regex_replace",
-      "pattern": "<state_patch>[\\s\\S]*?<\\/state_patch>",
-      "flags": "g",
-      "replace": ""
-    },
-    {
       "id": "wa2-scene-time-place",
       "stage": "before_markdown",
       "type": "regex_replace",

@@ -31,7 +31,30 @@
       "llmWrite": true,
       "uiVisible": true
     },
-    "scene.portrait": {
+    "visual.background": {
+      "type": "enum",
+      "values": [
+        "musical_classroom3",
+        "invite",
+        "rooftop",
+        "school",
+        "haiku",
+        "classroom",
+        "rooftop2",
+        "park",
+        "touma_hand",
+        "ktv",
+        "home_party",
+        "agreement",
+        "GameEnd1",
+        "event1"
+      ],
+      "default": "musical_classroom3",
+      "description": "当前演出背景，由固定剧情规则或 LLM 的分段 state_patch 直接设置。",
+      "llmRead": true,
+      "llmWrite": true
+    },
+    "visual.portrait": {
       "type": "enum",
       "values": [
         "none",
@@ -62,19 +85,34 @@
         "yanagihara_surprise"
       ],
       "default": "none",
-      "description": "本轮自由剧情的主要立绘人物和表情，由 LLM 写入并投影到 visual.portrait。",
-      "llmRead": false,
-      "llmWrite": true,
-      "streamPreview": true
+      "description": "当前演出立绘，由固定剧情规则或 LLM 的分段 state_patch 直接设置。",
+      "llmRead": true,
+      "llmWrite": true
     },
-    "scene.location": {
+    "audio.bgm": {
       "type": "enum",
-      "values": ["school", "classroom", "third_music_room"],
-      "default": "school",
-      "description": "本轮自由剧情的前导场景地点，由 LLM 在开头写入并投影到 visual.background。",
-      "llmRead": false,
-      "llmWrite": true,
-      "streamPreview": true
+      "values": [
+        "none",
+        "daily",
+        "happy",
+        "normal",
+        "sad",
+        "tragic",
+        "WA_piano",
+        "WA_3",
+        "dream",
+        "snow_scene",
+        "bad_woman",
+        "after_all_piano",
+        "winter_night",
+        "things",
+        "unstoppable_dream",
+        "love_dream"
+      ],
+      "default": "daily",
+      "description": "当前演出 BGM；none 表示静音，由固定剧情规则或 LLM 的分段 state_patch 直接设置。",
+      "llmRead": true,
+      "llmWrite": true
     },
     "timeline.currentTime": {
       "type": "string",

@@ -18,6 +18,7 @@ function useChatGeneration({
   onAudioSubmit,
   onRetryStateRestore,
   onStreamContentStart,
+  onStatePatchApplied,
   onPresentationEffects
 }) {
   const generationControl = useGenerationAbort();
@@ -33,14 +34,15 @@ function useChatGeneration({
       tw: typewriter,
       setShowStreamThinking,
       onStreamContentStart,
+      onStatePatchApplied,
       onPresentationEffects,
       onStreamPreviewState: setGameState,
       onGameCardError: setRuntimeError,
       ...generationControl,
       appendAssistantWithUpdater
     }))
-  ), [generationControl, modelConfig, onPresentationEffects, onStreamContentStart, setGameState, setMessages,
-    setRuntimeError, setShowStreamThinking, typewriter]);
+  ), [generationControl, modelConfig, onPresentationEffects, onStatePatchApplied, onStreamContentStart,
+    setGameState, setMessages, setRuntimeError, setShowStreamThinking, typewriter]);
 
   const send = React.useCallback(async (rawValue) => {
     const value = String(rawValue || '');

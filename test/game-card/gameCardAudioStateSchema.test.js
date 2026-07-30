@@ -36,7 +36,7 @@ describe('game card audio state schema', () => {
 
     expect(result.card.state.schema.schema['audio.bgm']).toMatchObject({
       type: 'enum',
-      values: ['daily', 'sad'],
+      values: ['none', 'daily', 'sad'],
       default: 'daily',
       llmRead: false,
       llmWrite: false

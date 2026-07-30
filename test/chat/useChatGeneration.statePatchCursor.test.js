@@ -2,7 +2,7 @@ import { act } from '@testing-library/react';
 import generationServices from '../../src/renderer/chat/generationServices.js';
 import { renderRetryGeneration } from './useChatGenerationTestHarness.js';
 
-describe('useChatGeneration stream preview', () => {
+describe('useChatGeneration state patch cursor', () => {
   const originals = { ...generationServices };
 
   afterEach(() => {
@@ -11,7 +11,7 @@ describe('useChatGeneration stream preview', () => {
 
   test('applies a fragmented leading patch before visible body starts', async () => {
     const events = [];
-    const previewState = {
+    const patchedState = {
       scene: { portrait: 'touma_normal' },
       visual: { portrait: 'touma_normal' }
     };
@@ -21,10 +21,10 @@ describe('useChatGeneration stream preview', () => {
       messages,
       state
     }));
-    generationServices.prepareStreamPreviewState = jest.fn(async () => {
+    generationServices.prepareStatePatchAtCursor = jest.fn(async () => {
       await Promise.resolve();
-      events.push('preview');
-      return { applied: true, state: previewState };
+      events.push('patch');
+      return { applied: true, state: patchedState };
     });
     generationServices.sendChatRequest = jest.fn(async (_request, callbacks) => {
       callbacks.onToken('<state_');
@@ -33,11 +33,11 @@ describe('useChatGeneration stream preview', () => {
       callbacks.onToken('\n正文');
     });
     generationServices.prepareAfterResponseMessages = jest.fn(async ({ messages }) => ({
-      applied: false, messages, state: previewState
+      applied: false, messages, state: patchedState
     }));
     generationServices.toGameCardApiMessages = jest.fn(messages => messages);
     const setGameState = jest.fn(state => {
-      if (state === previewState) events.push('state');
+      if (state === patchedState) events.push('state');
     });
     const onStreamContentStart = jest.fn(() => events.push('body'));
     const { result, options } = renderRetryGeneration({
@@ -47,13 +47,13 @@ describe('useChatGeneration stream preview', () => {
 
     await act(async () => { await result.current.retry(); });
 
-    expect(events.slice(0, 3)).toEqual(['preview', 'state', 'body']);
+    expect(events.slice(0, 3)).toEqual(['patch', 'state', 'body']);
     expect(onStreamContentStart).toHaveBeenCalledWith({
       card: { id: 'card' },
-      state: previewState
+      state: patchedState
     });
-    expect(options.setGameState).toHaveBeenCalledWith(previewState);
-    expect(options.setGameState).toHaveBeenLastCalledWith(previewState);
+    expect(options.setGameState).toHaveBeenCalledWith(patchedState);
+    expect(options.setGameState).toHaveBeenLastCalledWith(patchedState);
     const streamed = options.typewriter.pushContent.mock.calls
       .filter(([, type]) => type !== 'reasoning')
       .map(([text]) => text)
@@ -67,13 +67,13 @@ describe('useChatGeneration stream preview', () => {
   test.each([
     ['aborts', 'AbortError'],
     ['fails', 'Error']
-  ])('keeps the optimistic preview after the request %s', async (_label, errorName) => {
-    const previewState = { visual: { portrait: 'touma_normal' } };
+  ])('keeps the applied patch after the request %s', async (_label, errorName) => {
+    const patchedState = { visual: { portrait: 'touma_normal' } };
     generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
       applied: false, card: { id: 'card' }, messages, state
     }));
-    generationServices.prepareStreamPreviewState = jest.fn(async () => ({
-      applied: true, state: previewState
+    generationServices.prepareStatePatchAtCursor = jest.fn(async () => ({
+      applied: true, state: patchedState
     }));
     generationServices.sendChatRequest = jest.fn(async (_request, callbacks) => {
       callbacks.onToken(
@@ -88,7 +88,7 @@ describe('useChatGeneration stream preview', () => {
 
     await act(async () => { await result.current.retry(); });
 
-    expect(options.setGameState).toHaveBeenCalledWith(previewState);
-    expect(options.setGameState).toHaveBeenLastCalledWith(previewState);
+    expect(options.setGameState).toHaveBeenCalledWith(patchedState);
+    expect(options.setGameState).toHaveBeenLastCalledWith(patchedState);
   });
 });

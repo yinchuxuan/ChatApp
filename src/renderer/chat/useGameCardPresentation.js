@@ -26,10 +26,15 @@ function useGameCardPresentation() {
   const updateBgm = React.useCallback((card, state, options = {}) => {
     request(setBgmRequest, card, state, { restart: options.restart !== false });
   }, [request]);
-  const updateAll = React.useCallback((card, state) => {
+  const updateAll = React.useCallback((card, state, options = {}) => {
     updateBackground(card, state);
     updatePortrait(card, state);
-    updateBgm(card, state);
+    updateBgm(card, state, options);
+  }, [updateBackground, updateBgm, updatePortrait]);
+  const updateChanged = React.useCallback((card, state, changedKeys = []) => {
+    if (changedKeys.includes('visual.background')) updateBackground(card, state);
+    if (changedKeys.includes('visual.portrait')) updatePortrait(card, state);
+    if (changedKeys.includes('audio.bgm')) updateBgm(card, state, { restart: false });
   }, [updateBackground, updateBgm, updatePortrait]);
   const applyEffects = React.useCallback((effects = [], context = {}) => {
     effects.forEach(effect => {
@@ -56,6 +61,7 @@ function useGameCardPresentation() {
     updateAll,
     updateBackground,
     updateBgm,
+    updateChanged,
     updatePortrait
   };
 }

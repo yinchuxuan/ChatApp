@@ -66,6 +66,7 @@ async function runChatGeneration(options) {
       abortSignal,
       onStreamContentStart: options.onStreamContentStart,
       onStreamPreviewState: options.onStreamPreviewState,
+      onStatePatchApplied: options.onStatePatchApplied,
       onGameCardError: options.onGameCardError
     });
     return await finishGeneration(preSend, messages, state, options, streamResult);
@@ -79,18 +80,38 @@ async function runChatGeneration(options) {
 async function finishGeneration(preSend, baseMessages, baseState, options, streamResult = {}) {
   const { setMessages, setGameState, setIsLoading, tw } = options;
   tw.finishStreaming();
-  const content = `${streamResult.leadingPatchBlock || ''}${tw.getAccumulatedContent()}`;
+  const content = tw.getRawContent?.() || streamResult.rawContent || tw.getAccumulatedContent();
   if (!content) {
     setIsLoading(false);
     tw.clearStreaming();
     return true;
   }
-  const assistantMessage = createChatMessage({ role: 'assistant', content, _thinking: tw.getThinkingContent(), thinking: tw.getThinkingContent() });
+  const segmented = preSend.card?.display?.segmentedReading === true;
+  const playback = {
+    afterResponseApplied: !segmented,
+    appliedPatchCount: streamResult.appliedPatchCount || 0
+  };
+  const assistantMessage = createChatMessage({
+    role: 'assistant',
+    content,
+    _thinking: tw.getThinkingContent(),
+    thinking: tw.getThinkingContent(),
+    _meta: { statePatchPlayback: playback }
+  });
   const base = preSend.applied ? preSend.messages : baseMessages;
+  const streamedState = streamResult.state || preSend.state || baseState;
+  if (segmented) {
+    if (options.appendAssistantWithUpdater) setMessages(prev => [...prev, assistantMessage]);
+    else setMessages([...base, assistantMessage]);
+    setIsLoading(false);
+    tw.clearStreaming();
+    return true;
+  }
   const after = await generationServices.prepareAfterResponseMessages({
     messages: [...base, assistantMessage],
-    state: preSend.state || baseState,
-    card: preSend.card || null
+    state: streamedState,
+    card: preSend.card || null,
+    statePatchesApplied: true
   });
   if (after.state && setGameState) setGameState(after.state);
   await options.onPresentationEffects?.(after.presentationEffects, {
@@ -120,12 +141,25 @@ function isAbortException(err, abortSignal) {
   return abortSignal?.aborted || err?.name === 'AbortError';
 }
 
-function handleGenerationAbort(options, preSend, baseMessages) {
+function handleGenerationAbort(options, preSend, baseMessages, streamResult = {}) {
   options.setIsLoading(false);
   options.tw.finishStreaming();
-  const content = options.tw.getAccumulatedContent();
+  const content = options.tw.getRawContent?.()
+    || streamResult.rawContent
+    || options.tw.getAccumulatedContent();
   if (content) {
-    const assistantMessage = createChatMessage({ role: 'assistant', content, _thinking: options.tw.getThinkingContent(), thinking: options.tw.getThinkingContent() });
+    const assistantMessage = createChatMessage({
+      role: 'assistant',
+      content,
+      _thinking: options.tw.getThinkingContent(),
+      thinking: options.tw.getThinkingContent(),
+      _meta: {
+        statePatchPlayback: {
+          afterResponseApplied: false,
+          appliedPatchCount: streamResult.appliedPatchCount || 0
+        }
+      }
+    });
     const base = preSend?.applied ? preSend.messages : baseMessages;
     options.setMessages([...(base || []), assistantMessage]);
   }
@@ -134,7 +168,9 @@ function handleGenerationAbort(options, preSend, baseMessages) {
 }
 
 function handleGenerationException(err, options, preSend, baseMessages, abortSignal) {
-  if (isAbortException(err, abortSignal)) return handleGenerationAbort(options, preSend, baseMessages);
+  if (isAbortException(err, abortSignal)) {
+    return handleGenerationAbort(options, preSend, baseMessages, err.streamResult);
+  }
   options.setIsLoading(false);
   options.tw.reset();
   options.setMessages(prev => [...prev, createChatMessage({ role: 'assistant', content: `请求失败: ${err.message}`, isError: true })]);

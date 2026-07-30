@@ -1,55 +1,34 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const { card, stateSchema } = require('./whiteAlbumTestCard');
-const { applyGameCard } = require('../../src/renderer/gameCard/engine');
+const { card, llmStateSchema, stateSchema } = require('./whiteAlbumTestCard');
+const { applyStatePatch } = require('../../src/shared/game-card/state/statePatch');
 const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSchemaLoader');
 
-const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
-const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
-const projectionRule = loadedCard.rules.find((rule) => rule.id === 'wa2-response-visual');
-const projectionCard = { ...loadedCard, rules: [projectionRule] };
-const fileContents = {
-  'scripts/stream-preview.js': fs.readFileSync(
-    path.join(cardDir, 'scripts/stream-preview.js'),
-    'utf8'
-  )
-};
+const loadedCard = mergeAudioStateSchema({
+  ...card,
+  state: { ...card.state, schema: stateSchema }
+});
 
-function projectLocation(location, overrides = {}) {
-  const state = ensureStateDefaults(loadedCard.state.schema, {
-    temp: { plotKind: 'free' },
-    scene: { location },
-    ...overrides
-  }).state;
-  return applyGameCard({
-    card: projectionCard,
-    phase: 'after_response',
-    messages: [{ role: 'assistant', content: '正文' }],
-    state,
-    fileContents
-  });
-}
+describe('white album background direction', () => {
+  test.each(llmStateSchema.schema['visual.background'].values)(
+    'allows the reusable background %s',
+    (background) => {
+      const state = ensureStateDefaults(loadedCard.state.schema, {}).state;
+      const result = applyStatePatch(JSON.stringify({
+        type: 'state.set',
+        path: 'visual.background',
+        value: background
+      }), state, { schema: loadedCard.state.schema });
 
-describe('white album committed scene projection', () => {
-  test.each([
-    ['school', 'school'],
-    ['classroom', 'classroom'],
-    ['third_music_room', 'musical_classroom3']
-  ])('maps %s to the matching background', (location, background) => {
-    const result = projectLocation(location);
+      expect(result.trace.applied).toBe(true);
+      expect(result.state.visual.background).toBe(background);
+      expect(card.visual.background[background]).toBeDefined();
+    }
+  );
 
-    expect(result.trace.errors).toEqual([]);
-    expect(result.state.visual.background).toBe(background);
-  });
+  test('keeps fixed-only backgrounds out of the LLM schema', () => {
+    const llmBackgrounds = llmStateSchema.schema['visual.background'].values;
 
-  test('does not override fixed plot visuals', () => {
-    const result = projectLocation('classroom', {
-      temp: { plotKind: 'fixed' },
-      visual: { background: 'musical_classroom3' }
-    });
-
-    expect(result.trace.errors).toEqual([]);
-    expect(result.state.visual.background).toBe('musical_classroom3');
+    ['invite', 'haiku', 'touma_hand', 'agreement', 'GameEnd1', 'event1']
+      .forEach(background => expect(llmBackgrounds).not.toContain(background));
   });
 });

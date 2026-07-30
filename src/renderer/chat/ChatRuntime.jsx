@@ -19,11 +19,13 @@ import useTypewriter from './useTypewriter.js';
 import { rendererServices } from '../platform/index.js';
 import { useGameCardRuntime } from './GameCardRuntimeProvider.jsx';
 import useChatGeneration from './useChatGeneration.js';
+import useChatPresentationHandlers from './useChatPresentationHandlers.js';
 import useChatPersistence from './useChatPersistence.js';
 import useChatScroll from './useChatScroll.js';
 import useChatSession from './useChatSession.js';
 import useGameCardPresentation from './useGameCardPresentation.js';
 import useModelConfig from './useModelConfig.js';
+import useReadingStatePatches from './useReadingStatePatches.js';
 
 function ChatRuntime({
   BgmPlayer = GameCardBgmPlayer,
@@ -49,18 +51,7 @@ function ChatRuntime({
   const typewriter = useTypewriter(React);
   const presentation = useGameCardPresentation();
   const persistence = useChatPersistence({ messages, gameState: runtime.gameState, isLoading });
-  const handleStreamStart = React.useCallback(({ card, state }) => {
-    if (card?.presentation?.autoUpdateOnFirstToken === false) return;
-    presentation.updateAll(card, state);
-  }, [presentation.updateAll]);
-  const handleSessionLoaded = React.useCallback(({ card, state }) => {
-    presentation.updateAll(card, state);
-  }, [presentation.updateAll]);
-  const handleRetryStateRestore = React.useCallback((state) => {
-    if (runtime.activeCard?.presentation?.autoUpdateOnFirstToken === false) return;
-    presentation.updateBackground(runtime.activeCard, state);
-    presentation.updatePortrait(runtime.activeCard, state);
-  }, [presentation.updateBackground, presentation.updatePortrait, runtime.activeCard]);
+  const presentationHandlers = useChatPresentationHandlers(runtime.activeCard, presentation);
   const generation = useChatGeneration({
     messages,
     setMessages,
@@ -74,9 +65,10 @@ function ChatRuntime({
     setRuntimeError: runtime.setRuntimeError,
     setShowStreamThinking,
     onAudioSubmit: presentation.stopBgm,
-    onRetryStateRestore: handleRetryStateRestore,
+    onRetryStateRestore: presentationHandlers.onRetryStateRestore,
     onPresentationEffects: presentation.applyEffects,
-    onStreamContentStart: handleStreamStart
+    onStatePatchApplied: presentationHandlers.onStatePatchApplied,
+    onStreamContentStart: presentationHandlers.onStreamContentStart
   });
   const scroll = useChatScroll({ messages, isLoading, displayedCount: typewriter.displayedCount, showMsgHistory });
   const session = useChatSession({
@@ -87,20 +79,33 @@ function ChatRuntime({
     persistence,
     typewriter,
     onResetView: scroll.collapseHistory,
-    onSessionLoaded: handleSessionLoaded
+    onSessionLoaded: presentationHandlers.onSessionLoaded
   });
   const editUserMessage = useLastUserMessageEdit(React, messages, isLoading);
+  const handleReadProgress = useReadingStatePatches({
+    card: runtime.activeCard,
+    messages,
+    setMessages,
+    state: runtime.gameState,
+    setState: runtime.setGameState,
+    typewriter,
+    scopeKey: session.revision,
+    onPatchApplied: presentationHandlers.onStatePatchApplied,
+    onPresentationEffects: presentation.applyEffects,
+    onError: runtime.setRuntimeError
+  });
   const segmented = useSegmentedReading({
     enabled: segmentedReading,
     isLoading,
     messages,
     streamContent: typewriter.streamContent,
+    rawStreamContent: typewriter.rawStreamContent,
     displayedCount: typewriter.displayedCount,
     display,
     scopeKey: session.revision,
-    surfaceRef: chatPanelRef
+    surfaceRef: chatPanelRef,
+    onReadProgress: handleReadProgress
   });
-
   const handleRetry = React.useCallback(async (content) => {
     const retryContent = typeof content === 'string'
       ? content

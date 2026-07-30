@@ -23,9 +23,6 @@
     },
     {
       "$import": "rules/tail-timeline-guide.json"
-    },
-    {
-      "$import": "rules/stream-preview.json"
     }
   ]
 }

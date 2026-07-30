@@ -2,6 +2,7 @@ const MAX_RULES = 50;
 const MAX_PATTERN_LENGTH = 1000;
 const MAX_INPUT_LENGTH = 100000;
 const ALLOWED_FLAGS = /^[gimsu]*$/;
+const STATE_PATCH_PATTERN = /<state_patch>[\s\S]*?<\/state_patch>/g;
 
 function warnRule(rule, message) {
   if (typeof console !== 'undefined' && console.warn) {
@@ -51,7 +52,7 @@ function getAssistantRules(display) {
 }
 
 function applyAssistantDisplayRules(content, display) {
-  return applyDisplayRules(content, display, 'assistant');
+  return applyDisplayRules(content, display, 'assistant').replace(STATE_PATCH_PATTERN, '');
 }
 
 function applyUserDisplayRules(content, display) {

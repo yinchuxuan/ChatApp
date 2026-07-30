@@ -74,7 +74,7 @@ describe('white album plot direction guide', () => {
     expect(guide.content).toContain('剧情目标');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
     expect(guide.content).toContain('本轮自由剧情走向: 极度正面');
-    expect(guide.content).toContain('根据 State更新规则写入本轮变化');
+    expect(guide.content).toContain('根据State更新规则写入本轮结束状态');
     expect(guide.content).toContain('角色扮演规则:');
     expect(result.messages.some((msg) => msg._meta?.source === 'wa2_tail_hint')).toBe(false);
   });
@@ -89,20 +89,16 @@ describe('white album plot direction guide', () => {
 
   test('keeps the visible portrait during free plots and clears it during fixed plots', () => {
     const freeState = ensureStateDefaults(loadedCard.state.schema, {
-      scene: { portrait: 'touma_happy' },
       visual: { portrait: 'touma_happy' }
     }).state;
     const fixedState = ensureStateDefaults(loadedCard.state.schema, {
       timeline: { currentTime: '2007.10.21: 16:00 星期日' },
-      scene: { portrait: 'touma_happy' },
       visual: { portrait: 'touma_happy' }
     }).state;
     const free = runWithState(freeState);
     const fixed = runWithState(fixedState);
 
-    expect(free.state.scene.portrait).toBe('touma_happy');
     expect(free.state.visual.portrait).toBe('touma_happy');
-    expect(fixed.state.scene.portrait).toBe('none');
     expect(fixed.state.visual.portrait).toBe('none');
   });
 

@@ -42,14 +42,14 @@ Audio 不进入 LLM prompt，不写入消息正文，也不由 display rules 处
 {
   "audio.bgm": {
     "type": "enum",
-    "values": ["intro", "ensemble", "quiet"],
+    "values": ["none", "intro", "ensemble", "quiet"],
     "default": "intro",
     "description": "当前播放的 BGM key"
   }
 }
 ```
 
-schema 中的 enum values 应与 `card.audio.bgm` 的 key 对齐。
+运行时派生 schema 时会在资源 key 前加入保留值 `none`，用于停止 BGM；默认值仍是资源表的第一个 key。显式 schema 也应遵守相同约定，`none` 不能用作资源 key。
 
 运行时 state 保存为嵌套 JSON：
 
@@ -120,6 +120,7 @@ gameState.audio.bgm
 - 用户提交消息后立即停止当前 BGM；仅键入输入不停止
 - LLM 只输出 thinking/reasoning 时保持停止
 - 正文第一个 token 开始流式输出时，按当前 `gameState.audio.bgm` 从头加载并播放
+- `state_patch` 改变 `audio.bgm` 时，在普通模式的流游标或分段模式的阅读游标越过该 patch 后切换；同曲不重播
 - `pre_send` / `after_response` 可通过 `audio.updateBgm` 手动切换；`restart: false` 可避免同曲重播
 
 行为要求：

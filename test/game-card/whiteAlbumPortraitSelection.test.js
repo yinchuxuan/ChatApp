@@ -1,21 +1,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { card, stateSchema } = require('./whiteAlbumTestCard');
-const { applyGameCard } = require('../../src/renderer/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
 const { applyLatestAssistantStatePatch } = require('../../src/shared/game-card/state/statePatch');
 const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSchemaLoader');
 
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
-const portraitRule = loadedCard.rules.find((rule) => rule.id === 'wa2-response-visual');
-const portraitCard = { ...loadedCard, rules: [portraitRule] };
-const fileContents = {
-  'scripts/stream-preview.js': fs.readFileSync(
-    path.join(cardDir, 'scripts/stream-preview.js'),
-    'utf8'
-  )
-};
 const portraitKeys = Object.keys(loadedCard.visual.portrait);
 
 function pngDimensions(filePath) {
@@ -32,7 +23,7 @@ function patchMessage(value) {
     role: 'assistant',
     content: [
       '<state_patch>',
-      JSON.stringify([{ type: 'state.set', path: 'scene.portrait', value }]),
+      JSON.stringify([{ type: 'state.set', path: 'visual.portrait', value }]),
       '</state_patch>',
       '剧情正文'
     ].join('\n')
@@ -47,14 +38,7 @@ function applyPortraitMessage(message, overrides = {}) {
   const patched = applyLatestAssistantStatePatch([message], state, {
     schema: loadedCard.state.schema
   });
-  const ruled = applyGameCard({
-    card: portraitCard,
-    phase: 'after_response',
-    messages: [message],
-    state: patched.state,
-    fileContents
-  });
-  return { ruled, patched };
+  return { patched };
 }
 
 describe('white album portrait selection', () => {
@@ -72,26 +56,20 @@ describe('white album portrait selection', () => {
   });
 
   test.each(portraitKeys)('projects the valid semantic portrait %s', (portrait) => {
-    const { ruled, patched } = applyPortraitMessage(patchMessage(portrait));
+    const { patched } = applyPortraitMessage(patchMessage(portrait));
 
-    expect(ruled.trace.errors).toEqual([]);
-    expect(ruled.state.scene.portrait).toBe(portrait);
-    expect(ruled.state.visual.portrait).toBe(portrait);
-    expect(patched.state.scene.portrait).toBe(portrait);
+    expect(patched.state.visual.portrait).toBe(portrait);
   });
 
   test('keeps the current portrait when the response omits a valid selection', () => {
     const stale = {
-      scene: { portrait: 'touma_happy' },
       visual: { portrait: 'touma_happy' }
     };
     const missing = applyPortraitMessage({ role: 'assistant', content: '没有状态补丁' }, stale);
     const invalid = applyPortraitMessage(patchMessage('haruki_normal'), stale);
 
-    [missing, invalid].forEach(({ ruled, patched }) => {
-      expect(ruled.state.scene.portrait).toBe('touma_happy');
-      expect(ruled.state.visual.portrait).toBe('touma_happy');
-      expect(patched.state.scene.portrait).toBe('touma_happy');
+    [missing, invalid].forEach(({ patched }) => {
+      expect(patched.state.visual.portrait).toBe('touma_happy');
     });
   });
 });

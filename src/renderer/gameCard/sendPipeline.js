@@ -67,7 +67,14 @@ async function preparePreSendMessages({ messages = [], state = {}, event = {}, c
   };
 }
 
-async function prepareAfterResponseMessages({ messages = [], state = {}, event = {}, card, platform } = {}) {
+async function prepareAfterResponseMessages({
+  messages = [],
+  state = {},
+  event = {},
+  card,
+  platform,
+  statePatchesApplied = false
+} = {}) {
   const activeCard = card === undefined ? await loadActiveGameCard(platform) : card;
 
   if (!activeCard) {
@@ -81,10 +88,15 @@ async function prepareAfterResponseMessages({ messages = [], state = {}, event =
     return { messages, state, trace: null, ttlTrace: null, stateTrace: null, applied: false, card: null, error: error.message };
   }
   const prepared = prepareState(resources.card, state);
-  const patched = applyLatestAssistantStatePatch(messages, prepared.state, {
-    messages,
-    schema: resources.card?.state?.schema
-  });
+  const patched = statePatchesApplied
+    ? {
+      state: prepared.state,
+      trace: { applied: false, reason: 'already_applied', patches: [], changedKeys: [] }
+    }
+    : applyLatestAssistantStatePatch(messages, prepared.state, {
+      messages,
+      schema: resources.card?.state?.schema
+    });
   const result = await applyGameCardAsync({ card: resources.card, phase: 'after_response', messages, state: patched.state, event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform) });
   return {
     ...result,

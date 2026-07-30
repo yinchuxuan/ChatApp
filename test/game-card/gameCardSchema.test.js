@@ -150,7 +150,7 @@ describe('game card schema', () => {
     const validatePredicate = compileDefinition('predicate');
 
     ['init', 'pre_send'].forEach(phase => expect(validateWhen({ phase, length: 0 })).toBe(true));
-    expect(validateWhen({ phase: 'stream_preview', state: { ready: true } })).toBe(true);
+    expect(validateWhen({ phase: 'stream_preview', state: { ready: true } })).toBe(false);
     expect(validateWhen({ phase: 'pre_send', length: { gte: 1, lte: 5 } })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', state: { route: 'alice', hp: { lte: 20 } } })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', state: { route: { startsWith: 'a' } } })).toBe(false);

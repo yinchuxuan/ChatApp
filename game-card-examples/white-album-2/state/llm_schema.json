@@ -18,7 +18,7 @@
       "max": 100,
       "description": "学园祭演出熟练度；当本轮剧情包含合奏、练琴、排练、声乐/键盘/吉他磨合等演出练习时可以增加"
     },
-    "scene.portrait": {
+    "visual.portrait": {
       "type": "enum",
       "values": [
         "none",
@@ -48,12 +48,43 @@
         "yanagihara_angry",
         "yanagihara_surprise"
       ],
-      "description": "本轮主要立绘。自由剧情必须选择画面焦点人物及其在正文结尾时的表情；固定剧情或没有合适人物时写 none"
+      "description": "当前镜头立绘。选择画面视觉中心人物及其在目标段落开场时的表情；远景、春希独处或没有合适人物时写 none"
     },
-    "scene.location": {
+    "visual.background": {
       "type": "enum",
-      "values": ["school", "classroom", "third_music_room"],
-      "description": "本轮开场地点。校园公共区域写 school，普通教室写 classroom，第三音乐教室写 third_music_room"
+      "values": [
+        "musical_classroom3",
+        "rooftop",
+        "school",
+        "classroom",
+        "rooftop2",
+        "park",
+        "ktv",
+        "home_party"
+      ],
+      "description": "当前镜头背景。第三音乐室写 musical_classroom3，天台写 rooftop 或 rooftop2，校园公共区域写 school，普通教室写 classroom，公园写 park，卡拉OK写 ktv，住宅聚会写 home_party"
+    },
+    "audio.bgm": {
+      "type": "enum",
+      "values": [
+        "none",
+        "daily",
+        "happy",
+        "normal",
+        "sad",
+        "tragic",
+        "WA_piano",
+        "WA_3",
+        "dream",
+        "snow_scene",
+        "bad_woman",
+        "after_all_piano",
+        "winter_night",
+        "things",
+        "unstoppable_dream",
+        "love_dream"
+      ],
+      "description": "当前镜头音乐。情绪没有明显变化时保持当前值；none 表示留白和静音"
     },
     "timeline.currentTime": {
       "type": "string",

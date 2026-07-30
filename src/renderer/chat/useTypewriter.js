@@ -3,10 +3,13 @@ const STREAM_FLUSH_CHARS = 96;
 
 function useTypewriter(R) {
   const [streamContent, setStreamContent] = R.useState('');
+  const [rawStreamContent, setRawStreamContent] = R.useState('');
   const [displayedCount, setDisplayedCount] = R.useState(0);
   const [thinkingContent, setThinkingContent] = R.useState('');
   const [thinkingDone, setThinkingDone] = R.useState(false);
   const streamContentRef = R.useRef('');
+  const rawContentRef = R.useRef('');
+  const appliedPatchCountRef = R.useRef(0);
   const lastFlushedLengthRef = R.useRef(0);
   const flushTimerRef = R.useRef(null);
   const thinkingRef = R.useRef('');
@@ -24,6 +27,7 @@ function useTypewriter(R) {
     const content = streamContentRef.current;
     lastFlushedLengthRef.current = content.length;
     setStreamContent(content);
+    setRawStreamContent(rawContentRef.current);
     setDisplayedCount(content.length);
   }, [cancelFlush]);
 
@@ -35,6 +39,7 @@ function useTypewriter(R) {
   const appendContent = R.useCallback((text) => {
     if (!text) return '';
     streamContentRef.current += text;
+    rawContentRef.current += text;
     const pendingLength = streamContentRef.current.length - lastFlushedLengthRef.current;
     if (lastFlushedLengthRef.current === 0 || pendingLength >= STREAM_FLUSH_CHARS) {
       flushVisibleContent();
@@ -49,8 +54,11 @@ function useTypewriter(R) {
   const clearContent = R.useCallback(() => {
     cancelFlush();
     streamContentRef.current = '';
+    rawContentRef.current = '';
+    appliedPatchCountRef.current = 0;
     lastFlushedLengthRef.current = 0;
     setStreamContent('');
+    setRawStreamContent('');
     setDisplayedCount(0);
   }, [cancelFlush]);
 
@@ -108,8 +116,18 @@ function useTypewriter(R) {
     return appendContent(delta);
   }, [appendContent]);
 
+  const pushProtocolContent = R.useCallback((text) => {
+    if (!text) return;
+    rawContentRef.current += text;
+    setRawStreamContent(rawContentRef.current);
+  }, []);
   const finishStreaming = R.useCallback(() => flushVisibleContent(), [flushVisibleContent]);
   const getAccumulatedContent = R.useCallback(() => streamContentRef.current, []);
+  const getRawContent = R.useCallback(() => rawContentRef.current, []);
+  const getAppliedPatchCount = R.useCallback(() => appliedPatchCountRef.current, []);
+  const markPatchApplied = R.useCallback((count) => {
+    appliedPatchCountRef.current = Math.max(appliedPatchCountRef.current, count);
+  }, []);
   const getThinkingContent = R.useCallback(() => thinkingRef.current, []);
   const reset = R.useCallback(() => {
     clearContent();
@@ -120,9 +138,10 @@ function useTypewriter(R) {
     setThinkingDone(false);
   }, [clearContent]);
 
-  return { streamContent, displayedCount, startStreaming, pushContent, finishStreaming,
-    getAccumulatedContent, getThinkingContent, reset, clearStreaming: clearContent,
-    thinkingContent, thinkingDone };
+  return { streamContent, rawStreamContent, displayedCount, startStreaming, pushContent,
+    pushProtocolContent, finishStreaming, getAccumulatedContent, getRawContent,
+    getAppliedPatchCount, markPatchApplied, getThinkingContent, reset,
+    clearStreaming: clearContent, thinkingContent, thinkingDone };
 }
 
 export { STREAM_FLUSH_CHARS, STREAM_FLUSH_INTERVAL_MS };

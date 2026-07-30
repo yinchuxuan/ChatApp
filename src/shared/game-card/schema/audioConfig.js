@@ -2,6 +2,8 @@ function isObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
+const EMPTY_BGM = 'none';
+
 function getBgmRelativePath(card, gameState) {
   const key = gameState?.audio?.bgm;
   if (!key || typeof key !== 'string') return '';
@@ -16,7 +18,7 @@ function getAudioStateSchema(card) {
   return {
     'audio.bgm': {
       type: 'enum',
-      values,
+      values: [EMPTY_BGM, ...values],
       default: values[0],
       description: '当前播放的 BGM key',
       llmRead: false,
@@ -25,4 +27,4 @@ function getAudioStateSchema(card) {
   };
 }
 
-export { getAudioStateSchema, getBgmRelativePath };
+export { EMPTY_BGM, getAudioStateSchema, getBgmRelativePath };

@@ -8,9 +8,7 @@ const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSche
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, relativePath), 'utf-8'); }
-
 function user(content) { return { role: 'user', content }; }
-
 const fileContents = {
   'system_prompt.md': readCardFile('system_prompt.md'),
   'first_msg.md': [
@@ -40,9 +38,7 @@ const fileContents = {
   ].join('\n'),
   'worldbook/index.md': readCardFile('worldbook/index.md')
 };
-
 function defaultState(overrides = {}) { return ensureStateDefaults(loadedCard.state.schema, overrides).state; }
-
 function applyWhiteAlbumPhase(phase, messages, state = defaultState()) {
   return applyGameCard({
     card: loadedCard,
@@ -56,7 +52,6 @@ function applyWhiteAlbumPhase(phase, messages, state = defaultState()) {
 function initWhiteAlbum() {
   return applyWhiteAlbumPhase('init', []);
 }
-
 function applyWhiteAlbum(messages) {
   const init = initWhiteAlbum();
   return applyWhiteAlbumPhase('pre_send', [...init.messages, ...messages]);
@@ -106,7 +101,7 @@ describe('white album 2 game card', () => {
     expect(status.content).toContain('"touma.affection"');
     expect(status.content).toContain('"setsuna.affection"');
     expect(status.content).toContain('"timeline.currentTime"');
-    expect(status.content).not.toContain('"audio.bgm"');
+    expect(status.content).toContain('"audio.bgm"');
     expect(status.content).toContain('timeline.currentTime: 2007.10.20: 15:00 星期六');
     expect(status.content).not.toContain('timeline.advanceIntent');
     expect(status.content).toContain('touma.affection: 12');
@@ -120,11 +115,13 @@ describe('white album 2 game card', () => {
 
     expect(hint.content).toContain('<wa2_turn_context>');
     expect(hint.content).toContain('<state_patch>');
-    expect(stateContext.content).toContain('state更新规则');
+    expect(stateContext.content).toContain('State更新与演出规则');
     expect(stateContext.content).toContain('state.set');
     expect(stateContext.content).toContain('touma.affection');
     expect(stateContext.content).toContain('setsuna.affection');
-    expect(stateContext.content).toContain('scene.portrait');
+    expect(stateContext.content).toContain('visual.portrait');
+    expect(stateContext.content).toContain('visual.background');
+    expect(stateContext.content).toContain('audio.bgm');
     expect(stateContext.content).toContain('touma_normal');
     expect(stateContext.content).toContain('yanagihara_surprise');
   });

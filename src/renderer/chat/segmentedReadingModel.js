@@ -2,6 +2,7 @@ import { applyAssistantDisplayRules } from '../gameCard/displayRules.js';
 import { messageKey } from './messageSelection.js';
 
 const INPUT_ACTION_PATTERN = /data-gc-chat-input-(?:value|value-from|label)/;
+const STATE_PATCH_PATTERN = /<state_patch>([\s\S]*?)<\/state_patch>/g;
 
 function splitReadingSegments(content) {
   return String(content || '')
@@ -17,30 +18,57 @@ function resolveReadingSegments(content, display, includeInputActions = true) {
     : segments.filter(segment => !INPUT_ACTION_PATTERN.test(segment));
 }
 
-function buildReadingEntries(messages, isLoading, streamContent, displayedCount, display) {
+function buildStatePatchTimeline(content, display, includeInputActions = true) {
+  const source = String(content || '');
+  const patches = [...source.matchAll(STATE_PATCH_PATTERN)].map((match, ordinal) => {
+    const prefix = source.slice(0, match.index).replace(STATE_PATCH_PATTERN, '');
+    return {
+      boundary: resolveReadingSegments(prefix, display, includeInputActions).length,
+      ordinal,
+      text: match[1].trim()
+    };
+  });
+  return {
+    pageCount: resolveReadingSegments(source, display, includeInputActions).length,
+    patches
+  };
+}
+
+function buildReadingEntries(messages, isLoading, streamContent, displayedCount, display,
+  rawStreamContent = streamContent) {
   const sourceMessages = Array.isArray(messages) ? messages : [];
   const completed = sourceMessages
     .map((message, index) => ({ message, messageIndex: index }))
     .filter(({ message }) => message?.role === 'assistant');
   const lastCompleted = completed.length - 1;
   const entries = completed
-    .map(({ message, messageIndex }, index) => ({
-      key: messageKey(message, `assistant-${messageIndex}`),
-      messageIndex,
-      pageCount: resolveReadingSegments(
-        message.content,
+    .map(({ message, messageIndex }, index) => {
+      const content = String(message.content || '');
+      const timeline = buildStatePatchTimeline(
+        content,
         display,
         !isLoading && index === lastCompleted
-      ).length,
-      streaming: false
-    }))
+      );
+      return {
+        content,
+        key: messageKey(message, `assistant-${messageIndex}`),
+        messageIndex,
+        pageCount: timeline.pageCount,
+        patches: timeline.patches,
+        streaming: false
+      };
+    })
     .filter(entry => entry.pageCount > 0);
   if (isLoading) {
-    const content = String(streamContent || '').slice(0, displayedCount);
+    const visible = String(streamContent || '').slice(0, displayedCount);
+    const content = String(rawStreamContent || visible);
+    const timeline = buildStatePatchTimeline(content, display);
     entries.push({
+      content,
       key: `streaming-${sourceMessages.length}`,
       messageIndex: sourceMessages.length,
-      pageCount: Math.max(resolveReadingSegments(content, display).length, 1),
+      pageCount: Math.max(resolveReadingSegments(visible, display).length, 1),
+      patches: timeline.patches,
       streaming: true
     });
   }
@@ -55,6 +83,7 @@ function normalizeReadingCursor(cursor, entries) {
 }
 
 export {
+  buildStatePatchTimeline,
   buildReadingEntries,
   normalizeReadingCursor,
   resolveReadingSegments,

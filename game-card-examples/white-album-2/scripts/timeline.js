@@ -53,7 +53,7 @@ function run(ctx) {
     state.temp.setsunaAttitudeSection = resolveAttitudeSection('SetsunaAttitude', state.setsuna && state.setsuna.affection);
     state.audio.bgm = mood;
     if (!state.visual.background) state.visual.background = result.background || 'school';
-    if (!state.visual.portrait) state.visual.portrait = state.scene.portrait || 'none';
+    if (!state.visual.portrait) state.visual.portrait = 'none';
   }
 
   function applyFixedPlot(result) {
@@ -65,7 +65,6 @@ function run(ctx) {
     state.temp.setsunaAttitudeSection = '';
     state.audio.bgm = result.bgm;
     state.visual.background = result.background;
-    state.scene.portrait = 'none';
     state.visual.portrait = 'none';
   }
 
@@ -74,7 +73,6 @@ function run(ctx) {
   ensureObject('temp');
   ensureObject('audio');
   ensureObject('visual');
-  ensureObject('scene');
   ensureObject('story');
 
   clampCurrentTimeToSlotEnd();

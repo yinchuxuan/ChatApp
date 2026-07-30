@@ -1,6 +1,6 @@
 const {
   applyLatestAssistantStatePatch,
-  applyStatePatchPreview,
+  applyStatePatch,
   extractLatestAssistantStatePatches
 } = require('../../src/shared/game-card/state/statePatch');
 
@@ -52,27 +52,21 @@ describe('LLM state patch runtime', () => {
     });
   });
 
-  test('previews only explicitly streamable llm state.set paths', () => {
-    const schema = {
-      'scene.portrait': {
-        type: 'enum',
-        values: ['none', 'touma_normal'],
-        llmWrite: true,
-        streamPreview: true
-      },
-      score: { type: 'number', llmWrite: true }
-    };
-    const result = applyStatePatchPreview(JSON.stringify([
-      { type: 'state.set', path: 'scene.portrait', value: 'touma_normal' },
-      { type: 'state.set', path: 'score', value: 8 },
-      { type: 'state.delete', path: 'scene.portrait' }
-    ]), { scene: { portrait: 'none' }, score: 0 }, schema);
+  test('expands a path-value object into state.set actions', () => {
+    const result = applyStatePatch(JSON.stringify({
+      'visual.background': 'rooftop',
+      'visual.portrait': 'touma_sad',
+      'audio.bgm': 'sad'
+    }), {});
 
     expect(result.state).toEqual({
-      scene: { portrait: 'touma_normal' },
-      score: 0
+      visual: { background: 'rooftop', portrait: 'touma_sad' },
+      audio: { bgm: 'sad' }
     });
-    expect(result.trace.changedKeys).toEqual(['scene.portrait']);
-    expect(result.trace.ignoredPaths).toEqual(['score', 'scene.portrait']);
+    expect(result.trace.changedKeys).toEqual([
+      'visual.background',
+      'visual.portrait',
+      'audio.bgm'
+    ]);
   });
 });

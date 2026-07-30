@@ -30,14 +30,16 @@ function useSegmentedReading({
   isLoading,
   messages = [],
   streamContent = '',
+  rawStreamContent = streamContent,
   displayedCount = 0,
   display,
   scopeKey,
-  surfaceRef
+  surfaceRef,
+  onReadProgress
 }) {
   const entries = React.useMemo(() => buildReadingEntries(
-    messages, isLoading, streamContent, displayedCount, display
-  ), [display, displayedCount, isLoading, messages, streamContent]);
+    messages, isLoading, streamContent, displayedCount, display, rawStreamContent
+  ), [display, displayedCount, isLoading, messages, rawStreamContent, streamContent]);
   const entriesRef = React.useRef(entries);
   entriesRef.current = entries;
   const [cursor, setCursor] = React.useState(() => ({
@@ -141,6 +143,19 @@ function useSegmentedReading({
 
   const activeCursor = normalizeReadingCursor(cursor, entries);
   const activeEntry = entries[activeCursor.entryIndex];
+  React.useEffect(() => {
+    if (!enabled || !activeEntry || typeof onReadProgress !== 'function') return;
+    const isLatest = activeCursor.entryIndex === entries.length - 1;
+    const terminal = !isLoading && isLatest
+      && activeCursor.pageIndex === activeEntry.pageCount - 1;
+    onReadProgress({
+      entry: activeEntry,
+      message: activeEntry.streaming ? null : messages[activeEntry.messageIndex],
+      targetBoundary: terminal ? activeEntry.pageCount : activeCursor.pageIndex,
+      terminal
+    });
+  }, [activeCursor.entryIndex, activeCursor.pageIndex, activeEntry, enabled, entries.length,
+    isLoading, messages, onReadProgress]);
   const isHistory = Boolean(enabled && activeEntry && activeCursor.entryIndex < entries.length - 1);
   const canPrevious = Boolean(enabled) && (
     activeCursor.pageIndex > 0 || activeCursor.entryIndex > 0
