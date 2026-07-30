@@ -14,7 +14,6 @@ import GameCardUIRoot from '../components/GameCardUIRoot.jsx';
 import MessageCollapseRenderer from '../components/MessageCollapseRenderer.jsx';
 import { highlightQuotes } from '../components/highlightQuotes.js';
 import useLastUserMessageEdit from './useLastUserMessageEdit.js';
-import { findLastRoleIndex, messageKey } from './messageSelection.js';
 import useSegmentedReading from './useSegmentedReading.js';
 import useTypewriter from './useTypewriter.js';
 import { rendererServices } from '../platform/index.js';
@@ -44,7 +43,8 @@ function ChatRuntime({
   const [actionError, setActionError] = React.useState(null);
   const chatPanelRef = React.useRef(null);
   const runtime = useGameCardRuntime();
-  const segmentedReading = runtime.activeCard?.display?.segmentedReading === true;
+  const display = runtime.activeCard?.display;
+  const segmentedReading = display?.segmentedReading === true;
   const modelConfig = useModelConfig();
   const typewriter = useTypewriter(React);
   const presentation = useGameCardPresentation();
@@ -90,14 +90,13 @@ function ChatRuntime({
     onSessionLoaded: handleSessionLoaded
   });
   const editUserMessage = useLastUserMessageEdit(React, messages, isLoading);
-  const latestAssistantIndex = findLastRoleIndex(messages, 'assistant');
-  const latestAssistant = messages[latestAssistantIndex];
   const segmented = useSegmentedReading({
     enabled: segmentedReading,
     isLoading,
-    messageKey: latestAssistant
-      ? messageKey(latestAssistant, `assistant-${latestAssistantIndex}`)
-      : '',
+    messages,
+    streamContent: typewriter.streamContent,
+    displayedCount: typewriter.displayedCount,
+    display,
     scopeKey: session.revision,
     surfaceRef: chatPanelRef
   });
@@ -128,7 +127,6 @@ function ChatRuntime({
   )));
   const streamThinking = typewriter.getThinkingContent();
   const currentThinking = isLoading && streamThinking ? streamThinking : null;
-  const display = runtime.activeCard?.display;
   const displayRevision = React.useMemo(() => JSON.stringify(display ?? null), [display]);
   const renderUser = text => ChatPanelMessageRenderers.renderUserMsg(
     React, { content: text }, marked, DOMPurify, highlightQuotes, display, displayRevision
@@ -137,12 +135,16 @@ function ChatRuntime({
     React, msg, index, streaming, typewriter, currentThinking, showStreamThinking,
     setShowStreamThinking, toggleThinking, marked, DOMPurify, highlightQuotes, display, displayRevision,
     {
-      enabled: segmentedReading && (streaming || (!isLoading && index === latestAssistantIndex)),
-      pageIndex: segmented.pageIndex
+      enabled: segmentedReading && (
+        streaming ? segmented.isStreaming : index === segmented.messageIndex
+      ),
+      pageIndex: segmented.pageIndex,
+      includeInputActions: !segmented.isHistory
     }
   );
   const renderedMessages = ChatPanelMessageRenderers.renderMessages(
-    React, messages, isLoading, typewriter, currentThinking, showStreamThinking, renderUser, renderAssistant,
+    React, segmented.displayMessages, segmented.displayIsLoading, typewriter,
+    currentThinking, showStreamThinking, renderUser, renderAssistant,
     (last, loading) => ChatPanelMessageRenderers.renderRetryBtn(React, last, loading, handleRetry),
     MessageCollapseRenderer, scroll.isHistoryExpanded, scroll.expandHistory, modelConfig, editUserMessage
   );
@@ -155,6 +157,7 @@ function ChatRuntime({
       setGameState={runtime.setGameState} messages={messages} isLoading={isLoading}
       canRetry={Boolean(editUserMessage.retrySource && modelConfig?.apiUrl && modelConfig?.apiKey)}
       retrySource={editUserMessage.retrySource} onRetry={handleRetry}
+      reading={segmented.ui} onReadingNavigate={segmented.navigate}
       uiScopeKey={session.revision} onError={runtime.setRuntimeError} />
     <div className="chat-main" data-gc-part="chat-main">
       <div className="chat-header-hover-trigger" data-gc-part="chat-header-trigger" onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)} />

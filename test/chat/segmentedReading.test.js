@@ -5,6 +5,7 @@ const { marked } = require('marked');
 const renderers = require('../../src/renderer/components/ChatPanelMessageRenderers').default;
 const {
   isSegmentAdvanceEvent,
+  resolveReadingSegments,
   splitReadingSegments
 } = require('../../src/renderer/chat/useSegmentedReading');
 const useSegmentedReading = require('../../src/renderer/chat/useSegmentedReading').default;
@@ -112,23 +113,84 @@ describe('segmented reading', () => {
     }))).toBe(false);
   });
 
-  test('keeps the current page when streaming becomes a completed message', () => {
+  test('moves continuously between segments and assistant messages', () => {
     jest.useFakeTimers();
-    const { result, rerender } = renderHook(props => useSegmentedReading(props), {
+    const messages = [
+      { id: 'old', role: 'assistant', content: '旧第一段。\n\n旧第二段。' },
+      { role: 'user', content: '继续' },
+      { id: 'latest', role: 'assistant', content: '新第一段。\n\n新第二段。' }
+    ];
+    const { result } = renderHook(props => useSegmentedReading(props), {
       initialProps: {
         enabled: true,
-        isLoading: true,
-        messageKey: 'previous',
+        isLoading: false,
+        messages,
         scopeKey: 1
       }
     });
 
-    act(() => result.current.advance(clickEvent(), 3));
-    expect(result.current.pageIndex).toBe(1);
-    rerender({ enabled: true, isLoading: false, messageKey: 'completed', scopeKey: 1 });
+    expect(result.current.messageIndex).toBe(2);
+    expect(result.current.pageIndex).toBe(0);
+    act(() => result.current.navigate('reading.previous'));
+    expect(result.current.messageIndex).toBe(0);
     expect(result.current.pageIndex).toBe(1);
     act(() => jest.runAllTimers());
-    rerender({ enabled: true, isLoading: false, messageKey: 'other', scopeKey: 1 });
+    act(() => result.current.navigate('reading.previous'));
     expect(result.current.pageIndex).toBe(0);
+    act(() => jest.runAllTimers());
+    act(() => result.current.navigate('reading.next'));
+    expect(result.current.pageIndex).toBe(1);
+    act(() => jest.runAllTimers());
+    act(() => result.current.navigate('reading.next'));
+    expect(result.current.messageIndex).toBe(2);
+    expect(result.current.pageIndex).toBe(0);
+    act(() => jest.runAllTimers());
+    act(() => result.current.navigate('reading.previous'));
+    act(() => jest.runAllTimers());
+    act(() => result.current.navigate('reading.latest'));
+    expect(result.current.messageIndex).toBe(2);
+    expect(result.current.pageIndex).toBe(1);
+    expect(result.current.ui.atLatest).toBe(true);
+  });
+
+  test('keeps the current page when streaming becomes a completed message', () => {
+    jest.useFakeTimers();
+    const content = '第一段。\n\n第二段。\n\n第三段。';
+    const { result, rerender } = renderHook(props => useSegmentedReading(props), {
+      initialProps: {
+        enabled: true,
+        isLoading: true,
+        messages: [{ role: 'user', content: '继续' }],
+        streamContent: content,
+        displayedCount: content.length,
+        scopeKey: 1
+      }
+    });
+
+    act(() => result.current.navigate('reading.next'));
+    expect(result.current.pageIndex).toBe(1);
+    rerender({
+      enabled: true,
+      isLoading: false,
+      messages: [
+        { role: 'user', content: '继续' },
+        { id: 'completed', role: 'assistant', content }
+      ],
+      streamContent: content,
+      displayedCount: content.length,
+      scopeKey: 1
+    });
+    expect(result.current.pageIndex).toBe(1);
+  });
+
+  test('removes input action pages from historical reading', () => {
+    const content = [
+      '剧情正文。',
+      '',
+      '<button data-gc-chat-input-value="A. 继续">继续</button>'
+    ].join('\n');
+
+    expect(resolveReadingSegments(content, undefined)).toHaveLength(2);
+    expect(resolveReadingSegments(content, undefined, false)).toEqual(['剧情正文。']);
   });
 });

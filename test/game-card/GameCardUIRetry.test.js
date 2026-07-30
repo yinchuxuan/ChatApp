@@ -46,4 +46,26 @@ describe('GameCardUIRoot retry event', () => {
     expect(container.querySelector('#game-card-ui-root'))
       .toHaveAttribute('data-error', 'chat.retry content must be a string');
   });
+
+  test('exposes reading state and delegates controlled navigation events', async () => {
+    const onReadingNavigate = jest.fn(() => true);
+    global.platformMock.readGameCardFile.mockResolvedValue({
+      success: true,
+      content: `
+        function Root({ React, ui, emit }) {
+          return React.createElement('button', {
+            onClick: () => emit({ type: 'reading.previous' })
+          }, ui.reading.canPrevious ? '回看' : '不可回看');
+        }
+      `
+    });
+    const card = { id: 'reading-card', ui: { root: { source: 'ui/root.js' } } };
+
+    render(<GameCardUIRoot card={card} gameState={{}} messages={[]}
+      reading={{ canPrevious: true }} onReadingNavigate={onReadingNavigate} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: '回看' }));
+
+    expect(onReadingNavigate).toHaveBeenCalledWith('reading.previous');
+  });
 });

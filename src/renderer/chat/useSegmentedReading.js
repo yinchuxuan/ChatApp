@@ -1,4 +1,8 @@
 import React from 'react';
+import {
+  buildReadingEntries,
+  normalizeReadingCursor
+} from './segmentedReadingModel.js';
 
 const SEGMENT_TRANSITION_MS = 280;
 const INTERACTIVE_SELECTOR = [
@@ -8,13 +12,6 @@ const INTERACTIVE_SELECTOR = [
   '[data-gc-chat-input-value]', '[data-gc-chat-input-value-from]',
   '[data-gc-chat-input-label]'
 ].join(',');
-
-function splitReadingSegments(content) {
-  return String(content || '')
-    .replace(/\r\n?/g, '\n')
-    .split(/\n[ \t]*\n+/)
-    .filter(segment => segment.trim());
-}
 
 function isSegmentAdvanceEvent(event) {
   if (!event) return true;
@@ -28,56 +25,106 @@ function isSegmentAdvanceEvent(event) {
   return !selection || selection.isCollapsed;
 }
 
-function useSegmentedReading({ enabled, isLoading, messageKey, scopeKey, surfaceRef }) {
-  const [pageIndex, setPageIndex] = React.useState(0);
-  const pageIndexRef = React.useRef(0);
+function useSegmentedReading({
+  enabled,
+  isLoading,
+  messages = [],
+  streamContent = '',
+  displayedCount = 0,
+  display,
+  scopeKey,
+  surfaceRef
+}) {
+  const entries = React.useMemo(() => buildReadingEntries(
+    messages, isLoading, streamContent, displayedCount, display
+  ), [display, displayedCount, isLoading, messages, streamContent]);
+  const entriesRef = React.useRef(entries);
+  entriesRef.current = entries;
+  const [cursor, setCursor] = React.useState(() => ({
+    entryIndex: Math.max(entries.length - 1, 0),
+    pageIndex: 0
+  }));
+  const cursorRef = React.useRef(cursor);
   const transitionRef = React.useRef(false);
   const timerRef = React.useRef(null);
-  const previousRef = React.useRef({ enabled, isLoading, messageKey, scopeKey });
+  const latestKey = entries[entries.length - 1]?.key || '';
+  const latestCompletedKey = [...entries].reverse().find(entry => !entry.streaming)?.key || '';
+  const previousRef = React.useRef({
+    enabled, isLoading, latestKey, latestCompletedKey, scopeKey
+  });
 
+  const commit = React.useCallback((next) => {
+    cursorRef.current = next;
+    setCursor(next);
+  }, []);
   const reset = React.useCallback(() => {
     if (timerRef.current !== null) clearTimeout(timerRef.current);
     timerRef.current = null;
     transitionRef.current = false;
-    pageIndexRef.current = 0;
-    setPageIndex(0);
-  }, []);
+    commit({ entryIndex: Math.max(entriesRef.current.length - 1, 0), pageIndex: 0 });
+  }, [commit]);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const previous = previousRef.current;
     const generationStarted = enabled && isLoading && !previous.isLoading;
+    const loadingHistoryChanged = enabled && isLoading && previous.isLoading
+      && latestCompletedKey !== previous.latestCompletedKey;
     const idleMessageChanged = enabled && !isLoading && !previous.isLoading
-      && messageKey !== previous.messageKey;
+      && latestKey !== previous.latestKey;
     if (enabled !== previous.enabled || scopeKey !== previous.scopeKey
-      || generationStarted || idleMessageChanged) reset();
-    previousRef.current = { enabled, isLoading, messageKey, scopeKey };
-  }, [enabled, isLoading, messageKey, reset, scopeKey]);
+      || generationStarted || loadingHistoryChanged || idleMessageChanged) reset();
+    previousRef.current = {
+      enabled, isLoading, latestKey, latestCompletedKey, scopeKey
+    };
+  }, [enabled, isLoading, latestCompletedKey, latestKey, reset, scopeKey]);
+
+  React.useLayoutEffect(() => {
+    const next = normalizeReadingCursor(cursorRef.current, entries);
+    if (next.entryIndex !== cursorRef.current.entryIndex
+      || next.pageIndex !== cursorRef.current.pageIndex) commit(next);
+  }, [commit, entries]);
 
   React.useEffect(() => () => {
     if (timerRef.current !== null) clearTimeout(timerRef.current);
   }, []);
 
-  const advance = React.useCallback((event, pageCount) => {
-    if (transitionRef.current || pageIndexRef.current >= pageCount - 1
-      || !isSegmentAdvanceEvent(event)) return false;
+  const move = React.useCallback((event, direction) => {
+    if (transitionRef.current || !isSegmentAdvanceEvent(event)) return false;
+    const currentEntries = entriesRef.current;
+    const current = normalizeReadingCursor(cursorRef.current, currentEntries);
+    let next = current;
+    if (direction === 'previous' && current.pageIndex > 0) {
+      next = { ...current, pageIndex: current.pageIndex - 1 };
+    } else if (direction === 'previous' && current.entryIndex > 0) {
+      const entryIndex = current.entryIndex - 1;
+      next = { entryIndex, pageIndex: currentEntries[entryIndex].pageCount - 1 };
+    } else if (direction === 'next'
+      && current.pageIndex < (currentEntries[current.entryIndex]?.pageCount || 0) - 1) {
+      next = { ...current, pageIndex: current.pageIndex + 1 };
+    } else if (direction === 'next' && current.entryIndex < currentEntries.length - 1) {
+      next = { entryIndex: current.entryIndex + 1, pageIndex: 0 };
+    } else if (direction === 'latest' && currentEntries.length > 0) {
+      const entryIndex = currentEntries.length - 1;
+      next = { entryIndex, pageIndex: currentEntries[entryIndex].pageCount - 1 };
+    }
+    if (next.entryIndex === current.entryIndex && next.pageIndex === current.pageIndex) return false;
     transitionRef.current = true;
-    pageIndexRef.current += 1;
-    setPageIndex(pageIndexRef.current);
+    commit(next);
     timerRef.current = setTimeout(() => {
       transitionRef.current = false;
       timerRef.current = null;
     }, SEGMENT_TRANSITION_MS);
     return true;
-  }, []);
-
-  const advanceVisiblePage = React.useCallback((event) => {
-    const bubble = surfaceRef?.current?.querySelector(
-      '.segmented-reading-ready[data-segment-count]'
-    );
-    const pageCount = Number(bubble?.dataset.segmentCount);
-    if (!Number.isInteger(pageCount) || pageCount < 2) return false;
-    return advance(event, pageCount);
-  }, [advance, surfaceRef]);
+  }, [commit]);
+  const previous = React.useCallback(event => move(event, 'previous'), [move]);
+  const next = React.useCallback(event => move(event, 'next'), [move]);
+  const latest = React.useCallback(event => move(event, 'latest'), [move]);
+  const navigate = React.useCallback((type) => {
+    if (type === 'reading.previous') return previous();
+    if (type === 'reading.next') return next();
+    if (type === 'reading.latest') return latest();
+    return false;
+  }, [latest, next, previous]);
 
   React.useEffect(() => {
     if (!enabled) return undefined;
@@ -86,19 +133,50 @@ function useSegmentedReading({ enabled, isLoading, messageKey, scopeKey, surface
     const handleKeyDown = (event) => {
       if (event.key !== 'Enter' || event.repeat || event.isComposing
         || event.altKey || event.ctrlKey || event.metaKey) return;
-      if (advanceVisiblePage(event)) event.preventDefault();
+      if (next(event)) event.preventDefault();
     };
     view.addEventListener('keydown', handleKeyDown);
     return () => view.removeEventListener('keydown', handleKeyDown);
-  }, [advanceVisiblePage, enabled, surfaceRef]);
+  }, [enabled, next, surfaceRef]);
 
-  return { advance, advanceVisiblePage, pageIndex };
+  const activeCursor = normalizeReadingCursor(cursor, entries);
+  const activeEntry = entries[activeCursor.entryIndex];
+  const isHistory = Boolean(enabled && activeEntry && activeCursor.entryIndex < entries.length - 1);
+  const canPrevious = Boolean(enabled) && (
+    activeCursor.pageIndex > 0 || activeCursor.entryIndex > 0
+  );
+  const canNext = Boolean(enabled && activeEntry) && (
+    activeCursor.pageIndex < activeEntry.pageCount - 1
+    || activeCursor.entryIndex < entries.length - 1
+  );
+  const displayMessages = isHistory && activeEntry?.messageIndex >= 0
+    ? [{ ...messages[activeEntry.messageIndex], _renderIndex: activeEntry.messageIndex }]
+    : messages;
+
+  return {
+    advanceVisiblePage: next,
+    displayIsLoading: isLoading && !isHistory,
+    displayMessages,
+    isHistory,
+    isStreaming: activeEntry?.streaming === true,
+    messageIndex: activeEntry?.messageIndex ?? -1,
+    navigate,
+    pageIndex: activeCursor.pageIndex,
+    ui: {
+      enabled,
+      canPrevious,
+      canNext,
+      atLatest: !canNext,
+      messageIndex: activeEntry?.messageIndex ?? -1,
+      segmentIndex: activeCursor.pageIndex
+    }
+  };
 }
 
 export {
   INTERACTIVE_SELECTOR,
   SEGMENT_TRANSITION_MS,
-  isSegmentAdvanceEvent,
-  splitReadingSegments
+  isSegmentAdvanceEvent
 };
+export { resolveReadingSegments, splitReadingSegments } from './segmentedReadingModel.js';
 export default useSegmentedReading;

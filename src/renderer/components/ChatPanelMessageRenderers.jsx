@@ -1,8 +1,7 @@
 import React from 'react';
 import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
-import { splitReadingSegments } from '../chat/useSegmentedReading.js';
+import { resolveReadingSegments } from '../chat/segmentedReadingModel.js';
 import { findLastRoleIndex, selectVisibleMessages } from '../chat/messageSelection.js';
-import { applyAssistantDisplayRules } from '../gameCard/displayRules.js';
 import { MessageList, StreamingMessageRow } from './MessageList.jsx';
 import MessageContent from './MessageContent.jsx';
 
@@ -81,7 +80,7 @@ const ChatPanelMessageRenderers = {
     const rawContent = isStreaming ? msg.slice(0, tw.displayedCount) : msg.content;
     const segmented = segmentedReading?.enabled === true;
     const segments = segmented
-      ? splitReadingSegments(applyAssistantDisplayRules(rawContent, display))
+      ? resolveReadingSegments(rawContent, display, segmentedReading.includeInputActions !== false)
       : [];
     const pageIndex = Math.min(segmentedReading?.pageIndex || 0, Math.max(segments.length - 1, 0));
     const hasNext = segmented && pageIndex < segments.length - 1;

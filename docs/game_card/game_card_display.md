@@ -193,6 +193,8 @@ Display rules 不要求 assistant 输出大量标签。推荐用正则识别轻�
 
 ## 分段阅读
 
-`display.segmentedReading: true` 让平台把最新 assistant 回复按 Markdown 自然段分页并隐藏 thinking block。点击应用画布中的非交互区域或按 Enter 显示下一段；链接、按钮、输入控件和文本选择不会触发推进。历史消息仍完整展示。未声明或设为 `false` 时沿用普通全文展示。
+`display.segmentedReading: true` 让平台把 assistant 回复按 Markdown 自然段分页并隐藏 thinking block。默认从最新回复第一段开始；点击应用画布中的非交互区域或按 Enter 显示下一段。链接、按钮、输入控件和文本选择不会触发推进。未声明或设为 `false` 时沿用普通全文展示。
 
 分段发生在 display rules 之后，因此被规则隐藏的协议块不会产生空白页面。
+平台维护跨 assistant 回复的临时阅读游标；同一回复内逐段移动，到达首尾后进入相邻回复。历史回复中的输入 action 页会被跳过，回看不会修改 messages、game state、retry snapshot、持久化历史或当前视听演出。
+游戏卡 UI 可读取 `ui.reading` 的 `canPrevious`、`canNext`、`atLatest`、`messageIndex` 和 `segmentIndex`，并发送 `reading.previous`、`reading.next`、`reading.latest`。流式生成期间回看不会停止生成，新段落也不会强制把游标拉回最新位置。

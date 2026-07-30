@@ -84,6 +84,12 @@ function isRetryControlTarget(target) {
   return Boolean(target?.closest?.('.wa2-retry-editor, .wa2-retry-action'));
 }
 
+function isReadingControlTarget(target) {
+  return Boolean(target?.closest?.(
+    'a, button, input, textarea, select, label, [contenteditable="true"], [role="button"]'
+  ));
+}
+
 function Root({ React, state, emit, ui = {} }) {
   const C = React.createElement;
   const queue = queueFromState(state);
@@ -130,6 +136,21 @@ function Root({ React, state, emit, ui = {} }) {
         event.stopImmediatePropagation();
         return;
       }
+      const readingEvent = event.key === 'ArrowLeft'
+        ? { type: 'reading.previous', available: ui.reading?.canPrevious }
+        : event.key === 'ArrowRight'
+          ? { type: 'reading.next', available: ui.reading?.canNext }
+          : null;
+      if (!paused && !open && readingEvent?.available
+        && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey
+        && !isReadingControlTarget(event.target)) {
+        const accepted = emit({ type: readingEvent.type });
+        if (accepted !== false) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+        return;
+      }
       if (event.key !== 'Escape' || open) return;
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -152,7 +173,7 @@ function Root({ React, state, emit, ui = {} }) {
       view.removeEventListener('keydown', handleKeyDown, true);
       view.removeEventListener('contextmenu', handleContextMenu, true);
     };
-  }, [open, paused, ui.retrySource]);
+  }, [emit, open, paused, ui.reading, ui.retrySource]);
 
   function consume(option) {
     emit({

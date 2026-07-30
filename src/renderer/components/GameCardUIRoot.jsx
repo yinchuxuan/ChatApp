@@ -24,6 +24,9 @@ const inputEventTypes = new Set([
   'chat.input.set', 'chat.input.append', 'chat.input.clear',
   'chat.input.focus', 'chat.input.submit', 'chat.send'
 ]);
+const readingEventTypes = new Set([
+  'reading.previous', 'reading.next', 'reading.latest'
+]);
 
 function renderAssistantMessage(R, content, card, options = {}) {
   const renderers = ChatPanelMessageRenderers;
@@ -58,6 +61,8 @@ function GameCardUIRootContent({
   canRetry = false,
   retrySource = '',
   onRetry,
+  reading = {},
+  onReadingNavigate,
   onError
 }) {
   const R = React;
@@ -104,12 +109,15 @@ function GameCardUIRootContent({
         }
         return onRetry?.(event.content) ?? false;
       }
+      if (readingEventTypes.has(event?.type)) {
+        return onReadingNavigate?.(event.type) ?? false;
+      }
       return emitStateEvent(event);
     } catch (err) {
       setError(err);
       return false;
     }
-  }, [emitStateEvent, onRetry]);
+  }, [emitStateEvent, onReadingNavigate, onRetry]);
   const assets = R.useMemo(() => ({
     readFile: (filePath) => resourceResult('content', () => gameCardPlatform.resources.readText(cardId, filePath)),
     getBackgroundUrl: (key) => card?.visual?.background?.[key]
@@ -123,9 +131,10 @@ function GameCardUIRootContent({
     isLoading,
     canRetry,
     retrySource,
+    reading,
     root: card?.ui?.root || {},
     renderAssistantMessage: (content, options) => renderAssistantMessage(R, content, card, options)
-  }), [R, cardId, isLoading, canRetry, retrySource, card]);
+  }), [R, cardId, isLoading, canRetry, retrySource, reading, card]);
 
   if (!loadedRoot?.Component) return null;
   return C('div', {
@@ -162,6 +171,15 @@ const gameCardUIRootPropTypes = {
   canRetry: PropTypes.bool,
   retrySource: PropTypes.string,
   onRetry: PropTypes.func,
+  reading: PropTypes.shape({
+    enabled: PropTypes.bool,
+    canPrevious: PropTypes.bool,
+    canNext: PropTypes.bool,
+    atLatest: PropTypes.bool,
+    messageIndex: PropTypes.number,
+    segmentIndex: PropTypes.number
+  }),
+  onReadingNavigate: PropTypes.func,
   uiScopeKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onError: PropTypes.func
 };

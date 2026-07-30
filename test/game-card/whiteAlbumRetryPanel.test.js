@@ -11,7 +11,7 @@ const rootSource = fs.readFileSync(
 const Root = compileGameCardUiRootSource(rootSource, React);
 const state = { events: { queue: [], panel: { open: false, eventId: '' } } };
 
-function renderRetryRoot(emit = jest.fn(() => true)) {
+function renderRetryRoot(emit = jest.fn(() => true), ui = {}) {
   const view = render(React.createElement(
     'div',
     { 'data-gc-part': 'chat-panel' },
@@ -19,7 +19,7 @@ function renderRetryRoot(emit = jest.fn(() => true)) {
       React,
       state,
       emit,
-      ui: { canRetry: true, retrySource: '去第三音乐室继续练习。' }
+      ui: { canRetry: true, retrySource: '去第三音乐室继续练习。', ...ui }
     })
   ));
   return { ...view, emit, root: view.container.querySelector('.wa2-event-root') };
@@ -87,5 +87,18 @@ describe('white album 2 retry panel', () => {
     button.dispatchEvent(enter);
 
     expect(enter.defaultPrevented).toBe(false);
+  });
+
+  test('uses the left and right arrow keys for reading navigation', () => {
+    const emit = jest.fn(() => true);
+    renderRetryRoot(emit, {
+      reading: { canPrevious: true, canNext: true }
+    });
+
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+
+    expect(emit).toHaveBeenNthCalledWith(1, { type: 'reading.previous' });
+    expect(emit).toHaveBeenNthCalledWith(2, { type: 'reading.next' });
   });
 });
