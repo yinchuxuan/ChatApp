@@ -400,6 +400,66 @@
   display: none;
 }
 
+.app-container.game-card-theme-white-album-2 [data-gc-part="chat-history"][data-view="history"] {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: clamp(80px, 12vh, 120px) clamp(24px, 9vw, 144px);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.82);
+  color: #ffffff;
+  animation: wa2-history-fade-in 220ms ease both;
+}
+
+.app-container.game-card-theme-white-album-2 [data-gc-part="chat-history"][data-view="history"]
+[data-gc-part="chat-reading-veil"] {
+  display: none;
+}
+
+.app-container.game-card-theme-white-album-2 [data-gc-part="chat-history"][data-view="history"]
+[data-gc-part="message-history"] {
+  width: min(960px, 100%);
+  height: min(72vh, 720px);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.app-container.game-card-theme-white-album-2 [data-gc-part="chat-history"][data-view="history"]
+[data-gc-part="message-history-content"] {
+  height: 100%;
+  padding-right: 12px;
+  box-sizing: border-box;
+  color: inherit;
+  text-align: left;
+}
+
+.app-container.game-card-theme-white-album-2:has(
+  [data-gc-part="chat-history"][data-view="history"]
+) [data-gc-part="chat-header"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+.app-container.game-card-theme-white-album-2:has(
+  [data-gc-part="chat-history"][data-view="history"]
+) [data-gc-part="chat-input"],
+.app-container.game-card-theme-white-album-2:has(
+  [data-gc-part="chat-history"][data-view="history"]
+) [data-gc-part="chat-input-trigger"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@keyframes wa2-history-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-list"],
 .app-container.game-card-theme-white-album-2 [data-gc-part="message-row"] {
   position: relative;

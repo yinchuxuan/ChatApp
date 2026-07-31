@@ -155,7 +155,7 @@ function ChatRuntime({
   );
 
   return <div className="chat-panel" data-gc-part="chat-panel"
-    ref={chatPanelRef} onClick={segmented.advanceVisiblePage}>
+    ref={chatPanelRef} onClick={showMsgHistory ? undefined : segmented.advanceVisiblePage}>
     <GameCardStyleHost card={runtime.activeCard} />
     <BackgroundRuntime backgroundRequest={presentation.backgroundRequest} portraitRequest={presentation.portraitRequest} onBackgroundChange={onBackgroundChange} onPortraitChange={onPortraitChange} onVisualPanelChange={onVisualPanelChange} />
     <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState}
@@ -178,7 +178,7 @@ function ChatRuntime({
         />}
       </div>
       {actionError ? <GameCardErrorPanel error={actionError} variant="import" onClose={() => setActionError(null)} /> : null}
-      <div className="chat-history" data-gc-part="chat-history" ref={scroll.chatHistoryRef}>
+      <div className="chat-history" data-gc-part="chat-history" data-view={showMsgHistory ? 'history' : 'messages'} ref={scroll.chatHistoryRef}>
         <div className="chat-reading-veil game-card-visual-panel" data-gc-part="chat-reading-veil" aria-hidden="true" />
         {runtime.runtimeError ? <GameCardErrorPanel error={runtime.runtimeError} /> : null}
         {showMsgHistory ? ChatPanelRenderers.renderMsgHistoryDisplay(React, msgHistoryMessages) : renderedMessages}

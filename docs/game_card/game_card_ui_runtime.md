@@ -46,7 +46,7 @@ platform 负责状态权威、消息发送、保存和调试
 ```html
 <div data-gc-part="app">
 <div data-gc-part="chat-panel">
-<div data-gc-part="chat-history">
+<div data-gc-part="chat-history" data-view="messages|history">
 <div data-gc-part="message-surface">
 <div data-gc-part="message-history">
 <pre data-gc-part="message-history-content">

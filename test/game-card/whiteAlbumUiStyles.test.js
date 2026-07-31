@@ -58,7 +58,7 @@ describe('white album ui styles', () => {
     expect(css).toContain('width: 42px');
     expect(css).toContain('[data-gc-part="chat-send-button"]:not(:disabled):hover');
     expect(css).toContain('@media (max-width: 720px)');
-    expect(css).not.toContain('visibility: visible');
+    expect(css).not.toMatch(/\[data-gc-part="chat-input"\] \{[^}]*visibility: visible;/);
   });
 
   test('only shows the input when the segmented reading page contains choices', () => {

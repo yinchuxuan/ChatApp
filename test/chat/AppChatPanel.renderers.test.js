@@ -52,6 +52,8 @@ describe('ChatPanel Component - Renderers', () => {
     await act(async () => { await Promise.resolve(); });
 
     expect(renderHistory).toHaveBeenCalled();
+    expect(document.querySelector('[data-gc-part="chat-history"]'))
+      .toHaveAttribute('data-view', 'history');
   });
 
   test('should render through imported renderers without globals', async () => {
