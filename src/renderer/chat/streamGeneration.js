@@ -77,6 +77,7 @@ async function sendStreamedGeneration({
   };
   const enqueueToken = text => {
     tokenQueue = tokenQueue.then(() => processEvents(parser.push(text)));
+    return tokenQueue;
   };
 
   let requestError = null;

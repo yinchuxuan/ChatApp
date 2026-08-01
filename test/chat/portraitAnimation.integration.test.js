@@ -16,6 +16,12 @@ describe('portrait animation styles', () => {
 
   test('uses a short fade without delay for expression changes', () => {
     expect(css).toMatch(/\.app-portrait-image\[data-transition="expression"\]\s*{[^}]*animation:\s*app-portrait-fade-in\s+var\(--app-portrait-expression-duration\)\s+ease-out\s+both;/s);
+    expect(css).toMatch(/\.app-portrait-image\[data-transition="expression-exit"\]\s*{[^}]*animation:\s*app-portrait-fade-out\s+var\(--app-portrait-expression-exit-duration, 0ms\)\s+linear\s+both;/s);
+  });
+
+  test('keeps an exiting portrait mounted for its fade-out animation', () => {
+    expect(css).toMatch(/\.app-portrait-image\[data-transition="exit"\]\s*{[^}]*animation:\s*app-portrait-fade-out\s+var\(--app-portrait-exit-duration, 0ms\)\s+linear\s+both;/s);
+    expect(css).toMatch(/@keyframes app-portrait-fade-out\s*{\s*from\s*{\s*opacity:\s*1;\s*}\s*to\s*{\s*opacity:\s*0;\s*}\s*}/s);
   });
 
   test('automatically positions and scales up to four portrait slots', () => {

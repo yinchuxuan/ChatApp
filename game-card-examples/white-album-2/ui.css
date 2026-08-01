@@ -3,6 +3,11 @@
   --wa2-cinema-frame-top: calc((100vh - var(--wa2-cinema-frame-height)) / 2);
   --wa2-cinema-frame-bottom: calc(50vh + var(--wa2-cinema-frame-height) / 2);
   --wa2-cinema-text-gap: clamp(8px, 1.2vh, 14px);
+  --wa2-scene-fade-duration: 600ms;
+  --app-portrait-insert-duration: 600ms;
+  --app-portrait-exit-duration: 600ms;
+  --app-portrait-expression-duration: 300ms;
+  --app-portrait-expression-exit-duration: 300ms;
   --gc-input-bg: rgba(250, 253, 255, 0.76);
   --gc-input-text: #13283c;
   --gc-input-placeholder: rgba(58, 78, 98, 0.66);
@@ -257,7 +262,31 @@
   background-color: #000;
 }
 
-.app-container.game-card-theme-white-album-2 [data-gc-part="portrait-layer"] {
+.app-container.game-card-theme-white-album-2 .app-background-layer-previous {
+  animation: wa2-scene-fade-out var(--wa2-scene-fade-duration) linear both;
+}
+
+.app-container.game-card-theme-white-album-2 .app-background-layer-current {
+  animation: wa2-scene-fade-in var(--wa2-scene-fade-duration) linear both;
+}
+
+.app-container.game-card-theme-white-album-2 .app-background-layer-previous
+  + .app-background-layer-current {
+  animation-delay: var(--wa2-scene-fade-duration);
+}
+
+@keyframes wa2-scene-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes wa2-scene-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.app-container.game-card-theme-white-album-2 [data-gc-part="portrait-layer"],
+.app-container.game-card-theme-white-album-2 .app-portrait-layer-exiting {
   inset: var(--wa2-cinema-frame-top) 0 auto;
   width: 100%;
   height: var(--wa2-cinema-frame-height);

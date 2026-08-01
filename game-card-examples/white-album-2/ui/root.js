@@ -277,6 +277,21 @@ function Root({ React, state, emit, ui = {} }) {
     );
   }
 
+  function renderThinkingIndicator() {
+    if (!ui.isLoading || open || paused) return null;
+    return C('div', {
+      className: 'wa2-thinking-indicator',
+      role: 'status',
+      'aria-label': '思考中'
+    },
+      C('span', { className: 'wa2-thinking-label' }, '思考中'),
+      C('span', { className: 'wa2-thinking-dots', 'aria-hidden': 'true' },
+        C('span', null, '…'),
+        C('span', null, '…')
+      )
+    );
+  }
+
   function renderEmpty() {
     return C('div', { className: 'wa2-event-empty' },
       C('div', { className: 'material-icons wa2-event-empty-icon', 'aria-hidden': 'true' }, 'inbox'),
@@ -341,6 +356,7 @@ function Root({ React, state, emit, ui = {} }) {
     },
       open ? (eventItem ? renderEvent() : renderEmpty()) : null
     ),
+    renderThinkingIndicator(),
     renderRetryPanel()
   );
 }

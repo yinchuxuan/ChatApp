@@ -48,6 +48,34 @@ describe('incremental SSE parser', () => {
     expect(onToken).toHaveBeenCalledWith('tail');
   });
 
+  test('waits for each async token handler before dispatching the next event', async () => {
+    global.fetch.mockResolvedValue(responseFromChunks([
+      'data: {"choices":[{"delta":{"content":"first"}}]}\n\n' +
+      'data: {"choices":[{"delta":{"content":"second"}}]}\n\n'
+    ]));
+    let releaseFirst;
+    let markFirstStarted;
+    const firstStarted = new Promise(resolve => { markFirstStarted = resolve; });
+    const firstGate = new Promise(resolve => { releaseFirst = resolve; });
+    const events = [];
+    const pending = sendChatRequest(request, {
+      onToken: async token => {
+        events.push(`start:${token}`);
+        if (token === 'first') {
+          markFirstStarted();
+          await firstGate;
+        }
+        events.push(`end:${token}`);
+      }
+    });
+
+    await firstStarted;
+    expect(events).toEqual(['start:first']);
+    releaseFirst();
+    await pending;
+    expect(events).toEqual(['start:first', 'end:first', 'start:second', 'end:second']);
+  });
+
   test('rejects invalid data and provider error events', async () => {
     global.fetch.mockResolvedValueOnce(responseFromChunks(['data: not-json\n\n']));
     await expect(sendChatRequest(request)).rejects.toThrow('Invalid SSE data');

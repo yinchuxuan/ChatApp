@@ -49,25 +49,29 @@ function buildRequest(config) {
   return { protocol, ...request };
 }
 
-function emitProviderChunk(parsed, protocol, callbacks) {
+async function emitProviderChunk(parsed, protocol, callbacks) {
   if (parsed.error || parsed.type === 'error') {
     throw new Error(parsed.error?.message || parsed.error?.error?.message || parsed.message || 'Provider stream error');
   }
   if (protocol === 'anthropic') {
     if (parsed.type !== 'content_block_delta') return;
-    if (parsed.delta?.type === 'text_delta' && parsed.delta.text) callbacks.onToken?.(parsed.delta.text);
-    if (parsed.delta?.type === 'thinking_delta' && parsed.delta.thinking) callbacks.onThinkingToken?.(parsed.delta.thinking);
+    if (parsed.delta?.type === 'text_delta' && parsed.delta.text) {
+      await callbacks.onToken?.(parsed.delta.text);
+    }
+    if (parsed.delta?.type === 'thinking_delta' && parsed.delta.thinking) {
+      await callbacks.onThinkingToken?.(parsed.delta.thinking);
+    }
     return;
   }
   const delta = parsed.choices?.[0]?.delta;
-  if (delta?.reasoning_content) callbacks.onThinkingToken?.(delta.reasoning_content);
-  if (delta?.content) callbacks.onToken?.(delta.content);
+  if (delta?.reasoning_content) await callbacks.onThinkingToken?.(delta.reasoning_content);
+  if (delta?.content) await callbacks.onToken?.(delta.content);
 }
 
-function parseProviderEvent(event, protocol, callbacks) {
+async function parseProviderEvent(event, protocol, callbacks) {
   if (event.data === '[DONE]') return;
   if (event.type === 'error') {
-    emitProviderChunk(JSON.parse(event.data), protocol, callbacks);
+    await emitProviderChunk(JSON.parse(event.data), protocol, callbacks);
     throw new Error(event.data || 'Provider stream error');
   }
   let parsed;
@@ -75,25 +79,34 @@ function parseProviderEvent(event, protocol, callbacks) {
   catch {
     const lines = event.data.split('\n').filter(Boolean);
     if (lines.length > 1) {
-      lines.forEach(data => parseProviderEvent({ type: event.type, data }, protocol, callbacks));
+      for (const data of lines) {
+        await parseProviderEvent({ type: event.type, data }, protocol, callbacks);
+      }
       return;
     }
     throw new Error(`Invalid SSE data: ${event.data.slice(0, 80)}`);
   }
-  emitProviderChunk(parsed, protocol, callbacks);
+  await emitProviderChunk(parsed, protocol, callbacks);
 }
 
 async function readSSEStream(reader, protocol, callbacks) {
   const decoder = new TextDecoder();
-  const parser = createSSEParser(event => parseProviderEvent(event, protocol, callbacks));
+  let eventQueue = Promise.resolve();
+  const parser = createSSEParser(event => {
+    eventQueue = eventQueue.then(() => parseProviderEvent(event, protocol, callbacks));
+  });
   let done = false;
   while (!done) {
     const chunk = await reader.read();
     done = chunk.done;
-    if (!done) parser.feed(decoder.decode(chunk.value, { stream: true }));
+    if (!done) {
+      parser.feed(decoder.decode(chunk.value, { stream: true }));
+      await eventQueue;
+    }
   }
   parser.feed(decoder.decode());
   parser.end();
+  await eventQueue;
 }
 
 async function sendChatRequest(config, callbacks = {}) {

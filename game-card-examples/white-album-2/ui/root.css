@@ -582,3 +582,64 @@
     animation: none;
   }
 }
+
+.game-card-theme-white-album-2 .wa2-thinking-indicator {
+  position: fixed;
+  top: var(--wa2-cinema-frame-bottom);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.74);
+  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
+  font-size: clamp(13px, 0.95vw, 15px);
+  letter-spacing: 0.08em;
+  line-height: 1.55;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72);
+  pointer-events: none;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.game-card-theme-white-album-2 .wa2-thinking-dots {
+  display: inline-flex;
+  letter-spacing: 0;
+}
+
+.game-card-theme-white-album-2 .wa2-thinking-dots span {
+  opacity: 0.24;
+  animation: wa2-thinking-dot 1.2s ease-in-out infinite;
+}
+
+.game-card-theme-white-album-2 .wa2-thinking-dots span + span {
+  animation-delay: 300ms;
+}
+
+.app-container.game-card-theme-white-album-2:has(
+  [data-gc-part="message-list"]
+  > [data-gc-part="message-row"][data-role="assistant"]:last-child
+  .segmented-reading-page [data-gc-part="message-content"]:not(:empty)
+) .wa2-thinking-indicator {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@keyframes wa2-thinking-dot {
+  0%, 100% {
+    opacity: 0.24;
+    transform: translateY(0);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(-0.12em);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-card-theme-white-album-2 .wa2-thinking-dots span {
+    opacity: 0.72;
+    animation: none;
+  }
+}

@@ -1,8 +1,4 @@
 /* ============================================
-   App Container and Ripple System
-   ============================================ */
-
-/* ============================================
    App Container
    ============================================ */
 .app-container {
@@ -94,6 +90,20 @@
   animation: app-portrait-fade-in var(--app-portrait-expression-duration) ease-out both;
 }
 
+.app-portrait-image[data-transition="expression"],
+.app-portrait-image[data-transition="expression-exit"] {
+  position: absolute;
+  inset: 0;
+}
+
+.app-portrait-image[data-transition="expression-exit"] {
+  animation: app-portrait-fade-out var(--app-portrait-expression-exit-duration, 0ms) linear both;
+}
+
+.app-portrait-image[data-transition="exit"] {
+  animation: app-portrait-fade-out var(--app-portrait-exit-duration, 0ms) linear both;
+}
+
 .app-portrait-layer[data-count="2"] .app-portrait-slot {
   height: 94%;
 }
@@ -146,6 +156,11 @@
 @keyframes app-portrait-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes app-portrait-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* ============================================

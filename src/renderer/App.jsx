@@ -1,9 +1,12 @@
 import React from 'react';
 import ChatPanel from './ChatPanel.jsx';
+import GameCardPortraitLayers from './components/GameCardPortraitLayers.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
 import { rendererServices } from './platform/index.js';
 
-const CENTERED_PORTRAIT_STYLE = { left: '50%' };
+const EMPTY_PORTRAIT_LAYERS = {
+  current: [], exiting: [], exitingCount: 0, expressionExits: []
+};
 
 // App Component
 function App() {
@@ -13,7 +16,7 @@ function App() {
     backgroundOpacity: 0.5
   });
   const [gameCardBackgroundUrl, setGameCardBackgroundUrl] = React.useState('');
-  const [gameCardPortraits, setGameCardPortraits] = React.useState([]);
+  const [portraitLayers, setPortraitLayers] = React.useState(EMPTY_PORTRAIT_LAYERS);
   const [backgroundLayers, setBackgroundLayers] = React.useState({ current: '', previous: '' });
   const [visualPanel, setVisualPanel] = React.useState({ textPanel: 'center', cardId: '' });
 
@@ -54,12 +57,37 @@ function App() {
 
   const handleGameCardPortraitChange = React.useCallback((detail) => {
     const nextPortraits = Array.isArray(detail?.portraits) ? detail.portraits : [];
-    setGameCardPortraits(currentPortraits => nextPortraits.map((portrait) => {
-      const previous = currentPortraits.find(item => item.character === portrait.character);
-      const transition = !previous
-        ? 'enter'
-        : previous.expression === portrait.expression ? 'stable' : 'expression';
-      return { ...portrait, transition };
+    setPortraitLayers(({ current }) => {
+      const nextCharacters = new Set(nextPortraits.map(({ character }) => character));
+      const exiting = current
+        .map((portrait, index) => ({ ...portrait, index, transition: 'exit' }))
+        .filter(({ character }) => !nextCharacters.has(character));
+      const expressionExits = current.filter((portrait) => {
+        const next = nextPortraits.find(item => item.character === portrait.character);
+        return next && next.expression !== portrait.expression;
+      });
+      const next = nextPortraits.map((portrait) => {
+        const previous = current.find(item => item.character === portrait.character);
+        const transition = !previous
+          ? 'enter'
+          : previous.expression === portrait.expression ? 'stable' : 'expression';
+        return { ...portrait, transition };
+      });
+      return { current: next, exiting, exitingCount: current.length, expressionExits };
+    });
+  }, []);
+
+  const handlePortraitExitEnd = React.useCallback(() => {
+    setPortraitLayers(current => current.exiting.length
+      ? { ...current, exiting: [] }
+      : current);
+  }, []);
+
+  const handleExpressionExitEnd = React.useCallback((character) => {
+    setPortraitLayers(current => ({
+      ...current,
+      expressionExits: (current.expressionExits || [])
+        .filter(item => item.character !== character)
     }));
   }, []);
 
@@ -69,6 +97,7 @@ function App() {
   }, []);
 
   const backgroundImageUrl = gameCardBackgroundUrl || backgroundConfig.backgroundImageUrl;
+  const gameCardPortraits = portraitLayers.current;
   const cssUrl = (url) => `url("${String(url).replace(/["\\]/g, '\\$&')}")`;
   const gameCardThemeClass = React.useMemo(() => {
     if (!visualPanel.cardId) return '';
@@ -115,31 +144,14 @@ function App() {
 
   return (
     <div
-      className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}${gameCardPortraits.length ? ' has-portrait' : ''}`}
+      className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}${gameCardPortraits.length || portraitLayers.exiting.length ? ' has-portrait' : ''}`}
       data-gc-part="app"
     >
       {backgroundLayers.previous && <div className="app-background-layer app-background-layer-previous" style={getBackgroundStyle(backgroundLayers.previous)} />}
       {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} onAnimationEnd={handleBackgroundAnimationEnd} />}
       {backgroundImageUrl && <div data-gc-part="background-overlay" style={getOverlayStyle()} />}
-      {gameCardPortraits.length > 0 && <div className="app-portrait-layer" data-gc-part="portrait-layer" data-count={gameCardPortraits.length} aria-hidden="true">
-        {gameCardPortraits.map((portrait, index) => (
-          <div
-            key={portrait.character}
-            className="app-portrait-slot"
-            data-character={portrait.character}
-            data-index={index}
-            style={gameCardPortraits.length === 1 ? CENTERED_PORTRAIT_STYLE : undefined}
-          >
-            <img
-              key={portrait.expression}
-              className="app-portrait-image"
-              data-transition={portrait.transition}
-              src={portrait.url}
-              alt=""
-            />
-          </div>
-        ))}
-      </div>}
+      <GameCardPortraitLayers layers={portraitLayers}
+        onExitEnd={handlePortraitExitEnd} onExpressionExitEnd={handleExpressionExitEnd} />
       <div className="app-content-wrapper">
         <ChatPanel
           onBackgroundChange={handleGameCardBackgroundChange}

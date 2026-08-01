@@ -1,5 +1,5 @@
 const React = require('react');
-const { act, render } = require('@testing-library/react');
+const { act, fireEvent, render } = require('@testing-library/react');
 
 let mockChatPanelProps;
 const mockChatPanel = (props) => {
@@ -43,13 +43,18 @@ test('renders, updates and clears multiple game card portraits', async () => {
     ]
   }));
   const nextToumaSlot = document.querySelector('[data-character="touma"]');
-  const nextPortrait = nextToumaSlot.querySelector('img');
+  const previousPortrait = nextToumaSlot.querySelector('[data-transition="expression-exit"]');
+  const nextPortrait = nextToumaSlot.querySelector('[data-transition="expression"]');
+  expect(previousPortrait.getAttribute('src')).toBe('touma-url');
   expect(nextPortrait.getAttribute('src')).toBe('touma-sad-url');
   expect(nextPortrait.dataset.transition).toBe('expression');
   expect(nextToumaSlot).toBe(toumaSlot);
   expect(nextPortrait).not.toBe(portrait);
   expect(document.querySelector('[data-character="setsuna"] img')).toBe(setsunaPortrait);
   expect(setsunaPortrait.dataset.transition).toBe('stable');
+
+  fireEvent.animationEnd(previousPortrait);
+  expect(nextToumaSlot.querySelector('[data-transition="expression-exit"]')).toBeNull();
 
   await act(async () => mockChatPanelProps.onPortraitChange({
     portraits: [{ character: 'touma', expression: 'sad', url: 'touma-sad-url' }]
@@ -60,4 +65,13 @@ test('renders, updates and clears multiple game card portraits', async () => {
 
   await act(async () => mockChatPanelProps.onPortraitChange({ portraits: [] }));
   expect(document.querySelector('[data-gc-part="portrait-layer"]')).toBeNull();
+  const exitingLayer = document.querySelector('.app-portrait-layer-exiting');
+  const exitingPortrait = exitingLayer.querySelector('[data-character="touma"] img');
+  expect(exitingLayer.dataset.count).toBe('1');
+  expect(exitingPortrait.dataset.transition).toBe('exit');
+  expect(document.querySelector('.app-container').className).toContain('has-portrait');
+
+  fireEvent.animationEnd(exitingPortrait);
+  expect(document.querySelector('.app-portrait-layer-exiting')).toBeNull();
+  expect(document.querySelector('.app-container').className).not.toContain('has-portrait');
 });
