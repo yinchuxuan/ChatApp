@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
+const { card, stateSchema, llmStateContract } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/renderer/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSchemaLoader');
@@ -23,7 +23,7 @@ const fileContents = {
   'roleplay_rules.md': '回复时保持白色相簿2的氛围。追加 <state_patch> 并用 state.set 更新 touma.affection 和 setsuna.affection。',
   'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
   'state/schema.json': JSON.stringify(stateSchema),
-  'state/llm_schema.json': JSON.stringify(llmStateSchema),
+  'state/llm_schema.md': llmStateContract,
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
@@ -98,10 +98,10 @@ describe('white album 2 game card', () => {
     expect(status.role).toBe('system');
     expect(status.ttl).toBe(1);
     expect(status._meta.visibility).toBe('llm_only');
-    expect(status.content).toContain('"touma.affection"');
-    expect(status.content).toContain('"setsuna.affection"');
-    expect(status.content).toContain('"timeline.currentTime"');
-    expect(status.content).toContain('"audio.bgm"');
+    expect(status.content).toContain('State写入契约');
+    expect(status.content).toContain('## 剧情结算字段');
+    expect(status.content).toContain('## 演出切换字段');
+    expect(status.content).toContain('本轮只读边界');
     expect(status.content).toContain('timeline.currentTime: 2007.10.20: 15:00 星期六');
     expect(status.content).not.toContain('timeline.advanceIntent');
     expect(status.content).toContain('touma.affection: 12');
@@ -116,14 +116,14 @@ describe('white album 2 game card', () => {
     expect(hint.content).toContain('<wa2_turn_context>');
     expect(hint.content).toContain('<state_patch>');
     expect(stateContext.content).toContain('State更新与演出规则');
-    expect(stateContext.content).toContain('state.set');
+    expect(stateContext.content).toContain('所有演出资源都必须由模型通过state_patch编排');
     expect(stateContext.content).toContain('touma.affection');
     expect(stateContext.content).toContain('setsuna.affection');
-    expect(stateContext.content).toContain('visual.portrait');
-    expect(stateContext.content).toContain('visual.background');
+    expect(stateContext.content).toContain('visual.portraits');
+    expect(stateContext.content).toContain('visual.scene');
     expect(stateContext.content).toContain('audio.bgm');
-    expect(stateContext.content).toContain('touma_normal');
-    expect(stateContext.content).toContain('yanagihara_surprise');
+    expect(stateContext.content).toContain('人物可写 `touma`、`setsuna`、`mizusawa`、`takeya`、`yanagihara`');
+    expect(stateContext.content).toContain('表情可写 `normal`、`happy`、`sad`、`angry`、`surprise`');
   });
 
   test('compresses older assistant summaries and keeps latest user and assistant', () => {

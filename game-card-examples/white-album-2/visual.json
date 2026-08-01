@@ -1,45 +1,57 @@
 {
   "background": {
-    "musical_classroom3": "images/musical_classroom_3.png",
-    "invite": "images/invite.png",
-    "rooftop": "images/Rooftop.png",
-    "school": "images/school.png",
-    "haiku": "images/haiku.png",
-    "classroom": "images/classroom.png",
-    "rooftop2": "images/rooftop2.png",
-    "park": "images/park.png",
-    "touma_hand": "images/touma_hand.png",
-    "ktv": "images/ktv.png",
-    "home_party": "images/home_party.png",
-    "agreement": "images/agreement.png",
-    "GameEnd1": "images/GameEnd1.png",
-    "event1":"images/event1.png"
+    "musical_classroom3": "images/background/common/musical_classroom_3.png",
+    "school": "images/background/common/school.png",
+    "classroom": "images/background/common/classroom.png"
+  },
+  "cg": {
+    "invite": "images/background/story/invite.png",
+    "rooftop": "images/background/story/Rooftop.png",
+    "haiku": "images/background/story/haiku.png",
+    "rooftop2": "images/background/story/rooftop2.png",
+    "park": "images/background/story/park.png",
+    "touma_hand": "images/background/story/touma_hand.png",
+    "ktv": "images/background/story/ktv.png",
+    "home_party": "images/background/story/home_party.png",
+    "agreement": "images/background/story/agreement.png",
+    "GameEnd1": "images/background/story/GameEnd1.png",
+    "event1": "images/background/story/event1.png"
   },
   "portrait": {
-    "touma_normal": "images/touma/normal.png",
-    "touma_happy": "images/touma/happy.png",
-    "touma_sad": "images/touma/sad.png",
-    "touma_angry": "images/touma/angry.png",
-    "touma_surprise": "images/touma/surprise.png",
-    "setsuna_normal": "images/setsuna/normal.png",
-    "setsuna_happy": "images/setsuna/happy.png",
-    "setsuna_sad": "images/setsuna/sad.png",
-    "setsuna_angry": "images/setsuna/angry.png",
-    "setsuna_surprise": "images/setsuna/surprise.png",
-    "mizusawa_normal": "images/mizusawa/normal.png",
-    "mizusawa_happy": "images/mizusawa/happy.png",
-    "mizusawa_sad": "images/mizusawa/sad.png",
-    "mizusawa_angry": "images/mizusawa/angry.png",
-    "mizusawa_surprise": "images/mizusawa/surprise.png",
-    "takeya_normal": "images/takeya/normal.png",
-    "takeya_happy": "images/takeya/happy.png",
-    "takeya_sad": "images/takeya/sad.png",
-    "takeya_angry": "images/takeya/angry.png",
-    "takeya_surprise": "images/takeya/surprise.png",
-    "yanagihara_normal": "images/yanagihara/normal.png",
-    "yanagihara_happy": "images/yanagihara/happy.png",
-    "yanagihara_sad": "images/yanagihara/sad.png",
-    "yanagihara_angry": "images/yanagihara/angry.png",
-    "yanagihara_surprise": "images/yanagihara/surprise.png"
+    "touma": {
+      "normal": "images/touma/normal.png",
+      "happy": "images/touma/happy.png",
+      "sad": "images/touma/sad.png",
+      "angry": "images/touma/angry.png",
+      "surprise": "images/touma/surprise.png"
+    },
+    "setsuna": {
+      "normal": "images/setsuna/normal.png",
+      "happy": "images/setsuna/happy.png",
+      "sad": "images/setsuna/sad.png",
+      "angry": "images/setsuna/angry.png",
+      "surprise": "images/setsuna/surprise.png"
+    },
+    "mizusawa": {
+      "normal": "images/mizusawa/normal.png",
+      "happy": "images/mizusawa/happy.png",
+      "sad": "images/mizusawa/sad.png",
+      "angry": "images/mizusawa/angry.png",
+      "surprise": "images/mizusawa/surprise.png"
+    },
+    "takeya": {
+      "normal": "images/takeya/normal.png",
+      "happy": "images/takeya/happy.png",
+      "sad": "images/takeya/sad.png",
+      "angry": "images/takeya/angry.png",
+      "surprise": "images/takeya/surprise.png"
+    },
+    "yanagihara": {
+      "normal": "images/yanagihara/normal.png",
+      "happy": "images/yanagihara/happy.png",
+      "sad": "images/yanagihara/sad.png",
+      "angry": "images/yanagihara/angry.png",
+      "surprise": "images/yanagihara/surprise.png"
+    }
   }
 }

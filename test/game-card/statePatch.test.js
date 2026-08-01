@@ -54,18 +54,18 @@ describe('LLM state patch runtime', () => {
 
   test('expands a path-value object into state.set actions', () => {
     const result = applyStatePatch(JSON.stringify({
-      'visual.background': 'rooftop',
-      'visual.portrait': 'touma_sad',
+      'visual.scene': 'rooftop',
+      'visual.portraits': { touma: 'sad' },
       'audio.bgm': 'sad'
     }), {});
 
     expect(result.state).toEqual({
-      visual: { background: 'rooftop', portrait: 'touma_sad' },
+      visual: { scene: 'rooftop', portraits: { touma: 'sad' } },
       audio: { bgm: 'sad' }
     });
     expect(result.trace.changedKeys).toEqual([
-      'visual.background',
-      'visual.portrait',
+      'visual.scene',
+      'visual.portraits',
       'audio.bgm'
     ]);
   });

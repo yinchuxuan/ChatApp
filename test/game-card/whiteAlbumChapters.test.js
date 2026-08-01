@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
+const { card, stateSchema, llmStateContract } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/renderer/gameCard/engine');
 const { resolveContent } = require('../../src/shared/game-card/content/contentResolver');
 const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
@@ -18,7 +18,7 @@ const fileContents = {
   'plot/chapter-2.md': readCardFile('plot/chapter-2.md'),
   'plot/chapter-2-game-end1-afterstory.md': readCardFile('plot/chapter-2-game-end1-afterstory.md'),
   'state/schema.json': JSON.stringify(stateSchema),
-  'state/llm_schema.json': JSON.stringify(llmStateSchema),
+  'state/llm_schema.md': llmStateContract,
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
@@ -61,9 +61,12 @@ describe('white album chapters', () => {
     expect(result.state.temp.PlotType).toBe('FixedPlot3');
     expect(result.state.story.chapter2SetsunaBranch).toBe('secret');
     expect(result.state.temp.plotFile).toBe('plot.chapter.2');
-    expect(result.state.audio.bgm).toBe('bad_woman');
+    expect(result.state.temp).not.toHaveProperty('nodeBgm');
     expect(status.content).not.toContain('story.chapter2SetsunaBranch');
     expect(guide.content).toContain('雪菜盛装出席和春希在KTV碰面');
+    expect(guide.content).toContain('### 本节点特殊演出资源');
+    expect(guide.content).toContain('visual.scene: `ktv`');
+    expect(guide.content).toContain('audio.bgm: `bad_woman`');
     expect(guide.content).not.toContain('本轮自由剧情走向');
   });
 
@@ -77,8 +80,9 @@ describe('white album chapters', () => {
     expect(result.state.temp.PlotType).toBe('FixedPlot2Low');
     expect(result.state.story.chapter2SetsunaBranch).toBe('reserved');
     expect(result.state.timeline.currentSlotEnd).toBe('2007.10.29: 18:00 星期一');
-    expect(result.state.audio.bgm).toBe('snow_scene');
-    expect(result.state.visual.background).toBe('park');
+    expect(result.state.temp).not.toHaveProperty('nodeBackground');
+    expect(guide.content).toContain('visual.scene: `park`');
+    expect(guide.content).toContain('audio.bgm: `snow_scene`');
     expect(guide.content).toContain('雪菜同意加入同好会');
     expect(guide.content).not.toContain('秘密就一个都不剩');
   });
@@ -94,8 +98,8 @@ describe('white album chapters', () => {
     expect(result.state.temp.plotKind).toBe('free');
     expect(result.state.story.chapter2SetsunaBranch).toBe('reserved');
     expect(result.state.timeline.currentSlotEnd).toBe('2007.10.29: 22:00 星期一');
-    expect(['tragic', 'sad', 'normal', 'daily', 'happy']).toContain(result.state.audio.bgm);
-    expect(result.state.visual.background).toBe('musical_classroom3');
+    expect(result.state.audio.bgm).toBe('daily');
+    expect(result.state.visual.scene).toBe('musical_classroom3');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
     expect(guide.content).toContain('剧情走向');
     expect(guide.content).not.toContain('秘密就一个都不剩');
@@ -134,8 +138,8 @@ describe('white album chapters', () => {
     expect(result.state.temp.PlotType).toBe('FixedPlot6');
     expect(result.state.story.chapter2GameEnd1Reached).toBe(false);
     expect(result.state.timeline.currentSlotEnd).toBe('2007.11.4: 22:00 星期日');
-    expect(result.state.audio.bgm).toBe('things');
-    expect(result.state.visual.background).toBe('agreement');
+    expect(guide.content).toContain('visual.scene: `agreement`');
+    expect(guide.content).toContain('audio.bgm: `things`');
     expect(guide.content).toContain('重建同好会的剧情完成');
     expect(guide.content).not.toContain('五年后的一个周五夜晚');
   });
@@ -153,7 +157,7 @@ describe('white album chapters', () => {
     expect(result.state.temp.PlotType).toBe('GameEnd1');
     expect(result.state.story.chapter2GameEnd1Reached).toBe(true);
     expect(result.state.timeline.currentSlotEnd).toBe('2012.11.4: 22:00 星期五');
-    expect(result.state.visual.background).toBe('GameEnd1');
+    expect(guide.content).toContain('visual.scene: `GameEnd1`');
     expect(guide.content).toContain('五年后的一个周五夜晚');
     expect(guide.content).not.toContain('重建同好会的剧情完成');
   });

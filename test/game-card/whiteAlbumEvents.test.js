@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { applyGameCard } = require('../../src/renderer/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
-const { stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
+const { stateSchema, llmStateContract } = require('./whiteAlbumTestCard');
 
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 function readCardFile(relativePath) { return fs.readFileSync(path.join(cardDir, relativePath), 'utf8'); }
@@ -54,14 +54,14 @@ describe('white album 2 local events', () => {
     });
     expect(stateSchema.schema['events.panel']).toMatchObject({
       type: 'object',
-      default: { open: false, eventId: '', returnScene: { background: null, bgm: null } },
+      default: { open: false, eventId: '' },
       llmRead: false,
       llmWrite: false,
       uiVisible: true
     });
-    expect(llmStateSchema.schema['events.queue']).toBeUndefined();
-    expect(llmStateSchema.schema['events.fired']).toBeUndefined();
-    expect(llmStateSchema.schema['events.panel']).toBeUndefined();
+    expect(llmStateContract).not.toContain('events.queue');
+    expect(llmStateContract).not.toContain('events.fired');
+    expect(llmStateContract).not.toContain('events.panel');
   });
 
   test('enqueues the rehearsal memory event after chapter 2 fixed plot 1 ends', () => {
@@ -77,8 +77,6 @@ describe('white album 2 local events', () => {
       id: 'chapter2_after_fixedplot1_rehearsal_memory',
       title: '事件：梦中的声音',
       time: '2007.10.25 星期五 晚上',
-      background: 'event1',
-      bgm: 'love_dream',
       options: [
         { id: 'piano', label: '隔壁的钢琴声', effects: { 'touma.affection': 1 } },
         { id: 'song', label: '天台的歌声', effects: { 'setsuna.affection': 1 } }

@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
+const { card, stateSchema, llmStateContract } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/renderer/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSchemaLoader');
@@ -16,7 +16,7 @@ const fileContents = {
   'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
   'plot/chapter-2.md': readCardFile('plot/chapter-2.md'),
   'state/schema.json': JSON.stringify(stateSchema),
-  'state/llm_schema.json': JSON.stringify(llmStateSchema),
+  'state/llm_schema.md': llmStateContract,
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),

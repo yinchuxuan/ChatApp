@@ -1,10 +1,9 @@
 import { loadCachedRuntimeCard } from './gameCardRuntimeCache.js';
 import { applyStatePatch } from '../../shared/game-card/state/statePatch.js';
-import { getStateValue } from '../../shared/game-card/state/statePaths.js';
 
 const PRESENTATION_PATHS = [
-  'visual.background',
-  'visual.portrait',
+  'visual.scene',
+  'visual.portraits',
   'audio.bgm'
 ];
 
@@ -46,7 +45,7 @@ async function prepareStatePatchAtCursor({
     patchTrace: patched.trace,
     presentationEffects: [],
     presentationChangedKeys: PRESENTATION_PATHS.filter(path => (
-      getStateValue(state, path) !== getStateValue(patched.state, path)
+      patched.trace.changedKeys.includes(path)
     )),
     card: runtimeCard
   };

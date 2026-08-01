@@ -52,8 +52,6 @@ function enqueueEventsAfterSlotTransition(state, rawSlot, ctx) {
     id: 'chapter2_after_fixedplot1_rehearsal_memory',
     title: '事件：梦中的声音',
     time: '2007.10.25 星期五 晚上',
-    background: 'event1',
-    bgm: 'love_dream',
     body: ctx.files.read('event.chapter2.afterFixedPlot1.rehearsalMemory'),
     options: [
       { id: 'piano', label: '隔壁的钢琴声', effects: { 'touma.affection': 1 } },
@@ -74,12 +72,12 @@ const chapter2BranchRules = [
 const chapter2SlotPlotOverrides = {
   FixedPlot2: {
     'story.chapter2SetsunaBranch': {
-      reserved: { plotType: 'FixedPlot2Low', bgm: 'snow_scene', background: 'park' }
+      reserved: { plotType: 'FixedPlot2Low' }
     }
   },
   FixedPlot3: {
     'story.chapter2SetsunaBranch': {
-      reserved: { plotType: 'FixedPlot3Low', plotKind: 'free', background: 'park' }
+      reserved: { plotType: 'FixedPlot3Low', plotKind: 'free' }
     }
   }
 };
@@ -93,8 +91,6 @@ const chapter2ConditionalSlotPlotOverrides = [
       && performanceProficiency(state) >= 20,
     override: {
       plotType: 'FixedPlot6',
-      bgm: 'things',
-      background: 'agreement',
       end: '2007.11.4: 22:00 星期日'
     }
   }
@@ -141,7 +137,6 @@ function resolveChapter2Timeline(state, ctx) {
       slotId: 'GameEnd1Afterstory',
       plotType: 'GameEnd1Afterstory',
       plotKind: 'free',
-      background: 'GameEnd1',
       end: '2099.12.31: 23:59 星期四'
     };
   }
@@ -149,58 +144,55 @@ function resolveChapter2Timeline(state, ctx) {
   const slots = [
     {
       id: 'FixedPlot1',
-      bgm: 'dream',
-      background: 'rooftop2',
+      plotKind: 'fixed',
       end: '2007.10.26: 8:00 星期五',
       range: { gt: '2007.10.25: 16:00 星期四', lte: '2007.10.25: 17:30 星期五' }
     },
     {
       id: 'FreePlot1',
+      plotKind: 'free',
       end: '2007.10.29: 17:00 星期一',
       range: { gt: '2007.10.25: 17:30 星期五', lte: '2007.10.29: 12:00 星期一' }
     },
     {
       id: 'FixedPlot2',
-      bgm: 'snow_scene',
-      background: 'park',
+      plotKind: 'fixed',
       end: '2007.10.29: 18:00 星期一',
       range: { gt: '2007.10.29: 12:00 星期一', lte: '2007.10.29: 17:00 星期一' }
     },
     {
       id: 'FixedPlot3',
-      bgm: 'bad_woman',
-      background: 'ktv',
+      plotKind: 'fixed',
       end: '2007.10.29: 22:00 星期一',
       range: { gt: '2007.10.29: 17:00 星期一', lte: '2007.10.29: 18:00 星期一' }
     },
     {
       id: 'FreePlot2',
+      plotKind: 'free',
       end: '2007.10.31: 17:00 星期三',
       range: { gt: '2007.10.29: 18:00 星期一', lte: '2007.10.31: 12:00 星期三' }
     },
     {
       id: 'FixedPlot4',
-      bgm: 'after_all_piano',
-      background: 'touma_hand',
+      plotKind: 'fixed',
       end: '2007.10.31: 17:30 星期三',
       range: { gt: '2007.10.31: 12:00 星期三', lte: '2007.10.31: 17:00 星期三' }
     },
     {
       id: 'FreePlot3',
+      plotKind: 'free',
       end: '2007.11.2: 21:00 星期五',
       range: { gt: '2007.10.31: 17:00 星期三', lte: '2007.11.2: 18:00 星期五' }
     },
     {
       id: 'FixedPlot5',
-      bgm: 'winter_night',
-      background: 'home_party',
+      plotKind: 'fixed',
       end: '2007.11.4: 21:00 星期日',
       range: { gt: '2007.11.2: 18:00 星期五', lte: '2007.11.3: 21:00 星期六' }
     },
     {
       id: 'GameEnd1',
-      bgm: 'unstoppable_dream',
-      background: 'GameEnd1',
+      plotKind: 'fixed',
       end: '2012.11.4: 22:00 星期五',
       range: { gt: '2007.11.3: 21:00 星期六', lte: '2007.11.4: 21:00 星期六' }
     },
@@ -215,9 +207,7 @@ function resolveChapter2Timeline(state, ctx) {
     plotFile: 'plot.chapter.2',
     slotId: slot.slotId,
     plotType: slot.plotType,
-    plotKind: slot.plotKind || (slot.bgm ? 'fixed' : 'free'),
-    bgm: slot.bgm,
-    background: slot.background,
+    plotKind: slot.plotKind,
     end: slot.end
   };
 }

@@ -17,19 +17,12 @@ function eventWritePath(state, path, value) {
   target[last] = value;
 }
 
-function eventDeletePath(state, path) {
-  const keys = path.split('.');
-  const last = keys.pop();
-  const target = keys.reduce((value, key) => (value ? value[key] : undefined), state);
-  if (target && typeof target === 'object') delete target[last];
-}
-
 function eventQueue(state) {
   return Array.isArray(state.events && state.events.queue) ? state.events.queue : [];
 }
 
 function eventClosedPanel() {
-  return { open: false, eventId: '', returnScene: { background: null, bgm: null } };
+  return { open: false, eventId: '' };
 }
 
 function eventPanel(state) {
@@ -37,24 +30,9 @@ function eventPanel(state) {
   return panel && typeof panel === 'object' ? panel : eventClosedPanel();
 }
 
-function eventSceneValue(state, path) {
-  const value = eventReadPath(state, path);
-  return typeof value === 'string' && value ? value : null;
-}
-
-function eventRestoreScene(state, panel) {
-  const scene = panel.returnScene && typeof panel.returnScene === 'object' ? panel.returnScene : {};
-  ['background', 'bgm'].forEach((key) => {
-    const path = key === 'background' ? 'visual.background' : 'audio.bgm';
-    if (typeof scene[key] === 'string' && scene[key]) eventWritePath(state, path, scene[key]);
-    else eventDeletePath(state, path);
-  });
-}
-
 function eventClose(state) {
   const panel = eventPanel(state);
   if (panel.open !== true) return;
-  eventRestoreScene(state, panel);
   eventWritePath(state, 'events.panel', eventClosedPanel());
 }
 
@@ -63,14 +41,8 @@ function eventOpen(state) {
   const item = eventQueue(state)[0];
   eventWritePath(state, 'events.panel', {
     open: true,
-    eventId: item && item.id ? String(item.id) : '',
-    returnScene: {
-      background: eventSceneValue(state, 'visual.background'),
-      bgm: eventSceneValue(state, 'audio.bgm')
-    }
+    eventId: item && item.id ? String(item.id) : ''
   });
-  if (item && item.background) eventWritePath(state, 'visual.background', String(item.background));
-  if (item && item.bgm) eventWritePath(state, 'audio.bgm', String(item.bgm));
 }
 
 function eventClampAffection(value) {

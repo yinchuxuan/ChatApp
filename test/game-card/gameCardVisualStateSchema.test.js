@@ -1,4 +1,10 @@
-const { preparePreSendMessages } = require('../../src/renderer/gameCard/sendPipeline');
+const {
+  preparePreSendMessages,
+  prepareState
+} = require('../../src/renderer/gameCard/sendPipeline');
+const {
+  mergeRuntimeStateSchema
+} = require('../../src/shared/game-card/schema/runtimeStateSchema');
 const { createTestGameCardPlatform } = require('../platform/tauriTestClient');
 
 const platform = createTestGameCardPlatform(() => global.platformMock);
@@ -11,13 +17,17 @@ function visualCard() {
     stateSchema: 'state/schema.json',
     visual: {
       background: { school: 'images/school.jpg', night: 'images/night.png' },
-      portrait: { touma: 'images/touma.png', setsuna: 'images/setsuna.webp' }
+      cg: { confession: 'images/confession.png' },
+      portrait: {
+        touma: { normal: 'images/touma.png', happy: 'images/touma-happy.png' },
+        setsuna: { normal: 'images/setsuna.webp' }
+      }
     },
     rules: [{
       when: { phase: 'pre_send' },
       then: [
-        { type: 'state.set', path: 'visual.background', value: 'night' },
-        { type: 'state.set', path: 'visual.portrait', value: 'touma' }
+        { type: 'state.set', path: 'visual.scene', value: 'night' },
+        { type: 'state.set', path: 'visual.portraits', value: { touma: 'happy' } }
       ]
     }]
   };
@@ -40,9 +50,9 @@ describe('game card visual state schema', () => {
       platform
     });
 
-    expect(result.card.state.schema.schema['visual.background']).toMatchObject({
+    expect(result.card.state.schema.schema['visual.scene']).toMatchObject({
       type: 'enum',
-      values: ['school', 'night'],
+      values: ['school', 'night', 'confession'],
       default: 'school',
       llmRead: false,
       llmWrite: false
@@ -54,18 +64,37 @@ describe('game card visual state schema', () => {
       llmRead: false,
       llmWrite: false
     });
-    expect(result.card.state.schema.schema['visual.portrait']).toMatchObject({
-      type: 'enum',
-      values: ['none', 'touma', 'setsuna'],
-      default: 'none',
+    expect(result.card.state.schema.schema['visual.portraits']).toMatchObject({
+      type: 'object',
+      properties: {
+        touma: { type: 'enum', values: ['normal', 'happy'] },
+        setsuna: { type: 'enum', values: ['normal'] }
+      },
+      additionalProperties: false,
+      maxProperties: 4,
+      default: {},
       llmRead: false,
       llmWrite: false
     });
-    expect(result.state.visual.background).toBe('night');
-    expect(result.state.visual.portrait).toBe('touma');
+    expect(result.state.visual.scene).toBe('night');
+    expect(result.state.visual.portraits).toEqual({ touma: 'happy' });
     expect(result.state.visual.textPanel).toBe('center');
-    expect(result.stateTrace.changedKeys).toContain('visual.background');
-    expect(result.stateTrace.changedKeys).toContain('visual.portrait');
+    expect(result.stateTrace.changedKeys).toContain('visual.scene');
+    expect(result.stateTrace.changedKeys).toContain('visual.portraits');
     expect(result.stateTrace.changedKeys).toContain('visual.textPanel');
+  });
+
+  test('migrates a legacy single portrait state', () => {
+    const runtimeCard = mergeRuntimeStateSchema(visualCard());
+    const result = prepareState(runtimeCard, {
+      visual: { portrait: 'touma_happy' }
+    });
+
+    expect(result.state.visual).toMatchObject({
+      portraits: { touma: 'happy' },
+      scene: 'school'
+    });
+    expect(result.state.visual).not.toHaveProperty('portrait');
+    expect(result.trace.changedKeys).toContain('visual.portraits');
   });
 });

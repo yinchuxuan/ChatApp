@@ -9,12 +9,7 @@ function isPresentationAction(action) {
 }
 
 function applyPresentationAction(messages, state, action) {
-  const effect = {
-    type: action.type,
-    ...(action.type === 'audio.updateBgm'
-      ? { restart: action.restart !== false }
-      : {})
-  };
+  const effect = { type: action.type };
   return {
     messages,
     state,

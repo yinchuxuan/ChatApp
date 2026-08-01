@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  getBackgroundRelativePath,
-  getPortraitRelativePath,
+  getPortraitResources,
+  getSceneRelativePath,
   normalizeTextPanel
 } from '../../shared/game-card/schema/visualConfig.js';
 import { gameCardPlatform } from '../platform/index.js';
@@ -43,6 +43,37 @@ function useImageRequest(request, getPath, label, onChange) {
   }, []);
 }
 
+function usePortraitRequest(request, onChange) {
+  const currentRef = React.useRef({ signature: null, revision: 0 });
+  const handlerRef = React.useRef(onChange);
+  const mountedRef = React.useRef(true);
+  handlerRef.current = onChange;
+
+  React.useEffect(() => {
+    if (!request) return;
+    const cardId = request.card?.id || '';
+    const resources = getPortraitResources(request.card, request.state);
+    const signature = `${cardId}\0${resources.map(item => (
+      `${item.character}:${item.expression}:${item.path}`
+    )).join('\0')}`;
+    if (signature === currentRef.current.signature) return;
+    const revision = currentRef.current.revision + 1;
+    currentRef.current = { signature, revision };
+    Promise.all(resources.map(async item => ({
+      ...item,
+      url: await resolveImageUrl(cardId, item.path, `portrait ${item.character}`)
+    }))).then(items => {
+      if (!mountedRef.current || currentRef.current.revision !== revision) return;
+      handlerRef.current?.({ portraits: items.filter(item => item.url) });
+    });
+  }, [request]);
+
+  React.useEffect(() => () => {
+    mountedRef.current = false;
+    handlerRef.current?.({ portraits: [] });
+  }, []);
+}
+
 function GameCardBackgroundRuntime({
   backgroundRequest,
   portraitRequest,
@@ -50,8 +81,8 @@ function GameCardBackgroundRuntime({
   onPortraitChange,
   onVisualPanelChange
 }) {
-  useImageRequest(backgroundRequest, getBackgroundRelativePath, 'background', onBackgroundChange);
-  useImageRequest(portraitRequest, getPortraitRelativePath, 'portrait', onPortraitChange);
+  useImageRequest(backgroundRequest, getSceneRelativePath, 'scene', onBackgroundChange);
+  usePortraitRequest(portraitRequest, onPortraitChange);
 
   React.useEffect(() => {
     if (!backgroundRequest) return;

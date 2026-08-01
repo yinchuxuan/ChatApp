@@ -13,12 +13,11 @@ const card = {
   }
 };
 
-function request(id, key, options = {}) {
+function request(id, key) {
   return {
     id,
     card,
-    state: { audio: { bgm: key } },
-    restart: options.restart !== false
+    state: { audio: { bgm: key } }
   };
 }
 
@@ -26,6 +25,7 @@ describe('GameCardBgmPlayer explicit updates', () => {
   let playResolvers;
 
   beforeEach(() => {
+    jest.useFakeTimers();
     jest.clearAllMocks();
     playResolvers = [];
     global.platformMock.getGameCardAudioUrl.mockImplementation(async (_cardId, path) => ({
@@ -38,12 +38,22 @@ describe('GameCardBgmPlayer explicit updates', () => {
   });
 
   afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
     window.HTMLMediaElement.prototype.play.mockRestore();
     window.HTMLMediaElement.prototype.pause.mockRestore();
   });
 
   async function finishPlay() {
-    await waitFor(() => expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalled());
+    const previousPlayCount = window.HTMLMediaElement.prototype.play.mock.calls.length;
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    await act(async () => jest.advanceTimersByTime(999));
+    expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(previousPlayCount);
+    await act(async () => jest.advanceTimersByTime(1));
+    expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(previousPlayCount + 1);
     await act(async () => playResolvers.splice(0).forEach(resolve => resolve()));
   }
 
@@ -72,14 +82,13 @@ describe('GameCardBgmPlayer explicit updates', () => {
     rerender(React.createElement(GameCardBgmPlayer, {
       updateRequest: request(2, 'intro')
     }));
-    await waitFor(() => expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(2));
-    await act(async () => playResolvers.splice(0).forEach(resolve => resolve()));
+    await finishPlay();
 
     expect(global.platformMock.getGameCardAudioUrl).toHaveBeenCalledTimes(1);
     expect(document.querySelector('audio').currentTime).toBe(0);
   });
 
-  test('does not restart the same BGM when restart is false', async () => {
+  test('restarts the same BGM after playback was stopped', async () => {
     const initialRequest = request(1, 'intro');
     const { rerender } = render(React.createElement(GameCardBgmPlayer, {
       updateRequest: initialRequest
@@ -90,12 +99,12 @@ describe('GameCardBgmPlayer explicit updates', () => {
       stopToken: 1
     }));
     rerender(React.createElement(GameCardBgmPlayer, {
-      updateRequest: request(2, 'intro', { restart: false }),
+      updateRequest: request(2, 'intro'),
       stopToken: 1
     }));
-    await act(async () => Promise.resolve());
+    await finishPlay();
 
-    expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(1);
+    expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(2);
   });
 
   test('ignores a stale URL after a newer BGM request', async () => {
@@ -134,6 +143,23 @@ describe('GameCardBgmPlayer explicit updates', () => {
     await waitFor(() => expect(window.HTMLMediaElement.prototype.pause).toHaveBeenCalled());
   });
 
+  test('cancels a delayed playback when the stop token changes', async () => {
+    const updateRequest = request(1, 'intro');
+    const { rerender } = render(React.createElement(GameCardBgmPlayer, {
+      updateRequest,
+      stopToken: 0
+    }));
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+      jest.advanceTimersByTime(500);
+    });
+    rerender(React.createElement(GameCardBgmPlayer, { updateRequest, stopToken: 1 }));
+    await act(async () => jest.advanceTimersByTime(1000));
+
+    expect(window.HTMLMediaElement.prototype.play).not.toHaveBeenCalled();
+  });
+
   test('manual button toggles playback without changing the request', async () => {
     render(React.createElement(GameCardBgmPlayer, {
       updateRequest: request(1, 'intro')
@@ -144,8 +170,7 @@ describe('GameCardBgmPlayer explicit updates', () => {
     expect(screen.getByRole('button', { name: '开启 BGM' }))
       .toHaveTextContent('music_off');
     fireEvent.click(screen.getByRole('button', { name: '开启 BGM' }));
-
-    expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(2);
+    await finishPlay();
   });
 
   test('keeps the control visible when the requested key is missing', async () => {

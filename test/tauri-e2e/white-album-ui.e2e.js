@@ -14,14 +14,14 @@ const card = {
   ui: { stylesheet: 'ui.css' },
   visual: {
     background: { test: 'images/scene.png' },
-    portrait: { test: 'images/portrait.png' }
+    portrait: { test: { normal: 'images/portrait.png' } }
   },
   rules: []
 };
 const files = {
   'display.css': fs.readFileSync(path.join(cardDir, 'display.css'), 'utf8'),
   'images/portrait.png': fs.readFileSync(path.join(cardDir, 'images/touma/normal.png')),
-  'images/scene.png': fs.readFileSync(path.join(cardDir, 'images/school.png')),
+  'images/scene.png': fs.readFileSync(path.join(cardDir, 'images/background/common/school.png')),
   'ui.css': fs.readFileSync(path.join(cardDir, 'ui.css'), 'utf8')
 };
 async function computedTextColors(theme) {
@@ -56,7 +56,7 @@ describe('WA2 text colors', () => {
     await saveHistory([
       { role: 'user', content: '用户说：“深色高亮正文”' },
       { role: 'assistant', content: '助手说：“深色高亮正文”' }
-    ], { gameState: { visual: { background: 'test', portrait: 'test' } } });
+    ], { gameState: { visual: { scene: 'test', portraits: { test: 'normal' } } } });
   });
 
   it('keeps the text white and removes the glass surface across themes', async () => {
@@ -129,7 +129,7 @@ describe('WA2 text colors', () => {
         '',
         'D. 选择四。'
       ].join('\n')
-    }], { gameState: { visual: { background: 'test', portrait: 'test' } } });
+    }], { gameState: { visual: { scene: 'test', portraits: { test: 'normal' } } } });
     await refreshApp();
     await $('.segmented-reading-bubble').waitForExist();
     await $('.app-background-layer-current').waitForExist();

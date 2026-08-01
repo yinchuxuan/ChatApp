@@ -5,7 +5,8 @@ const gameCard = PropTypes.shape({
   audio: PropTypes.shape({ bgm: PropTypes.objectOf(PropTypes.string) }),
   visual: PropTypes.shape({
     background: PropTypes.objectOf(PropTypes.string),
-    portrait: PropTypes.objectOf(PropTypes.string)
+    cg: PropTypes.objectOf(PropTypes.string),
+    portrait: PropTypes.objectOf(PropTypes.objectOf(PropTypes.string))
   }),
   ui: PropTypes.shape({
     root: PropTypes.shape({ source: PropTypes.string, style: PropTypes.string })

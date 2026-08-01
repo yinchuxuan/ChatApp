@@ -7,7 +7,7 @@ const {
 } = require('../../src/renderer/chat/statePatchStream');
 
 function patch(path, value) {
-  return `<state_patch>{"type":"state.set","path":"${path}","value":"${value}"}</state_patch>`;
+  return `<state_patch>${JSON.stringify({ type: 'state.set', path, value })}</state_patch>`;
 }
 
 describe('state patch response timeline', () => {
@@ -30,13 +30,13 @@ describe('state patch response timeline', () => {
 
   test('binds each patch to the following natural paragraph boundary', () => {
     const content = [
-      patch('visual.background', 'school'),
+      patch('visual.scene', 'school'),
       '',
       '第一段。',
       '',
       '第二段。',
       '',
-      patch('visual.portrait', 'touma_sad'),
+      patch('visual.portraits', { touma: 'sad' }),
       '',
       '第三段。',
       '',

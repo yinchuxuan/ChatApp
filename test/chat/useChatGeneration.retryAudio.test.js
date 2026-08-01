@@ -27,7 +27,9 @@ describe('useChatGeneration retry audio timing', () => {
 
   test('stops audio and restores the retry snapshot before generating', async () => {
     const events = [];
-    const retryState = { visual: { background: 'school', portrait: 'touma' } };
+    const retryState = {
+      visual: { scene: 'school', portraits: { touma: 'normal' } }
+    };
     generationServices.sendChatRequest = jest.fn(async () => {
       events.push('request-started');
     });
@@ -35,7 +37,7 @@ describe('useChatGeneration retry audio timing', () => {
       retryBaseState: retryState,
       options: {
         onAudioSubmit: () => events.push('audio-stopped'),
-        onRetryStateRestore: state => events.push(`visual-restored:${state.visual.background}`)
+        onRetryStateRestore: state => events.push(`visual-restored:${state.visual.scene}`)
       }
     });
 

@@ -16,6 +16,40 @@ function isValidPath(path) {
   return typeof path === 'string' && path.length > 0 && !path.split('.').some((part) => part === '');
 }
 
+function validateDefinition(definition, location, errors) {
+  if (!isObject(definition)) {
+    errors.push(`${location}: definition must be an object`);
+    return false;
+  }
+  if (definition.type !== undefined && !VALID_TYPES.includes(definition.type)) {
+    errors.push(`${location}.type: unsupported type`);
+    return false;
+  }
+  if (definition.type === 'enum' && (!Array.isArray(definition.values) || definition.values.length === 0)) {
+    errors.push(`${location}.values: enum requires non-empty values`);
+    return false;
+  }
+  if (definition.type !== 'object') return true;
+  if (definition.maxProperties !== undefined
+    && (!Number.isInteger(definition.maxProperties) || definition.maxProperties < 0)) {
+    errors.push(`${location}.maxProperties: must be a non-negative integer`);
+    return false;
+  }
+  if (definition.additionalProperties !== undefined
+    && typeof definition.additionalProperties !== 'boolean') {
+    errors.push(`${location}.additionalProperties: must be a boolean`);
+    return false;
+  }
+  if (definition.properties === undefined) return true;
+  if (!isObject(definition.properties)) {
+    errors.push(`${location}.properties: must be an object`);
+    return false;
+  }
+  return Object.entries(definition.properties).every(([key, child]) => (
+    validateDefinition(child, `${location}.properties.${key}`, errors)
+  ));
+}
+
 function normalizeStateSchema(input = {}) {
   const source = isObject(input?.schema) ? input.schema : input;
   const errors = [];
@@ -27,18 +61,7 @@ function normalizeStateSchema(input = {}) {
       errors.push(`schema.${path}: path must be a non-empty dot path`);
       return;
     }
-    if (!isObject(definition)) {
-      errors.push(`schema.${path}: definition must be an object`);
-      return;
-    }
-    if (definition.type !== undefined && !VALID_TYPES.includes(definition.type)) {
-      errors.push(`schema.${path}.type: unsupported type`);
-      return;
-    }
-    if (definition.type === 'enum' && (!Array.isArray(definition.values) || definition.values.length === 0)) {
-      errors.push(`schema.${path}.values: enum requires non-empty values`);
-      return;
-    }
+    if (!validateDefinition(definition, `schema.${path}`, errors)) return;
     schema[path] = { ...definition };
   });
   return { schema, errors };
@@ -49,8 +72,27 @@ function validateValue(value, definition) {
   if (definition.type === 'enum') return validateEnum(value, definition);
   if (definition.type === 'string') return typeof value === 'string' ? {} : { error: 'must be a string' };
   if (definition.type === 'boolean') return typeof value === 'boolean' ? {} : { error: 'must be a boolean' };
-  if (definition.type === 'object') return isObject(value) ? {} : { error: 'must be an object' };
+  if (definition.type === 'object') return validateObject(value, definition);
   if (definition.type === 'array') return Array.isArray(value) ? {} : { error: 'must be an array' };
+  return {};
+}
+
+function validateObject(value, definition) {
+  if (!isObject(value)) return { error: 'must be an object' };
+  const entries = Object.entries(value);
+  if (Number.isInteger(definition.maxProperties) && entries.length > definition.maxProperties) {
+    return { error: `must contain at most ${definition.maxProperties} properties` };
+  }
+  const properties = isObject(definition.properties) ? definition.properties : {};
+  for (const [key, child] of entries) {
+    const childDefinition = properties[key];
+    if (!childDefinition && definition.additionalProperties === false) {
+      return { error: `property ${key} is not allowed` };
+    }
+    if (!childDefinition) continue;
+    const validation = validateValue(child, childDefinition);
+    if (validation.error) return { error: `property ${key} ${validation.error}` };
+  }
   return {};
 }
 

@@ -28,7 +28,7 @@ describe('game card presentation actions', () => {
     expect(validate(card('pre_send', [
       { type: 'visual.updateBackground' },
       { type: 'visual.updatePortrait' },
-      { type: 'audio.updateBgm', restart: false }
+      { type: 'audio.updateBgm' }
     ], { autoUpdateOnFirstToken: false }))).toBe(true);
   });
 
@@ -42,13 +42,13 @@ describe('game card presentation actions', () => {
       { type: 'visual.updateBackground', restart: true }
     ]))).toBe(false);
     expect(validate(card('pre_send', [
-      { type: 'audio.updateBgm', restart: 'yes' }
+      { type: 'audio.updateBgm', restart: false }
     ]))).toBe(false);
   });
 
   test('pre_send returns ordered presentation effects without changing state', async () => {
     const state = {
-      visual: { background: 'school', portrait: 'touma' },
+      visual: { scene: 'school', portraits: { touma: 'normal' } },
       audio: { bgm: 'intro' }
     };
     const result = await preparePreSendMessages({
@@ -57,7 +57,7 @@ describe('game card presentation actions', () => {
       card: card('pre_send', [
         { type: 'visual.updateBackground' },
         { type: 'visual.updatePortrait' },
-        { type: 'audio.updateBgm', restart: false }
+        { type: 'audio.updateBgm' }
       ]),
       platform
     });
@@ -66,7 +66,7 @@ describe('game card presentation actions', () => {
     expect(result.presentationEffects).toEqual([
       { type: 'visual.updateBackground' },
       { type: 'visual.updatePortrait' },
-      { type: 'audio.updateBgm', restart: false }
+      { type: 'audio.updateBgm' }
     ]);
   });
 

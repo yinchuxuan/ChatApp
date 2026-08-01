@@ -5,7 +5,7 @@
   "audio": { "bgm": { "test": "audio/silence.wav" } },
   "visual": {
     "background": { "test": "images/scene.jpg" },
-    "portrait": { "test": "images/scene.jpg" }
+    "portrait": { "test": { "normal": "images/scene.jpg" } }
   },
   "ui": { "root": { "source": "ui/root.js" } },
   "rules": [
@@ -14,7 +14,7 @@
       "when": { "phase": "init" },
       "then": [
         { "type": "insert", "role": "assistant", "content": "Tauri 测试开场" },
-        { "type": "state.set", "path": "visual.background", "value": "test" },
+        { "type": "state.set", "path": "visual.scene", "value": "test" },
         { "type": "state.set", "path": "audio.bgm", "value": "test" },
         { "type": "state.set", "path": "score", "value": 1 }
       ]
@@ -23,7 +23,7 @@
       "id": "show-portrait",
       "when": { "phase": "pre_send" },
       "then": [
-        { "type": "state.set", "path": "visual.portrait", "value": "test" }
+        { "type": "state.set", "path": "visual.portraits", "value": { "test": "normal" } }
       ]
     }
   ]

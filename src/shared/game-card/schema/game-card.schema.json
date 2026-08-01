@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#", "$id": "https://chatapp.local/schemas/game-card/v1/schema.json",
-  "x-schema-version": "1.3.0",
+  "x-schema-version": "1.5.0",
   "title": "Game Card", "type": "object",
   "additionalProperties": false,
   "required": ["version", "id", "name", "rules"],
@@ -21,9 +21,9 @@
     "audio": { "type": "object", "additionalProperties": false, "properties": { "bgm": { "$ref": "#/definitions/audioMap" } } }, "presentation": { "type": "object", "additionalProperties": false, "properties": { "autoUpdateOnFirstToken": { "type": "boolean" } } },
     "audioMap": { "type": "object", "additionalProperties": { "$ref": "#/definitions/audioFile" } },
     "textFiles": { "type": "object", "additionalProperties": { "$ref": "#/definitions/textFile" } },
-    "visual": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "$ref": "#/definitions/styleFile" }, "background": { "$ref": "#/definitions/imageMap" }, "portrait": { "$ref": "#/definitions/portraitMap" } } },
+    "visual": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "$ref": "#/definitions/styleFile" }, "background": { "$ref": "#/definitions/imageMap" }, "cg": { "$ref": "#/definitions/imageMap" }, "portrait": { "$ref": "#/definitions/portraitMap" } } },
     "imageMap": { "type": "object", "additionalProperties": { "$ref": "#/definitions/imageFile" } },
-    "portraitMap": { "type": "object", "propertyNames": { "not": { "const": "none" } }, "additionalProperties": { "$ref": "#/definitions/imageFile" } },
+    "portraitMap": { "type": "object", "propertyNames": { "not": { "const": "none" } }, "additionalProperties": { "$ref": "#/definitions/portraitExpressions" } }, "portraitExpressions": { "type": "object", "minProperties": 1, "propertyNames": { "not": { "const": "none" } }, "additionalProperties": { "$ref": "#/definitions/imageFile" } },
     "ui": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "$ref": "#/definitions/styleFile" }, "root": { "$ref": "#/definitions/uiRoot" }, "scripts": { "type": "object", "additionalProperties": { "anyOf": [{ "$ref": "#/definitions/scriptFile" }, { "type": "object", "additionalProperties": false, "required": ["sourceFile"], "properties": { "sourceFile": { "$ref": "#/definitions/scriptFile" } } }] } } } },
     "uiRoot": { "type": "object", "additionalProperties": false, "required": ["source"], "properties": { "type": { "const": "react" }, "source": { "$ref": "#/definitions/reactSourceFile" }, "style": { "$ref": "#/definitions/styleFile" }, "props": { "type": "object" } } },
     "display": { "type": "object", "additionalProperties": false, "properties": { "stylesheet": { "$ref": "#/definitions/styleFile" }, "segmentedReading": { "type": "boolean" }, "assistant": { "$ref": "#/definitions/displayRules" }, "user": { "$ref": "#/definitions/displayRules" } } },
@@ -123,7 +123,7 @@
       }
     },
     "execAction": { "type": "object", "additionalProperties": false, "required": ["type"], "oneOf": [{ "required": ["source"] }, { "required": ["sourceFile"] }], "properties": { "type": { "const": "exec" }, "when": { "$ref": "#/definitions/contentWhen" }, "source": { "type": "string", "minLength": 1 }, "sourceFile": { "$ref": "#/definitions/scriptFile" } } },
-    "presentationVisualAction": { "type": "object", "additionalProperties": false, "required": ["type"], "properties": { "type": { "enum": ["visual.updateBackground", "visual.updatePortrait"] }, "when": { "$ref": "#/definitions/contentWhen" } } }, "presentationBgmAction": { "type": "object", "additionalProperties": false, "required": ["type"], "properties": { "type": { "const": "audio.updateBgm" }, "when": { "$ref": "#/definitions/contentWhen" }, "restart": { "type": "boolean" } } },
+    "presentationVisualAction": { "type": "object", "additionalProperties": false, "required": ["type"], "properties": { "type": { "enum": ["visual.updateBackground", "visual.updatePortrait"] }, "when": { "$ref": "#/definitions/contentWhen" } } }, "presentationBgmAction": { "type": "object", "additionalProperties": false, "required": ["type"], "properties": { "type": { "const": "audio.updateBgm" }, "when": { "$ref": "#/definitions/contentWhen" } } },
     "statePath": { "type": "string", "pattern": "^[^.[\\]]+(\\.[^.[\\]]+)*$" },
     "jsonValue": { "anyOf": [{ "type": ["string", "number", "boolean", "null"] }, { "type": "array", "items": { "$ref": "#/definitions/jsonValue" } }, { "type": "object", "additionalProperties": { "$ref": "#/definitions/jsonValue" } }] },
     "stateValueAction": { "type": "object", "additionalProperties": false, "required": ["type", "path", "value"], "properties": { "type": { "enum": ["state.set", "state.append", "state.remove"] }, "when": { "$ref": "#/definitions/contentWhen" }, "path": { "$ref": "#/definitions/statePath" }, "value": { "$ref": "#/definitions/jsonValue" } } },

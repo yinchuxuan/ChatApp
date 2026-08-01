@@ -23,27 +23,29 @@ function useGameCardPresentation() {
   const updatePortrait = React.useCallback((card, state) => {
     request(setPortraitRequest, card, state);
   }, [request]);
-  const updateBgm = React.useCallback((card, state, options = {}) => {
-    request(setBgmRequest, card, state, { restart: options.restart !== false });
+  const updateBgm = React.useCallback((card, state) => {
+    request(setBgmRequest, card, state);
   }, [request]);
-  const updateAll = React.useCallback((card, state, options = {}) => {
+  const updateAll = React.useCallback((card, state) => {
     updateBackground(card, state);
     updatePortrait(card, state);
-    updateBgm(card, state, options);
+    updateBgm(card, state);
   }, [updateBackground, updateBgm, updatePortrait]);
   const updateChanged = React.useCallback((card, state, changedKeys = []) => {
-    if (changedKeys.includes('visual.background')) updateBackground(card, state);
-    if (changedKeys.includes('visual.portrait')) updatePortrait(card, state);
-    if (changedKeys.includes('audio.bgm')) updateBgm(card, state, { restart: false });
+    const sceneChanged = changedKeys.includes('visual.scene');
+    if (sceneChanged) updateBackground(card, state);
+    if (sceneChanged || changedKeys.includes('visual.portraits')) updatePortrait(card, state);
+    if (changedKeys.includes('audio.bgm')) updateBgm(card, state);
   }, [updateBackground, updateBgm, updatePortrait]);
   const applyEffects = React.useCallback((effects = [], context = {}) => {
     effects.forEach(effect => {
       if (effect.type === 'visual.updateBackground') {
         updateBackground(context.card, context.state);
+        updatePortrait(context.card, context.state);
       } else if (effect.type === 'visual.updatePortrait') {
         updatePortrait(context.card, context.state);
       } else if (effect.type === 'audio.updateBgm') {
-        updateBgm(context.card, context.state, effect);
+        updateBgm(context.card, context.state);
       }
     });
   }, [updateBackground, updateBgm, updatePortrait]);

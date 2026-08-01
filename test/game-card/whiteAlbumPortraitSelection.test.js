@@ -7,7 +7,10 @@ const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSche
 
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
-const portraitKeys = Object.keys(loadedCard.visual.portrait);
+const portraitCharacters = Object.keys(loadedCard.visual.portrait);
+const portraitCases = portraitCharacters.flatMap(character => (
+  Object.keys(loadedCard.visual.portrait[character]).map(expression => [character, expression])
+));
 
 function pngDimensions(filePath) {
   const image = fs.readFileSync(filePath);
@@ -18,12 +21,12 @@ function pngDimensions(filePath) {
   };
 }
 
-function patchMessage(value) {
+function patchMessage(portraits) {
   return {
     role: 'assistant',
     content: [
       '<state_patch>',
-      JSON.stringify([{ type: 'state.set', path: 'visual.portrait', value }]),
+      JSON.stringify([{ type: 'state.set', path: 'visual.portraits', value: portraits }]),
       '</state_patch>',
       '剧情正文'
     ].join('\n')
@@ -43,33 +46,53 @@ function applyPortraitMessage(message, overrides = {}) {
 
 describe('white album portrait selection', () => {
   test('registers five expressions for all five supported characters', () => {
-    expect(portraitKeys).toHaveLength(25);
+    expect(portraitCharacters).toHaveLength(5);
     ['touma', 'setsuna', 'mizusawa', 'takeya', 'yanagihara'].forEach((character) => {
       ['normal', 'happy', 'sad', 'angry', 'surprise'].forEach((expression) => {
-        const key = `${character}_${expression}`;
-        expect(loadedCard.visual.portrait[key]).toBe(`images/${character}/${expression}.png`);
-        const imagePath = path.join(cardDir, loadedCard.visual.portrait[key]);
+        const resource = loadedCard.visual.portrait[character][expression];
+        expect(resource).toBe(`images/${character}/${expression}.png`);
+        const imagePath = path.join(cardDir, resource);
         expect(fs.existsSync(imagePath)).toBe(true);
         expect(pngDimensions(imagePath)).toEqual({ width: 2560, height: 1920, colorType: 6 });
       });
     });
   });
 
-  test.each(portraitKeys)('projects the valid semantic portrait %s', (portrait) => {
-    const { patched } = applyPortraitMessage(patchMessage(portrait));
+  test.each(portraitCases)('projects the valid %s %s portrait', (character, expression) => {
+    const portraits = { [character]: expression };
+    const { patched } = applyPortraitMessage(patchMessage(portraits));
 
-    expect(patched.state.visual.portrait).toBe(portrait);
+    expect(patched.state.visual.portraits).toEqual(portraits);
   });
 
-  test('keeps the current portrait when the response omits a valid selection', () => {
+  test('accepts four visible characters in one composition', () => {
+    const portraits = {
+      touma: 'sad',
+      setsuna: 'normal',
+      mizusawa: 'happy',
+      takeya: 'surprise'
+    };
+    const { patched } = applyPortraitMessage(patchMessage(portraits));
+
+    expect(patched.state.visual.portraits).toEqual(portraits);
+  });
+
+  test('keeps the current portraits when the response omits a valid selection', () => {
     const stale = {
-      visual: { portrait: 'touma_happy' }
+      visual: { portraits: { touma: 'happy' } }
     };
     const missing = applyPortraitMessage({ role: 'assistant', content: '没有状态补丁' }, stale);
-    const invalid = applyPortraitMessage(patchMessage('haruki_normal'), stale);
+    const invalid = applyPortraitMessage(patchMessage({ haruki: 'normal' }), stale);
+    const tooMany = applyPortraitMessage(patchMessage({
+      touma: 'normal',
+      setsuna: 'normal',
+      mizusawa: 'normal',
+      takeya: 'normal',
+      yanagihara: 'normal'
+    }), stale);
 
-    [missing, invalid].forEach(({ patched }) => {
-      expect(patched.state.visual.portrait).toBe('touma_happy');
+    [missing, invalid, tooMany].forEach(({ patched }) => {
+      expect(patched.state.visual.portraits).toEqual({ touma: 'happy' });
     });
   });
 });

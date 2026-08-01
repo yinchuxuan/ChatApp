@@ -19,12 +19,16 @@ function card(visual) {
 }
 
 describe('game card visual schema', () => {
-  test('accepts background and portrait resource tables', () => {
+  test('accepts background, cg and portrait resource tables', () => {
     const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const config = {
       stylesheet: 'visual.css',
       background: { school: 'images/school.jpg', night: 'images/night.webp' },
-      portrait: { touma: 'images/touma.png', setsuna: 'images/setsuna.webp' }
+      cg: { confession: 'images/confession.webp' },
+      portrait: {
+        touma: { normal: 'images/touma.png' },
+        setsuna: { happy: 'images/setsuna.webp' }
+      }
     };
 
     expect(validate(card(config))).toBe(true);
@@ -34,10 +38,12 @@ describe('game card visual schema', () => {
   test('rejects unsafe portrait resource paths and the reserved none key', () => {
     const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
     const unsafe = [
-      { portrait: { touma: '../touma.png' } },
-      { portrait: { touma: '/tmp/touma.png' } },
-      { portrait: { touma: 'images/touma.txt' } },
-      { portrait: { none: 'images/empty.png' } }
+      { portrait: { touma: { normal: '../touma.png' } } },
+      { portrait: { touma: { normal: '/tmp/touma.png' } } },
+      { portrait: { touma: { normal: 'images/touma.txt' } } },
+      { portrait: { none: { normal: 'images/empty.png' } } },
+      { portrait: { touma: { none: 'images/empty.png' } } },
+      { portrait: { touma: {} } }
     ];
 
     unsafe.forEach(visual => {
@@ -57,6 +63,18 @@ describe('game card visual schema', () => {
     unsafe.forEach(visual => {
       expect(validate(card(visual))).toBe(false);
       expect(validateGameCard(card(visual)).valid).toBe(false);
+    });
+  });
+
+  test('rejects unsafe cg paths and duplicate scene keys', () => {
+    const validate = new Ajv({ $data: true, allErrors: true, strict: false }).compile(schema);
+    expect(validate(card({ cg: { confession: '../confession.jpg' } }))).toBe(false);
+    expect(validateGameCard(card({
+      background: { school: 'images/school.jpg' },
+      cg: { school: 'images/school-cg.jpg' }
+    }))).toEqual({
+      valid: false,
+      errors: ['visual.cg.school: key duplicates visual.background.school']
     });
   });
 

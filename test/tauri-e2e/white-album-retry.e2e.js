@@ -16,14 +16,14 @@ const card = {
   },
   visual: {
     background: { test: 'images/scene.png' },
-    portrait: { test: 'images/portrait.png' }
+    portrait: { test: { normal: 'images/portrait.png' } }
   },
   rules: []
 };
 const files = {
   'display.css': fs.readFileSync(path.join(cardDir, 'display.css'), 'utf8'),
   'images/portrait.png': fs.readFileSync(path.join(cardDir, 'images/touma/normal.png')),
-  'images/scene.png': fs.readFileSync(path.join(cardDir, 'images/school.png')),
+  'images/scene.png': fs.readFileSync(path.join(cardDir, 'images/background/common/school.png')),
   'ui.css': fs.readFileSync(path.join(cardDir, 'ui.css'), 'utf8'),
   'ui/root.css': fs.readFileSync(path.join(cardDir, 'ui/root.css'), 'utf8'),
   'ui/root.js': fs.readFileSync(path.join(cardDir, 'ui/root.js'), 'utf8')
@@ -35,7 +35,7 @@ describe('WA2 retry page', () => {
     await saveHistory([
       { role: 'user', content: '去第三音乐室继续练习。' },
       { role: 'assistant', content: '冬马坐在钢琴前，没有回头。' }
-    ], { gameState: { visual: { background: 'test', portrait: 'test' } } });
+    ], { gameState: { visual: { scene: 'test', portraits: { test: 'normal' } } } });
     await refreshApp();
     await $('.wa2-event-root').waitForExist();
   });

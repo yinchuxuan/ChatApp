@@ -5,6 +5,10 @@ const css = fs.readFileSync(path.join(
   __dirname,
   '../../game-card-examples/white-album-2/ui/root.css'
 ), 'utf8');
+const platformCss = fs.readFileSync(path.join(
+  __dirname,
+  '../../src/renderer/styles/components.app.css'
+), 'utf8');
 
 describe('white album event portrait styles', () => {
   test('hides the event trigger button', () => {
@@ -17,20 +21,21 @@ describe('white album event portrait styles', () => {
     expect(getComputedStyle(document.querySelector('.wa2-event-trigger')).display).toBe('none');
   });
 
-  test('positions the centered portrait canvas from a shared visual axis', () => {
-    document.head.innerHTML = `<style>${css}</style>`;
+  test('centers a single portrait', () => {
+    document.head.innerHTML = `<style>${platformCss}\n${css}</style>`;
     document.body.innerHTML = `
       <div class="app-container game-card-theme-white-album-2">
-        <div data-gc-part="portrait-layer">
-          <img class="app-portrait-image">
+        <div data-gc-part="portrait-layer" data-count="1">
+          <div class="app-portrait-slot">
+            <img class="app-portrait-image">
+          </div>
         </div>
       </div>`;
-    const style = getComputedStyle(document.querySelector('.app-portrait-image'));
+    const style = getComputedStyle(document.querySelector('.app-portrait-slot'));
 
     expect(style.position).toBe('absolute');
-    expect(style.left).toBe('17%');
+    expect(style.left).toBe('50%');
     expect(style.bottom).toBe('0px');
-    expect(style.width).toBe('auto');
     expect(style.height).toBe('100%');
     expect(style.transform).toBe('translateX(-50%)');
   });

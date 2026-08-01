@@ -13,7 +13,7 @@ describe('useChatGeneration state patch cursor', () => {
     const events = [];
     const patchedState = {
       scene: { portrait: 'touma_normal' },
-      visual: { portrait: 'touma_normal' }
+      visual: { portraits: { touma: 'normal' } }
     };
     generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
       applied: false,
@@ -68,7 +68,7 @@ describe('useChatGeneration state patch cursor', () => {
     ['aborts', 'AbortError'],
     ['fails', 'Error']
   ])('keeps the applied patch after the request %s', async (_label, errorName) => {
-    const patchedState = { visual: { portrait: 'touma_normal' } };
+    const patchedState = { visual: { portraits: { touma: 'normal' } } };
     generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
       applied: false, card: { id: 'card' }, messages, state
     }));

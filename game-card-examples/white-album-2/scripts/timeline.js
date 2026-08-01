@@ -41,7 +41,7 @@ function run(ctx) {
     return parseTime(currentTime) > chapter2Start ? 'chapter_2' : 'chapter_1';
   }
 
-  function applyFreePlot(result) {
+  function applyFreePlot() {
     const roll = utils.randomInt(1, 100);
     const mood = resolvePlotMood(roll);
     state.temp.plotKind = 'free';
@@ -51,28 +51,20 @@ function run(ctx) {
     state.temp.plotMoodSection = `PlotMood_${mood}`;
     state.temp.toumaAttitudeSection = resolveAttitudeSection('ToumaAttitude', state.touma && state.touma.affection);
     state.temp.setsunaAttitudeSection = resolveAttitudeSection('SetsunaAttitude', state.setsuna && state.setsuna.affection);
-    state.audio.bgm = mood;
-    if (!state.visual.background) state.visual.background = result.background || 'school';
-    if (!state.visual.portrait) state.visual.portrait = 'none';
   }
 
-  function applyFixedPlot(result) {
+  function applyFixedPlot() {
     state.temp.plotKind = 'fixed';
     state.temp.includeFreeGuide = false;
     state.temp.plotMood = '';
     state.temp.plotMoodSection = '';
     state.temp.toumaAttitudeSection = '';
     state.temp.setsunaAttitudeSection = '';
-    state.audio.bgm = result.bgm;
-    state.visual.background = result.background;
-    state.visual.portrait = 'none';
   }
 
   const resolvers = { chapter_1: resolveChapter1Timeline, chapter_2: resolveChapter2Timeline };
   ensureObject('timeline');
   ensureObject('temp');
-  ensureObject('audio');
-  ensureObject('visual');
   ensureObject('story');
 
   clampCurrentTimeToSlotEnd();
@@ -86,8 +78,8 @@ function run(ctx) {
   state.temp.plotFile = result.plotFile;
   state.temp.PlotType = result.plotType;
 
-  if (result.plotKind === 'free') applyFreePlot(result);
-  else if (result.plotKind === 'fixed') applyFixedPlot(result);
+  if (result.plotKind === 'free') applyFreePlot();
+  else if (result.plotKind === 'fixed') applyFixedPlot();
 
   return { state };
 }

@@ -2,6 +2,8 @@ import React from 'react';
 import { gameCardPlatform } from '../platform/index.js';
 import { PropTypes } from './componentPropTypes.js';
 
+const BGM_PLAY_DELAY_MS = 1000;
+
 function getBgmPath(request) {
   const key = request?.state?.audio?.bgm;
   return typeof key === 'string' ? (request?.card?.audio?.bgm?.[key] || '') : '';
@@ -15,34 +17,44 @@ function GameCardBgmPlayer({ updateRequest, stopToken = 0 }) {
   const enabledRef = React.useRef(true);
   const mountedRef = React.useRef(true);
   const lastStopTokenRef = React.useRef(stopToken);
+  const playTimerRef = React.useRef(null);
   const [audioSource, setAudioSource] = React.useState('');
   const [blocked, setBlocked] = React.useState(false);
   const [enabled, setEnabled] = React.useState(true);
   enabledRef.current = enabled;
 
+  const cancelScheduledPlay = React.useCallback(() => {
+    if (playTimerRef.current === null) return;
+    window.clearTimeout(playTimerRef.current);
+    playTimerRef.current = null;
+  }, []);
+
   const stop = React.useCallback(() => {
+    cancelScheduledPlay();
     const audio = audioRef.current;
     if (audio && playingRef.current) audio.pause();
     playingRef.current = false;
-  }, []);
+  }, [cancelScheduledPlay]);
 
-  const playCurrent = React.useCallback(async (forceEnabled = false) => {
-    const audio = audioRef.current;
-    if (!audio || !sourceRef.current.url || (!enabledRef.current && !forceEnabled)) return false;
-    try {
-      audio.currentTime = 0;
-      await audio.play();
-      playingRef.current = true;
-      pendingPlayRef.current = false;
-      setBlocked(false);
-      return true;
-    } catch (_) {
-      playingRef.current = false;
-      pendingPlayRef.current = false;
-      setBlocked(true);
-      return false;
-    }
-  }, []);
+  const playCurrent = React.useCallback((forceEnabled = false) => {
+    cancelScheduledPlay();
+    playTimerRef.current = window.setTimeout(async () => {
+      playTimerRef.current = null;
+      const audio = audioRef.current;
+      if (!audio || !sourceRef.current.url || (!enabledRef.current && !forceEnabled)) return;
+      try {
+        audio.currentTime = 0;
+        await audio.play();
+        playingRef.current = true;
+        pendingPlayRef.current = false;
+        setBlocked(false);
+      } catch (_) {
+        playingRef.current = false;
+        pendingPlayRef.current = false;
+        setBlocked(true);
+      }
+    }, BGM_PLAY_DELAY_MS);
+  }, [cancelScheduledPlay]);
 
   React.useEffect(() => {
     if (!updateRequest) return;
@@ -51,7 +63,7 @@ function GameCardBgmPlayer({ updateRequest, stopToken = 0 }) {
     const signature = `${cardId}\0${relativePath}`;
     pendingPlayRef.current = true;
     if (signature === sourceRef.current.signature) {
-      if (sourceRef.current.url && updateRequest.restart !== false) {
+      if (sourceRef.current.url) {
         stop();
         void playCurrent();
       }
@@ -117,8 +129,7 @@ GameCardBgmPlayer.propTypes = {
   updateRequest: PropTypes.shape({
     id: PropTypes.number.isRequired,
     card: PropTypes.object,
-    state: PropTypes.object.isRequired,
-    restart: PropTypes.bool
+    state: PropTypes.object.isRequired
   }),
   stopToken: PropTypes.number
 };

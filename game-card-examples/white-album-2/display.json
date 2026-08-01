@@ -38,9 +38,9 @@
       "id": "wa2-choice-overlay",
       "stage": "before_markdown",
       "type": "regex_replace",
-      "pattern": "^(A\\.\\s+.+\\nB\\.\\s+.+\\nC\\.\\s+.+\\nD\\.\\s+.+)$",
+      "pattern": "^(?:<choices>\\s*\\n(A\\.\\s+.+\\nB\\.\\s+.+\\nC\\.\\s+.+\\nD\\.\\s+.+)\\n\\s*<\\/choices>|(A\\.\\s+.+\\nB\\.\\s+.+\\nC\\.\\s+.+\\nD\\.\\s+.+))$",
       "flags": "gm",
-      "replace": "<div class=\"wa2-choice-overlay\" role=\"group\" aria-label=\"请选择下一步行动\">\n<div class=\"wa2-choice-prompt\">请选择下一步行动</div>\n$1\n</div>"
+      "replace": "<div class=\"wa2-choice-overlay\" role=\"group\" aria-label=\"请选择下一步行动\">\n<div class=\"wa2-choice-prompt\">请选择下一步行动</div>\n$1$2\n</div>"
     },
     {
       "id": "wa2-choice-card",

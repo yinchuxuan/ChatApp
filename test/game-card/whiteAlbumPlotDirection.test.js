@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { card, stateSchema, llmStateSchema } = require('./whiteAlbumTestCard');
+const { card, stateSchema, llmStateContract } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/renderer/gameCard/engine');
 const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
 const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSchemaLoader');
@@ -17,7 +17,7 @@ const fileContents = {
   'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
   'plot/chapter-2.md': readCardFile('plot/chapter-2.md'),
   'state/schema.json': JSON.stringify(stateSchema),
-  'state/llm_schema.json': JSON.stringify(llmStateSchema),
+  'state/llm_schema.md': llmStateContract,
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
@@ -63,7 +63,7 @@ describe('white album plot direction guide', () => {
 
     expect(result.trace.errors).toEqual([]);
     expect(result.state.temp.plotDirectionRoll).toBe(100);
-    expect(result.state.audio.bgm).toBe('happy');
+    expect(result.state.audio.bgm).toBe('daily');
     expect(result.messages[userIndex - 2]._meta.source).toBe('wa2_worldbook');
     expect(result.messages[userIndex - 2].ttl).toBe(1);
     expect(result.messages[userIndex - 1]._meta.source).toBe('wa2_state_context');
@@ -73,33 +73,35 @@ describe('white album plot direction guide', () => {
     expect(guide.content).toContain('<wa2_turn_context>');
     expect(guide.content).toContain('剧情目标');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
+    expect(guide.content).not.toContain('## 本节点演出资源');
     expect(guide.content).toContain('本轮自由剧情走向: 极度正面');
     expect(guide.content).toContain('根据State更新规则写入本轮结束状态');
     expect(guide.content).toContain('角色扮演规则:');
     expect(result.messages.some((msg) => msg._meta?.source === 'wa2_tail_hint')).toBe(false);
   });
 
-  test('sets bgm from the plot direction roll', () => {
-    expect(runWithRandom(0.09).state.audio.bgm).toBe('tragic');
-    expect(runWithRandom(0.28).state.audio.bgm).toBe('sad');
-    expect(runWithRandom(0.291).state.audio.bgm).toBe('normal');
-    expect(runWithRandom(0.691).state.audio.bgm).toBe('daily');
-    expect(runWithRandom(0.891).state.audio.bgm).toBe('happy');
+  test.each([
+    [0.09, 'tragic'], [0.28, 'sad'], [0.291, 'normal'], [0.691, 'daily'], [0.891, 'happy']
+  ])('selects plot mood %s without changing bgm', (randomValue, mood) => {
+    const result = runWithRandom(randomValue);
+    expect(result.state.temp.plotMood).toBe(mood);
+    expect(result.state.audio.bgm).toBe('daily');
   });
 
-  test('keeps the visible portrait during free plots and clears it during fixed plots', () => {
+  test('keeps the model-directed portraits during free and fixed plots', () => {
+    jest.spyOn(Math, 'random').mockReturnValue(0.99);
     const freeState = ensureStateDefaults(loadedCard.state.schema, {
-      visual: { portrait: 'touma_happy' }
+      visual: { scene: 'classroom', portraits: { touma: 'happy' } }, audio: { bgm: 'sad' }
     }).state;
     const fixedState = ensureStateDefaults(loadedCard.state.schema, {
       timeline: { currentTime: '2007.10.21: 16:00 星期日' },
-      visual: { portrait: 'touma_happy' }
+      visual: { scene: 'classroom', portraits: { touma: 'happy' } }, audio: { bgm: 'sad' }
     }).state;
     const free = runWithState(freeState);
     const fixed = runWithState(fixedState);
 
-    expect(free.state.visual.portrait).toBe('touma_happy');
-    expect(fixed.state.visual.portrait).toBe('none');
+    expect(free.state).toMatchObject({ visual: freeState.visual, audio: freeState.audio });
+    expect(fixed.state).toMatchObject({ visual: fixedState.visual, audio: fixedState.audio });
   });
 
   test('loads plot guidance from the current timeline time', () => {
@@ -112,7 +114,7 @@ describe('white album plot direction guide', () => {
     const wall = runAtSlot('2007.10.21: 16:00 星期日');
     const wallGuide = wall.messages.find((msg) => msg.role === 'user');
 
-    expect(wall.state.audio.bgm).toBe('WA_piano');
+    expect(wallGuide.content).toContain('audio.bgm: `WA_piano`');
     expect(wallGuide.content).toContain('当前剧情时间段：2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日');
     expect(wallGuide.content).toContain('隔墙合奏');
     expect(wallGuide.content).not.toContain('本轮自由剧情走向');
@@ -132,7 +134,8 @@ describe('white album plot direction guide', () => {
     const invite = runAtSlot('2007.10.23: 08:00 星期二');
     const inviteGuide = invite.messages.find((msg) => msg.role === 'user');
 
-    expect(invite.state.audio.bgm).toBe('normal');
+    expect(inviteGuide.content).toContain('visual.scene: `invite`');
+    expect(inviteGuide.content).not.toContain('audio.bgm:');
     expect(inviteGuide.content).toContain('邀请小木曾雪菜');
     expect(inviteGuide.content).not.toContain('隔墙合奏');
     expect(inviteGuide.content).not.toContain('本轮自由剧情走向');
@@ -140,7 +143,8 @@ describe('white album plot direction guide', () => {
     const deadline = runAtSlot('2007.10.25: 08:00 星期四');
     const deadlineGuide = deadline.messages.find((msg) => msg.role === 'user');
 
-    expect(deadline.state.audio.bgm).toBe('sad');
+    expect(deadlineGuide.content).toContain('visual.scene: `haiku`');
+    expect(deadlineGuide.content).not.toContain('audio.bgm:');
     expect(deadlineGuide.content).toContain('今天是学园祭报名节目的截止日期');
     expect(deadlineGuide.content).not.toContain('隔墙合奏');
     expect(deadlineGuide.content).not.toContain('本轮自由剧情走向');
@@ -148,7 +152,7 @@ describe('white album plot direction guide', () => {
     const rooftop = runAtSlot('2007.10.25: 16:00 星期四');
     const rooftopGuide = rooftop.messages.find((msg) => msg.role === 'user');
 
-    expect(rooftop.state.audio.bgm).toBe('WA_3');
+    expect(rooftopGuide.content).toContain('audio.bgm: `WA_3`');
     expect(rooftopGuide.content).toContain('天台上响起了第三个声音');
     expect(rooftopGuide.content).not.toContain('今天是学园祭报名节目的截止日期');
     expect(rooftopGuide.content).not.toContain('本轮自由剧情走向');

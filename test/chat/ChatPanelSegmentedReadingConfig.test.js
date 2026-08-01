@@ -84,13 +84,15 @@ describe('game card segmented reading config', () => {
     const choiceReply = [
       '第一段。',
       '',
+      '<choices>',
       'A. 去音乐室。',
       '',
       'B. 前往天台。',
       '',
       'C. 留在教室。',
       '',
-      'D. 独自回家。'
+      'D. 独自回家。',
+      '</choices>'
     ].join('\n');
     global.platformMock.getActiveGameCard.mockResolvedValue(activeCard(whiteAlbumCard.display));
     global.fetch

@@ -14,6 +14,13 @@ const card = {
         default: 'school',
         llmWrite: true
       },
+      'visual.portraits': {
+        type: 'object',
+        properties: { touma: { type: 'enum', values: ['normal', 'sad'] } },
+        additionalProperties: false,
+        maxProperties: 4,
+        default: {}
+      },
       score: { type: 'number', default: 0, llmWrite: true }
     }
   }
@@ -53,12 +60,12 @@ describe('state patch cursor pipeline', () => {
     const result = await prepareStatePatchAtCursor({
       patchText: JSON.stringify([
         { type: 'state.set', path: 'score', value: 9 },
-        { type: 'state.set', path: 'visual.background', value: 'classroom' }
+        { type: 'state.set', path: 'visual.scene', value: 'classroom' }
       ]),
       state: {
         scene: { location: 'school' },
         score: 0,
-        visual: { background: 'school' }
+        visual: { scene: 'school' }
       },
       messages: [{ role: 'user', content: '继续' }],
       card,
@@ -66,7 +73,22 @@ describe('state patch cursor pipeline', () => {
     });
 
     expect(result.state.score).toBe(9);
-    expect(result.state.visual.background).toBe('classroom');
-    expect(result.presentationChangedKeys).toEqual(['visual.background']);
+    expect(result.state.visual.scene).toBe('classroom');
+    expect(result.presentationChangedKeys).toEqual(['visual.scene']);
+  });
+
+  test('does not republish an unchanged portrait object', async () => {
+    const state = { visual: { portraits: { touma: 'normal' } } };
+    const result = await prepareStatePatchAtCursor({
+      patchText: JSON.stringify({
+        'visual.portraits': { touma: 'normal' }
+      }),
+      state,
+      card,
+      platform: { resources: {} }
+    });
+
+    expect(result.applied).toBe(true);
+    expect(result.presentationChangedKeys).toEqual([]);
   });
 });

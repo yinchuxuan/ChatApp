@@ -9,25 +9,29 @@ const loadedCard = mergeAudioStateSchema({
 });
 
 describe('white album state patch presentation', () => {
-  test('updates background portrait and bgm through their runtime state paths', () => {
+  test('updates background portraits and bgm through their runtime state paths', () => {
     const state = ensureStateDefaults(loadedCard.state.schema, {
-      visual: { background: 'school', portrait: 'setsuna_sad' },
+      visual: { scene: 'school', portraits: { setsuna: 'sad' } },
       audio: { bgm: 'daily' }
     }).state;
     const patched = applyStatePatch(JSON.stringify([
-      { type: 'state.set', path: 'visual.background', value: 'musical_classroom3' },
-      { type: 'state.set', path: 'visual.portrait', value: 'touma_happy' },
+      { type: 'state.set', path: 'visual.scene', value: 'musical_classroom3' },
+      {
+        type: 'state.set',
+        path: 'visual.portraits',
+        value: { touma: 'happy', setsuna: 'normal' }
+      },
       { type: 'state.set', path: 'audio.bgm', value: 'WA_piano' }
     ]), state, { schema: loadedCard.state.schema });
 
     expect(patched.trace.changedKeys).toEqual([
-      'visual.background',
-      'visual.portrait',
+      'visual.scene',
+      'visual.portraits',
       'audio.bgm'
     ]);
     expect(patched.state.visual).toEqual({
-      background: 'musical_classroom3',
-      portrait: 'touma_happy',
+      scene: 'musical_classroom3',
+      portraits: { touma: 'happy', setsuna: 'normal' },
       textPanel: 'right'
     });
     expect(patched.state.audio.bgm).toBe('WA_piano');
@@ -35,15 +39,35 @@ describe('white album state patch presentation', () => {
 
   test('inherits presentation fields omitted by a sparse patch', () => {
     const state = ensureStateDefaults(loadedCard.state.schema, {
-      visual: { background: 'classroom', portrait: 'setsuna_sad' },
+      visual: { scene: 'classroom', portraits: { setsuna: 'sad' } },
       audio: { bgm: 'sad' }
     }).state;
     const patched = applyStatePatch(JSON.stringify([
-      { type: 'state.set', path: 'visual.portrait', value: 'touma_sad' }
+      { type: 'state.set', path: 'visual.portraits', value: { touma: 'sad' } }
     ]), state, { schema: loadedCard.state.schema });
 
-    expect(patched.state.visual.background).toBe('classroom');
-    expect(patched.state.visual.portrait).toBe('touma_sad');
+    expect(patched.state.visual.scene).toBe('classroom');
+    expect(patched.state.visual.portraits).toEqual({ touma: 'sad' });
     expect(patched.state.audio.bgm).toBe('sad');
+  });
+
+  test('preserves the selected portrait while a cg temporarily hides it', () => {
+    const state = ensureStateDefaults(loadedCard.state.schema, {
+      visual: { scene: 'school', portraits: { setsuna: 'sad' } }
+    }).state;
+    const cg = applyStatePatch(JSON.stringify({
+      'visual.scene': 'invite',
+      'visual.portraits': { touma: 'happy' }
+    }), state, { schema: loadedCard.state.schema });
+    const background = applyStatePatch(JSON.stringify({
+      'visual.scene': 'classroom'
+    }), cg.state, { schema: loadedCard.state.schema });
+
+    expect(cg.state.visual).toMatchObject({
+      scene: 'invite', portraits: { touma: 'happy' }
+    });
+    expect(background.state.visual).toMatchObject({
+      scene: 'classroom', portraits: { touma: 'happy' }
+    });
   });
 });

@@ -19,14 +19,22 @@ function cardResult() {
       display: { segmentedReading: true },
       visual: {
         background: { old: 'old.jpg', first: 'first.jpg', second: 'second.jpg' },
-        portrait: { hero: 'hero.png' }
+        portrait: { hero: { normal: 'hero.png' } }
       },
       audio: { bgm: { calm: 'calm.mp3', tense: 'tense.mp3' } },
       state: {
         schema: {
           schema: {
-            'visual.background': enumField(['old', 'first', 'second'], 'old'),
-            'visual.portrait': enumField(['none', 'hero'], 'none'),
+            'visual.scene': enumField(['old', 'first', 'second'], 'old'),
+            'visual.portraits': {
+              type: 'object',
+              properties: { hero: enumField(['normal'], 'normal') },
+              additionalProperties: false,
+              maxProperties: 4,
+              default: {},
+              llmRead: true,
+              llmWrite: true
+            },
             'audio.bgm': enumField(['none', 'calm', 'tense'], 'calm')
           }
         }
@@ -71,8 +79,8 @@ function controlledStreamResponse(content) {
 function VisualProbe({ backgroundRequest, portraitRequest }) {
   return React.createElement('output', {
     'data-testid': 'visual-state',
-    'data-background': backgroundRequest?.state?.visual?.background || '',
-    'data-portrait': portraitRequest?.state?.visual?.portrait || ''
+    'data-background': backgroundRequest?.state?.visual?.scene || '',
+    'data-portrait': JSON.stringify(portraitRequest?.state?.visual?.portraits || {})
   });
 }
 
@@ -100,11 +108,11 @@ describe('ChatPanel segmented state patch timeline', () => {
 
   test('publishes scene changes only when the reading cursor reaches them', async () => {
     const opening = patch([
-      { type: 'state.set', path: 'visual.background', value: 'first' }
+      { type: 'state.set', path: 'visual.scene', value: 'first' }
     ]);
     const nextScene = patch([
-      { type: 'state.set', path: 'visual.background', value: 'second' },
-      { type: 'state.set', path: 'visual.portrait', value: 'hero' },
+      { type: 'state.set', path: 'visual.scene', value: 'second' },
+      { type: 'state.set', path: 'visual.portraits', value: { hero: 'normal' } },
       { type: 'state.set', path: 'audio.bgm', value: 'tense' }
     ]);
     global.fetch.mockResolvedValue(streamResponse(
@@ -124,24 +132,27 @@ describe('ChatPanel segmented state patch timeline', () => {
     await waitFor(() => {
       expect(screen.getByTestId('visual-state')).toHaveAttribute('data-background', 'first');
     });
-    expect(screen.getByTestId('visual-state')).toHaveAttribute('data-portrait', 'none');
+    expect(screen.getByTestId('visual-state')).toHaveAttribute('data-portrait', '{}');
     expect(screen.getByTestId('audio-state')).toHaveAttribute('data-bgm', 'calm');
 
     fireEvent.click(container.querySelector('[data-gc-part="chat-panel"]'));
     await screen.findByText('第二段。');
     await waitFor(() => {
       expect(screen.getByTestId('visual-state')).toHaveAttribute('data-background', 'second');
-      expect(screen.getByTestId('visual-state')).toHaveAttribute('data-portrait', 'hero');
+      expect(screen.getByTestId('visual-state')).toHaveAttribute(
+        'data-portrait',
+        '{"hero":"normal"}'
+      );
       expect(screen.getByTestId('audio-state')).toHaveAttribute('data-bgm', 'tense');
     });
   });
 
   test('keeps patches crossed while the response is still streaming', async () => {
     const opening = patch([
-      { type: 'state.set', path: 'visual.background', value: 'first' }
+      { type: 'state.set', path: 'visual.scene', value: 'first' }
     ]);
     const nextScene = patch([
-      { type: 'state.set', path: 'visual.background', value: 'second' }
+      { type: 'state.set', path: 'visual.scene', value: 'second' }
     ]);
     const controlled = controlledStreamResponse(
       `${opening}\n\n第一段。\n\n${nextScene}\n\n第二段。`

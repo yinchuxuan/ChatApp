@@ -11,7 +11,7 @@ Visual panel 是游戏卡背景图上的剧情阅读面板。它解决两个问�
 
 ## 设计原则
 
-- `visual.background` 决定展示哪张图。
+- `visual.scene` 决定展示哪张背景或 CG。
 - `visual.textPanel` 决定剧情阅读面板放在哪里。
 - 游戏卡 CSS 只控制视觉面板外观，不控制全局 App UI。
 - 平台提供可读的基础样式；游戏卡可以覆盖变量和受控 class。

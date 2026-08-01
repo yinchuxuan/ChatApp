@@ -23,7 +23,7 @@ function card(overrides = {}) {
 
 describe('unified game card protocol validation', () => {
   test('exposes a schema version independent from the card version', () => {
-    expect(GAME_CARD_SCHEMA_VERSION).toBe('1.3.0');
+    expect(GAME_CARD_SCHEMA_VERSION).toBe('1.5.0');
     expect(schema['x-schema-version']).toBe(GAME_CARD_SCHEMA_VERSION);
     expect(card({ version: 'chapter-build-7' }).version).not.toBe(GAME_CARD_SCHEMA_VERSION);
   });
@@ -45,7 +45,8 @@ describe('unified game card protocol validation', () => {
       visual: {
         stylesheet: 'visual.css',
         background: { school: 'images/school.jpg' },
-        portrait: { touma: 'images/touma.png' }
+        cg: { confession: 'images/confession.jpg' },
+        portrait: { touma: { normal: 'images/touma.png' } }
       },
       display: { stylesheet: 'display.css' },
       ui: {
@@ -60,7 +61,8 @@ describe('unified game card protocol validation', () => {
       { field: 'files.intro', file: 'content/intro.md' },
       { field: 'audio.bgm.winter', file: 'audio/winter.mp3' },
       { field: 'visual.background.school', file: 'images/school.jpg' },
-      { field: 'visual.portrait.touma', file: 'images/touma.png' },
+      { field: 'visual.cg.confession', file: 'images/confession.jpg' },
+      { field: 'visual.portrait.touma.normal', file: 'images/touma.png' },
       { field: 'ui.root.source', file: 'ui/root.js' },
       { field: 'rules[0].then[0].sourceFile', file: 'scripts/timeline.js' }
     ]));

@@ -9,7 +9,7 @@ function useChatPresentationHandlers(card, presentation) {
   } = presentation;
   const onStreamContentStart = React.useCallback(({ card: streamCard, state }) => {
     if (streamCard?.presentation?.autoUpdateOnFirstToken === false) return;
-    updateAll(streamCard, state, { restart: false });
+    updateAll(streamCard, state);
   }, [updateAll]);
 
   const onSessionLoaded = React.useCallback(({ card: loadedCard, state }) => {

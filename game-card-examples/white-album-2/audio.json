@@ -1,19 +1,19 @@
 {
   "bgm": {
-    "daily": "audio/WA2_daily.mp3",
-    "happy": "audio/WA2_happy.mp3",
-    "normal": "audio/WA2_normal.mp3",
-    "sad": "audio/WA2_sad.mp3",
-    "tragic": "audio/WA2_tragic.mp3",
-    "WA_piano": "audio/WA2_WA_piano.ogg",
-    "WA_3": "audio/WA2_WA_3.mp3",
-    "dream": "audio/WA2_dream.ogg",
-    "snow_scene": "audio/WA2_snow_scene.ogg",
-    "bad_woman": "audio/WA2_bad_woman.mp3",
-    "after_all_piano": "audio/WA2_after_all_piano.mp3",
-    "winter_night": "audio/WA2_winter_night.ogg",
-    "things": "audio/WA2_things.mp3",
-    "unstoppable_dream": "audio/WA2_unstoppable_dream.mp3",
-    "love_dream": "audio/WA2_love_dream.ogg"
+    "daily": "audio/bgm/common/WA2_daily.mp3",
+    "happy": "audio/bgm/common/WA2_happy.mp3",
+    "normal": "audio/bgm/common/WA2_normal.mp3",
+    "sad": "audio/bgm/common/WA2_sad.mp3",
+    "tragic": "audio/bgm/common/WA2_tragic.mp3",
+    "WA_piano": "audio/bgm/story/WA2_WA_piano.ogg",
+    "WA_3": "audio/bgm/story/WA2_WA_3.mp3",
+    "dream": "audio/bgm/story/WA2_dream.ogg",
+    "snow_scene": "audio/bgm/story/WA2_snow_scene.ogg",
+    "bad_woman": "audio/bgm/story/WA2_bad_woman.mp3",
+    "after_all_piano": "audio/bgm/story/WA2_after_all_piano.mp3",
+    "winter_night": "audio/bgm/story/WA2_winter_night.ogg",
+    "things": "audio/bgm/story/WA2_things.mp3",
+    "unstoppable_dream": "audio/bgm/story/WA2_unstoppable_dream.mp3",
+    "love_dream": "audio/bgm/story/WA2_love_dream.ogg"
   }
 }

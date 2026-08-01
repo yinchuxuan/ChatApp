@@ -7,7 +7,8 @@
    ============================================ */
 .app-container {
   --app-background-insert-duration: 800ms;
-  --app-portrait-insert-duration: 1200ms;
+  --app-portrait-insert-duration: 500ms;
+  --app-portrait-expression-duration: 160ms;
 
   display: flex;
   height: 100%;
@@ -64,14 +65,77 @@
   pointer-events: none;
 }
 
+.app-portrait-slot {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  transform: translateX(-50%);
+  transition:
+    left 420ms var(--md-motion-easing-emphasized-decelerate),
+    height 420ms var(--md-motion-easing-emphasized-decelerate);
+}
+
 .app-portrait-image {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
+}
+
+.app-portrait-image[data-transition="enter"] {
   animation: app-portrait-fade-in var(--app-portrait-insert-duration) linear
     var(--app-background-insert-duration) both;
+}
+
+.app-portrait-image[data-transition="expression"] {
+  animation: app-portrait-fade-in var(--app-portrait-expression-duration) ease-out both;
+}
+
+.app-portrait-layer[data-count="2"] .app-portrait-slot {
+  height: 94%;
+}
+
+.app-portrait-layer[data-count="2"] .app-portrait-slot[data-index="0"] {
+  left: 30%;
+}
+
+.app-portrait-layer[data-count="2"] .app-portrait-slot[data-index="1"] {
+  left: 70%;
+}
+
+.app-portrait-layer[data-count="3"] .app-portrait-slot {
+  height: 84%;
+}
+
+.app-portrait-layer[data-count="3"] .app-portrait-slot[data-index="0"] {
+  left: 18%;
+}
+
+.app-portrait-layer[data-count="3"] .app-portrait-slot[data-index="2"] {
+  left: 82%;
+}
+
+.app-portrait-layer[data-count="4"] .app-portrait-slot {
+  height: 74%;
+}
+
+.app-portrait-layer[data-count="4"] .app-portrait-slot[data-index="0"] {
+  left: 12%;
+}
+
+.app-portrait-layer[data-count="4"] .app-portrait-slot[data-index="1"] {
+  left: 37%;
+}
+
+.app-portrait-layer[data-count="4"] .app-portrait-slot[data-index="2"] {
+  left: 63%;
+}
+
+.app-portrait-layer[data-count="4"] .app-portrait-slot[data-index="3"] {
+  left: 88%;
 }
 
 @keyframes app-background-fade-in {

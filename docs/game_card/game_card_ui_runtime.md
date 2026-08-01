@@ -22,7 +22,7 @@ platform 负责状态权威、消息发送、保存和调试
 
 - `display.assistant` / `display.user`：在 Markdown 前对消息文本做 `regex_replace`。
 - `display.stylesheet`：加载游戏卡 CSS，主要用于消息内部样式。
-- `visual.background`：通过 `gameState.visual.background` 切换背景图。
+- `visual.scene`：通过 `gameState.visual.scene` 切换背景或 CG。
 - `visual.textPanel`：控制阅读面板位置，取值为 `center` / `left` / `right`。
 - `visual.stylesheet`：加载游戏卡视觉 CSS，主要用于背景模式下阅读界面。
 

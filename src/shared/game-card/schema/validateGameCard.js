@@ -41,7 +41,14 @@ function formatSchemaErrors(errors = []) {
 
 function validateGameCard(card) {
   const valid = validateSchema(card);
-  return { valid, errors: valid ? [] : formatSchemaErrors(validateSchema.errors) };
+  if (!valid) return { valid: false, errors: formatSchemaErrors(validateSchema.errors) };
+  const errors = [];
+  const backgroundKeys = Object.keys(card?.visual?.background || {});
+  const cgKeys = new Set(Object.keys(card?.visual?.cg || {}));
+  backgroundKeys.filter(key => cgKeys.has(key)).forEach(key => {
+    errors.push(`visual.cg.${key}: key duplicates visual.background.${key}`);
+  });
+  return { valid: errors.length === 0, errors };
 }
 
 export { GAME_CARD_SCHEMA_VERSION, formatSchemaErrors, validateGameCard };

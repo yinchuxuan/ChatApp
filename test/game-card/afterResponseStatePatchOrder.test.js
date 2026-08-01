@@ -15,7 +15,7 @@ const card = {
           default: 'school',
           llmWrite: true
         },
-        'visual.background': {
+        'visual.scene': {
           type: 'enum',
           values: ['school', 'classroom'],
           default: 'school'
@@ -25,7 +25,7 @@ const card = {
   },
   rules: [{
     when: { phase: 'after_response', state: { 'scene.location': 'classroom' } },
-    then: [{ type: 'state.set', path: 'visual.background', value: 'classroom' }]
+    then: [{ type: 'state.set', path: 'visual.scene', value: 'classroom' }]
   }]
 };
 
@@ -37,6 +37,6 @@ test('commits assistant state patches before after_response rules', async () => 
   const result = await prepareAfterResponseMessages({ messages, state: {}, card, platform });
 
   expect(result.state.scene.location).toBe('classroom');
-  expect(result.state.visual.background).toBe('classroom');
+  expect(result.state.visual.scene).toBe('classroom');
   expect(result.statePatchTrace.applied).toBe(true);
 });

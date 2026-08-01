@@ -25,13 +25,15 @@ const sample = [
   '',
   '---',
   '',
+  '<choices>',
   'A. 去找冬马确认钢琴声。',
   '',
   'B. 邀请雪菜来第二音乐室。',
   '',
   'C. 向老师请求延后名单。',
   '',
-  'D. 独自继续练习。'
+  'D. 独自继续练习。',
+  '</choices>'
 ].join('\n');
 
 describe('white album display rules', () => {
@@ -46,6 +48,7 @@ describe('white album display rules', () => {
     expect(output).not.toContain('隐藏总结');
     expect(output).not.toContain('<state_patch>');
     expect(output).not.toContain('touma.affection');
+    expect(output).not.toContain('<choices>');
     expect(output).toContain('class="wa2-choice-overlay"');
     expect(output).toContain('class="wa2-choice-prompt">请选择下一步行动</div>');
     expect(output).toContain('<button type="button"');
@@ -54,6 +57,14 @@ describe('white album display rules', () => {
     expect(output).toContain('data-gc-chat-input-text-selector=".wa2-choice-text"');
     expect(output).toContain('class="wa2-choice-label">A</span>');
     expect(output).toContain('去找冬马确认钢琴声。');
+  });
+
+  test('keeps legacy untagged choices renderable', () => {
+    const legacy = sample.replace('<choices>\n', '').replace('\n</choices>', '');
+    const output = applyAssistantDisplayRules(legacy, card.display);
+
+    expect(output).toContain('class="wa2-choice-overlay"');
+    expect(output.match(/class="wa2-choice"/g)).toHaveLength(4);
   });
 
   test('keeps option CSS as a game card resource', () => {

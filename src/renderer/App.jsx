@@ -3,6 +3,8 @@ import ChatPanel from './ChatPanel.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
 import { rendererServices } from './platform/index.js';
 
+const CENTERED_PORTRAIT_STYLE = { left: '50%' };
+
 // App Component
 function App() {
   const [theme, setTheme] = React.useState('light');
@@ -11,7 +13,7 @@ function App() {
     backgroundOpacity: 0.5
   });
   const [gameCardBackgroundUrl, setGameCardBackgroundUrl] = React.useState('');
-  const [gameCardPortraitUrl, setGameCardPortraitUrl] = React.useState('');
+  const [gameCardPortraits, setGameCardPortraits] = React.useState([]);
   const [backgroundLayers, setBackgroundLayers] = React.useState({ current: '', previous: '' });
   const [visualPanel, setVisualPanel] = React.useState({ textPanel: 'center', cardId: '' });
 
@@ -51,7 +53,14 @@ function App() {
   }, []);
 
   const handleGameCardPortraitChange = React.useCallback((detail) => {
-    setGameCardPortraitUrl(detail?.url || '');
+    const nextPortraits = Array.isArray(detail?.portraits) ? detail.portraits : [];
+    setGameCardPortraits(currentPortraits => nextPortraits.map((portrait) => {
+      const previous = currentPortraits.find(item => item.character === portrait.character);
+      const transition = !previous
+        ? 'enter'
+        : previous.expression === portrait.expression ? 'stable' : 'expression';
+      return { ...portrait, transition };
+    }));
   }, []);
 
   const handleVisualPanelChange = React.useCallback((detail) => {
@@ -106,14 +115,30 @@ function App() {
 
   return (
     <div
-      className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}${gameCardPortraitUrl ? ' has-portrait' : ''}`}
+      className={`app-container game-card-visual-layout game-card-visual-position-${visualPanel.textPanel}${gameCardThemeClass}${backgroundImageUrl ? ' has-background-image' : ''}${gameCardPortraits.length ? ' has-portrait' : ''}`}
       data-gc-part="app"
     >
       {backgroundLayers.previous && <div className="app-background-layer app-background-layer-previous" style={getBackgroundStyle(backgroundLayers.previous)} />}
       {backgroundLayers.current && <div key={backgroundLayers.current} className="app-background-layer app-background-layer-current" style={getBackgroundStyle(backgroundLayers.current)} onAnimationEnd={handleBackgroundAnimationEnd} />}
       {backgroundImageUrl && <div data-gc-part="background-overlay" style={getOverlayStyle()} />}
-      {gameCardPortraitUrl && <div className="app-portrait-layer" data-gc-part="portrait-layer" aria-hidden="true">
-        <img key={gameCardPortraitUrl} className="app-portrait-image" src={gameCardPortraitUrl} alt="" />
+      {gameCardPortraits.length > 0 && <div className="app-portrait-layer" data-gc-part="portrait-layer" data-count={gameCardPortraits.length} aria-hidden="true">
+        {gameCardPortraits.map((portrait, index) => (
+          <div
+            key={portrait.character}
+            className="app-portrait-slot"
+            data-character={portrait.character}
+            data-index={index}
+            style={gameCardPortraits.length === 1 ? CENTERED_PORTRAIT_STYLE : undefined}
+          >
+            <img
+              key={portrait.expression}
+              className="app-portrait-image"
+              data-transition={portrait.transition}
+              src={portrait.url}
+              alt=""
+            />
+          </div>
+        ))}
       </div>}
       <div className="app-content-wrapper">
         <ChatPanel

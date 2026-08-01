@@ -9,15 +9,13 @@ const rootSource = fs.readFileSync(
   'utf8'
 );
 const Root = compileGameCardUiRootSource(rootSource, React);
-const closedPanel = { open: false, eventId: '', returnScene: { background: null, bgm: null } };
+const closedPanel = { open: false, eventId: '' };
 
 function sampleEvent() {
   return {
     id: 'sample-event',
     title: '雪菜的答复',
     time: '2007.10.26 放学后 星期五',
-    background: 'event1',
-    bgm: 'dream',
     body: '雪菜说“谢谢你”。春希可以选择如何回应她。\n\n第二段里，他又听见「隔壁的钢琴声」。',
     options: [
       { id: 'thank', label: '认真道谢', effects: { 'setsuna.affection': 2, 'touma.affection': -2 } },
@@ -30,8 +28,8 @@ function eventState(panel = closedPanel) {
   return {
     setsuna: { affection: 99 },
     touma: { affection: 1 },
-    audio: { bgm: panel.open ? 'dream' : 'daily' },
-    visual: { background: panel.open ? 'event1' : 'school' },
+    audio: { bgm: 'daily' },
+    visual: { scene: 'school' },
     events: { queue: [sampleEvent(), { id: 'next-event' }], panel }
   };
 }
@@ -74,7 +72,7 @@ describe('white album 2 event panel', () => {
     expect(screen.getByRole('button', { name: '打开事件' })).toHaveFocus();
   });
 
-  test('switches event media and restores the main scene on return or consume', () => {
+  test('keeps model-directed media while returning from or consuming an event', () => {
     const emit = jest.fn();
     const initialState = eventState();
     const { container, rerender } = render(React.createElement(Root, { React, state: initialState, emit }));
@@ -89,8 +87,7 @@ describe('white album 2 event panel', () => {
 
     const openPanel = {
       open: true,
-      eventId: 'sample-event',
-      returnScene: { background: 'school', bgm: 'daily' }
+      eventId: 'sample-event'
     };
     rerender(React.createElement(Root, { React, state: eventState(openPanel), emit }));
     expect(screen.getByRole('button', { name: '返回主剧情' })).toHaveAttribute('title', '返回主剧情');

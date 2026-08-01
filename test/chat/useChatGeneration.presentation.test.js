@@ -11,8 +11,8 @@ describe('useChatGeneration presentation effects', () => {
 
   test('dispatches pre_send and after_response presentation effects', async () => {
     const card = { id: 'card' };
-    const preState = { visual: { background: 'school' } };
-    const afterState = { visual: { portrait: 'touma' } };
+    const preState = { visual: { scene: 'school' } };
+    const afterState = { visual: { portraits: { touma: 'normal' } } };
     const backgroundEffect = { type: 'visual.updateBackground' };
     const portraitEffect = { type: 'visual.updatePortrait' };
     generationServices.preparePreSendMessages = jest.fn(async ({ messages }) => ({

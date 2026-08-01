@@ -139,4 +139,32 @@ describe('state schema defaults', () => {
       'schema.player.hp.default: must be a finite number'
     ]);
   });
+
+  test('validates constrained object properties', () => {
+    const schema = {
+      cast: {
+        type: 'object',
+        properties: {
+          touma: { type: 'enum', values: ['normal', 'happy'] },
+          setsuna: { type: 'enum', values: ['normal'] }
+        },
+        additionalProperties: false,
+        maxProperties: 1,
+        default: {}
+      }
+    };
+
+    expect(ensureStateDefaults(schema, {
+      cast: { touma: 'happy' }
+    }).errors).toEqual([]);
+    expect(ensureStateDefaults(schema, {
+      cast: { touma: 'sad' }
+    }).errors).toEqual(['state.cast: property touma must be one of enum values']);
+    expect(ensureStateDefaults(schema, {
+      cast: { takeya: 'normal' }
+    }).errors).toEqual(['state.cast: property takeya is not allowed']);
+    expect(ensureStateDefaults(schema, {
+      cast: { touma: 'normal', setsuna: 'normal' }
+    }).errors).toEqual(['state.cast: must contain at most 1 properties']);
+  });
 });

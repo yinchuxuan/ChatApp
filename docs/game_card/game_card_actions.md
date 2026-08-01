@@ -69,7 +69,7 @@
   "when": { "state": { "route": "alice" } },
   "then": [
     { "type": "state.set", "path": "audio.bgm", "value": "normal" },
-    { "type": "state.set", "path": "visual.background", "value": "school" }
+    { "type": "state.set", "path": "visual.scene", "value": "school" }
   ]
 }
 ```
@@ -114,13 +114,11 @@ state 中的 `visual` / `audio` 只描述目标值。以下 action 会把当前�
 { "type": "visual.updateBackground" }
 { "type": "visual.updatePortrait" }
 { "type": "audio.updateBgm" }
-{ "type": "audio.updateBgm", "restart": false }
 ```
 
-- `visual.updateBackground`：按 `state.visual.background` 更新当前背景
-- `visual.updatePortrait`：按 `state.visual.portrait` 更新当前立绘
-- `audio.updateBgm`：按 `state.audio.bgm` 更新并播放 BGM；同一 BGM 默认从头播放
-- `restart: false`：同一 BGM 已加载时不重新开始；切换到新 BGM 时仍播放
+- `visual.updateBackground`：按 `state.visual.scene` 更新当前背景或 CG
+- `visual.updatePortrait`：按 `state.visual.portraits` 更新完整人物立绘层
+- `audio.updateBgm`：按 `state.audio.bgm` 更新，并在平台统一延迟后从头播放 BGM；同一 BGM 会复用资源 URL
 
 平台默认在首个正文 token 到达时依次执行三项更新。卡片可以关闭默认行为，完全改由 `pre_send` / `after_response` 规则控制：
 

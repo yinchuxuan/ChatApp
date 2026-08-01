@@ -9,7 +9,11 @@ const card = {
       school: 'images/school.jpg',
       room: 'images/room.jpg'
     },
-    portrait: { touma: 'images/touma.png' }
+    cg: { invite: 'images/invite.jpg' },
+    portrait: {
+      touma: { normal: 'images/touma.png' },
+      setsuna: { happy: 'images/setsuna.png' }
+    }
   }
 };
 
@@ -38,7 +42,7 @@ describe('GameCardBackgroundRuntime explicit updates', () => {
     const portrait = jest.fn();
     render(React.createElement(GameCardBackgroundRuntime, {
       backgroundRequest: request(1, {
-        visual: { background: 'school', portrait: 'touma' }
+        visual: { scene: 'school', portraits: { touma: 'normal' } }
       }),
       onBackgroundChange: background,
       onPortraitChange: portrait
@@ -50,24 +54,22 @@ describe('GameCardBackgroundRuntime explicit updates', () => {
     expect(portrait).not.toHaveBeenCalled();
   });
 
-  test('resolves a portrait only after updatePortrait requests it', async () => {
-    const portrait = jest.fn();
+  test('resolves a cg through the shared scene channel', async () => {
+    const background = jest.fn();
     render(React.createElement(GameCardBackgroundRuntime, {
-      portraitRequest: request(1, { visual: { portrait: 'touma' } }),
-      onPortraitChange: portrait
+      backgroundRequest: request(1, { visual: { scene: 'invite' } }),
+      onBackgroundChange: background
     }));
 
-    await waitFor(() => expect(portrait).toHaveBeenCalledWith({
-      url: 'local:///images/touma.png'
+    await waitFor(() => expect(background).toHaveBeenCalledWith({
+      url: 'local:///images/invite.jpg'
     }));
-    expect(global.platformMock.getGameCardImageUrl)
-      .toHaveBeenCalledWith('wa2', 'images/touma.png');
   });
 
   test('clears a requested channel when its state key is missing', async () => {
     const background = jest.fn();
     render(React.createElement(GameCardBackgroundRuntime, {
-      backgroundRequest: request(1, { visual: { background: 'missing' } }),
+      backgroundRequest: request(1, { visual: { scene: 'missing' } }),
       onBackgroundChange: background
     }));
     await flushEffects();
@@ -77,7 +79,7 @@ describe('GameCardBackgroundRuntime explicit updates', () => {
   });
 
   test('does not resolve the same card and path twice', async () => {
-    const state = { visual: { background: 'school' } };
+    const state = { visual: { scene: 'school' } };
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
       backgroundRequest: request(1, state)
     }));
@@ -91,7 +93,7 @@ describe('GameCardBackgroundRuntime explicit updates', () => {
   });
 
   test('resolves again when the card changes with the same path', async () => {
-    const state = { visual: { background: 'school' } };
+    const state = { visual: { scene: 'school' } };
     const secondCard = {
       id: 'other',
       visual: { background: { school: 'images/school.jpg' } }
@@ -115,12 +117,12 @@ describe('GameCardBackgroundRuntime explicit updates', () => {
     ));
     const background = jest.fn();
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
-      backgroundRequest: request(1, { visual: { background: 'school' } }),
+      backgroundRequest: request(1, { visual: { scene: 'school' } }),
       onBackgroundChange: background
     }));
     await waitFor(() => expect(resolvers).toHaveLength(1));
     rerender(React.createElement(GameCardBackgroundRuntime, {
-      backgroundRequest: request(2, { visual: { background: 'room' } }),
+      backgroundRequest: request(2, { visual: { scene: 'room' } }),
       onBackgroundChange: background
     }));
     await waitFor(() => expect(resolvers).toHaveLength(2));
@@ -137,14 +139,14 @@ describe('GameCardBackgroundRuntime explicit updates', () => {
     const panel = jest.fn();
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
       backgroundRequest: request(1, {
-        visual: { background: 'school', textPanel: 'right' }
+        visual: { scene: 'school', textPanel: 'right' }
       }),
       onVisualPanelChange: panel
     }));
     await flushEffects();
     rerender(React.createElement(GameCardBackgroundRuntime, {
       backgroundRequest: request(2, {
-        visual: { background: 'school', textPanel: 'bottom' }
+        visual: { scene: 'school', textPanel: 'bottom' }
       }),
       onVisualPanelChange: panel
     }));
@@ -153,4 +155,5 @@ describe('GameCardBackgroundRuntime explicit updates', () => {
     expect(panel).toHaveBeenCalledWith({ textPanel: 'right', cardId: 'wa2' });
     expect(panel).toHaveBeenCalledWith({ textPanel: 'center', cardId: 'wa2' });
   });
+
 });

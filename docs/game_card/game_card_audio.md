@@ -104,7 +104,7 @@ gameState.audio.bgm = "ensemble";
 
 ## 前端播放器
 
-前端 presentation controller 提供 `updateBgm(card, state, options)`，播放器只响应显式更新请求，不监听 state 变化。
+前端 presentation controller 提供 `updateBgm(card, state)`，播放器只响应显式更新请求，不监听 state 变化。
 
 解析流程：
 
@@ -120,8 +120,10 @@ gameState.audio.bgm
 - 用户提交消息后立即停止当前 BGM；仅键入输入不停止
 - LLM 只输出 thinking/reasoning 时保持停止
 - 正文第一个 token 开始流式输出时，按当前 `gameState.audio.bgm` 从头加载并播放
-- `state_patch` 改变 `audio.bgm` 时，在普通模式的流游标或分段模式的阅读游标越过该 patch 后切换；同曲不重播
-- `pre_send` / `after_response` 可通过 `audio.updateBgm` 手动切换；`restart: false` 可避免同曲重播
+- `state_patch` 改变 `audio.bgm` 时，在普通模式的流游标或分段模式的阅读游标越过该 patch 后发布播放请求
+- `pre_send` / `after_response` 可通过 `audio.updateBgm` 手动发布播放请求
+- 平台所有 BGM 播放入口统一延迟 1 秒；停止或新的播放请求会取消尚未执行的延迟任务
+- 每个播放请求都从头播放；同一 BGM 复用已解析的资源 URL
 
 行为要求：
 

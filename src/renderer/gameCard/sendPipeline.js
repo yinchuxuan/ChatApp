@@ -5,6 +5,7 @@ import { ensureStateDefaults } from '../../shared/game-card/state/stateSchema.js
 import { applyLatestAssistantStatePatch } from '../../shared/game-card/state/statePatch.js';
 import { decayTTL } from '../../shared/game-card/engine/ttl.js';
 import { collectPresentationEffects } from '../../shared/game-card/engine/presentationActions.js';
+import { migrateLegacyPortraitState } from '../../shared/game-card/schema/visualConfig.js';
 
 async function loadActiveGameCard(platform) {
   if (typeof platform?.repository?.getActiveCard !== 'function') return null;
@@ -28,12 +29,17 @@ function prepareState(card, state) {
   if (!schema) {
     return { state, trace: { changed: false, changedKeys: [], errors: [] } };
   }
-  const result = ensureStateDefaults(schema, state);
+  const migrated = migrateLegacyPortraitState(card, state);
+  const result = ensureStateDefaults(schema, migrated.state);
+  const changedKeys = [
+    ...(migrated.changed ? ['visual.portraits'] : []),
+    ...result.changedKeys
+  ];
   return {
     state: result.state,
     trace: {
-      changed: result.changed,
-      changedKeys: result.changedKeys,
+      changed: migrated.changed || result.changed,
+      changedKeys: [...new Set(changedKeys)],
       errors: result.errors
     }
   };
