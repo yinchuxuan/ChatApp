@@ -66,14 +66,19 @@ describe('reading state patch consumption', () => {
       message
     };
 
-    act(() => result.current({ ...progress, targetBoundary: 1, terminal: false }));
+    await act(async () => {
+      await result.current({ ...progress, targetBoundary: 1, terminal: false });
+    });
     await waitFor(() => expect(setState).toHaveBeenCalledWith({ applied: ['middle'] }));
-    act(() => result.current({ ...progress, targetBoundary: 1, terminal: false }));
-    await Promise.resolve();
+    await act(async () => {
+      await result.current({ ...progress, targetBoundary: 1, terminal: false });
+    });
     expect(generationServices.prepareStatePatchAtCursor).toHaveBeenCalledTimes(1);
     expect(generationServices.prepareAfterResponseMessages).not.toHaveBeenCalled();
 
-    act(() => result.current({ ...progress, targetBoundary: 3, terminal: true }));
+    await act(async () => {
+      await result.current({ ...progress, targetBoundary: 3, terminal: true });
+    });
     await waitFor(() => expect(generationServices.prepareAfterResponseMessages).toHaveBeenCalledTimes(1));
     expect(generationServices.prepareStatePatchAtCursor).toHaveBeenCalledTimes(2);
     expect(setState).toHaveBeenLastCalledWith({
@@ -129,11 +134,13 @@ describe('reading state patch consumption', () => {
       patches: [{ ordinal: 0, boundary: 1, text: 'bgm' }], streaming: true
     };
 
-    act(() => result.current({ entry, message: null, targetBoundary: 1, terminal: false }));
+    act(() => { void result.current({
+      entry, message: null, targetBoundary: 1, terminal: false
+    }); });
     rerender({ ...props, messages: [message] });
-    act(() => result.current({
+    act(() => { void result.current({
       entry: { ...entry, streaming: false }, message, targetBoundary: 1, terminal: false
-    }));
+    }); });
     await act(async () => {
       releasePatch();
       await patchGate;

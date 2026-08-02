@@ -559,7 +559,7 @@
 .app-container.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"] {
   max-width: min(960px, 100%);
   margin: auto;
-  font-size: clamp(13px, 0.95vw, 15px);
+  font-size: clamp(14px, 1vw, 16px);
   line-height: 1.55;
   letter-spacing: 0.04em;
   text-align: center;

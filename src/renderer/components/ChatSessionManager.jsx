@@ -71,7 +71,8 @@ function ChatSessionManager({ cardId, onBeforeSessionChange, onSessionChanged, o
       await repository.saveHistory(snapshot.messages || [], {
           gameState: snapshot.gameState || {},
           retryBaseMessages: snapshot.retryBaseMessages || [],
-          retryBaseState: snapshot.retryBaseState || {}
+          retryBaseState: snapshot.retryBaseState || {},
+          viewState: snapshot.viewState || {}
       });
       if (currentId && currentId !== created.id) await repository.setActive(currentId);
       await loadSessions();

@@ -34,8 +34,7 @@ function ChatRuntime({
   onPortraitChange,
   onVisualPanelChange
 }) {
-  const [messages, setMessages] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [messages, setMessages] = React.useState([]), [isLoading, setIsLoading] = React.useState(false);
   const [showMsgHistory, setShowMsgHistory] = React.useState(false);
   const [msgHistoryMessages, setMsgHistoryMessages] = React.useState(null);
   const [showStreamThinking, setShowStreamThinking] = React.useState(true);
@@ -103,8 +102,9 @@ function ChatRuntime({
     displayedCount: typewriter.displayedCount,
     display,
     scopeKey: session.revision,
-    surfaceRef: chatPanelRef,
-    onReadProgress: handleReadProgress
+    surfaceRef: chatPanelRef, onReadProgress: handleReadProgress,
+    restorePosition: persistence.readingPosition, restoreToken: persistence.readingRestoreToken,
+    onPositionChange: persistence.setReadingPosition
   });
   const handleRetry = React.useCallback(async (content) => {
     const retryContent = typeof content === 'string'
@@ -151,9 +151,9 @@ function ChatRuntime({
     React, segmented.displayMessages, segmented.displayIsLoading, typewriter,
     currentThinking, showStreamThinking, renderUser, renderAssistant,
     (last, loading) => ChatPanelMessageRenderers.renderRetryBtn(React, last, loading, handleRetry),
-    MessageCollapseRenderer, scroll.isHistoryExpanded, scroll.expandHistory, modelConfig, editUserMessage
+    MessageCollapseRenderer, !segmentedReading && scroll.isHistoryExpanded,
+    segmentedReading ? undefined : scroll.expandHistory, modelConfig, editUserMessage
   );
-
   return <div className="chat-panel" data-gc-part="chat-panel"
     ref={chatPanelRef} onClick={showMsgHistory ? undefined : segmented.advanceVisiblePage}>
     <GameCardStyleHost card={runtime.activeCard} />

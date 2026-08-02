@@ -91,4 +91,17 @@ describe('state patch cursor pipeline', () => {
     expect(result.applied).toBe(true);
     expect(result.presentationChangedKeys).toEqual([]);
   });
+
+  test('reports a repeated BGM set independently from state changes', async () => {
+    const result = await prepareStatePatchAtCursor({
+      patchText: JSON.stringify({ 'audio.bgm': 'calm' }),
+      state: { audio: { bgm: 'calm' } },
+      card,
+      platform: { resources: {} }
+    });
+
+    expect(result.applied).toBe(true);
+    expect(result.presentationChangedKeys).toEqual([]);
+    expect(result.patchTrace.setPaths).toEqual(['audio.bgm']);
+  });
 });

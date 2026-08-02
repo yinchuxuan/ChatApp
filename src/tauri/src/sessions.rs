@@ -100,7 +100,7 @@ pub fn ensure_files(context: &SessionContext) -> AppResult<()> {
     if !exists(&context.messages)? {
         write_json(
             &context.messages,
-            &json!({ "messages": [], "gameState": {} }),
+            &json!({ "messages": [], "gameState": {}, "viewState": {} }),
         )?;
     }
     if !exists(&context.retry_base)? {

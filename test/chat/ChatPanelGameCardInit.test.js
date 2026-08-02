@@ -33,7 +33,7 @@ describe('ChatPanel game card init', () => {
     await waitFor(() => expect(screen.getByText('intro')).toBeInTheDocument());
     expect(global.platformMock.saveChatHistory).toHaveBeenCalledWith([
       { role: 'system', content: 'intro', _meta: { source: 'game_card_init', visibility: 'user_visible' } }
-    ], { gameState: {}, retryBaseMessages: null, retryBaseState: null });
+    ], { gameState: {}, retryBaseMessages: null, retryBaseState: null, viewState: {} });
   });
 
   test('loads saved gameState and saves init state changes', async () => {
@@ -55,7 +55,7 @@ describe('ChatPanel game card init', () => {
     expect(generationServices.prepareInitMessages).toHaveBeenCalledWith({ messages: [], state: { score: 1 } });
     expect(global.platformMock.saveChatHistory).toHaveBeenCalledWith([
       { role: 'system', content: 'score:1', _meta: { visibility: 'user_visible' } }
-    ], { gameState: { score: 2 }, retryBaseMessages: null, retryBaseState: null });
+    ], { gameState: { score: 2 }, retryBaseMessages: null, retryBaseState: null, viewState: {} });
     generationServices.prepareInitMessages = originalPrepareInit;
   });
 

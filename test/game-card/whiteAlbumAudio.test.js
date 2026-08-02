@@ -18,7 +18,8 @@ describe('white album 2 audio', () => {
       values: [
         'none', 'daily', 'happy', 'normal', 'sad', 'tragic', 'WA_piano',
         'WA_3', 'dream', 'snow_scene', 'bad_woman', 'after_all_piano',
-        'winter_night', 'things', 'unstoppable_dream', 'love_dream'
+        'winter_night', 'things', 'unstoppable_dream', 'love_dream',
+        'WA_formal', 'normal_ex'
       ],
       default: 'daily'
     });
@@ -39,5 +40,7 @@ describe('white album 2 audio', () => {
     expect(card.audio.bgm.things).toBe('audio/bgm/story/WA2_things.mp3');
     expect(card.audio.bgm.unstoppable_dream).toBe('audio/bgm/story/WA2_unstoppable_dream.mp3');
     expect(card.audio.bgm.love_dream).toBe('audio/bgm/story/WA2_love_dream.ogg');
+    expect(card.audio.bgm.WA_formal).toBe('audio/bgm/story/WA2_WA_formal.mp3');
+    expect(card.audio.bgm.normal_ex).toBe('audio/bgm/story/WA2_normal_ex.ogg');
   });
 });

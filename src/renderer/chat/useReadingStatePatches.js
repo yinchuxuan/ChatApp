@@ -128,6 +128,7 @@ function useReadingStatePatches({
     queueRef.current = queueRef.current
       .then(() => consume(progress))
       .catch(error => onError?.(generationServices.normalizeGameCardError(error)));
+    return queueRef.current;
   }, [consume, onError]);
 }
 

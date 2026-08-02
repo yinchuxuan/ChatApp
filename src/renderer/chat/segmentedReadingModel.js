@@ -82,10 +82,23 @@ function normalizeReadingCursor(cursor, entries) {
   return { entryIndex, pageIndex };
 }
 
+function restoreReadingCursor(entries, position) {
+  const fallback = { entryIndex: Math.max(entries.length - 1, 0), pageIndex: 0 };
+  const messageId = String(position?.messageId || '');
+  if (!messageId) return fallback;
+  const entryIndex = entries.findIndex(entry => (
+    !entry.streaming && String(entry.key) === messageId
+  ));
+  if (entryIndex < 0) return fallback;
+  const pageIndex = Number.isInteger(position?.segmentIndex) ? position.segmentIndex : 0;
+  return normalizeReadingCursor({ entryIndex, pageIndex: Math.max(pageIndex, 0) }, entries);
+}
+
 export {
   buildStatePatchTimeline,
   buildReadingEntries,
   normalizeReadingCursor,
+  restoreReadingCursor,
   resolveReadingSegments,
   splitReadingSegments
 };

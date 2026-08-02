@@ -36,4 +36,16 @@ describe('useGameCardPresentation scene updates', () => {
     expect(result.current.bgmRequest).toMatchObject({ card, state });
     expect(result.current.bgmRequest).not.toHaveProperty('restart');
   });
+
+  test('ignores manual BGM effects in segmented reading mode', () => {
+    const card = { id: 'audio-card', display: { segmentedReading: true } };
+    const state = { audio: { bgm: 'intro' } };
+    const { result } = renderHook(() => useGameCardPresentation());
+
+    act(() => result.current.applyEffects([
+      { type: 'audio.updateBgm' }
+    ], { card, state }));
+
+    expect(result.current.bgmRequest).toBeNull();
+  });
 });

@@ -14,6 +14,8 @@
     "winter_night": "audio/bgm/story/WA2_winter_night.ogg",
     "things": "audio/bgm/story/WA2_things.mp3",
     "unstoppable_dream": "audio/bgm/story/WA2_unstoppable_dream.mp3",
-    "love_dream": "audio/bgm/story/WA2_love_dream.ogg"
+    "love_dream": "audio/bgm/story/WA2_love_dream.ogg",
+    "WA_formal":"audio/bgm/story/WA2_WA_formal.mp3",
+    "normal_ex":"audio/bgm/story/WA2_normal_ex.ogg"
   }
 }

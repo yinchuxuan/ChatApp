@@ -8,6 +8,7 @@ pub struct SaveOptions {
     pub game_state: Option<Value>,
     pub retry_base_messages: Option<Vec<Value>>,
     pub retry_base_state: Option<Value>,
+    pub view_state: Option<Value>,
 }
 
 fn object_or_empty(value: Option<&Value>) -> Value {
@@ -69,7 +70,17 @@ pub fn encode_history(payload: &Value, options: &SaveOptions) -> Value {
             .unwrap_or(&[]);
         (values, object_or_empty(payload.get("gameState")))
     };
-    json!({ "messages": clean_messages(messages), "gameState": game_state })
+    let view_state = object_or_empty(
+        options
+            .view_state
+            .as_ref()
+            .or_else(|| payload.get("viewState")),
+    );
+    json!({
+        "messages": clean_messages(messages),
+        "gameState": game_state,
+        "viewState": view_state
+    })
 }
 
 pub fn encode_retry_base(options: &SaveOptions) -> Value {
@@ -89,7 +100,15 @@ pub fn decode_history(value: Option<&Value>, retry: Option<&Value>) -> Value {
         .filter(|item| item.is_object())
         .map(|item| object_or_empty(item.get("gameState")))
         .unwrap_or_else(|| json!({}));
-    let mut result = json!({ "messages": history_messages, "gameState": game_state });
+    let view_state = value
+        .filter(|item| item.is_object())
+        .map(|item| object_or_empty(item.get("viewState")))
+        .unwrap_or_else(|| json!({}));
+    let mut result = json!({
+        "messages": history_messages,
+        "gameState": game_state,
+        "viewState": view_state
+    });
     if let Some(retry_value) = retry {
         let retry_messages = retry_value
             .as_array()

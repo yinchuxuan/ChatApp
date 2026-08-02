@@ -70,9 +70,17 @@ sessions/
 ```json
 {
   "messages": [],
-  "gameState": {}
+  "gameState": {},
+  "viewState": {
+    "reading": {
+      "messageId": "assistant-message-id",
+      "segmentIndex": 0
+    }
+  }
 }
 ```
+
+`viewState.reading` 是平台视图状态，用稳定消息 ID 和零基分段下标记录分段阅读位置；它不属于游戏卡 state，也不进入 retry base。
 
 `retry-base.json` 继续保存重试基准：
 
@@ -112,10 +120,10 @@ Tauri adapter 分别映射到 Rust commands：
 - session 作用域跟随当前游戏卡；未加载游戏卡时使用 `no-card`。
 - 如果 session root 不存在，自动创建 `default` session。
 - `save_chat_history` 成功后更新当前 session 的 `updatedAt`、`messageCount` 和 `preview`。
-- 同一 session 的读取和保存进入串行队列；messages、gameState、retry base 和 metadata 按一次保存顺序更新。
+- 同一 session 的读取和保存进入串行队列；messages、gameState、viewState、retry base 和 metadata 按一次保存顺序更新。
 - session JSON 使用临时文件加 `rename` 原子替换，写入失败不会留下不完整 JSON。
 - 新 session 初始包含空 `messages.json` 和空 `retry-base.json`。
-- 切换 session 前先保存当前内存中的 messages、gameState 和 retry base。
+- 切换 session 前先保存当前内存中的 messages、gameState、viewState 和 retry base。
 - 切换 session 后重新调用现有历史加载流程，并重新执行 game card init。
 - 删除当前 session 后切换到最近更新的其它 session；如果没有其它 session，则创建新的 `default`。
 - session id 必须复用现有安全 id 规则，避免路径穿越。

@@ -101,7 +101,7 @@ describe('white album ui styles', () => {
     expect(css).toContain('[data-role="assistant"][data-gc-part="message-row"]');
     expect(css).toContain('align-items: center');
     expect(css).toContain('justify-content: center');
-    expect(css).toContain('font-size: clamp(13px, 0.95vw, 15px)');
+    expect(css).toContain('font-size: clamp(14px, 1vw, 16px)');
     expect(css).toContain('line-height: 1.55');
     expect(css).toContain('letter-spacing: 0.04em');
     expect(css).toContain('text-align: center');

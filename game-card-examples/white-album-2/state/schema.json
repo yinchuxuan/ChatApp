@@ -104,7 +104,9 @@
         "winter_night",
         "things",
         "unstoppable_dream",
-        "love_dream"
+        "love_dream",
+        "WA_formal",
+        "normal_ex"
       ],
       "default": "daily",
       "description": "当前演出 BGM；none 表示静音，只由 LLM 的分段 state_patch 设置。",

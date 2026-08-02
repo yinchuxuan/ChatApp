@@ -44,7 +44,8 @@ function useGameCardPresentation() {
         updatePortrait(context.card, context.state);
       } else if (effect.type === 'visual.updatePortrait') {
         updatePortrait(context.card, context.state);
-      } else if (effect.type === 'audio.updateBgm') {
+      } else if (effect.type === 'audio.updateBgm'
+        && context.card?.display?.segmentedReading !== true) {
         updateBgm(context.card, context.state);
       }
     });

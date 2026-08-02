@@ -1,8 +1,10 @@
 import React from 'react';
 import {
   buildReadingEntries,
-  normalizeReadingCursor
+  normalizeReadingCursor,
+  restoreReadingCursor
 } from './segmentedReadingModel.js';
+import useReadingCheckpoint from './useReadingCheckpoint.js';
 
 const SEGMENT_TRANSITION_MS = 280;
 const INTERACTIVE_SELECTOR = [
@@ -36,7 +38,10 @@ function useSegmentedReading({
   display,
   scopeKey,
   surfaceRef,
-  onReadProgress
+  onReadProgress,
+  restorePosition,
+  restoreToken,
+  onPositionChange
 }) {
   const entries = React.useMemo(() => buildReadingEntries(
     messages, isLoading, streamContent, displayedCount, display, rawStreamContent, streamMessageId
@@ -48,6 +53,7 @@ function useSegmentedReading({
     pageIndex: 0
   }));
   const cursorRef = React.useRef(cursor);
+  const restoredTokenRef = React.useRef(null);
   const transitionRef = React.useRef(false);
   const timerRef = React.useRef(null);
   const latestKey = entries[entries.length - 1]?.key || '';
@@ -86,6 +92,12 @@ function useSegmentedReading({
     if (next.entryIndex !== cursorRef.current.entryIndex
       || next.pageIndex !== cursorRef.current.pageIndex) commit(next);
   }, [commit, entries]);
+
+  React.useLayoutEffect(() => {
+    if (!enabled || entries.length === 0 || restoredTokenRef.current === restoreToken) return;
+    restoredTokenRef.current = restoreToken;
+    commit(restoreReadingCursor(entries, restorePosition));
+  }, [commit, enabled, entries, restorePosition, restoreToken]);
 
   React.useEffect(() => () => {
     if (timerRef.current !== null) clearTimeout(timerRef.current);
@@ -144,19 +156,8 @@ function useSegmentedReading({
 
   const activeCursor = normalizeReadingCursor(cursor, entries);
   const activeEntry = entries[activeCursor.entryIndex];
-  React.useEffect(() => {
-    if (!enabled || !activeEntry || typeof onReadProgress !== 'function') return;
-    const isLatest = activeCursor.entryIndex === entries.length - 1;
-    const terminal = !isLoading && isLatest
-      && activeCursor.pageIndex === activeEntry.pageCount - 1;
-    onReadProgress({
-      entry: activeEntry,
-      message: activeEntry.streaming ? null : messages[activeEntry.messageIndex],
-      targetBoundary: terminal ? activeEntry.pageCount : activeCursor.pageIndex,
-      terminal
-    });
-  }, [activeCursor.entryIndex, activeCursor.pageIndex, activeEntry, enabled, entries.length,
-    isLoading, messages, onReadProgress]);
+  useReadingCheckpoint({ enabled, isLoading, entries, activeCursor, activeEntry, messages,
+    onReadProgress, onPositionChange });
   const isHistory = Boolean(enabled && activeEntry && activeCursor.entryIndex < entries.length - 1);
   const canPrevious = Boolean(enabled) && (
     activeCursor.pageIndex > 0 || activeCursor.entryIndex > 0

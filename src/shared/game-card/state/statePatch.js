@@ -42,7 +42,7 @@ function applyParsedPatch(state, patchText, options) {
   } catch (_) {
     return {
       state: cloneState(state),
-      trace: { applied: false, reason: 'invalid_json', actions: [], changedKeys: [] }
+      trace: { applied: false, reason: 'invalid_json', actions: [], changedKeys: [], setPaths: [] }
     };
   }
 
@@ -63,6 +63,9 @@ function applyParsedPatch(state, patchText, options) {
       applied: result.actions.some((action) => action.applied),
       actions: result.actions,
       changedKeys: [...summarizeActions(result.actions)],
+      setPaths: selectedActions
+        .filter((action, index) => action?.type === 'state.set' && result.actions[index]?.applied)
+        .map(action => action.path),
       ignoredPaths: actions
         .filter(action => !selectedActions.includes(action))
         .map(action => action?.path)
@@ -78,7 +81,10 @@ function applyStatePatch(patchText, state = {}, options = {}) {
 function applyLatestAssistantStatePatch(messages = [], state = {}, options = {}) {
   const patches = extractLatestAssistantStatePatches(messages);
   if (patches.length === 0) {
-    return { state: cloneState(state), trace: { applied: false, reason: 'not_found', patches: [] } };
+    return {
+      state: cloneState(state),
+      trace: { applied: false, reason: 'not_found', patches: [], changedKeys: [], setPaths: [] }
+    };
   }
 
   return patches.reduce((current, patchText) => {
@@ -88,10 +94,14 @@ function applyLatestAssistantStatePatch(messages = [], state = {}, options = {})
       trace: {
         applied: current.trace.applied || result.trace.applied,
         patches: [...current.trace.patches, result.trace],
-        changedKeys: [...new Set([...current.trace.changedKeys, ...result.trace.changedKeys])]
+        changedKeys: [...new Set([...current.trace.changedKeys, ...result.trace.changedKeys])],
+        setPaths: [...new Set([...current.trace.setPaths, ...result.trace.setPaths])]
       }
     };
-  }, { state: cloneState(state), trace: { applied: false, patches: [], changedKeys: [] } });
+  }, {
+    state: cloneState(state),
+    trace: { applied: false, patches: [], changedKeys: [], setPaths: [] }
+  });
 }
 
 export {

@@ -18,7 +18,8 @@ describe('useChatPersistence', () => {
     expect(repository.saveHistory).toHaveBeenCalledWith([{ role: 'user', content: 'current' }], {
       gameState: { score: 2 },
       retryBaseMessages: [{ role: 'user', content: 'A' }],
-      retryBaseState: { score: 1 }
+      retryBaseState: { score: 1 },
+      viewState: {}
     });
   });
 
@@ -35,8 +36,41 @@ describe('useChatPersistence', () => {
     rerender({ messages: [{ role: 'user', content: 'after' }], gameState: { score: 3 }, isLoading: false });
     await waitFor(() => expect(repository.saveHistory).toHaveBeenLastCalledWith(
       [{ role: 'user', content: 'after' }],
-      { gameState: { score: 3 }, retryBaseMessages: null, retryBaseState: null }
+      { gameState: { score: 3 }, retryBaseMessages: null, retryBaseState: null, viewState: {} }
     ));
+  });
+
+  test('hydrates and saves the current segmented reading position', async () => {
+    const repository = { saveHistory: jest.fn(async () => ({})) };
+    const { result } = renderHook(() => useChatPersistence({
+      messages: [{ id: 'reply', role: 'assistant', content: 'response' }],
+      gameState: { score: 2 }, isLoading: false, repository
+    }));
+    act(() => result.current.hydrate({
+      viewState: { reading: { messageId: 'reply', segmentIndex: 2 } }
+    }));
+    expect(result.current.readingPosition).toEqual({ messageId: 'reply', segmentIndex: 2 });
+
+    act(() => result.current.setReadingPosition({ messageId: 'reply', segmentIndex: 3 }));
+    await act(async () => { await result.current.save(); });
+    expect(repository.saveHistory).toHaveBeenLastCalledWith(expect.any(Array),
+      expect.objectContaining({
+        gameState: { score: 2 },
+        viewState: { reading: { messageId: 'reply', segmentIndex: 3 } }
+      }));
+  });
+
+  test('does not auto-save stale session data while a new session is loading', async () => {
+    const repository = { saveHistory: jest.fn(async () => ({})) };
+    const { result } = renderHook(() => useChatPersistence({
+      messages: [{ role: 'user', content: 'old session' }],
+      gameState: { score: 9 }, isLoading: false, repository
+    }));
+    act(() => result.current.markLoaded());
+    act(() => result.current.reset());
+    await act(async () => { await Promise.resolve(); });
+
+    expect(repository.saveHistory).not.toHaveBeenCalled();
   });
 
   test('refreshes retry base from the active session', async () => {

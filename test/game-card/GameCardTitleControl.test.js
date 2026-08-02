@@ -146,7 +146,8 @@ describe('GameCardTitleControl', () => {
       messages: [{ role: 'user', content: 'snapshot' }],
       gameState: { timeline: { currentTime: '10:30' } },
       retryBaseMessages: [{ role: 'user', content: 'base' }],
-      retryBaseState: { timeline: { currentTime: '10:00' } }
+      retryBaseState: { timeline: { currentTime: '10:00' } },
+      viewState: { reading: { messageId: 'reply', segmentIndex: 4 } }
     });
     platformMock.createChatSession.mockResolvedValue({ success: true, id: 'archive-1' });
 
@@ -162,7 +163,8 @@ describe('GameCardTitleControl', () => {
     expect(platformMock.saveChatHistory).toHaveBeenCalledWith([{ role: 'user', content: 'snapshot' }], {
       gameState: { timeline: { currentTime: '10:30' } },
       retryBaseMessages: [{ role: 'user', content: 'base' }],
-      retryBaseState: { timeline: { currentTime: '10:00' } }
+      retryBaseState: { timeline: { currentTime: '10:00' } },
+      viewState: { reading: { messageId: 'reply', segmentIndex: 4 } }
     });
     expect(platformMock.setActiveChatSession).toHaveBeenCalledWith('default');
   });

@@ -21,7 +21,7 @@ function useCollapsedHistory(isExpanded, onExpand) {
   }, [isExpanded, reset]);
 
   const onWheel = React.useCallback((event) => {
-    if (isExpanded || pull.phase === 'snapping') return;
+    if (typeof onExpand !== 'function' || isExpanded || pull.phase === 'snapping') return;
     event.stopPropagation();
     clearTimeout(timerRef.current);
     if (event.deltaY < 0) {

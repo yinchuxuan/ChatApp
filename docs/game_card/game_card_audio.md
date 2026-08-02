@@ -11,7 +11,7 @@ Audio 不进入 LLM prompt，不写入消息正文，也不由 display rules 处
 ## 设计原则
 
 - `card.audio` 是资源表，`gameState.audio` 是当前会话状态。
-- BGM 状态跟随 session 保存和加载，切换 session 时恢复。
+- BGM 状态跟随 session 保存和加载；普通模式切换 session 时恢复播放，分段模式保持停止。
 - 游戏卡规则只修改语义化 key，不直接散落文件路径。
 - 音频资源只能来自当前游戏卡目录，禁止路径穿越。
 - 播放器是 UI 运行时能力，不改变 messages、retry base 或 LLM 请求。
@@ -119,9 +119,11 @@ gameState.audio.bgm
 
 - 用户提交消息后立即停止当前 BGM；仅键入输入不停止
 - LLM 只输出 thinking/reasoning 时保持停止
-- 正文第一个 token 开始流式输出时，按当前 `gameState.audio.bgm` 从头加载并播放
-- `state_patch` 改变 `audio.bgm` 时，在普通模式的流游标或分段模式的阅读游标越过该 patch 后发布播放请求
-- `pre_send` / `after_response` 可通过 `audio.updateBgm` 手动发布播放请求
+- 普通模式在正文第一个 token 开始流式输出时，按当前 `gameState.audio.bgm` 从头加载并播放
+- 分段模式不在 session 加载或正文首 token 时自动播放 BGM
+- 分段模式每次成功执行 `state.set audio.bgm` 时，在阅读游标越过该 patch 后发布播放请求；即使值未变化也会重新播放
+- 普通模式下，`state_patch` 改变 `audio.bgm` 时，在流游标越过该 patch 后发布播放请求
+- 普通模式的 `pre_send` / `after_response` 可通过 `audio.updateBgm` 手动发布播放请求；分段模式忽略该动作
 - 平台所有 BGM 播放入口统一延迟 1 秒；停止或新的播放请求会取消尚未执行的延迟任务
 - 每个播放请求都从头播放；同一 BGM 复用已解析的资源 URL
 
@@ -130,7 +132,7 @@ gameState.audio.bgm
 - active game card 为空时停止播放
 - 当前 key 缺失或资源不存在时停止播放并记录错误
 - 切换游戏卡时停止旧音频
-- 切换 session 后按恢复出的 `gameState.audio.bgm` 播放
+- 普通模式切换 session 后按恢复出的 `gameState.audio.bgm` 播放；分段模式等待后续显式 set
 - 相同 key 不重复加载
 - 音频循环播放默认开启
 
@@ -190,4 +192,4 @@ display rules 是 UI-only 文本变换，只作用于消息内容渲染；BGM �
 - 资源协议拒绝路径穿越和非音频扩展名
 - 组件只在收到显式 update 请求时切换音频资源
 - 切换游戏卡或 session 时停止或恢复正确 BGM
-- 用户提交时停止播放，正文开始流式输出时按最新 state 播放
+- 用户提交时停止播放；普通模式在正文开始时按最新 state 播放，分段模式只响应显式 `state.set audio.bgm`

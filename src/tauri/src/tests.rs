@@ -95,6 +95,7 @@ async fn sessions_persist_messages_state_retry_base_and_metadata() {
             game_state: Some(json!({ "flags": { "met": true } })),
             retry_base_messages: Some(vec![json!({ "role": "user", "content": "retry" })]),
             retry_base_state: Some(json!({ "turn": 1 })),
+            view_state: Some(json!({ "reading": { "messageId": "reply", "segmentIndex": 2 } })),
         },
     )
     .await
@@ -106,6 +107,7 @@ async fn sessions_persist_messages_state_retry_base_and_metadata() {
     assert_eq!(history["gameState"]["flags"]["met"], true);
     assert_eq!(history["retryBaseMessages"][0]["content"], "retry");
     assert_eq!(history["retryBaseState"]["turn"], 1);
+    assert_eq!(history["viewState"]["reading"]["messageId"], "reply");
 
     let root = sessions::session_root(&restarted.game_cards_dir()).unwrap();
     let (items, active_id) = sessions::list(&root).unwrap();

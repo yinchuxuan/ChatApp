@@ -2,19 +2,29 @@ import React from 'react';
 
 function useChatPresentationHandlers(card, presentation) {
   const {
+    stopBgm,
     updateAll,
     updateBackground,
     updateChanged,
     updatePortrait
   } = presentation;
+  const updateInitialPresentation = React.useCallback((loadedCard, state) => {
+    if (loadedCard?.display?.segmentedReading !== true) {
+      updateAll(loadedCard, state);
+      return;
+    }
+    updateBackground(loadedCard, state);
+    updatePortrait(loadedCard, state);
+  }, [updateAll, updateBackground, updatePortrait]);
   const onStreamContentStart = React.useCallback(({ card: streamCard, state }) => {
     if (streamCard?.presentation?.autoUpdateOnFirstToken === false) return;
-    updateAll(streamCard, state);
-  }, [updateAll]);
+    updateInitialPresentation(streamCard, state);
+  }, [updateInitialPresentation]);
 
   const onSessionLoaded = React.useCallback(({ card: loadedCard, state }) => {
-    updateAll(loadedCard, state);
-  }, [updateAll]);
+    if (loadedCard?.display?.segmentedReading === true) stopBgm();
+    updateInitialPresentation(loadedCard, state);
+  }, [stopBgm, updateInitialPresentation]);
 
   const onRetryStateRestore = React.useCallback((state) => {
     if (card?.presentation?.autoUpdateOnFirstToken === false) return;
@@ -23,10 +33,16 @@ function useChatPresentationHandlers(card, presentation) {
   }, [card, updateBackground, updatePortrait]);
 
   const onStatePatchApplied = React.useCallback((result) => {
+    const loadedCard = result.card || card;
+    const changedKeys = result.presentationChangedKeys || [];
+    const bgmWasSet = result.patchTrace?.setPaths?.includes('audio.bgm');
+    const presentationKeys = loadedCard?.display?.segmentedReading === true && bgmWasSet
+      ? [...new Set([...changedKeys, 'audio.bgm'])]
+      : changedKeys;
     updateChanged(
-      result.card || card,
+      loadedCard,
       result.state,
-      result.presentationChangedKeys
+      presentationKeys
     );
   }, [card, updateChanged]);
 

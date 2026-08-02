@@ -133,7 +133,7 @@ describe('ChatPanel segmented state patch timeline', () => {
       expect(screen.getByTestId('visual-state')).toHaveAttribute('data-background', 'first');
     });
     expect(screen.getByTestId('visual-state')).toHaveAttribute('data-portrait', '{}');
-    expect(screen.getByTestId('audio-state')).toHaveAttribute('data-bgm', 'calm');
+    expect(screen.getByTestId('audio-state')).toHaveAttribute('data-bgm', '');
 
     fireEvent.click(container.querySelector('[data-gc-part="chat-panel"]'));
     await screen.findByText('第二段。');
