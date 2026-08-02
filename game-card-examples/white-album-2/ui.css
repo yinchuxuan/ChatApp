@@ -82,68 +82,42 @@
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"] {
-  left: clamp(128px, 11vw, 208px);
-  right: clamp(128px, 11vw, 208px);
-  bottom: 18px;
-  min-height: 52px;
-  padding: 6px 10px 6px 52px;
-  gap: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(235, 246, 254, 0.05)),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.14), rgba(206, 225, 239, 0.07)),
-    rgba(238, 247, 253, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    inset 0 -1px 0 rgba(137, 169, 195, 0.06),
-    0 12px 28px rgba(34, 55, 78, 0.08);
-  backdrop-filter: blur(4px) saturate(1.03);
-  -webkit-backdrop-filter: blur(4px) saturate(1.03);
+  left: clamp(160px, 15vw, 280px);
+  right: clamp(160px, 15vw, 280px);
+  bottom: 34px;
+  min-height: 44px;
+  padding: 0;
+  gap: 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"]::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: auto;
-  bottom: auto;
-  left: 22px;
-  display: block;
-  width: 20px;
-  height: 20px;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.92);
-  -webkit-mask: var(--icon-edit) center / contain no-repeat;
-  mask: var(--icon-edit) center / contain no-repeat;
-  filter: drop-shadow(0 1px 8px rgba(80, 112, 140, 0.28));
-  z-index: 1;
+  display: none;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"]::after {
-  content: "Enter  发送";
-  position: absolute;
-  top: 50%;
-  right: 76px;
-  transform: translateY(-50%);
-  color: rgba(74, 94, 116, 0.68);
-  font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
-  font-size: 13px;
-  line-height: 1;
-  pointer-events: none;
+  display: none;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input-textarea"] {
-  min-height: 28px;
+  box-sizing: border-box;
+  min-height: 40px;
   max-height: 96px;
-  padding: 3px 88px 3px 0;
-  color: #18324a;
-  font-size: 14.5px;
-  line-height: 1.6;
+  padding: 7px 4px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.88);
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72);
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input-textarea"]::placeholder {
-  color: rgba(56, 75, 96, 0.62);
+  color: rgba(255, 255, 255, 0.56);
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-header"]::after {
@@ -166,8 +140,7 @@
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="bgm-button"],
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-session-button"],
-.app-container.game-card-theme-white-album-2 [data-gc-part="game-card-import-button"],
-.app-container.game-card-theme-white-album-2 [data-gc-part="chat-send-button"] {
+.app-container.game-card-theme-white-album-2 [data-gc-part="game-card-import-button"] {
   border: 1px solid rgba(194, 216, 232, 0.78);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(232, 244, 252, 0.46));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76);
@@ -176,46 +149,35 @@
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-send-button"] {
   position: relative;
   z-index: 1;
-  width: 42px;
-  height: 42px;
-  padding: 10px;
-  border-color: rgba(255, 255, 255, 0.62);
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.76), transparent 38%),
-    linear-gradient(145deg, rgba(174, 205, 229, 0.78), rgba(120, 162, 196, 0.70));
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: #ffffff;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.76),
-    inset 0 -1px 0 rgba(63, 105, 140, 0.18),
-    0 8px 22px rgba(72, 106, 135, 0.18);
+  box-shadow: none;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-send-button"]:disabled {
-  color: rgba(255, 255, 255, 0.78);
-  opacity: 0.72;
-  background:
-    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.64), transparent 38%),
-    linear-gradient(145deg, rgba(185, 199, 211, 0.62), rgba(140, 156, 171, 0.56));
+  color: rgba(255, 255, 255, 0.44);
+  opacity: 1;
+  background: transparent;
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="bgm-button"]:hover,
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-session-button"]:hover,
-.app-container.game-card-theme-white-album-2 [data-gc-part="game-card-import-button"]:hover,
-.app-container.game-card-theme-white-album-2 [data-gc-part="chat-send-button"]:hover {
+.app-container.game-card-theme-white-album-2 [data-gc-part="game-card-import-button"]:hover {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(218, 237, 249, 0.64));
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-send-button"]:not(:disabled):hover {
-  background:
-    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.82), transparent 38%),
-    linear-gradient(145deg, rgba(186, 218, 241, 0.86), rgba(128, 173, 209, 0.78));
+  background: transparent;
+  color: rgba(255, 255, 255, 0.74);
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-send-button"]:disabled:hover {
-  background:
-    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.64), transparent 38%),
-    linear-gradient(145deg, rgba(185, 199, 211, 0.62), rgba(140, 156, 171, 0.56));
+  background: transparent;
 }
 
 .app-container.game-card-theme-white-album-2:has(.segmented-reading-bubble):not(:has(.segmented-reading-bubble .wa2-choice)) [data-gc-part="chat-input"],
@@ -225,18 +187,14 @@
 
 @media (max-width: 720px) {
   .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"] {
-    left: 16px;
-    right: 16px;
-    bottom: 12px;
-    padding-left: 48px;
-  }
-
-  .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"]::after {
-    display: none;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    gap: 10px;
   }
 
   .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input-textarea"] {
-    padding-right: 12px;
+    padding-right: 4px;
   }
 }
 
@@ -595,7 +553,6 @@
 }
 
 [data-theme="dark"] .app-container.game-card-theme-white-album-2 [data-gc-part="chat-header"],
-[data-theme="dark"] .app-container.game-card-theme-white-album-2 [data-gc-part="chat-input"],
 [data-theme="dark"] .app-container.game-card-theme-white-album-2 [data-gc-part="chat-session-panel"] {
   border-color: rgba(178, 208, 229, 0.38);
   box-shadow: 0 18px 52px rgba(0, 0, 0, 0.24);

@@ -42,20 +42,16 @@ describe('white album ui styles', () => {
     expect(css).toContain('--gc-user-bubble-bg: rgba(248, 252, 255, 0.50)');
   });
 
-  test('styles the input as a default-hidden floating glass pill', () => {
+  test('styles the input as plain white text and a send button over the black veil', () => {
     expect(css).toContain('[data-gc-part="chat-input"]');
-    expect(css).toContain('left: clamp(128px, 11vw, 208px)');
-    expect(css).toContain('right: clamp(128px, 11vw, 208px)');
-    expect(css).toContain('min-height: 52px');
-    expect(css).toContain('border-radius: 999px');
-    expect(css).toContain('rgba(238, 247, 253, 0.12)');
-    expect(css).toContain('0 12px 28px rgba(34, 55, 78, 0.08)');
-    expect(css).toContain('backdrop-filter: blur(4px) saturate(1.03)');
-    expect(css).toContain('-webkit-mask: var(--icon-edit) center / contain no-repeat');
-    expect(css).toContain('content: "Enter  发送"');
-    expect(css).toContain('[data-gc-part="chat-input-textarea"]');
-    expect(css).toContain('padding: 3px 88px 3px 0');
-    expect(css).toContain('width: 42px');
+    expect(css).toContain('left: clamp(160px, 15vw, 280px)');
+    expect(css).toContain('right: clamp(160px, 15vw, 280px)');
+    expect(css).toContain('bottom: 34px');
+    expect(css).toMatch(/\[data-gc-part="chat-input"\] \{[^}]*border: 0;[^}]*background: transparent;[^}]*box-shadow: none;[^}]*backdrop-filter: none;/);
+    expect(css).toMatch(/\[data-gc-part="chat-input-textarea"\] \{[^}]*border-bottom: 1px solid rgba\(255, 255, 255, 0\.88\);[^}]*color: #ffffff;/);
+    expect(css).toMatch(/\[data-gc-part="chat-send-button"\] \{[^}]*width: 40px;[^}]*border: 0;[^}]*background: transparent;[^}]*color: #ffffff;[^}]*box-shadow: none;/);
+    expect(css).not.toContain('-webkit-mask: var(--icon-edit) center / contain no-repeat');
+    expect(css).not.toContain('content: "Enter  发送"');
     expect(css).toContain('[data-gc-part="chat-send-button"]:not(:disabled):hover');
     expect(css).toContain('@media (max-width: 720px)');
     expect(css).not.toMatch(/\[data-gc-part="chat-input"\] \{[^}]*visibility: visible;/);
