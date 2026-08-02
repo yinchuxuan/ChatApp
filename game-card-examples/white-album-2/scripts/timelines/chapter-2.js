@@ -58,8 +58,8 @@ const chapter2ConditionalSlotPlotOverrides = [
   {
     slotId: 'GameEnd1',
     when: (state) => readStatePath(state, 'story.chapter2SetsunaBranch') === 'secret'
-      && setsunaAffection(state) > 20
-      && toumaAffection(state) > 20
+      && setsunaAffection(state) >= 20
+      && toumaAffection(state) >= 20
       && performanceProficiency(state) >= 20,
     override: {
       plotType: 'FixedPlot6',
