@@ -71,16 +71,18 @@ describe('useChatGeneration game card pipeline', () => {
 
   test('appends the assistant response through the state updater', async () => {
     const setMessages = jest.fn();
-    const { result } = renderGeneration({ setMessages });
+    const { result, options } = renderGeneration({ setMessages });
     await act(async () => { await result.current.send('hello'); });
     expect(setMessages.mock.calls[0][0]).toEqual([
       expect.objectContaining({ role: 'user', content: 'hello' })
     ]);
     const updater = setMessages.mock.calls.at(-1)[0];
-    expect(updater([{ role: 'user', content: 'hello' }])).toEqual([
+    const updated = updater([{ role: 'user', content: 'hello' }]);
+    expect(updated).toEqual([
       { role: 'user', content: 'hello' },
       expect.objectContaining({ role: 'assistant', content: 'ok', _thinking: '', thinking: '' })
     ]);
+    expect(updated[1].id).toBe(options.typewriter.startStreaming.mock.calls[0][0]);
   });
 
   test('sends pre_send transformed messages', async () => {

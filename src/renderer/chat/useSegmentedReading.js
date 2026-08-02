@@ -31,6 +31,7 @@ function useSegmentedReading({
   messages = [],
   streamContent = '',
   rawStreamContent = streamContent,
+  streamMessageId = '',
   displayedCount = 0,
   display,
   scopeKey,
@@ -38,8 +39,8 @@ function useSegmentedReading({
   onReadProgress
 }) {
   const entries = React.useMemo(() => buildReadingEntries(
-    messages, isLoading, streamContent, displayedCount, display, rawStreamContent
-  ), [display, displayedCount, isLoading, messages, rawStreamContent, streamContent]);
+    messages, isLoading, streamContent, displayedCount, display, rawStreamContent, streamMessageId
+  ), [display, displayedCount, isLoading, messages, rawStreamContent, streamContent, streamMessageId]);
   const entriesRef = React.useRef(entries);
   entriesRef.current = entries;
   const [cursor, setCursor] = React.useState(() => ({

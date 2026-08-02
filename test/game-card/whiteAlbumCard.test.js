@@ -122,8 +122,8 @@ describe('white album 2 game card', () => {
     expect(stateContext.content).toContain('visual.portraits');
     expect(stateContext.content).toContain('visual.scene');
     expect(stateContext.content).toContain('audio.bgm');
-    expect(stateContext.content).toContain('人物可写 `touma`、`setsuna`、`mizusawa`、`takeya`、`yanagihara`');
-    expect(stateContext.content).toContain('表情可写 `normal`、`happy`、`sad`、`angry`、`surprise`');
+    expect(stateContext.content).toContain('人物可写 `touma`（冬马和纱）');
+    expect(stateContext.content).toContain('表情可写 `normal`（平静自然）');
   });
 
   test('compresses older assistant summaries and keeps latest user and assistant', () => {

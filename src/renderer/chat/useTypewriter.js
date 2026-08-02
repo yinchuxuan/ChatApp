@@ -7,6 +7,7 @@ function useTypewriter(R) {
   const [displayedCount, setDisplayedCount] = R.useState(0);
   const [thinkingContent, setThinkingContent] = R.useState('');
   const [thinkingDone, setThinkingDone] = R.useState(false);
+  const [streamMessageId, setStreamMessageId] = R.useState('');
   const streamContentRef = R.useRef('');
   const rawContentRef = R.useRef('');
   const appliedPatchCountRef = R.useRef(0);
@@ -60,10 +61,12 @@ function useTypewriter(R) {
     setStreamContent('');
     setRawStreamContent('');
     setDisplayedCount(0);
+    setStreamMessageId('');
   }, [cancelFlush]);
 
-  const startStreaming = R.useCallback(() => {
+  const startStreaming = R.useCallback((messageId = '') => {
     clearContent();
+    setStreamMessageId(messageId);
     thinkingRef.current = '';
     inThinkingRef.current = false;
     thinkingDoneRef.current = false;
@@ -141,7 +144,7 @@ function useTypewriter(R) {
   return { streamContent, rawStreamContent, displayedCount, startStreaming, pushContent,
     pushProtocolContent, finishStreaming, getAccumulatedContent, getRawContent,
     getAppliedPatchCount, markPatchApplied, getThinkingContent, reset,
-    clearStreaming: clearContent, thinkingContent, thinkingDone };
+    clearStreaming: clearContent, thinkingContent, thinkingDone, streamMessageId };
 }
 
 export { STREAM_FLUSH_CHARS, STREAM_FLUSH_INTERVAL_MS };

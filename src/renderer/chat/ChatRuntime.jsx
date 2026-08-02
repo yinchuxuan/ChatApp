@@ -96,10 +96,10 @@ function ChatRuntime({
   });
   const segmented = useSegmentedReading({
     enabled: segmentedReading,
-    isLoading,
-    messages,
+    isLoading, messages,
     streamContent: typewriter.streamContent,
     rawStreamContent: typewriter.rawStreamContent,
+    streamMessageId: typewriter.streamMessageId,
     displayedCount: typewriter.displayedCount,
     display,
     scopeKey: session.revision,

@@ -17,17 +17,15 @@ State更新与演出规则：
  "audio.bgm":"sad"}
 </state_patch>
 
-4. visual.portraits每次写入都必须列出当前镜头所有可见人物；省略的人物会退场，空对象`{}`表示无人显示。最多四人，只选择人物和表情，不要输出人物位置或大小，平台会按人数自动构图。
+4. 每次使用state_patch设置演出状态时请检查演出设置内容是否错误地匹配成了state_patch之前的剧情内容，如果是的话请修正；state_patch设置的演出状态一定要和*后续生成的剧情内容*匹配！！！
 
-5. 不要为了每次说话或每个自然段切换演出。visual.scene只随实际地点或镜头变化；visual.portraits表示镜头内可见人物，不等于最后说话的人；表情只在明显情绪转折时变化；音乐没有明显情绪转折时保持当前值。
+5. visual.scene只能使用State写入契约中的通用 background，或者当前固定剧情节点中的特殊演出资源中的场景资源，不得选择其他固定剧情专用 CG 或编造资源名。只有场景切换时才需要设置visual.scene, 只有在表达极特殊的心里活动时可以设置none的黑屏。
 
-6. visual.scene只能使用State写入契约中的通用 background，或者当前固定剧情节点中的特殊演出资源中的场景资源，不得选择其他固定剧情专用 CG 或编造资源名。background允许叠加visual.portraits；CG会暂时屏蔽立绘层，但不会清空人物State。
+6. visual.portraits只能使用State写入契约中的人物和表情；北原春希没有立绘，不能选择。远景、空镜、春希独处或没有合适立绘时写空对象`{}`。visual.portraits每次写入都必须列出当前镜头所有可见人物；省略的人物会退场，空对象`{}`表示无人显示。visual.portraits最多同时设置四人，只选择人物和表情。剧情中有新人物登场或者有人物退场时，必须重新设置visual.portraits。人物立绘表情应该随着剧情内容的变化而变化，当人物有情绪时不要总是使用normal表情，而是应该根据剧情中的人物情绪设置对应的情绪状态。
 
-7. visual.portraits只能使用State写入契约中的人物和表情；北原春希没有立绘，不能选择。远景、空镜、春希独处或没有合适立绘时写空对象`{}`。
+7. audio.bgm只能使用State写入契约中的通用音乐，或者当前固定剧情节点特殊演出资源中的场景资源，并按照剧情的情绪变化克制选择。
 
-8. audio.bgm只能使用State写入契约中的通用音乐，或者当前固定剧情节点特殊演出资源中的场景资源，并按照剧情的情绪变化克制选择。
-
-9. 剧情末尾的summary之后、<choices>选项区之前必须输出最终<state_patch>，更新本轮结束状态，例如：
+8. 剧情末尾的summary之后、<choices>选项区之前必须输出最终<state_patch>，更新本轮结束状态，例如：
 
 <state_patch>
 {"touma.affection":0,
@@ -36,8 +34,8 @@ State更新与演出规则：
  "timeline.currentTime":"2007.10.20: 15:00 星期六"}
 </state_patch>
 
-10. timeline.currentTime必须更新，只能设置为当前时间段内的时间，不得超过timeline.currentSlotEnd。timeline.currentSlot和timeline.currentSlotEnd由系统维护，不能写入。
+9. timeline.currentTime必须更新，只能设置为当前时间段内的时间，不得超过timeline.currentSlotEnd。timeline.currentSlot和timeline.currentSlotEnd由系统维护，不能写入。
 
-11. affection只在较为特殊的互动后变化，每轮变化不超过5，一般人物互动不改变。performance.proficiency只有实际发生合奏、练琴、排练或乐器磨合时才增加，通常增加1到5。
+10. affection只在较为特殊的互动后变化，每轮变化不超过5，一般人物互动不改变。performance.proficiency只有实际发生合奏、练琴、排练或乐器磨合时才增加，通常增加1到5。
 
-12. 所有state_patch只能使用State写入契约中的路径，以及通用值或当前固定节点临时开放的值，并且必须是合法JSON对象；复杂操作仍可使用原有action数组。
+11. 所有state_patch只能使用State写入契约中的路径，以及通用值或当前固定节点临时开放的值，并且必须是合法JSON对象；复杂操作仍可使用原有action数组。

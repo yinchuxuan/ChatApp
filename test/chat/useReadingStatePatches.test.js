@@ -91,4 +91,56 @@ describe('reading state patch consumption', () => {
       })
     ]);
   });
+
+  test('does not replay a queued streaming patch after the message completes', async () => {
+    let releasePatch;
+    const patchGate = new Promise(resolve => { releasePatch = resolve; });
+    generationServices.prepareStatePatchAtCursor = jest.fn(async ({ state }) => {
+      await patchGate;
+      return {
+        applied: true,
+        card: { id: 'card' },
+        presentationChangedKeys: ['audio.bgm'],
+        presentationEffects: [],
+        state: { ...state, bgm: 'tense' }
+      };
+    });
+    const message = {
+      id: 'reply',
+      role: 'assistant',
+      content: 'response',
+      _meta: { statePatchPlayback: { appliedPatchCount: 0, afterResponseApplied: false } }
+    };
+    const props = {
+      card: { id: 'card' },
+      messages: [],
+      setMessages: jest.fn(),
+      state: {},
+      setState: jest.fn(),
+      typewriter: { getAppliedPatchCount: () => 0, markPatchApplied: jest.fn() },
+      onPatchApplied: jest.fn(),
+      scopeKey: 1
+    };
+    const { result, rerender } = renderHook(next => useReadingStatePatches(next), {
+      initialProps: props
+    });
+    const entry = {
+      key: 'reply', messageIndex: 0, pageCount: 1,
+      patches: [{ ordinal: 0, boundary: 1, text: 'bgm' }], streaming: true
+    };
+
+    act(() => result.current({ entry, message: null, targetBoundary: 1, terminal: false }));
+    rerender({ ...props, messages: [message] });
+    act(() => result.current({
+      entry: { ...entry, streaming: false }, message, targetBoundary: 1, terminal: false
+    }));
+    await act(async () => {
+      releasePatch();
+      await patchGate;
+    });
+    await waitFor(() => {
+      expect(generationServices.prepareStatePatchAtCursor).toHaveBeenCalledTimes(1);
+    });
+    expect(props.onPatchApplied).toHaveBeenCalledTimes(1);
+  });
 });

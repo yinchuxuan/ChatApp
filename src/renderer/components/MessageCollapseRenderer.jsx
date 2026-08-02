@@ -1,6 +1,6 @@
 import React from 'react';
 import { findLastRoleIndex, selectVisibleMessages } from '../chat/messageSelection.js';
-import { MessageList, StreamingMessageRow } from './MessageList.jsx';
+import { MessageList } from './MessageList.jsx';
 import useCollapsedHistory from '../chat/useCollapsedHistory.js';
 import { message, PropTypes } from './componentPropTypes.js';
 
@@ -15,6 +15,13 @@ function CollapsedMessageList({ messages, isLoading, typewriter, renderUserMessa
   const collapsed = !isExpanded && messages.length > 1 && lastUserIndex >= 0;
   const before = collapsed ? [] : messages.slice(0, Math.max(lastUserIndex, 0));
   const pinned = messages.slice(Math.max(lastUserIndex, 0));
+  if (isLoading) pinned.push({
+    id: typewriter.streamMessageId || `streaming-${messages.length}`,
+    role: 'assistant',
+    content: typeof typewriter.streamContent === 'string' ? typewriter.streamContent : '',
+    _renderIndex: messages.length,
+    _streaming: true
+  });
   const renderUserItem = (message, index) => renderUser(renderUserMessage, message, index);
   const retry = isRetrySource => renderRetryButton(isRetrySource, isLoading);
 
@@ -33,7 +40,6 @@ function CollapsedMessageList({ messages, isLoading, typewriter, renderUserMessa
       <MessageList messages={pinned} lastUserIndex={lastUserIndex >= 0 ? 0 : -1}
         renderUser={renderUserItem} renderAssistant={renderAssistantMessage}
         renderRetryButton={retry} keyPrefix="pinned" />
-      {isLoading ? <StreamingMessageRow content={renderAssistantMessage(typewriter.streamContent, messages.length, true)} /> : null}
     </div>
   </div>;
 }
@@ -41,7 +47,10 @@ function CollapsedMessageList({ messages, isLoading, typewriter, renderUserMessa
 CollapsedMessageList.propTypes = {
   messages: PropTypes.arrayOf(message).isRequired,
   isLoading: PropTypes.bool.isRequired,
-  typewriter: PropTypes.shape({ streamContent: PropTypes.string }).isRequired,
+  typewriter: PropTypes.shape({
+    streamContent: PropTypes.string,
+    streamMessageId: PropTypes.string
+  }).isRequired,
   renderUserMessage: PropTypes.func.isRequired,
   renderAssistantMessage: PropTypes.func.isRequired,
   renderRetryButton: PropTypes.func.isRequired,

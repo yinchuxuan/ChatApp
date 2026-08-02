@@ -608,6 +608,13 @@
   letter-spacing: 0;
 }
 
+.game-card-theme-white-album-2 .wa2-thinking-label {
+  max-width: min(70vw, 900px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .game-card-theme-white-album-2 .wa2-thinking-dots span {
   opacity: 0.24;
   animation: wa2-thinking-dot 1.2s ease-in-out infinite;

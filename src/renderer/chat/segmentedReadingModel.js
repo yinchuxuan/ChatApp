@@ -35,7 +35,7 @@ function buildStatePatchTimeline(content, display, includeInputActions = true) {
 }
 
 function buildReadingEntries(messages, isLoading, streamContent, displayedCount, display,
-  rawStreamContent = streamContent) {
+  rawStreamContent = streamContent, streamMessageId = '') {
   const sourceMessages = Array.isArray(messages) ? messages : [];
   const completed = sourceMessages
     .map((message, index) => ({ message, messageIndex: index }))
@@ -65,7 +65,7 @@ function buildReadingEntries(messages, isLoading, streamContent, displayedCount,
     const timeline = buildStatePatchTimeline(content, display);
     entries.push({
       content,
-      key: `streaming-${sourceMessages.length}`,
+      key: streamMessageId || `streaming-${sourceMessages.length}`,
       messageIndex: sourceMessages.length,
       pageCount: Math.max(resolveReadingSegments(visible, display).length, 1),
       patches: timeline.patches,

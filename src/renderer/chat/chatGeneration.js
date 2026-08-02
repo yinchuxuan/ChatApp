@@ -1,5 +1,5 @@
 import generationServices from './generationServices.js';
-import { createChatMessage } from './messageIds.js';
+import { createChatMessage, createMessageId } from './messageIds.js';
 import { cloneJson as cloneChatValue } from '../../shared/game-card/utils/jsonValue.js';
 import { sendStreamedGeneration } from './streamGeneration.js';
 
@@ -42,11 +42,12 @@ function buildRetryMessages(messages, retryBaseMessages, editedContent) {
 async function runChatGeneration(options) {
   const { messages, state = {}, modelConfig, setMessages, setGameState, setIsLoading, tw } = options;
   const abortSignal = options.createAbortSignal?.();
+  const streamMessageId = createMessageId();
   let preSend = null;
   setMessages(messages);
   setIsLoading(true);
   tw.clearStreaming?.();
-  tw.startStreaming();
+  tw.startStreaming(streamMessageId);
   options.setShowStreamThinking?.(true);
   try {
     preSend = await generationServices.preparePreSendMessages({ messages, state });
@@ -69,15 +70,18 @@ async function runChatGeneration(options) {
       onStatePatchApplied: options.onStatePatchApplied,
       onGameCardError: options.onGameCardError
     });
-    return await finishGeneration(preSend, messages, state, options, streamResult);
+    return await finishGeneration(preSend, messages, state, options, streamResult, streamMessageId);
   } catch (err) {
-    return handleGenerationException(err, options, preSend, messages, abortSignal);
+    return handleGenerationException(
+      err, options, preSend, messages, abortSignal, streamMessageId
+    );
   } finally {
     options.clearAbortSignal?.(abortSignal);
   }
 }
 
-async function finishGeneration(preSend, baseMessages, baseState, options, streamResult = {}) {
+async function finishGeneration(preSend, baseMessages, baseState, options, streamResult = {},
+  streamMessageId) {
   const { setMessages, setGameState, setIsLoading, tw } = options;
   tw.finishStreaming();
   const content = tw.getRawContent?.() || streamResult.rawContent || tw.getAccumulatedContent();
@@ -92,6 +96,7 @@ async function finishGeneration(preSend, baseMessages, baseState, options, strea
     appliedPatchCount: streamResult.appliedPatchCount || 0
   };
   const assistantMessage = createChatMessage({
+    id: streamMessageId,
     role: 'assistant',
     content,
     _thinking: tw.getThinkingContent(),
@@ -141,7 +146,7 @@ function isAbortException(err, abortSignal) {
   return abortSignal?.aborted || err?.name === 'AbortError';
 }
 
-function handleGenerationAbort(options, preSend, baseMessages, streamResult = {}) {
+function handleGenerationAbort(options, preSend, baseMessages, streamResult = {}, streamMessageId) {
   options.setIsLoading(false);
   options.tw.finishStreaming();
   const content = options.tw.getRawContent?.()
@@ -149,6 +154,7 @@ function handleGenerationAbort(options, preSend, baseMessages, streamResult = {}
     || options.tw.getAccumulatedContent();
   if (content) {
     const assistantMessage = createChatMessage({
+      id: streamMessageId,
       role: 'assistant',
       content,
       _thinking: options.tw.getThinkingContent(),
@@ -167,9 +173,12 @@ function handleGenerationAbort(options, preSend, baseMessages, streamResult = {}
   return true;
 }
 
-function handleGenerationException(err, options, preSend, baseMessages, abortSignal) {
+function handleGenerationException(err, options, preSend, baseMessages, abortSignal,
+  streamMessageId) {
   if (isAbortException(err, abortSignal)) {
-    return handleGenerationAbort(options, preSend, baseMessages, err.streamResult);
+    return handleGenerationAbort(
+      options, preSend, baseMessages, err.streamResult, streamMessageId
+    );
   }
   options.setIsLoading(false);
   options.tw.reset();

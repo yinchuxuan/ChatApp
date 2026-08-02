@@ -90,7 +90,7 @@ function isReadingControlTarget(target) {
   ));
 }
 
-function Root({ React, state, emit, ui = {} }) {
+function Root({ React, state, messages = [], emit, ui = {} }) {
   const C = React.createElement;
   const queue = queueFromState(state);
   const panel = panelFromState(state);
@@ -279,12 +279,18 @@ function Root({ React, state, emit, ui = {} }) {
 
   function renderThinkingIndicator() {
     if (!ui.isLoading || open || paused) return null;
+    const lastUserMessage = [...messages].reverse().find(message => message?.role === 'user');
+    const userInput = String(lastUserMessage?.content || '')
+      .replace(/\n*---\s*\n\s*<wa2_turn_context>[\s\S]*?<\/wa2_turn_context>\s*$/g, '')
+      .replace(/<wa2_turn_context>[\s\S]*?<\/wa2_turn_context>/g, '')
+      .trim();
+    const label = userInput || '思考中';
     return C('div', {
       className: 'wa2-thinking-indicator',
       role: 'status',
-      'aria-label': '思考中'
+      'aria-label': `${label}，等待回复`
     },
-      C('span', { className: 'wa2-thinking-label' }, '思考中'),
+      C('span', { className: 'wa2-thinking-label' }, label),
       C('span', { className: 'wa2-thinking-dots', 'aria-hidden': 'true' },
         C('span', null, '…'),
         C('span', null, '…')

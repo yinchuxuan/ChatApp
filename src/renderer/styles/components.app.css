@@ -5,6 +5,7 @@
   --app-background-insert-duration: 800ms;
   --app-portrait-insert-duration: 500ms;
   --app-portrait-expression-duration: 160ms;
+  --app-portrait-layout-duration: 650ms;
 
   display: flex;
   height: 100%;
@@ -69,8 +70,8 @@
   aspect-ratio: 4 / 3;
   transform: translateX(-50%);
   transition:
-    left 420ms var(--md-motion-easing-emphasized-decelerate),
-    height 420ms var(--md-motion-easing-emphasized-decelerate);
+    left var(--app-portrait-layout-duration) var(--md-motion-easing-emphasized-decelerate),
+    height var(--app-portrait-layout-duration) var(--md-motion-easing-emphasized-decelerate);
 }
 
 .app-portrait-image {

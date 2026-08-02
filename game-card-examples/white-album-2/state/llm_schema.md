@@ -11,8 +11,8 @@
 
 ## 演出切换字段
 
-- `visual.scene`：当前镜头的基础画面。通用值均为允许叠加立绘的 background：`musical_classroom3`（第三音乐室）、`school`（校园公共区域）、`classroom`（普通教室）。固定剧情还会临时开放 CG；CG 显示时平台会屏蔽立绘，但保留当前人物选择供后续 background 继续使用。
-- `visual.portraits`：当前镜头所有可见人物到表情的完整映射，最多四人。人物可写 `touma`、`setsuna`、`mizusawa`、`takeya`、`yanagihara`；表情可写 `normal`、`happy`、`sad`、`angry`、`surprise`。例如 `{"touma":"sad","setsuna":"normal"}`。位置和大小由平台自动编排，不要输出位置。北原春希没有立绘；远景、空镜、春希独处或没有合适立绘时写 `{}`。
+- `visual.scene`：当前镜头的基础画面。通用值均为允许叠加立绘的 background：`musical_classroom3`（第三音乐室）、`school`（校园公共区域）、`classroom`（普通教室）。固定剧情还会临时开放场景CG使用。
+- `visual.portraits`：当前镜头所有可见人物到表情的完整映射，最多四人。人物可写 `touma`（冬马和纱）、`setsuna`（小木曾雪菜）、`mizusawa`（水泽依绪）、`takeya`（饭冢武也）、`yanagihara`（柳原朋）；表情可写 `normal`（平静自然）、`happy`（开心喜悦）、`sad`（悲伤失落）、`angry`（生气愤怒）、`surprise`（惊讶意外）。例如 `{"touma":"sad","setsuna":"normal"}`。位置和大小由平台自动编排，不要输出位置。北原春希没有立绘；远景、空镜、春希独处或没有合适立绘时写 `{}`。
 - `audio.bgm`：当前镜头音乐。通用可写值：`daily`（轻松日常）、`happy`（明确喜悦）、`normal`（平稳交流）、`sad`（克制伤感）、`tragic`（激烈冲突）。
 
 ## 只读剧情边界

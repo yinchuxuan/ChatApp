@@ -2,7 +2,7 @@ import React from 'react';
 import { dispatchChatInputCommand } from '../chat/chatInputCommands.js';
 import { resolveReadingSegments } from '../chat/segmentedReadingModel.js';
 import { findLastRoleIndex, selectVisibleMessages } from '../chat/messageSelection.js';
-import { MessageList, StreamingMessageRow } from './MessageList.jsx';
+import { MessageList } from './MessageList.jsx';
 import MessageContent from './MessageContent.jsx';
 
 function inputActionValue(target) {
@@ -136,12 +136,17 @@ const ChatPanelMessageRenderers = {
         renderAssistantMsg, renderRetryBtn, isHistoryExpanded, handleExpandHistory);
     }
     const lastUserIndex = findLastRoleIndex(visibleMessages, 'user');
+    const displayMessages = isLoading ? [...visibleMessages, {
+      id: tw.streamMessageId || `streaming-${visibleMessages.length}`,
+      role: 'assistant',
+      content: typeof tw.streamContent === 'string' ? tw.streamContent : '',
+      _renderIndex: visibleMessages.length,
+      _streaming: true
+    }] : visibleMessages;
     return <div className="chat-messages-layer" data-gc-part="message-surface">
-      <MessageList messages={visibleMessages} lastUserIndex={lastUserIndex}
+      <MessageList messages={displayMessages} lastUserIndex={lastUserIndex}
         renderUser={renderUserMessage} renderAssistant={renderAssistantMsg}
         renderRetryButton={retrySource => renderRetryBtn(retrySource, isLoading)} />
-      {isLoading ? <StreamingMessageRow
-        content={renderAssistantMsg(tw.streamContent, visibleMessages.length, true)} /> : null}
     </div>;
   }
 };

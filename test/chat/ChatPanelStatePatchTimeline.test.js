@@ -171,11 +171,13 @@ describe('ChatPanel segmented state patch timeline', () => {
 
     fireEvent.click(container.querySelector('[data-gc-part="chat-panel"]'));
     await screen.findByText('第二段。');
+    const streamingPage = container.querySelector('.segmented-reading-page');
     await waitFor(() => {
       expect(screen.getByTestId('visual-state')).toHaveAttribute('data-background', 'second');
     });
     act(() => controlled.finish());
     await waitFor(() => expect(input).not.toBeDisabled());
     expect(screen.getByTestId('visual-state')).toHaveAttribute('data-background', 'second');
+    expect(container.querySelector('.segmented-reading-page')).toBe(streamingPage);
   });
 });

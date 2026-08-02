@@ -10,7 +10,9 @@ function MessageBubble({ message, children }) {
 }
 
 function MessageRow({ message, retrySource = false, retryButton, children, keyPrefix = 'message' }) {
-  const className = `chat-message-row${retrySource ? ' retry-source-row' : ''}`;
+  const className = `chat-message-row${retrySource ? ' retry-source-row' : ''}${
+    message._streaming ? ' streaming-message-row' : ''
+  }`;
   return <div className={className} data-gc-part="message-row" data-role={message.role}
     data-message-key={messageKey(message, `${keyPrefix}-${message._renderIndex}`)}>
     <MessageBubble message={message}>{children}</MessageBubble>
@@ -22,8 +24,9 @@ function MessageList({ messages, lastUserIndex, renderUser, renderAssistant, ren
   return messages.map((message, index) => {
     const renderIndex = message._renderIndex ?? index;
     const retrySource = index === lastUserIndex;
+    const streaming = message._streaming === true;
     const content = message.role === 'assistant'
-      ? renderAssistant(message, renderIndex, false)
+      ? renderAssistant(streaming ? message.content : message, renderIndex, streaming)
       : renderUser(message, renderIndex);
     return <MessageRow key={messageKey(message, `${keyPrefix}-${renderIndex}`)} message={message}
       retrySource={retrySource} keyPrefix={keyPrefix}
@@ -31,13 +34,6 @@ function MessageList({ messages, lastUserIndex, renderUser, renderAssistant, ren
       {content}
     </MessageRow>;
   });
-}
-
-function StreamingMessageRow({ content }) {
-  const message = { role: 'assistant' };
-  return <div className="chat-message-row streaming-message-row" data-gc-part="message-row" data-role="assistant">
-    <MessageBubble message={message}>{content}</MessageBubble>
-  </div>;
 }
 
 MessageBubble.propTypes = { message: message.isRequired, children: PropTypes.node };
@@ -56,6 +52,4 @@ MessageList.propTypes = {
   renderRetryButton: PropTypes.func.isRequired,
   keyPrefix: PropTypes.string
 };
-StreamingMessageRow.propTypes = { content: PropTypes.node };
-
-export { MessageBubble, MessageList, MessageRow, StreamingMessageRow };
+export { MessageBubble, MessageList, MessageRow };

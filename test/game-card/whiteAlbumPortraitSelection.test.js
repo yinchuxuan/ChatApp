@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { card, stateSchema } = require('./whiteAlbumTestCard');
+const { card, llmStateContract, stateSchema } = require('./whiteAlbumTestCard');
 const { ensureStateDefaults } = require('../../src/shared/game-card/state/stateSchema');
 const { applyLatestAssistantStatePatch } = require('../../src/shared/game-card/state/statePatch');
 const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSchemaLoader');
@@ -8,6 +8,21 @@ const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSche
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
 const portraitCharacters = Object.keys(loadedCard.visual.portrait);
+const portraitExpressions = ['normal', 'happy', 'sad', 'angry', 'surprise'];
+const portraitNames = {
+  touma: '冬马和纱',
+  setsuna: '小木曾雪菜',
+  mizusawa: '水泽依绪',
+  takeya: '饭冢武也',
+  yanagihara: '柳原朋'
+};
+const portraitExpressionMeanings = {
+  normal: '平静自然',
+  happy: '开心喜悦',
+  sad: '悲伤失落',
+  angry: '生气愤怒',
+  surprise: '惊讶意外'
+};
 const portraitCases = portraitCharacters.flatMap(character => (
   Object.keys(loadedCard.visual.portrait[character]).map(expression => [character, expression])
 ));
@@ -45,10 +60,21 @@ function applyPortraitMessage(message, overrides = {}) {
 }
 
 describe('white album portrait selection', () => {
+  test('documents portrait character and expression mappings in the LLM contract', () => {
+    portraitCharacters.forEach((character) => {
+      expect(llmStateContract).toContain(`\`${character}\`（${portraitNames[character]}）`);
+    });
+    portraitExpressions.forEach((expression) => {
+      expect(llmStateContract).toContain(
+        `\`${expression}\`（${portraitExpressionMeanings[expression]}）`
+      );
+    });
+  });
+
   test('registers five expressions for all five supported characters', () => {
     expect(portraitCharacters).toHaveLength(5);
     ['touma', 'setsuna', 'mizusawa', 'takeya', 'yanagihara'].forEach((character) => {
-      ['normal', 'happy', 'sad', 'angry', 'surprise'].forEach((expression) => {
+      portraitExpressions.forEach((expression) => {
         const resource = loadedCard.visual.portrait[character][expression];
         expect(resource).toBe(`images/${character}/${expression}.png`);
         const imagePath = path.join(cardDir, resource);
