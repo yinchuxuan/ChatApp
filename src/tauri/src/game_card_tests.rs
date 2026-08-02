@@ -193,5 +193,5 @@ fn white_album_card_expands_and_validates() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../game-card-examples/white-album-2");
     let card = read_card(&root).unwrap();
     validate_card(&card, &root).unwrap();
-    assert!(card["files"]["event.chapter2.afterFixedPlot1.rehearsalMemory"].is_string());
+    assert!(card["files"]["plot.chapter.2"].is_string());
 }

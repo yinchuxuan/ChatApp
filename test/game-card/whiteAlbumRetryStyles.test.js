@@ -15,7 +15,7 @@ describe('white album 2 retry styles', () => {
     expect(css).toMatch(/\.wa2-retry-action \{[\s\S]*?background: transparent;/);
     expect(css).toMatch(/\.wa2-retry-kicker \{[\s\S]*?font-size: clamp\(20px, 1\.8vw, 26px\);[\s\S]*?font-weight: 700;/);
     expect(css).toMatch(/\.wa2-retry-title \{[\s\S]*?font-size: clamp\(16px, 1\.3vw, 19px\);/);
-    expect(css).toContain(':has(.wa2-event-root[data-paused="true"])');
+    expect(css).toContain(':has(.wa2-ui-root[data-paused="true"])');
     expect(css).not.toContain('.wa2-pause-trigger');
   });
 });

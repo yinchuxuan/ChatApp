@@ -37,7 +37,7 @@ describe('WA2 retry page', () => {
       { role: 'assistant', content: '冬马坐在钢琴前，没有回头。' }
     ], { gameState: { visual: { scene: 'test', portraits: { test: 'normal' } } } });
     await refreshApp();
-    await $('.wa2-event-root').waitForExist();
+    await $('.wa2-ui-root').waitForExist();
   });
 
   it('opens with right click and closes with Escape without persistent controls', async () => {

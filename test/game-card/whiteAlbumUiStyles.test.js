@@ -11,7 +11,7 @@ const displayCss = fs.readFileSync(
   path.join(__dirname, '../../game-card-examples/white-album-2/display.css'),
   'utf8'
 );
-const eventRootCss = fs.readFileSync(
+const rootCss = fs.readFileSync(
   path.join(__dirname, '../../game-card-examples/white-album-2/ui/root.css'),
   'utf8'
 );
@@ -162,27 +162,7 @@ describe('white album ui styles', () => {
     expect(css).toMatch(/\.quoted-text \{[^}]*color: inherit;[^}]*font-weight: inherit;[^}]*text-decoration: none;[^}]*text-shadow: inherit;/);
     expect(css).not.toContain('--wa2-highlight-text-color');
   });
-  test('hides the event button while keeping the local event panel implementation', () => {
-    expect(eventRootCss).toContain('--wa2-event-trigger-icon: url("data:image/svg+xml');
-    expect(eventRootCss).toContain('--wa2-event-panel-left: max(352px, calc(46% - var(--game-card-panel-edge-gap, 22px)))');
-    expect(eventRootCss).toContain('top: calc(var(--wa2-event-panel-top) + 4px)');
-    expect(eventRootCss).toContain('font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif');
-    expect(eventRootCss).toMatch(/\.wa2-event-trigger \{[\s\S]*?display: none;/);
-    expect(eventRootCss).toContain('-webkit-mask: var(--wa2-event-trigger-icon) center / contain no-repeat');
-    expect(eventRootCss).toMatch(/width: 44px[\s\S]*height: 44px[\s\S]*padding: 13px[\s\S]*\.wa2-event-trigger::before[\s\S]*inset: 4px/);
-    expect(eventRootCss).toMatch(/\.wa2-event-trigger-icon[\s\S]*width: 18px[\s\S]*height: 18px/);
-    expect(eventRootCss).toContain('padding: 54px 64px 30px');
-    expect(eventRootCss).toContain(':has(.wa2-event-root[data-open="true"])');
-    expect(eventRootCss).toContain('[data-gc-part="collapsed-message-view"]');
-    expect(eventRootCss).toContain('[data-gc-part="chat-input"]');
-    expect(eventRootCss).toContain('opacity: 0');
-    expect(eventRootCss).not.toContain('.wa2-event-backdrop');
-    expect(eventRootCss).toMatch(/background: rgba\(255, 255, 255, 0\.18\)[\s\S]*backdrop-filter: blur\(7px\) saturate\(1\.08\) brightness\(1\)/);
-    expect(eventRootCss).toMatch(/radial-gradient\(circle at 52% 88%[\s\S]*background: rgba\(255, 255, 255, 0\.70\)[\s\S]*z-index: 2/);
-    expect(eventRootCss).toMatch(/\.wa2-event-content[\s\S]*overflow-y: auto[\s\S]*\.wa2-event-body \[data-gc-part="message-bubble"\][\s\S]*\.wa2-event-body \[data-gc-part="message-content"\] p/);
-  });
-
   test('avoids platform implementation class selectors', () => {
-    expect(`${css}\n${displayCss}\n${eventRootCss}`).not.toMatch(/\.(?:chat|msg)-(?:messages-layer|message|bubble-content|history)/);
+    expect(`${css}\n${displayCss}\n${rootCss}`).not.toMatch(/\.(?:chat|msg)-(?:messages-layer|message|bubble-content|history)/);
   });
 });

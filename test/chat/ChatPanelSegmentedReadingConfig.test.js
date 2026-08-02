@@ -152,7 +152,7 @@ describe('game card segmented reading config', () => {
     render(React.createElement(ChatPanel));
 
     await screen.findByText('新第一段。');
-    await waitFor(() => expect(document.querySelector('.wa2-event-root')).not.toBeNull());
+    await waitFor(() => expect(document.querySelector('.wa2-ui-root')).not.toBeNull());
     jest.useFakeTimers();
     fireEvent.keyDown(window, { key: 'ArrowLeft' });
 

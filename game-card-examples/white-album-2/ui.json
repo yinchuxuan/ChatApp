@@ -1,8 +1,5 @@
 {
   "stylesheet": "ui.css",
-  "scripts": {
-    "eventControl": "ui/event-controller.js"
-  },
   "root": {
     "type": "react",
     "source": "ui/root.js",

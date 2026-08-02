@@ -9,20 +9,17 @@ const rootSource = fs.readFileSync(
   'utf8'
 );
 const Root = compileGameCardUiRootSource(rootSource, React);
-const state = { events: { queue: [], panel: { open: false, eventId: '' } } };
-
 function renderRetryRoot(emit = jest.fn(() => true), ui = {}) {
   const view = render(React.createElement(
     'div',
     { 'data-gc-part': 'chat-panel' },
     React.createElement(Root, {
       React,
-      state,
       emit,
       ui: { canRetry: true, retrySource: '去第三音乐室继续练习。', ...ui }
     })
   ));
-  return { ...view, emit, root: view.container.querySelector('.wa2-event-root') };
+  return { ...view, emit, root: view.container.querySelector('.wa2-ui-root') };
 }
 
 describe('white album 2 retry panel', () => {
