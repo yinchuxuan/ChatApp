@@ -250,9 +250,55 @@
   height: var(--wa2-cinema-frame-height);
 }
 
+.app-container.game-card-theme-white-album-2 .app-portrait-layer .app-portrait-slot {
+  aspect-ratio: 3 / 4;
+}
+
+.app-container.game-card-theme-white-album-2 .app-portrait-layer[data-count="1"] .app-portrait-slot,
+.app-container.game-card-theme-white-album-2 .app-portrait-layer[data-count="2"] .app-portrait-slot,
+.app-container.game-card-theme-white-album-2 .app-portrait-layer[data-count="3"] .app-portrait-slot {
+  height: 84%;
+}
+
+.app-container.game-card-theme-white-album-2 .app-portrait-layer[data-count="4"] .app-portrait-slot {
+  height: 80%;
+}
+
 .app-container.game-card-theme-white-album-2 [data-gc-part="background-overlay"] {
+  top: var(--wa2-cinema-frame-top) !important;
+  bottom: auto !important;
+  height: var(--wa2-cinema-frame-height);
   background: transparent !important;
-  opacity: 0 !important;
+  opacity: 1 !important;
+}
+
+.app-container.game-card-theme-white-album-2:has([data-gc-part="portrait-layer"])
+  [data-gc-part="background-overlay"]::before {
+  animation: wa2-portrait-scrim-in var(--app-portrait-insert-duration) linear
+    var(--app-background-insert-duration) both;
+}
+
+.app-container.game-card-theme-white-album-2.has-portrait:not(:has([data-gc-part="portrait-layer"]))
+  [data-gc-part="background-overlay"]::before {
+  animation: wa2-portrait-scrim-out var(--app-portrait-exit-duration) linear both;
+}
+
+.app-container.game-card-theme-white-album-2 [data-gc-part="background-overlay"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.16);
+  opacity: 0;
+}
+
+@keyframes wa2-portrait-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes wa2-portrait-scrim-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .app-container.game-card-theme-white-album-2 [data-gc-part="chat-reading-veil"] {

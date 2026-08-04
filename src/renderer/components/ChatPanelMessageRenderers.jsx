@@ -5,6 +5,11 @@ import { findLastRoleIndex, selectVisibleMessages } from '../chat/messageSelecti
 import { MessageList } from './MessageList.jsx';
 import MessageContent from './MessageContent.jsx';
 
+const INPUT_ACTION_SELECTOR = [
+  '[data-gc-chat-input-value]', '[data-gc-chat-input-value-from]',
+  '[data-gc-chat-input-label]'
+].join(', ');
+
 function inputActionValue(target) {
   const directValue = target.getAttribute('data-gc-chat-input-value');
   if (directValue) return directValue;
@@ -18,15 +23,31 @@ function inputActionValue(target) {
 }
 
 function handleInputActionClick(event) {
-  const target = event.target?.closest?.(
-    '[data-gc-chat-input-value], [data-gc-chat-input-value-from], [data-gc-chat-input-label]'
-  );
+  const target = event.target?.closest?.(INPUT_ACTION_SELECTOR);
   if (!target) return false;
   const value = inputActionValue(target);
   if (!value) return false;
   event.preventDefault();
   event.stopPropagation();
   dispatchChatInputCommand({ type: 'chat.input.set', value, focus: true });
+  return true;
+}
+
+function handleInputActionMouseDown(event) {
+  if (!event.target?.closest?.(INPUT_ACTION_SELECTOR)) return false;
+  event.preventDefault();
+  return true;
+}
+
+function handleInputActionKeyDown(event) {
+  if (event.key !== 'Enter' || event.shiftKey || event.repeat || event.isComposing) return false;
+  const target = event.target?.closest?.(INPUT_ACTION_SELECTOR);
+  const value = target ? inputActionValue(target) : '';
+  const input = target?.ownerDocument?.querySelector('[data-gc-part="chat-input-textarea"]');
+  if (!value || input?.disabled || input.value !== value) return false;
+  event.preventDefault();
+  event.stopPropagation();
+  dispatchChatInputCommand({ type: 'chat.input.submit' });
   return true;
 }
 
@@ -43,7 +64,8 @@ const ChatPanelMessageRenderers = {
     return <div className="chat-message-bubble" data-gc-part="message-bubble">
       <MessageContent content={text} role={role} display={display} displayRevision={displayRevision}
         markdown={marked} sanitizer={DOMPurify} quoteHighlighter={highlightQuotes}
-        onClick={handleInputActionClick} />
+        onClick={handleInputActionClick} onKeyDown={handleInputActionKeyDown}
+        onMouseDown={handleInputActionMouseDown} />
     </div>;
   },
 
@@ -95,7 +117,8 @@ const ChatPanelMessageRenderers = {
     const contentNode = <MessageContent content={content} role="assistant"
       display={segmented ? undefined : display} displayRevision={segmented ? undefined : displayRevision}
       markdown={marked} sanitizer={DOMPurify} quoteHighlighter={highlightQuotes}
-      onClick={handleInputActionClick} />;
+      onClick={handleInputActionClick} onKeyDown={handleInputActionKeyDown}
+      onMouseDown={handleInputActionMouseDown} />;
     return <div className={bubbleClass} data-gc-part="message-bubble" onClick={handleClick}
       data-segment-count={segmented ? segments.length : undefined}>
       {!segmented && thinking && showThinking ? <div className="chat-thinking-text" data-gc-part="message-thinking">

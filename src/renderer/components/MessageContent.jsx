@@ -9,7 +9,7 @@ function applyRules(content, role, display) {
 }
 
 function MessageContent({ content, role, display, displayRevision, markdown, sanitizer,
-  quoteHighlighter, onClick }) {
+  quoteHighlighter, onClick, onKeyDown, onMouseDown }) {
   const html = React.useMemo(() => {
     const displayed = applyRules(content, role, display);
     const rawHtml = markdown ? markdown.parse(displayed) : displayed;
@@ -18,7 +18,8 @@ function MessageContent({ content, role, display, displayRevision, markdown, san
   }, [content, display, displayRevision, markdown, quoteHighlighter, role, sanitizer]);
 
   return <div className="chat-bubble-content" data-gc-part="message-content"
-    onClick={onClick} dangerouslySetInnerHTML={{ __html: html }} />;
+    onClick={onClick} onKeyDown={onKeyDown} onMouseDown={onMouseDown}
+    dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 MessageContent.propTypes = {
@@ -35,7 +36,9 @@ MessageContent.propTypes = {
     PropTypes.shape({ sanitize: PropTypes.func.isRequired })
   ]),
   quoteHighlighter: PropTypes.func.isRequired,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
+  onKeyDown: PropTypes.func,
+  onMouseDown: PropTypes.func
 };
 
 function sameDisplay(previous, next) {
@@ -52,7 +55,9 @@ function sameMessageContent(previous, next) {
     && previous.markdown === next.markdown
     && previous.sanitizer === next.sanitizer
     && previous.quoteHighlighter === next.quoteHighlighter
-    && previous.onClick === next.onClick;
+    && previous.onClick === next.onClick
+    && previous.onKeyDown === next.onKeyDown
+    && previous.onMouseDown === next.onMouseDown;
 }
 
 export default React.memo(MessageContent, sameMessageContent);

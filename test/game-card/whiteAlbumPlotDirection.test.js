@@ -123,15 +123,15 @@ describe('white album plot direction guide', () => {
     const free = runAtSlot('2007.10.21: 18:00 星期日');
     const freeGuide = free.messages.find((msg) => msg.role === 'user');
 
-    expect(freeGuide.content).toContain('绝对禁止将时间推进到 2007.10.23: 10:00 星期二 之后');
+    expect(freeGuide.content).toContain('绝对禁止将时间推进到 2007.10.22: 8:00 星期一 之后');
     expect(freeGuide.content).toContain('剧情类型：自由剧情节点');
     expect(freeGuide.content).not.toContain('本轮必须完成该剧情节点');
-    ['2007.10.21: 18:00 星期日', '2007.10.23: 12:00 星期二', '2007.10.24: 12:00 星期三'].forEach((time) => {
+    ['2007.10.21: 18:00 星期日', '2007.10.22: 10:00 星期一', '2007.10.24: 12:00 星期三'].forEach((time) => {
       const branchGuide = runAtSlot(time).messages.find((msg) => msg.role === 'user');
       expect(branchGuide.content).toContain('本轮剧情走向');
     });
 
-    const invite = runAtSlot('2007.10.23: 08:00 星期二');
+    const invite = runAtSlot('2007.10.22: 08:00 星期一');
     const inviteGuide = invite.messages.find((msg) => msg.role === 'user');
 
     expect(inviteGuide.content).toContain('visual.scene: `invite`');
@@ -140,7 +140,7 @@ describe('white album plot direction guide', () => {
     expect(inviteGuide.content).not.toContain('隔墙合奏');
     expect(inviteGuide.content).not.toContain('本轮自由剧情走向');
 
-    const deadline = runAtSlot('2007.10.25: 08:00 星期四');
+    const deadline = runAtSlot('2007.10.24: 10:00 星期三');
     const deadlineGuide = deadline.messages.find((msg) => msg.role === 'user');
 
     expect(deadlineGuide.content).toContain('visual.scene: `haiku`');
@@ -149,7 +149,7 @@ describe('white album plot direction guide', () => {
     expect(deadlineGuide.content).not.toContain('隔墙合奏');
     expect(deadlineGuide.content).not.toContain('本轮自由剧情走向');
 
-    const rooftop = runAtSlot('2007.10.25: 16:00 星期四');
+    const rooftop = runAtSlot('2007.10.24: 17:00 星期三');
     const rooftopGuide = rooftop.messages.find((msg) => msg.role === 'user');
 
     expect(rooftopGuide.content).toContain('audio.bgm: `WA_3`');
@@ -182,17 +182,17 @@ describe('white album plot direction guide', () => {
 
     expect(result.state.timeline.currentTime).toBe('2007.10.21: 17:00 星期日');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
-    expect(guide.content).toContain('绝对禁止将时间推进到 2007.10.23: 10:00 星期二 之后');
+    expect(guide.content).toContain('绝对禁止将时间推进到 2007.10.22: 8:00 星期一 之后');
     expect(guide.content).not.toContain('隔墙合奏');
   });
 
   test('keeps current time during free slots', () => {
-    const early = runAtSlot('2007.10.23: 01:59 星期二');
-    const snapped = runAtSlot('2007.10.23: 02:00 星期二');
+    const early = runAtSlot('2007.10.22: 06:00 星期一');
+    const snapped = runAtSlot('2007.10.22: 06:01 星期一');
     const guide = snapped.messages.find((msg) => msg.role === 'user');
 
-    expect(early.state.timeline.currentTime).toBe('2007.10.23: 01:59 星期二');
-    expect(snapped.state.timeline.currentTime).toBe('2007.10.23: 02:00 星期二');
+    expect(early.state.timeline.currentTime).toBe('2007.10.22: 06:00 星期一');
+    expect(snapped.state.timeline.currentTime).toBe('2007.10.22: 06:01 星期一');
     expect(guide.content).toContain('剧情类型：固定剧情节点');
     expect(guide.content).toContain('邀请小木曾雪菜');
   });

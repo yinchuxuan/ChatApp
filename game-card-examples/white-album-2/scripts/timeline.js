@@ -34,10 +34,12 @@ function run(ctx) {
   }
 
   function chapterKey() {
-    if (state.story && state.story.chapter2GameEnd1Reached) return 'chapter_2';
+    if (state.story && (state.story.chapter2GameEnd1Reached || state.story.chapter2SuccessReached)) {
+      return 'chapter_2';
+    }
 
     const currentTime = state.timeline && state.timeline.currentTime;
-    const chapter2Start = parseTime('2007.10.25: 16:00 星期四');
+    const chapter2Start = parseTime('2007.10.24: 17:00 星期三');
     return parseTime(currentTime) > chapter2Start ? 'chapter_2' : 'chapter_1';
   }
 

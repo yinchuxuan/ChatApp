@@ -3,7 +3,7 @@ State更新与演出规则：
 1. 每次回复都必须以前导<state_patch>开始，在它之前不得输出任何文字。前导patch完整设置由模型选择的首个镜头画面、立绘和音乐：
 
 <state_patch>
-{"visual.scene":"musical_classroom3",
+{"visual.scene":"musical_classroom3_afternoon",
  "visual.portraits":{"touma":"normal"},
  "audio.bgm":"normal"}
 </state_patch>
@@ -19,7 +19,7 @@ State更新与演出规则：
 
 4. 每次使用state_patch设置演出状态时请检查演出设置内容是否错误地匹配成了state_patch之前的剧情内容，如果是的话请修正；state_patch设置的演出状态一定要和*后续生成的剧情内容*匹配！！！
 
-5. visual.scene只能使用State写入契约中的通用 background，或者当前固定剧情节点中的特殊演出资源中的场景资源，不得选择其他固定剧情专用 CG 或编造资源名。只有场景切换时才需要设置visual.scene, 在表达极特殊的心里活动时可以设置none。
+5. visual.scene只能使用State写入契约中的通用 background，或者当前固定剧情节点中的特殊演出资源中的场景资源，不得选择其他固定剧情专用 CG 或编造资源名。选择通用 background 时，先匹配后续正文实际发生的地点，再按该场景的当前局部时间选择 morning、afternoon 或 night 版本；地点不变但时间跨入另一时段时也要切换。选择当前节点专用 CG 时直接使用剧情引导给出的资源名，不要添加时段后缀。只有场景或时段变化时才需要设置visual.scene，在表达极特殊的心理活动时可以设置none。
 
 6. visual.portraits只能使用State写入契约中的人物和表情；北原春希没有立绘，不能选择。远景、空镜、春希独处或没有合适立绘时写空对象`{}`。visual.portraits每次写入都必须列出当前镜头所有可见人物；省略的人物会退场，空对象`{}`表示无人显示。visual.portraits最多同时设置四人，只选择人物和表情。剧情中有新人物登场或者有人物退场时，必须重新设置visual.portraits。人物立绘表情应该随着剧情内容的变化而变化，当人物有情绪时不要总是使用normal表情，而是应该根据剧情中的人物情绪设置对应的情绪状态。
 
@@ -33,6 +33,8 @@ State更新与演出规则：
  "performance.proficiency":2,
  "timeline.currentTime":"2007.10.20: 15:00 星期六"}
 </state_patch>
+
+在这个state_patch中不需要设置visual.scene, visual.portraits和audio.bgm
 
 9. timeline.currentTime必须更新，只能设置为当前时间段内的时间，不得超过timeline.currentSlotEnd。timeline.currentSlot和timeline.currentSlotEnd由系统维护，不能写入。
 

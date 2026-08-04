@@ -11,9 +11,25 @@
 
 ## 演出切换字段
 
-- `visual.scene`：当前镜头的基础画面。通用值均为允许叠加立绘的 background：`musical_classroom3`（第三音乐室）、`school`（校园公共区域）、`classroom`（普通教室）。固定剧情还会临时开放场景CG使用。
+- `visual.scene`：当前镜头的基础画面。通用场景必须先根据后续正文实际发生的地点选择场景，再根据该场景的当前局部时段使用下表中的“场景名 + 时段”完整值。固定剧情临时开放的专用 CG 直接使用剧情引导给出的资源名，不要追加 morning、afternoon 或 night 后缀。
 - `visual.portraits`：当前镜头所有可见人物到表情的完整映射，最多四人。人物可写 `touma`（冬马和纱）、`setsuna`（小木曾雪菜）、`mizusawa`（水泽依绪）、`takeya`（饭冢武也）、`yanagihara`（柳原朋）；表情可写 `normal`（平静自然）、`happy`（开心喜悦）、`sad`（悲伤失落）、`angry`（生气愤怒）、`surprise`（惊讶意外）。例如 `{"touma":"sad","setsuna":"normal"}`。位置和大小由平台自动编排，不要输出位置。北原春希没有立绘；远景、空镜、春希独处或没有合适立绘时写 `{}`。
-- `audio.bgm`：当前镜头音乐。通用可写值：`daily`（轻松日常）、`happy`（明确喜悦）、`normal`（平稳交流）、`sad`（克制伤感）、`tragic`（激烈冲突）。
+- `audio.bgm`：当前镜头音乐。通用可写值：`daily`（轻松日常）、`happy`（喜悦开心）、`normal`（情绪舒缓）、`sad`（克制伤感）、`tragic`（激烈冲突）。
+
+### 通用 background
+
+时段严格按镜头所处的剧情时间判断：05:00～11:59 使用 morning，12:00～17:59 使用 afternoon，18:00～次日 04:59 使用 night。地点不变但剧情跨入另一时段时，也要切换为对应版本。
+
+| 场景语义 | morning | afternoon | night |
+| --- | --- | --- | --- |
+| 北原春希的出租屋室内 | `apartment_morning` | `apartment_afternoon` | `apartment_night` |
+| 峰城大附属的普通教室（含各班教室） | `classroom_morning` | `classroom_afternoon` | `classroom_night` |
+| 峰城大附属教学楼走廊 | `corridor_morning` | `corridor_afternoon` | `corridor_night` |
+| 峰城大附属第三音乐教室 | `musical_classroom3_morning` | `musical_classroom3_afternoon` | `musical_classroom3_night` |
+| 峰城大附属校园、校舍外部 | `school_morning` | `school_afternoon` | `school_night` |
+| 小木曾雪菜的卧室 | `setsuna_room_morning` | `setsuna_room_afternoon` | `setsuna_room_night` |
+| 峰城大附属教学楼楼梯 | `stairs_morning` | `stairs_afternoon` | `stairs_night` |
+| 住宅区或城市街道 | `street_morning` | `street_afternoon` | `street_night` |
+| 车站站台 | `subway_station_morning` | `subway_station_afternoon` | `subway_station_night` |
 
 ## 只读剧情边界
 

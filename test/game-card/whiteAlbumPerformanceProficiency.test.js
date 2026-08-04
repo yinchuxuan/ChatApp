@@ -62,8 +62,8 @@ describe('white album performance proficiency', () => {
     expect(result.state.story.progress).toBe('GameEnd1');
     expect(result.state.temp.PlotType).toBe('GameEnd1');
     expect(result.state.story.chapter2GameEnd1Reached).toBe(true);
-    expect(result.state.timeline.currentSlotEnd).toBe('2012.11.4: 22:00 星期五');
-    expect(guide.content).toContain('五年后的一个周五夜晚');
+    expect(result.state.timeline.currentSlotEnd).toBe('2012.11.4: 22:00 星期日');
+    expect(guide.content).toContain('五年后的一个周日夜晚');
     expect(guide.content).not.toContain('重建同好会的剧情完成');
   });
 });

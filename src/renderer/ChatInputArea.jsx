@@ -18,7 +18,7 @@ function ChatInputArea({
   const isVisible = isLoading || isInputHovered || isFocused || inputValue.length > 0 || isInputTriggerHovered;
   const focusInput = R.useCallback(() => {
     setIsInputHovered(true);
-    setTimeout(() => textareaRef.current?.focus(), 0);
+    textareaRef.current?.focus();
   }, [setIsInputHovered]);
 
   const submitValue = R.useCallback(async (rawValue, formElement) => {

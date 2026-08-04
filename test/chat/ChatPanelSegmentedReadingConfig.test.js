@@ -109,12 +109,18 @@ describe('game card segmented reading config', () => {
     expect(container.querySelector('.wa2-choice-overlay')).not.toBeNull();
     expect(container.querySelectorAll('.wa2-choice')).toHaveLength(4);
 
-    fireEvent.click(screen.getByText('前往天台。'));
+    const choice = screen.getByText('前往天台。');
+    const mouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    choice.dispatchEvent(mouseDown);
+    expect(mouseDown.defaultPrevented).toBe(true);
+    fireEvent.click(choice);
     const input = screen.getByPlaceholderText('输入您的回答...');
     expect(input).toHaveValue('B. 前往天台。');
+    expect(input).toHaveFocus();
     expect(container.querySelector('.wa2-choice-overlay')).not.toBeNull();
 
-    fireEvent.submit(input.closest('form'));
+    act(() => choice.closest('button').focus());
+    fireEvent.keyDown(choice.closest('button'), { key: 'Enter', code: 'Enter' });
     await waitFor(() => expect(container.querySelector('.wa2-choice-overlay')).toBeNull());
     await screen.findByText('下一轮正文。');
   });

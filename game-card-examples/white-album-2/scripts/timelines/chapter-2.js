@@ -58,11 +58,11 @@ const chapter2ConditionalSlotPlotOverrides = [
   {
     slotId: 'GameEnd1',
     when: (state) => readStatePath(state, 'story.chapter2SetsunaBranch') === 'secret'
-      && setsunaAffection(state) >= 20
-      && toumaAffection(state) >= 20
+      && setsunaAffection(state) >= 15
+      && toumaAffection(state) >= 15
       && performanceProficiency(state) >= 20,
     override: {
-      plotType: 'FixedPlot6',
+      plotType: 'FixedPlot7',
       end: '2007.11.4: 22:00 星期日'
     }
   }
@@ -102,6 +102,17 @@ function applySlotPlotOverrides(state, slot) {
 }
 
 function resolveChapter2Timeline(state) {
+  if (readStatePath(state, 'story.chapter2SuccessReached')) {
+    return {
+      chapter: 'chapter_2',
+      plotFile: 'plot.chapter.2.successAfterstory',
+      slotId: 'Chapter2SuccessAfterstory',
+      plotType: 'Chapter2SuccessAfterstory',
+      plotKind: 'free',
+      end: '2099.12.31: 23:59 星期四'
+    };
+  }
+
   if (readStatePath(state, 'story.chapter2GameEnd1Reached')) {
     return {
       chapter: 'chapter_2',
@@ -117,20 +128,20 @@ function resolveChapter2Timeline(state) {
     {
       id: 'FixedPlot1',
       plotKind: 'fixed',
-      end: '2007.10.26: 8:00 星期五',
-      range: { gt: '2007.10.25: 16:00 星期四', lte: '2007.10.25: 17:30 星期五' }
+      end: '2007.10.25: 8:00 星期四',
+      range: { gt: '2007.10.24: 17:00 星期三', lte: '2007.10.24: 17:30 星期三' }
     },
     {
       id: 'FreePlot1',
       plotKind: 'free',
       end: '2007.10.29: 17:00 星期一',
-      range: { gt: '2007.10.25: 17:30 星期五', lte: '2007.10.29: 12:00 星期一' }
+      range: { gt: '2007.10.24: 17:30 星期三', lte: '2007.10.29: 15:00 星期一' }
     },
     {
       id: 'FixedPlot2',
       plotKind: 'fixed',
       end: '2007.10.29: 18:00 星期一',
-      range: { gt: '2007.10.29: 12:00 星期一', lte: '2007.10.29: 17:00 星期一' }
+      range: { gt: '2007.10.29: 15:00 星期一', lte: '2007.10.29: 17:00 星期一' }
     },
     {
       id: 'FixedPlot3',
@@ -141,37 +152,50 @@ function resolveChapter2Timeline(state) {
     {
       id: 'FreePlot2',
       plotKind: 'free',
-      end: '2007.10.31: 17:00 星期三',
-      range: { gt: '2007.10.29: 18:00 星期一', lte: '2007.10.31: 12:00 星期三' }
+      end: '2007.10.30: 17:00 星期二',
+      range: { gt: '2007.10.29: 18:00 星期一', lte: '2007.10.30: 15:00 星期二' }
     },
     {
       id: 'FixedPlot4',
       plotKind: 'fixed',
-      end: '2007.10.31: 17:30 星期三',
-      range: { gt: '2007.10.31: 12:00 星期三', lte: '2007.10.31: 17:00 星期三' }
+      end: '2007.10.30: 17:30 星期二',
+      range: { gt: '2007.10.30: 15:00 星期二', lte: '2007.10.30: 17:00 星期二' }
     },
     {
       id: 'FreePlot3',
       plotKind: 'free',
-      end: '2007.11.2: 21:00 星期五',
-      range: { gt: '2007.10.31: 17:00 星期三', lte: '2007.11.2: 18:00 星期五' }
+      end: '2007.10.31: 17:00 星期三',
+      range: { gt: '2007.10.30: 17:00 星期二', lte: '2007.10.31: 15:00 星期三' }
     },
     {
       id: 'FixedPlot5',
       plotKind: 'fixed',
+      end: '2007.10.31: 17:30 星期三',
+      range: { gt: '2007.10.31: 15:00 星期三', lte: '2007.10.31: 17:00 星期三' }
+    },
+    {
+      id: 'FreePlot4',
+      plotKind: 'free',
+      end: '2007.11.2: 21:00 星期五',
+      range: { gt: '2007.10.31: 17:00 星期三', lte: '2007.11.2: 19:00 星期五' }
+    },
+    {
+      id: 'FixedPlot6',
+      plotKind: 'fixed',
       end: '2007.11.4: 21:00 星期日',
-      range: { gt: '2007.11.2: 18:00 星期五', lte: '2007.11.3: 21:00 星期六' }
+      range: { gt: '2007.11.2: 19:00 星期五', lte: '2007.11.3: 21:00 星期六' }
     },
     {
       id: 'GameEnd1',
       plotKind: 'fixed',
-      end: '2012.11.4: 22:00 星期五',
-      range: { gt: '2007.11.3: 21:00 星期六', lte: '2007.11.4: 21:00 星期六' }
+      end: '2012.11.4: 22:00 星期日',
+      range: { gt: '2007.11.3: 21:00 星期六', lte: '2007.11.4: 21:00 星期日' }
     },
   ];
   const currentTime = state.timeline && state.timeline.currentTime;
   const rawSlot = slots.find((item) => inTimelineRange(currentTime, item.range)) || slots[0];
   const slot = applySlotPlotOverrides(state, rawSlot);
+  if (slot.plotType === 'FixedPlot7') writeStatePath(state, 'story.chapter2SuccessReached', true);
   if (slot.plotType === 'GameEnd1') writeStatePath(state, 'story.chapter2GameEnd1Reached', true);
   return {
     chapter: 'chapter_2',

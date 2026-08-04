@@ -15,8 +15,9 @@ const plotResources = [
   ['plot/chapter-2.md', 'FixedPlot2Low', 'park', 'snow_scene'],
   ['plot/chapter-2.md', 'FixedPlot3', 'ktv', 'bad_woman'],
   ['plot/chapter-2.md', 'FixedPlot4', 'touma_hand', 'after_all_piano'],
-  ['plot/chapter-2.md', 'FixedPlot5', 'home_party', 'winter_night'],
-  ['plot/chapter-2.md', 'FixedPlot6', 'agreement', 'things'],
+  ['plot/chapter-2.md', 'FixedPlot5', null, null],
+  ['plot/chapter-2.md', 'FixedPlot6', 'home_party', 'winter_night'],
+  ['plot/chapter-2.md', 'FixedPlot7', 'agreement', 'things'],
   ['plot/chapter-2.md', 'GameEnd1', 'GameEnd1', 'unstoppable_dream']
 ];
 

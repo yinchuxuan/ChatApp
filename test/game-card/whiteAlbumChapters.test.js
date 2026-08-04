@@ -123,7 +123,7 @@ describe('white album chapters', () => {
     expect(guide.content).not.toContain('雪菜盛装出席和春希在KTV碰面');
   });
 
-  test('uses fixed plot 6 in the game end slot when both affections are high after the secret branch', () => {
+  test('uses fixed plot 7 in the game end slot when both affections are high after the secret branch', () => {
     const result = runAtTime('2007.11.4: 20:30 星期日', {
       touma: { affection: 21 },
       setsuna: { affection: 21 },
@@ -135,7 +135,8 @@ describe('white album chapters', () => {
     expect(result.trace.errors).toEqual([]);
     expect(result.state.story.progress).toBe('GameEnd1');
     expect(result.state.timeline.currentSlot).toBe('GameEnd1');
-    expect(result.state.temp.PlotType).toBe('FixedPlot6');
+    expect(result.state.temp.PlotType).toBe('FixedPlot7');
+    expect(result.state.story.chapter2SuccessReached).toBe(true);
     expect(result.state.story.chapter2GameEnd1Reached).toBe(false);
     expect(result.state.timeline.currentSlotEnd).toBe('2007.11.4: 22:00 星期日');
     expect(guide.content).toContain('visual.scene: `agreement`');
@@ -156,9 +157,9 @@ describe('white album chapters', () => {
     expect(result.state.story.progress).toBe('GameEnd1');
     expect(result.state.temp.PlotType).toBe('GameEnd1');
     expect(result.state.story.chapter2GameEnd1Reached).toBe(true);
-    expect(result.state.timeline.currentSlotEnd).toBe('2012.11.4: 22:00 星期五');
+    expect(result.state.timeline.currentSlotEnd).toBe('2012.11.4: 22:00 星期日');
     expect(guide.content).toContain('visual.scene: `GameEnd1`');
-    expect(guide.content).toContain('五年后的一个周五夜晚');
+    expect(guide.content).toContain('五年后的一个周日夜晚');
     expect(guide.content).not.toContain('重建同好会的剧情完成');
   });
 
@@ -185,7 +186,7 @@ describe('white album chapters', () => {
   test('loads the chapter 2 first game ending guide', () => {
     const guide = resolveContent('{{file:plot.chapter.2#GameEnd1}}', {}, { card: loadedCard, fileContents });
 
-    expect(guide).toContain('五年后的一个周五夜晚');
+    expect(guide).toContain('五年后的一个周日夜晚');
     expect(guide).toContain('许久没有碰过的吉他');
     expect(guide).toContain('另一个平行时空');
   });
