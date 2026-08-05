@@ -49,6 +49,7 @@ function run(ctx) {
     state.temp.plotKind = 'free';
     state.temp.includeFreeGuide = true;
     state.temp.plotDirectionRoll = roll;
+    state.temp.characterGuideRoll = utils.randomInt(1, 100);
     state.temp.plotMood = mood;
     state.temp.plotMoodSection = `PlotMood_${mood}`;
     state.temp.toumaAttitudeSection = resolveAttitudeSection('ToumaAttitude', state.touma && state.touma.affection);
@@ -58,6 +59,7 @@ function run(ctx) {
   function applyFixedPlot() {
     state.temp.plotKind = 'fixed';
     state.temp.includeFreeGuide = false;
+    state.temp.characterGuideRoll = 0;
     state.temp.plotMood = '';
     state.temp.plotMoodSection = '';
     state.temp.toumaAttitudeSection = '';

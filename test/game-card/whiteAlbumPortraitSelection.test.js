@@ -8,23 +8,31 @@ const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSche
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
 const portraitCharacters = Object.keys(loadedCard.visual.portrait);
-const portraitExpressions = ['normal', 'happy', 'sad', 'angry', 'surprise'];
+const portraitExpressions = [
+  'normal', 'happy', 'sad', 'cry', 'angry', 'surprise', 'joy', 'sweating_smile'
+];
 const portraitNames = {
   touma: '冬马和纱',
   setsuna: '小木曾雪菜',
   mizusawa: '水泽依绪',
   takeya: '饭冢武也',
+  chikashi: '早坂亲志',
   yanagihara: '柳原朋'
 };
 const portraitExpressionMeanings = {
   normal: '平静自然',
   happy: '开心喜悦',
   sad: '悲伤失落',
+  cry: '哭泣落泪',
   angry: '生气愤怒',
-  surprise: '惊讶意外'
+  surprise: '惊讶意外',
+  joy: '兴奋欢笑',
+  sweating_smile: '尴尬冒汗地笑'
 };
+const yanagiharaExpressionAliases = { cry: 'sad', joy: 'happy', sweating_smile: 'normal' };
+const portraitProperties = stateSchema.schema['visual.portraits'].properties;
 const portraitCases = portraitCharacters.flatMap(character => (
-  Object.keys(loadedCard.visual.portrait[character]).map(expression => [character, expression])
+  portraitProperties[character].values.map(expression => [character, expression])
 ));
 
 function pngDimensions(filePath) {
@@ -71,16 +79,26 @@ describe('white album portrait selection', () => {
     });
   });
 
-  test('registers five expressions for all five supported characters', () => {
-    expect(portraitCharacters).toHaveLength(5);
-    ['touma', 'setsuna', 'mizusawa', 'takeya', 'yanagihara'].forEach((character) => {
+  test('registers all eight expressions for all six supported characters', () => {
+    expect(portraitCharacters).toHaveLength(6);
+    ['touma', 'setsuna', 'mizusawa', 'takeya', 'chikashi', 'yanagihara'].forEach((character) => {
       portraitExpressions.forEach((expression) => {
         const resource = loadedCard.visual.portrait[character][expression];
-        expect(resource).toBe(`images/${character}/${expression}.png`);
+        const fileExpression = character === 'yanagihara'
+          ? yanagiharaExpressionAliases[expression] || expression
+          : expression;
+        expect(resource).toBe(`images/${character}/${fileExpression}.png`);
         const imagePath = path.join(cardDir, resource);
         expect(fs.existsSync(imagePath)).toBe(true);
-        expect(pngDimensions(imagePath)).toEqual({ width: 2560, height: 1920, colorType: 6 });
+        expect(pngDimensions(imagePath)).toEqual({ width: 1086, height: 1448, colorType: 6 });
       });
+    });
+  });
+
+  test('keeps all character resource and state expression sets aligned', () => {
+    portraitCharacters.forEach((character) => {
+      expect(Object.keys(loadedCard.visual.portrait[character])).toEqual(portraitExpressions);
+      expect(portraitProperties[character].values).toEqual(portraitExpressions);
     });
   });
 

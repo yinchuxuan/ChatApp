@@ -8,6 +8,8 @@
         "include":[
             {"when":{"state":{"temp.includeFreeGuide":true}},"content":"{{file:$temp.plotFile#剧情大纲}}"},
             {"when":{"state":{"temp.PlotType":{"exists":true}}},"content":"{{file:$temp.plotFile#$temp.PlotType}}"},
+            {"when":{"state":{"temp.plotFile":"plot.chapter.2","temp.PlotType":"FreePlot1","temp.characterGuideRoll":{"gt":50}}},"content":"{{file:plot.chapter.2#FreePlot1SetsunaWeakGuide}}"},
+            {"when":{"state":{"temp.plotFile":"plot.chapter.2","temp.PlotType":{"in":["FreePlot3","FreePlot4"]},"temp.characterGuideRoll":{"gt":50}}},"content":"{{file:plot.chapter.2#ToumaWeakGuide}}"},
             {"when":{"state":{"temp.plotKind":"free"}},"content":"{{file:$temp.plotFile#$temp.plotMoodSection}}"},
             {"when":{"state":{"temp.plotKind":"free"}},"content":"{{file:$temp.plotFile#$temp.toumaAttitudeSection}}"},
             {"when":{"state":{"temp.plotKind":"free"}},"content":"{{file:$temp.plotFile#$temp.setsunaAttitudeSection}}"},

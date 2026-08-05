@@ -51,7 +51,9 @@
       "sad": "images/touma/sad.png",
       "cry": "images/touma/cry.png",
       "angry": "images/touma/angry.png",
-      "surprise": "images/touma/surprise.png"
+      "surprise": "images/touma/surprise.png",
+      "joy": "images/touma/joy.png",
+      "sweating_smile": "images/touma/sweating_smile.png"
     },
     "setsuna": {
       "normal": "images/setsuna/normal.png",
@@ -59,28 +61,49 @@
       "sad": "images/setsuna/sad.png",
       "cry": "images/setsuna/cry.png",
       "angry": "images/setsuna/angry.png",
-      "surprise": "images/setsuna/surprise.png"
+      "surprise": "images/setsuna/surprise.png",
+      "joy": "images/setsuna/joy.png",
+      "sweating_smile": "images/setsuna/sweating_smile.png"
     },
     "mizusawa": {
       "normal": "images/mizusawa/normal.png",
       "happy": "images/mizusawa/happy.png",
       "sad": "images/mizusawa/sad.png",
+      "cry": "images/mizusawa/cry.png",
       "angry": "images/mizusawa/angry.png",
-      "surprise": "images/mizusawa/surprise.png"
+      "surprise": "images/mizusawa/surprise.png",
+      "joy": "images/mizusawa/joy.png",
+      "sweating_smile": "images/mizusawa/sweating_smile.png"
     },
     "takeya": {
       "normal": "images/takeya/normal.png",
       "happy": "images/takeya/happy.png",
       "sad": "images/takeya/sad.png",
+      "cry": "images/takeya/cry.png",
       "angry": "images/takeya/angry.png",
-      "surprise": "images/takeya/surprise.png"
+      "surprise": "images/takeya/surprise.png",
+      "joy": "images/takeya/joy.png",
+      "sweating_smile": "images/takeya/sweating_smile.png"
+    },
+    "chikashi": {
+      "normal": "images/chikashi/normal.png",
+      "happy": "images/chikashi/happy.png",
+      "sad": "images/chikashi/sad.png",
+      "cry": "images/chikashi/cry.png",
+      "angry": "images/chikashi/angry.png",
+      "surprise": "images/chikashi/surprise.png",
+      "joy": "images/chikashi/joy.png",
+      "sweating_smile": "images/chikashi/sweating_smile.png"
     },
     "yanagihara": {
       "normal": "images/yanagihara/normal.png",
       "happy": "images/yanagihara/happy.png",
       "sad": "images/yanagihara/sad.png",
+      "cry": "images/yanagihara/sad.png",
       "angry": "images/yanagihara/angry.png",
-      "surprise": "images/yanagihara/surprise.png"
+      "surprise": "images/yanagihara/surprise.png",
+      "joy": "images/yanagihara/happy.png",
+      "sweating_smile": "images/yanagihara/normal.png"
     }
   }
 }

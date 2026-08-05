@@ -87,23 +87,27 @@
       "properties": {
         "touma": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "angry", "surprise"]
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "setsuna": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "angry", "surprise"]
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "mizusawa": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "angry", "surprise"]
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "takeya": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "angry", "surprise"]
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+        },
+        "chikashi": {
+          "type": "enum",
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "yanagihara": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "angry", "surprise"]
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         }
       },
       "additionalProperties": false,

@@ -15,6 +15,8 @@
 	                    "content":"{{file:worldbook.characters#饭冢武也}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"依绪|依緒|水泽|水沢|Io|Mizusawa"}}},
 	                    "content":"{{file:worldbook.characters#水泽依绪}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"亲志|親志|早坂|Hayasaka|Chikashi"}}},
+	                    "content":"{{file:worldbook.characters#早坂亲志}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"柳原朋|柳原|Yanagihara|Tomo"}}},
 	                    "content":"{{file:worldbook.characters#柳原朋}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"第二音乐教室|第二音乐室｜第二音楽室"}}},
