@@ -44,8 +44,9 @@ describe('white album timeline transitions', () => {
   test.each([
     ['2007.10.24: 16:00 星期三', 'chapter_1', 'FixedPlot4'],
     ['2007.10.24: 17:30 星期三', 'chapter_2', 'FixedPlot1'],
-    ['2007.10.31: 16:00 星期三', 'chapter_2', 'FixedPlot5'],
-    ['2007.10.31: 17:30 星期三', 'chapter_2', 'FreePlot4'],
+    ['2007.10.30: 17:30 星期二', 'chapter_2', 'FixedPlot5'],
+    ['2007.10.30: 19:30 星期二', 'chapter_2', 'FreePlot3'],
+    ['2007.10.31: 16:00 星期三', 'chapter_2', 'FreePlot3'],
     ['2007.11.2: 20:00 星期五', 'chapter_2', 'FixedPlot6']
   ])('resolves %s to %s %s', (currentTime, chapter, plotType) => {
     const result = runAtTime(currentTime);
@@ -55,12 +56,13 @@ describe('white album timeline transitions', () => {
     expect(result.state.temp.PlotType).toBe(plotType);
   });
 
-  test('loads FreePlot4 without leaking the preceding fixed plot', () => {
+  test('loads FreePlot3 without leaking the preceding fixed plot', () => {
     const result = runAtTime('2007.10.31: 17:30 星期三');
     const guide = result.messages.find(message => message.role === 'user');
 
+    expect(result.state.temp.PlotType).toBe('FreePlot3');
     expect(guide.content).toContain('绝对禁止将时间推进到 2007.11.2: 21:00 星期五 之后');
-    expect(guide.content).not.toContain('放学后春希和雪菜一同回家');
+    expect(guide.content).not.toContain('晚上春希等雪菜下班一同回家');
   });
 
   test('enters the success afterstory after FixedPlot7', () => {

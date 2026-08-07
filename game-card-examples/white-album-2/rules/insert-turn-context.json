@@ -19,6 +19,8 @@
 	                    "content":"{{file:worldbook.characters#早坂亲志}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"柳原朋|柳原|Yanagihara|Tomo"}}},
 	                    "content":"{{file:worldbook.characters#柳原朋}}"},
+                    {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"孝宏|小木曾孝宏|小木曽孝宏|Takahiro"}}},
+	                    "content":"{{file:worldbook.characters#小木曾孝宏}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"第二音乐教室|第二音乐室｜第二音楽室"}}},
 	                    "content":"{{file:worldbook.location#第二音乐教室}}"},
                     {"when":{"last":{"num":3,"role":{"in":["user","assistant"]},"content":{"regex":"第三音乐教室|第三音乐室|第三音楽室"}}},

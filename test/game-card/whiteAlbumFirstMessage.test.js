@@ -30,7 +30,7 @@ describe('white album first message', () => {
       {
         'visual.scene': 'classroom',
         'visual.portraits': {},
-        'audio.bgm': 'normal'
+        'audio.bgm': 'steady'
       },
       { 'visual.portraits': { takeya: 'normal' } },
       { 'visual.portraits': { takeya: 'happy' } },

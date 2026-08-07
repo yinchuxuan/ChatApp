@@ -72,18 +72,15 @@ describe('white album character weak guide', () => {
     expect(latestUserGuide(result)).not.toContain('本轮可以根据用户行动、当前场景和最近剧情');
   });
 
-  test.each([
-    ['FreePlot3', '2007.10.30: 17:30 星期二'],
-    ['FreePlot4', '2007.10.31: 17:30 星期三']
-  ])('injects the Touma guide during %s', (plotType, currentTime) => {
+  test('injects the Touma guide during FreePlot3', () => {
     jest.spyOn(Math, 'random')
       .mockReturnValueOnce(0.5)
       .mockReturnValueOnce(0.99)
       .mockReturnValue(0);
 
-    const result = runFreePlot(currentTime);
+    const result = runFreePlot('2007.10.30: 19:30 星期二');
 
-    expect(result.state.temp.PlotType).toBe(plotType);
+    expect(result.state.temp.PlotType).toBe('FreePlot3');
     expect(result.state.temp.characterGuideRoll).toBe(100);
     expect(latestUserGuide(result)).toContain('选择是否加入一次关于冬马和纱的自然弱引导');
   });

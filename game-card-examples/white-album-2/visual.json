@@ -53,7 +53,8 @@
       "angry": "images/touma/angry.png",
       "surprise": "images/touma/surprise.png",
       "joy": "images/touma/joy.png",
-      "sweating_smile": "images/touma/sweating_smile.png"
+      "sweating_smile": "images/touma/sweating_smile.png",
+      "sleep": "images/touma/sleep.png"
     },
     "setsuna": {
       "normal": "images/setsuna/normal.png",
@@ -104,6 +105,16 @@
       "surprise": "images/yanagihara/surprise.png",
       "joy": "images/yanagihara/happy.png",
       "sweating_smile": "images/yanagihara/normal.png"
+    },
+    "takahiro": {
+      "normal": "images/takahiro/normal.png",
+      "happy": "images/takahiro/happy.png",
+      "sad": "images/takahiro/sad.png",
+      "cry": "images/takahiro/sad.png",
+      "angry": "images/takahiro/angry.png",
+      "surprise": "images/takahiro/surprise.png",
+      "joy": "images/takahiro/happy.png",
+      "sweating_smile": "images/takahiro/normal.png"
     }
   }
 }

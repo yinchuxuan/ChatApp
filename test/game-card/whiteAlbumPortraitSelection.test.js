@@ -8,7 +8,7 @@ const { mergeAudioStateSchema } = require('../../src/renderer/gameCard/stateSche
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
 const portraitCharacters = Object.keys(loadedCard.visual.portrait);
-const portraitExpressions = [
+const commonPortraitExpressions = [
   'normal', 'happy', 'sad', 'cry', 'angry', 'surprise', 'joy', 'sweating_smile'
 ];
 const portraitNames = {
@@ -17,20 +17,27 @@ const portraitNames = {
   mizusawa: '水泽依绪',
   takeya: '饭冢武也',
   chikashi: '早坂亲志',
-  yanagihara: '柳原朋'
+  yanagihara: '柳原朋',
+  takahiro: '小木曾孝宏'
 };
 const portraitExpressionMeanings = {
   normal: '平静自然',
-  happy: '开心喜悦',
-  sad: '悲伤失落',
+  happy: '开心大笑',
+  sad: '情绪低落',
   cry: '哭泣落泪',
   angry: '生气愤怒',
   surprise: '惊讶意外',
-  joy: '兴奋欢笑',
-  sweating_smile: '尴尬冒汗地笑'
+  joy: '愉悦微笑',
+  sweating_smile: '尴尬冒汗地笑',
+  sleep: '趴桌睡觉'
 };
-const yanagiharaExpressionAliases = { cry: 'sad', joy: 'happy', sweating_smile: 'normal' };
+const expressionAliases = {
+  yanagihara: { cry: 'sad', joy: 'happy', sweating_smile: 'normal' },
+  takahiro: { cry: 'sad', joy: 'happy', sweating_smile: 'normal' }
+};
 const portraitProperties = stateSchema.schema['visual.portraits'].properties;
+const documentedExpressions = [...new Set(Object.values(portraitProperties)
+  .flatMap(property => property.values))];
 const portraitCases = portraitCharacters.flatMap(character => (
   portraitProperties[character].values.map(expression => [character, expression])
 ));
@@ -72,21 +79,22 @@ describe('white album portrait selection', () => {
     portraitCharacters.forEach((character) => {
       expect(llmStateContract).toContain(`\`${character}\`（${portraitNames[character]}）`);
     });
-    portraitExpressions.forEach((expression) => {
+    documentedExpressions.forEach((expression) => {
       expect(llmStateContract).toContain(
         `\`${expression}\`（${portraitExpressionMeanings[expression]}）`
       );
     });
   });
 
-  test('registers all eight expressions for all six supported characters', () => {
-    expect(portraitCharacters).toHaveLength(6);
-    ['touma', 'setsuna', 'mizusawa', 'takeya', 'chikashi', 'yanagihara'].forEach((character) => {
-      portraitExpressions.forEach((expression) => {
+  test('registers common expressions for all characters and sleep for Touma', () => {
+    expect(portraitCharacters).toHaveLength(7);
+    portraitCharacters.forEach((character) => {
+      const expressions = character === 'touma'
+        ? [...commonPortraitExpressions, 'sleep']
+        : commonPortraitExpressions;
+      expressions.forEach((expression) => {
         const resource = loadedCard.visual.portrait[character][expression];
-        const fileExpression = character === 'yanagihara'
-          ? yanagiharaExpressionAliases[expression] || expression
-          : expression;
+        const fileExpression = expressionAliases[character]?.[expression] || expression;
         expect(resource).toBe(`images/${character}/${fileExpression}.png`);
         const imagePath = path.join(cardDir, resource);
         expect(fs.existsSync(imagePath)).toBe(true);
@@ -97,8 +105,8 @@ describe('white album portrait selection', () => {
 
   test('keeps all character resource and state expression sets aligned', () => {
     portraitCharacters.forEach((character) => {
-      expect(Object.keys(loadedCard.visual.portrait[character])).toEqual(portraitExpressions);
-      expect(portraitProperties[character].values).toEqual(portraitExpressions);
+      expect(Object.keys(loadedCard.visual.portrait[character]))
+        .toEqual(portraitProperties[character].values);
     });
   });
 

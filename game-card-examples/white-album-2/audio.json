@@ -2,7 +2,9 @@
   "bgm": {
     "daily": "audio/bgm/common/WA2_daily.mp3",
     "happy": "audio/bgm/common/WA2_happy.mp3",
-    "normal": "audio/bgm/common/WA2_normal.mp3",
+    "light": "audio/bgm/common/WA2_light.mp3",
+    "release": "audio/bgm/common/WA2_release.mp3",
+    "steady": "audio/bgm/common/WA2_steady.mp3",
     "sad": "audio/bgm/common/WA2_sad.mp3",
     "tragic": "audio/bgm/common/WA2_tragic.mp3",
     "WA_piano": "audio/bgm/story/WA2_WA_piano.ogg",

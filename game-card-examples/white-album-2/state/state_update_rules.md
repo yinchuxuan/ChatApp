@@ -5,7 +5,7 @@ State更新与演出规则：
 <state_patch>
 {"visual.scene":"musical_classroom3_afternoon",
  "visual.portraits":{"touma":"normal"},
- "audio.bgm":"normal"}
+ "audio.bgm":"steady"}
 </state_patch>
 
 2. 自由剧情只能使用State写入契约中的通用资源。固定剧情可以额外使用剧情引导中“本节点特殊演出资源”指定的场景画面和音乐，特殊演出资源按指定的位置插入剧情。WA2卡不会替模型设置任何画面、立绘或音乐，所有演出资源都必须由模型通过state_patch编排。
@@ -23,7 +23,7 @@ State更新与演出规则：
 
 6. visual.portraits只能使用State写入契约中的人物和表情；北原春希没有立绘，不能选择。远景、空镜、春希独处或没有合适立绘时写空对象`{}`。visual.portraits每次写入都必须列出当前镜头所有可见人物；省略的人物会退场，空对象`{}`表示无人显示。visual.portraits最多同时设置四人，只选择人物和表情。剧情中有新人物登场或者有人物退场时，必须重新设置visual.portraits。人物立绘表情应该随着剧情内容的变化而变化，当人物有情绪时不要总是使用normal表情，而是应该根据剧情中的人物情绪设置对应的情绪状态。
 
-7. audio.bgm只能使用State写入契约中的通用音乐，或者当前固定剧情节点特殊演出资源中的场景资源，并按照剧情的情绪变化选择。不要频繁地切换bgm，也不要总是使用normal的bgm，在表达特殊的心里情绪或者特殊的过渡时期时可以设置为none
+7. audio.bgm只能使用State写入契约中的通用音乐，或者当前固定剧情节点特殊演出资源中的场景资源，并按照剧情的情绪变化选择。不要频繁地切换bgm，也不要总是使用steady的bgm，在表达特殊的心里情绪或者特殊的过渡时期时可以设置为none
 
 8. 剧情末尾的summary之后、<choices>选项区之前必须输出最终<state_patch>，更新本轮结束状态，例如：
 

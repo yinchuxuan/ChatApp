@@ -87,7 +87,7 @@
       "properties": {
         "touma": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile", "sleep"]
         },
         "setsuna": {
           "type": "enum",
@@ -108,6 +108,10 @@
         "yanagihara": {
           "type": "enum",
           "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+        },
+        "takahiro": {
+          "type": "enum",
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         }
       },
       "additionalProperties": false,
@@ -123,7 +127,9 @@
         "none",
         "daily",
         "happy",
-        "normal",
+        "light",
+        "release",
+        "steady",
         "sad",
         "tragic",
         "WA_piano",

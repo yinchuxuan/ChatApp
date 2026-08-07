@@ -16,10 +16,10 @@ describe('white album 2 audio', () => {
     expect(loadedCard.state.schema.schema['audio.bgm']).toMatchObject({
       type: 'enum',
       values: [
-        'none', 'daily', 'happy', 'normal', 'sad', 'tragic', 'WA_piano',
-        'WA_3', 'dream', 'snow_scene', 'bad_woman', 'after_all_piano',
-        'winter_night', 'things', 'unstoppable_dream', 'love_dream',
-        'WA_formal', 'normal_ex'
+        'none', 'daily', 'happy', 'light', 'release', 'steady', 'sad',
+        'tragic', 'WA_piano', 'WA_3', 'dream', 'snow_scene', 'bad_woman',
+        'after_all_piano', 'winter_night', 'things', 'unstoppable_dream',
+        'love_dream', 'WA_formal', 'normal_ex'
       ],
       default: 'daily'
     });
@@ -27,7 +27,9 @@ describe('white album 2 audio', () => {
     expect(audioPath).toBe('audio/bgm/common/WA2_daily.mp3');
     expect(fs.existsSync(path.join(__dirname, '../../game-card-examples/white-album-2', audioPath))).toBe(true);
     expect(card.audio.bgm.happy).toBe('audio/bgm/common/WA2_happy.mp3');
-    expect(card.audio.bgm.normal).toBe('audio/bgm/common/WA2_normal.mp3');
+    expect(card.audio.bgm.light).toBe('audio/bgm/common/WA2_light.mp3');
+    expect(card.audio.bgm.release).toBe('audio/bgm/common/WA2_release.mp3');
+    expect(card.audio.bgm.steady).toBe('audio/bgm/common/WA2_steady.mp3');
     expect(card.audio.bgm.sad).toBe('audio/bgm/common/WA2_sad.mp3');
     expect(card.audio.bgm.tragic).toBe('audio/bgm/common/WA2_tragic.mp3');
     expect(card.audio.bgm.WA_piano).toBe('audio/bgm/story/WA2_WA_piano.ogg');
@@ -42,5 +44,15 @@ describe('white album 2 audio', () => {
     expect(card.audio.bgm.love_dream).toBe('audio/bgm/story/WA2_love_dream.ogg');
     expect(card.audio.bgm.WA_formal).toBe('audio/bgm/story/WA2_WA_formal.mp3');
     expect(card.audio.bgm.normal_ex).toBe('audio/bgm/story/WA2_normal_ex.ogg');
+  });
+
+  test('uses the registered steady key in model-facing examples', () => {
+    const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
+    const firstMessage = fs.readFileSync(path.join(cardDir, 'first_msg.md'), 'utf-8');
+    const updateRules = fs.readFileSync(path.join(cardDir, 'state/state_update_rules.md'), 'utf-8');
+
+    expect(firstMessage).toContain('"audio.bgm":"steady"');
+    expect(updateRules).toContain('"audio.bgm":"steady"');
+    expect(`${firstMessage}\n${updateRules}`).not.toContain('"audio.bgm":"normal"');
   });
 });

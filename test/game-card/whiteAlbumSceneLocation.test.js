@@ -45,7 +45,9 @@ describe('white album reusable presentation resources', () => {
   });
 
   test('lists only the reusable bgms in the write contract', () => {
-    expect(reusableBgms).toEqual(['daily', 'happy', 'normal', 'sad', 'tragic']);
+    expect(reusableBgms).toEqual([
+      'daily', 'happy', 'light', 'release', 'steady', 'sad', 'tragic'
+    ]);
   });
 
   test.each(reusableBackgrounds)(

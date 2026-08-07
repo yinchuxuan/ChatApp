@@ -29,7 +29,7 @@
 <state_patch>
 {"visual.scene":"classroom",
  "visual.portraits":{},
- "audio.bgm":"normal"}
+ "audio.bgm":"steady"}
 </state_patch>
 
 【时间地点】2007.10.20: 15:00 星期六｜峰城大附属三年 E 班教室
