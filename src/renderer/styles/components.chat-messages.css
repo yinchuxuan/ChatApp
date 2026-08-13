@@ -95,13 +95,6 @@
   box-shadow: none;
 }
 
-.chat-message.error .chat-message-bubble {
-  background: var(--gc-error-bubble-bg, var(--md-error-container));
-  color: var(--gc-error-bubble-text, var(--md-on-error-container));
-  animation: shake var(--md-motion-duration-medium3) var(--md-motion-easing-standard);
-  box-shadow: var(--md-elevation-level-2);
-}
-
 /* Retry Button - transparent edge action on the retry source */
 .chat-message-row .retry-btn {
   display: inline-flex !important;

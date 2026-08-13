@@ -60,8 +60,3 @@
 [data-theme="dark"] .app-container.has-background-image .msg-history-card {
   background: transparent;
 }
-
-.app-container.has-background-image .chat-message.error .chat-message-bubble {
-  background: rgba(220, 38, 38, 0.4);
-  color: #FFFFFF;
-}

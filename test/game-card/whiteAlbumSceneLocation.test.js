@@ -15,8 +15,9 @@ const updateRules = fs.readFileSync(
   'utf8'
 );
 const scenes = [
-  'apartment', 'classroom', 'corridor', 'musical_classroom3', 'school',
-  'setsuna_room', 'stairs', 'street', 'subway_station'
+  'apartment', 'classroom', 'corridor', 'musical_classroom2',
+  'musical_classroom3', 'school', 'setsuna_room', 'stairs', 'street',
+  'subway_station'
 ];
 const times = ['morning', 'afternoon', 'night'];
 const expectedBackgrounds = scenes.flatMap(scene => times.map(time => `${scene}_${time}`));
@@ -46,7 +47,8 @@ describe('white album reusable presentation resources', () => {
 
   test('lists only the reusable bgms in the write contract', () => {
     expect(reusableBgms).toEqual([
-      'daily', 'happy', 'light', 'release', 'steady', 'sad', 'tragic'
+      'daily', 'happy', 'light', 'hope', 'release', 'peace', 'steady',
+      'desolate', 'sad', 'tragic'
     ]);
   });
 
@@ -74,7 +76,7 @@ describe('white album reusable presentation resources', () => {
   });
 
   test('keeps legacy untimed aliases out of the LLM write contract', () => {
-    ['musical_classroom3', 'school', 'classroom']
+    ['musical_classroom2', 'musical_classroom3', 'school', 'classroom']
       .forEach(background => expect(llmStateContract).not.toContain(`\`${background}\``));
   });
 });

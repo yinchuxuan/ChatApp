@@ -14,6 +14,7 @@ function useChatGeneration({
   isLoading,
   setIsLoading,
   setRuntimeError,
+  setRequestError,
   setShowStreamThinking,
   onAudioSubmit,
   onRetryStateRestore,
@@ -38,21 +39,19 @@ function useChatGeneration({
       onPresentationEffects,
       onStreamPreviewState: setGameState,
       onGameCardError: setRuntimeError,
+      onRequestError: setRequestError,
       ...generationControl,
       appendAssistantWithUpdater
     }))
   ), [generationControl, modelConfig, onPresentationEffects, onStatePatchApplied, onStreamContentStart,
-    setGameState, setMessages, setRuntimeError, setShowStreamThinking, typewriter]);
+    setGameState, setMessages, setRequestError, setRuntimeError, setShowStreamThinking, typewriter]);
 
   const send = React.useCallback(async (rawValue) => {
     const value = String(rawValue || '');
     if (!value.trim() || isLoading) return false;
     if (!modelConfig?.apiUrl || !modelConfig?.apiKey) {
-      setMessages(prev => [
-        ...prev,
-        createChatMessage({ role: 'user', content: value }),
-        createChatMessage({ role: 'assistant', content: '请先在右侧设置面板配置模型 API', isError: true })
-      ]);
+      setMessages(prev => [...prev, createChatMessage({ role: 'user', content: value })]);
+      setRequestError?.('请先在右侧设置面板配置模型 API');
       return true;
     }
     onAudioSubmit?.();
@@ -60,7 +59,8 @@ function useChatGeneration({
     persistence.setRetryBase(nextMessages, gameState);
     await run(nextMessages, gameState, true);
     return true;
-  }, [gameState, isLoading, messages, modelConfig, onAudioSubmit, persistence, run, setMessages]);
+  }, [gameState, isLoading, messages, modelConfig, onAudioSubmit, persistence, run,
+    setMessages, setRequestError]);
 
   const retry = React.useCallback(async (editedContent) => {
     if (!modelConfig?.apiUrl || !modelConfig?.apiKey) return false;

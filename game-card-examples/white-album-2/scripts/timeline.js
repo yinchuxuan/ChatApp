@@ -43,6 +43,15 @@ function run(ctx) {
     return parseTime(currentTime) > chapter2Start ? 'chapter_2' : 'chapter_1';
   }
 
+  function applyAttitudeSections() {
+    state.temp.toumaAttitudeSection = resolveAttitudeSection(
+      'ToumaAttitude', state.touma && state.touma.affection
+    );
+    state.temp.setsunaAttitudeSection = resolveAttitudeSection(
+      'SetsunaAttitude', state.setsuna && state.setsuna.affection
+    );
+  }
+
   function applyFreePlot() {
     const roll = utils.randomInt(1, 100);
     const mood = resolvePlotMood(roll);
@@ -52,8 +61,7 @@ function run(ctx) {
     state.temp.characterGuideRoll = utils.randomInt(1, 100);
     state.temp.plotMood = mood;
     state.temp.plotMoodSection = `PlotMood_${mood}`;
-    state.temp.toumaAttitudeSection = resolveAttitudeSection('ToumaAttitude', state.touma && state.touma.affection);
-    state.temp.setsunaAttitudeSection = resolveAttitudeSection('SetsunaAttitude', state.setsuna && state.setsuna.affection);
+    applyAttitudeSections();
   }
 
   function applyFixedPlot() {
@@ -62,8 +70,7 @@ function run(ctx) {
     state.temp.characterGuideRoll = 0;
     state.temp.plotMood = '';
     state.temp.plotMoodSection = '';
-    state.temp.toumaAttitudeSection = '';
-    state.temp.setsunaAttitudeSection = '';
+    applyAttitudeSections();
   }
 
   const resolvers = { chapter_1: resolveChapter1Timeline, chapter_2: resolveChapter2Timeline };

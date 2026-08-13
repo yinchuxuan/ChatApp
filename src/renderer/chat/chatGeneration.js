@@ -46,6 +46,7 @@ async function runChatGeneration(options) {
   let preSend = null;
   setMessages(messages);
   setIsLoading(true);
+  options.onRequestError?.(null);
   tw.clearStreaming?.();
   tw.startStreaming(streamMessageId);
   options.setShowStreamThinking?.(true);
@@ -182,7 +183,7 @@ function handleGenerationException(err, options, preSend, baseMessages, abortSig
   }
   options.setIsLoading(false);
   options.tw.reset();
-  options.setMessages(prev => [...prev, createChatMessage({ role: 'assistant', content: `请求失败: ${err.message}`, isError: true })]);
+  options.onRequestError?.(`请求失败: ${err.message}`);
   return false;
 }
 

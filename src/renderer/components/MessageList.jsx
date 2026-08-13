@@ -3,7 +3,7 @@ import { messageKey } from '../chat/messageSelection.js';
 import { message, PropTypes } from './componentPropTypes.js';
 
 function MessageBubble({ message, children }) {
-  const className = `chat-message ${message.role} ${message.isError ? 'error' : ''}`;
+  const className = `chat-message ${message.role}`;
   return <div className={className} data-gc-part="message" style={{ flex: 1, minWidth: 0 }}>
     {children}
   </div>;

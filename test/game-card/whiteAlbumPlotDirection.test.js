@@ -118,7 +118,8 @@ describe('white album plot direction guide', () => {
     expect(wallGuide.content).toContain('当前剧情时间段：2007.10.21: 16:00 星期日 - 2007.10.21: 18:00 星期日');
     expect(wallGuide.content).toContain('隔墙合奏');
     expect(wallGuide.content).not.toContain('本轮自由剧情走向');
-    expect(wallGuide.content).not.toContain('冬马和纱当前态度');
+    expect(wallGuide.content).toContain('冬马和纱当前态度');
+    expect(wallGuide.content).toContain('小木曾雪菜当前态度');
 
     const free = runAtSlot('2007.10.21: 18:00 星期日');
     const freeGuide = free.messages.find((msg) => msg.role === 'user');

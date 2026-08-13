@@ -42,7 +42,12 @@ describe('ChatPanel Component - Error Handling', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
     });
 
-    expect(_screen.getByText('请先在右侧设置面板配置模型 API')).toBeInTheDocument();
+    const notice = _screen.getByRole('alert');
+    expect(notice).toHaveTextContent('请先在右侧设置面板配置模型 API');
+    expect(notice.parentElement).toBe(document.body);
+    expect(document.querySelector('.chat-message.assistant')).toBeNull();
+    _fireEvent.click(_screen.getByRole('button', { name: '关闭请求错误' }));
+    expect(_screen.queryByRole('alert')).toBeNull();
   });
 
   test('should handle API error and show error message', async () => {
@@ -71,7 +76,10 @@ describe('ChatPanel Component - Error Handling', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
     });
 
-    expect(_screen.getByText('请求失败: Network failed')).toBeInTheDocument();
+    const notice = _screen.getByRole('alert');
+    expect(notice).toHaveTextContent('请求失败: Network failed');
+    expect(notice.parentElement).toBe(document.body);
+    expect(document.querySelector('.chat-message.assistant')).toBeNull();
 
     console.error = originalConsoleError;
   });

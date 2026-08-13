@@ -18,7 +18,9 @@ const portraitNames = {
   takeya: '饭冢武也',
   chikashi: '早坂亲志',
   yanagihara: '柳原朋',
-  takahiro: '小木曾孝宏'
+  takahiro: '小木曾孝宏',
+  teacher1: '三年E班班主任',
+  teacher2: '诹访老师，学生指导部主任'
 };
 const portraitExpressionMeanings = {
   normal: '平静自然',
@@ -33,8 +35,11 @@ const portraitExpressionMeanings = {
 };
 const expressionAliases = {
   yanagihara: { cry: 'sad', joy: 'happy', sweating_smile: 'normal' },
-  takahiro: { cry: 'sad', joy: 'happy', sweating_smile: 'normal' }
+  takahiro: { cry: 'sad', joy: 'happy', sweating_smile: 'normal' },
+  teacher1: { happy: 'joy', cry: 'sad', sweating_smile: 'normal' },
+  teacher2: { happy: 'joy', cry: 'sad', sweating_smile: 'normal' }
 };
+const portraitDirectories = { teacher1: 'teacher_1', teacher2: 'teacher_2' };
 const portraitProperties = stateSchema.schema['visual.portraits'].properties;
 const documentedExpressions = [...new Set(Object.values(portraitProperties)
   .flatMap(property => property.values))];
@@ -87,7 +92,7 @@ describe('white album portrait selection', () => {
   });
 
   test('registers common expressions for all characters and sleep for Touma', () => {
-    expect(portraitCharacters).toHaveLength(7);
+    expect(portraitCharacters).toHaveLength(9);
     portraitCharacters.forEach((character) => {
       const expressions = character === 'touma'
         ? [...commonPortraitExpressions, 'sleep']
@@ -95,7 +100,8 @@ describe('white album portrait selection', () => {
       expressions.forEach((expression) => {
         const resource = loadedCard.visual.portrait[character][expression];
         const fileExpression = expressionAliases[character]?.[expression] || expression;
-        expect(resource).toBe(`images/${character}/${fileExpression}.png`);
+        const directory = portraitDirectories[character] || character;
+        expect(resource).toBe(`images/${directory}/${fileExpression}.png`);
         const imagePath = path.join(cardDir, resource);
         expect(fs.existsSync(imagePath)).toBe(true);
         expect(pngDimensions(imagePath)).toEqual({ width: 1086, height: 1448, colorType: 6 });

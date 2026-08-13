@@ -1,5 +1,6 @@
 {
   "background": {
+    "musical_classroom2": "images/background/common/afternoon/musical_classroom_2.png",
     "musical_classroom3": "images/background/common/afternoon/musical_classroom_3.png",
     "school": "images/background/common/afternoon/school.png",
     "classroom": "images/background/common/afternoon/classroom.png",
@@ -12,6 +13,9 @@
     "corridor_morning": "images/background/common/morning/corridor.png",
     "corridor_afternoon": "images/background/common/afternoon/corridor.png",
     "corridor_night": "images/background/common/night/corridor.png",
+    "musical_classroom2_morning": "images/background/common/morning/musical_classroom_2.png",
+    "musical_classroom2_afternoon": "images/background/common/afternoon/musical_classroom_2.png",
+    "musical_classroom2_night": "images/background/common/night/musical_classroom_2.png",
     "musical_classroom3_morning": "images/background/common/morning/musical_classroom_3.png",
     "musical_classroom3_afternoon": "images/background/common/afternoon/musical_classroom_3.png",
     "musical_classroom3_night": "images/background/common/night/musical_classroom_3.png",
@@ -41,8 +45,7 @@
     "ktv": "images/background/story/ktv.png",
     "home_party": "images/background/story/home_party.png",
     "agreement": "images/background/story/agreement.png",
-    "GameEnd1": "images/background/story/GameEnd1.png",
-    "event1": "images/background/story/event1.png"
+    "GameEnd1": "images/background/story/GameEnd1.png"
   },
   "portrait": {
     "touma": {
@@ -115,6 +118,26 @@
       "surprise": "images/takahiro/surprise.png",
       "joy": "images/takahiro/happy.png",
       "sweating_smile": "images/takahiro/normal.png"
+    },
+    "teacher1": {
+      "normal": "images/teacher_1/normal.png",
+      "happy": "images/teacher_1/joy.png",
+      "sad": "images/teacher_1/sad.png",
+      "cry": "images/teacher_1/sad.png",
+      "angry": "images/teacher_1/angry.png",
+      "surprise": "images/teacher_1/surprise.png",
+      "joy": "images/teacher_1/joy.png",
+      "sweating_smile": "images/teacher_1/normal.png"
+    },
+    "teacher2": {
+      "normal": "images/teacher_2/normal.png",
+      "happy": "images/teacher_2/joy.png",
+      "sad": "images/teacher_2/sad.png",
+      "cry": "images/teacher_2/sad.png",
+      "angry": "images/teacher_2/angry.png",
+      "surprise": "images/teacher_2/surprise.png",
+      "joy": "images/teacher_2/joy.png",
+      "sweating_smile": "images/teacher_2/normal.png"
     }
   }
 }

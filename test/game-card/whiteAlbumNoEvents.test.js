@@ -19,6 +19,7 @@ describe('white album 2 event removal', () => {
     expect(Object.keys(files).some(key => key.startsWith('event.'))).toBe(false);
     expect(ui.scripts).toBeUndefined();
     expect(Object.keys(stateSchema.schema).some(key => key.startsWith('events.'))).toBe(false);
+    expect(stateSchema.schema['visual.scene'].values).not.toContain('event1');
     expect(source).not.toMatch(/eventControl|wa2-event|state\.events/);
     expect(fs.existsSync(path.join(cardDir, 'ui/event-controller.js'))).toBe(false);
     expect(fs.existsSync(path.join(cardDir, 'events/chapter2-after-fixedplot1-rehearsal-memory.md')))

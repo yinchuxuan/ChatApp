@@ -58,11 +58,42 @@ describe('white album affection status', () => {
     expect(high.guide).toContain('冬马和纱当前态度');
   });
 
+  test('writes affection attitudes into fixed plot guides', () => {
+    const fixedTime = { currentTime: '2007.10.21: 16:00 星期日' };
+    const low = run('继续', state({
+      timeline: fixedTime, touma: { affection: 9 }, setsuna: { affection: 9 }
+    }));
+    const high = run('继续', state({
+      timeline: fixedTime, touma: { affection: 10 }, setsuna: { affection: 10 }
+    }));
+
+    expect(low.guide).toContain('和春希较保持明显距离');
+    expect(low.guide).toContain('和春希较为陌生');
+    expect(high.guide).toContain('和春希开始熟悉');
+    expect(high.guide).toContain('将春希当作好朋友');
+  });
+
   test('keeps Touma and Setsuna worldbook content permanently in prompt', () => {
     const result = run('整理今天的值日安排', state({ touma: { affection: 88 }, setsuna: { affection: 90 } }));
 
     expect(result.worldbook).toContain('冬马和纱');
     expect(result.worldbook).toContain('小木曾雪菜');
+    expect(result.worldbook.match(/心理模型:/g)).toHaveLength(2);
+    for (const field of ['Formation:', 'Core:', 'Defense:', 'Trigger:']) {
+      expect(result.worldbook.match(new RegExp(field, 'g'))).toHaveLength(2);
+    }
+    expect(result.worldbook).toContain('始终留在春希、冬马与自己组成的三人关系中');
+    expect(result.worldbook).toContain('也珍惜雪菜和三人关系');
+    expect(result.worldbook).toContain('维系大家的善意与不愿失去位置的私心都是真实的');
+    expect(result.worldbook).not.toContain('渴望被明确选择');
     expect(result.worldbook).not.toContain('当前态度');
+  });
+
+  test('loads the corresponding teacher worldbook entries on mention', () => {
+    const result = run('去教职员室找诹访老师和三年E班班主任', state({}));
+
+    expect(result.worldbook).toContain('峰城大附属的学生指导部主任');
+    expect(result.worldbook).toContain('峰城大附属三年E班的男性班主任');
+    expect(result.worldbook).toContain('原作未公开姓名');
   });
 });

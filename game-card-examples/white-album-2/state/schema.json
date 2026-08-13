@@ -35,6 +35,7 @@
       "type": "enum",
       "values": [
         "none",
+        "musical_classroom2",
         "musical_classroom3",
         "school",
         "classroom",
@@ -47,6 +48,9 @@
         "corridor_morning",
         "corridor_afternoon",
         "corridor_night",
+        "musical_classroom2_morning",
+        "musical_classroom2_afternoon",
+        "musical_classroom2_night",
         "musical_classroom3_morning",
         "musical_classroom3_afternoon",
         "musical_classroom3_night",
@@ -74,8 +78,7 @@
         "ktv",
         "home_party",
         "agreement",
-        "GameEnd1",
-        "event1"
+        "GameEnd1"
       ],
       "default": "musical_classroom3",
       "description": "当前演出基础画面，可以是允许叠加立绘的背景或屏蔽立绘的剧情 CG，只由 LLM 的分段 state_patch 设置。",
@@ -112,6 +115,14 @@
         "takahiro": {
           "type": "enum",
           "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+        },
+        "teacher1": {
+          "type": "enum",
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+        },
+        "teacher2": {
+          "type": "enum",
+          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         }
       },
       "additionalProperties": false,
@@ -128,8 +139,11 @@
         "daily",
         "happy",
         "light",
+        "hope",
         "release",
+        "peace",
         "steady",
+        "desolate",
         "sad",
         "tragic",
         "WA_piano",

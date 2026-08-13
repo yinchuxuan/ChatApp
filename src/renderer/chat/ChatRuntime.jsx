@@ -12,6 +12,7 @@ import GameCardStyleHost from '../components/GameCardStyleHost.jsx';
 import GameCardTitleControl from '../components/GameCardTitleControl.jsx';
 import GameCardUIRoot from '../components/GameCardUIRoot.jsx';
 import MessageCollapseRenderer from '../components/MessageCollapseRenderer.jsx';
+import PlatformRequestErrorNotice from '../components/PlatformRequestErrorNotice.jsx';
 import { highlightQuotes } from '../components/highlightQuotes.js';
 import useLastUserMessageEdit from './useLastUserMessageEdit.js';
 import useSegmentedReading from './useSegmentedReading.js';
@@ -26,7 +27,6 @@ import useChatSession from './useChatSession.js';
 import useGameCardPresentation from './useGameCardPresentation.js';
 import useModelConfig from './useModelConfig.js';
 import useReadingStatePatches from './useReadingStatePatches.js';
-
 function ChatRuntime({
   BgmPlayer = GameCardBgmPlayer,
   BackgroundRuntime = GameCardBackgroundRuntime,
@@ -41,7 +41,7 @@ function ChatRuntime({
   const [isHeaderHovered, setIsHeaderHovered] = React.useState(false);
   const [isInputHovered, setIsInputHovered] = React.useState(false);
   const [isInputTriggerHovered, setIsInputTriggerHovered] = React.useState(false);
-  const [actionError, setActionError] = React.useState(null);
+  const [actionError, setActionError] = React.useState(null), [requestError, setRequestError] = React.useState(null);
   const chatPanelRef = React.useRef(null);
   const runtime = useGameCardRuntime();
   const display = runtime.activeCard?.display;
@@ -62,6 +62,7 @@ function ChatRuntime({
     isLoading,
     setIsLoading,
     setRuntimeError: runtime.setRuntimeError,
+    setRequestError,
     setShowStreamThinking,
     onAudioSubmit: presentation.stopBgm,
     onRetryStateRestore: presentationHandlers.onRetryStateRestore,
@@ -80,6 +81,7 @@ function ChatRuntime({
     onResetView: scroll.collapseHistory,
     onSessionLoaded: presentationHandlers.onSessionLoaded
   });
+  React.useEffect(() => setRequestError(null), [session.revision]);
   const editUserMessage = useLastUserMessageEdit(React, messages, isLoading);
   const handleReadProgress = useReadingStatePatches({
     card: runtime.activeCard,
@@ -114,12 +116,10 @@ function ChatRuntime({
     if (ok) editUserMessage.finish();
     return ok;
   }, [editUserMessage, generation]);
-
   const handleCardChanged = React.useCallback(async () => {
     runtime.setRuntimeError(null);
     await session.reload();
   }, [runtime, session]);
-
   const toggleHistory = () => {
     const next = !showMsgHistory;
     setShowMsgHistory(next);
@@ -156,6 +156,7 @@ function ChatRuntime({
   );
   return <div className="chat-panel" data-gc-part="chat-panel"
     ref={chatPanelRef} onClick={showMsgHistory ? undefined : segmented.advanceVisiblePage}>
+    <PlatformRequestErrorNotice error={requestError} onClose={() => setRequestError(null)} />
     <GameCardStyleHost card={runtime.activeCard} />
     <BackgroundRuntime backgroundRequest={presentation.backgroundRequest} portraitRequest={presentation.portraitRequest} onBackgroundChange={onBackgroundChange} onPortraitChange={onPortraitChange} onVisualPanelChange={onVisualPanelChange} />
     <GameCardUIRoot card={runtime.activeCard} gameState={runtime.gameState}
@@ -196,5 +197,4 @@ ChatRuntime.propTypes = {
   onPortraitChange: PropTypes.func,
   onVisualPanelChange: PropTypes.func
 };
-
 export default ChatRuntime;

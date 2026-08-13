@@ -41,6 +41,7 @@ function renderRetryGeneration(overrides = {}) {
     isLoading: false,
     setIsLoading: jest.fn(),
     setRuntimeError: jest.fn(),
+    setRequestError: jest.fn(),
     setShowStreamThinking: jest.fn(),
     onStreamContentStart: overrides.onStreamContentStart,
     ...overrides.options

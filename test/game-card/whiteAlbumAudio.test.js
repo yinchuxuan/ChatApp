@@ -16,10 +16,10 @@ describe('white album 2 audio', () => {
     expect(loadedCard.state.schema.schema['audio.bgm']).toMatchObject({
       type: 'enum',
       values: [
-        'none', 'daily', 'happy', 'light', 'release', 'steady', 'sad',
-        'tragic', 'WA_piano', 'WA_3', 'dream', 'snow_scene', 'bad_woman',
-        'after_all_piano', 'winter_night', 'things', 'unstoppable_dream',
-        'love_dream', 'WA_formal', 'normal_ex'
+        'none', 'daily', 'happy', 'light', 'hope', 'release', 'peace',
+        'steady', 'desolate', 'sad', 'tragic', 'WA_piano', 'WA_3', 'dream',
+        'snow_scene', 'bad_woman', 'after_all_piano', 'winter_night',
+        'things', 'unstoppable_dream', 'love_dream', 'WA_formal', 'normal_ex'
       ],
       default: 'daily'
     });
@@ -28,8 +28,11 @@ describe('white album 2 audio', () => {
     expect(fs.existsSync(path.join(__dirname, '../../game-card-examples/white-album-2', audioPath))).toBe(true);
     expect(card.audio.bgm.happy).toBe('audio/bgm/common/WA2_happy.mp3');
     expect(card.audio.bgm.light).toBe('audio/bgm/common/WA2_light.mp3');
+    expect(card.audio.bgm.hope).toBe('audio/bgm/common/WA2_hope.mp3');
     expect(card.audio.bgm.release).toBe('audio/bgm/common/WA2_release.mp3');
+    expect(card.audio.bgm.peace).toBe('audio/bgm/common/WA2_peace.mp3');
     expect(card.audio.bgm.steady).toBe('audio/bgm/common/WA2_steady.mp3');
+    expect(card.audio.bgm.desolate).toBe('audio/bgm/common/WA2_desolate.mp3');
     expect(card.audio.bgm.sad).toBe('audio/bgm/common/WA2_sad.mp3');
     expect(card.audio.bgm.tragic).toBe('audio/bgm/common/WA2_tragic.mp3');
     expect(card.audio.bgm.WA_piano).toBe('audio/bgm/story/WA2_WA_piano.ogg');
@@ -44,6 +47,20 @@ describe('white album 2 audio', () => {
     expect(card.audio.bgm.love_dream).toBe('audio/bgm/story/WA2_love_dream.ogg');
     expect(card.audio.bgm.WA_formal).toBe('audio/bgm/story/WA2_WA_formal.mp3');
     expect(card.audio.bgm.normal_ex).toBe('audio/bgm/story/WA2_normal_ex.ogg');
+    for (const key of ['hope', 'desolate', 'peace']) {
+      expect(fs.existsSync(path.join(__dirname, '../../game-card-examples/white-album-2', card.audio.bgm[key])))
+        .toBe(true);
+    }
+  });
+
+  test('exposes the new common bgm keys to the model', () => {
+    const contract = fs.readFileSync(path.join(
+      __dirname, '../../game-card-examples/white-album-2/state/llm_schema.md'
+    ), 'utf-8');
+
+    expect(contract).toContain('`hope`（希望初现）');
+    expect(contract).toContain('`desolate`（心境凄凉）');
+    expect(contract).toContain('`peace`（平静安宁）');
   });
 
   test('uses the registered steady key in model-facing examples', () => {

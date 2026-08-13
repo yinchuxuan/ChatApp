@@ -96,7 +96,7 @@ describe('ChatPanel Msg History Display', () => {
 
   test('should display full msg JSON structure from history file', async () => {
     const savedMessages = [
-      { role: 'user', content: 'Hello', isError: false },
+      { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi there', _thinking: 'How to respond...' }
     ];
     platformMock.getChatHistory.mockResolvedValue({ success: true, messages: savedMessages });

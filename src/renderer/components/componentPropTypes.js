@@ -18,7 +18,6 @@ const message = PropTypes.shape({
   id: PropTypes.string,
   role: PropTypes.string.isRequired,
   content: PropTypes.string,
-  isError: PropTypes.bool,
   _renderIndex: PropTypes.number
 });
 const runtimeError = PropTypes.shape({

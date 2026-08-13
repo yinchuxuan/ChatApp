@@ -20,7 +20,6 @@
   content: string,
   _thinking?: string,    // UI 内部用
   thinking?: string,     // 持久化
-  isError?: boolean,     // UI 内部用
   _meta?: {
     source?: string,     // 消息来源标记
     visibility?: "llm_only" | "user_visible" | "debug_only"
@@ -28,6 +27,8 @@
   ttl?: number           // 消息剩余存活轮数，-1 表示永久
 }
 ```
+
+模型配置或请求失败属于平台临时 UI 状态，不写入 `messages`，也不进入游戏卡规则或 LLM 上下文。
 
 `_meta` 和 `ttl` 不会发送给 LLM。
 

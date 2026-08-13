@@ -4,8 +4,9 @@ const path = require('node:path');
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 const visual = require('../../game-card-examples/white-album-2/visual.json');
 const scenes = [
-  'apartment', 'classroom', 'corridor', 'musical_classroom3', 'school',
-  'setsuna_room', 'stairs', 'street', 'subway_station'
+  'apartment', 'classroom', 'corridor', 'musical_classroom2',
+  'musical_classroom3', 'school', 'setsuna_room', 'stairs', 'street',
+  'subway_station'
 ];
 const times = ['morning', 'afternoon', 'night'];
 const timedBackgrounds = scenes.flatMap(scene => times.map(time => `${scene}_${time}`));
@@ -23,9 +24,10 @@ function pngMetadata(filePath) {
 describe('white album background assets', () => {
   test('declares common images as backgrounds and story images as cgs', () => {
     expect(Object.keys(visual.background)).toEqual([
-      'musical_classroom3', 'school', 'classroom', ...timedBackgrounds
+      'musical_classroom2', 'musical_classroom3', 'school', 'classroom',
+      ...timedBackgrounds
     ]);
-    expect(Object.keys(visual.cg)).toHaveLength(11);
+    expect(Object.keys(visual.cg)).toHaveLength(10);
     Object.values(visual.background).forEach(relativePath => {
       expect(relativePath).toMatch(
         /^images\/background\/common\/(morning|afternoon|night)\/[^/]+\.png$/
@@ -38,7 +40,7 @@ describe('white album background assets', () => {
 
   test('keeps every registered scene as a high-resolution RGB PNG', () => {
     const sceneFiles = [...Object.values(visual.background), ...Object.values(visual.cg)];
-    expect(sceneFiles).toHaveLength(41);
+    expect(sceneFiles).toHaveLength(44);
 
     sceneFiles.forEach((relativePath) => {
       const imagePath = path.join(cardDir, relativePath);
