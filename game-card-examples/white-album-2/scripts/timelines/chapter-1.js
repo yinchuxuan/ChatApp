@@ -9,8 +9,8 @@ function resolvePlotMood(roll) {
   return 'happy';
 }
 
-function resolveAttitudeSection(prefix, affection) {
-  return prefix + (affection >= 10 ? 'High' : 'Low');
+function resolveAttitudeSection(prefix, affection, threshold) {
+  return prefix + (affection >= threshold ? 'High' : 'Low');
 }
 
 function parseTimelineTime(value) {
@@ -45,37 +45,37 @@ function resolveChapter1Timeline(state) {
       id: 'FreePlot2',
       plotKind: 'free',
       end: '2007.10.22: 8:00 星期一',
-      range: { gt: '2007.10.21: 16:00 星期日', lte: '2007.10.22: 6:00 星期一' }
+      range: { gt: '2007.10.21: 16:00 星期日', lte: '2007.10.21: 22:00 星期日' }
     },
     {
       id: 'FixedPlot2',
       plotKind: 'fixed',
       end: '2007.10.22: 10:00 星期一',
-      range: { gt: '2007.10.22: 6:00 星期一', lte: '2007.10.22: 8:00 星期一' }
+      range: { gt: '2007.10.21: 22:00 星期日', lte: '2007.10.22: 8:00 星期一' }
     },
     {
       id: 'FreePlot3',
       plotKind: 'free',
-      end: '2007.10.24: 10:00 星期三',
-      range: { gt: '2007.10.22: 8:00 星期一', lte: '2007.10.24: 8:00 星期三' }
+      end: '2007.10.23: 10:00 星期二',
+      range: { gt: '2007.10.22: 8:00 星期一', lte: '2007.10.23: 8:00 星期二' }
     },
     {
       id: 'FixedPlot3',
       plotKind: 'fixed',
-      end: '2007.10.24: 12:00 星期三',
-      range: { gt: '2007.10.24: 8:00 星期三', lte: '2007.10.24: 10:00 星期三' }
+      end: '2007.10.23: 12:00 星期二',
+      range: { gt: '2007.10.23: 8:00 星期二', lte: '2007.10.23: 10:00 星期二' }
     },
     {
       id: 'FreePlot4',
       plotKind: 'free',
-      end: '2007.10.24: 17:00 星期三',
-      range: { gt: '2007.10.24: 10:00 星期三', lte: '2007.10.24: 14:00 星期三' }
+      end: '2007.10.23: 17:00 星期二',
+      range: { gt: '2007.10.23: 10:00 星期二', lte: '2007.10.23: 14:00 星期二' }
     },
     {
       id: 'FixedPlot4',
       plotKind: 'fixed',
-      end: '2007.10.24: 17:30 星期三',
-      range: { gt: '2007.10.24: 14:00 星期三', lte: '2007.10.24: 17:00 星期三' }
+      end: '2007.10.23: 17:30 星期二',
+      range: { gt: '2007.10.23: 14:00 星期二', lte: '2007.10.23: 17:00 星期二' }
     }
   ];
   const currentTime = state.timeline && state.timeline.currentTime;

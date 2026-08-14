@@ -39,16 +39,16 @@ function run(ctx) {
     }
 
     const currentTime = state.timeline && state.timeline.currentTime;
-    const chapter2Start = parseTime('2007.10.24: 17:00 星期三');
+    const chapter2Start = parseTime('2007.10.23: 17:00 星期二');
     return parseTime(currentTime) > chapter2Start ? 'chapter_2' : 'chapter_1';
   }
 
   function applyAttitudeSections() {
     state.temp.toumaAttitudeSection = resolveAttitudeSection(
-      'ToumaAttitude', state.touma && state.touma.affection
+      'ToumaAttitude', state.touma && state.touma.affection, 25
     );
     state.temp.setsunaAttitudeSection = resolveAttitudeSection(
-      'SetsunaAttitude', state.setsuna && state.setsuna.affection
+      'SetsunaAttitude', state.setsuna && state.setsuna.affection, 15
     );
   }
 

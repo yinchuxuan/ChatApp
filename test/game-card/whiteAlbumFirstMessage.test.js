@@ -52,8 +52,8 @@ describe('white album first message', () => {
         'audio.bgm': 'sad'
       },
       {
-        'touma.affection': 0,
-        'setsuna.affection': 0,
+        'touma.affection': 18,
+        'setsuna.affection': 5,
         'performance.proficiency': 2,
         'timeline.currentTime': '2007.10.20: 15:00 星期六'
       }

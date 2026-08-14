@@ -58,13 +58,15 @@ describe('white album affection status', () => {
     expect(high.guide).toContain('冬马和纱当前态度');
   });
 
-  test('writes affection attitudes into fixed plot guides', () => {
-    const fixedTime = { currentTime: '2007.10.21: 16:00 星期日' };
+  test.each([
+    ['chapter 1', { currentTime: '2007.10.21: 16:00 星期日' }],
+    ['chapter 2', { currentTime: '2007.10.29: 17:00 星期一' }]
+  ])('uses the revised affection thresholds in %s', (_chapter, fixedTime) => {
     const low = run('继续', state({
-      timeline: fixedTime, touma: { affection: 9 }, setsuna: { affection: 9 }
+      timeline: fixedTime, touma: { affection: 24 }, setsuna: { affection: 14 }
     }));
     const high = run('继续', state({
-      timeline: fixedTime, touma: { affection: 10 }, setsuna: { affection: 10 }
+      timeline: fixedTime, touma: { affection: 25 }, setsuna: { affection: 15 }
     }));
 
     expect(low.guide).toContain('和春希较保持明显距离');

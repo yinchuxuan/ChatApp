@@ -22,7 +22,7 @@ const fileContents = {
     'B. 整理录音',
     'C. 暂时沉默',
     'D. 询问心情',
-    '<state_patch>[{"type":"state.set","path":"touma.affection","value":0},{"type":"state.set","path":"setsuna.affection","value":0}]</state_patch>'
+    '<state_patch>[{"type":"state.set","path":"touma.affection","value":18},{"type":"state.set","path":"setsuna.affection","value":5}]</state_patch>'
   ].join('\n'),
   'roleplay_rules.md': '回复时保持白色相簿2的氛围。追加 <state_patch> 并用 state.set 更新 touma.affection 和 setsuna.affection。',
   'plot/chapter-1.md': readCardFile('plot/chapter-1.md'),
@@ -106,8 +106,8 @@ describe('white album 2 game card', () => {
     const status = result.messages.find((msg) => msg._meta?.source === 'wa2_state_context');
 
     expect(card.stateSchema).toBe('state/schema.json');
-    expect(stateSchema.schema['touma.affection'].default).toBe(0);
-    expect(stateSchema.schema['setsuna.affection'].default).toBe(0);
+    expect(stateSchema.schema['touma.affection'].default).toBe(18);
+    expect(stateSchema.schema['setsuna.affection'].default).toBe(5);
     expect(status.role).toBe('system');
     expect(status.ttl).toBe(1);
     expect(status._meta.visibility).toBe('llm_only');

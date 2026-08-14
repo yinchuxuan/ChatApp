@@ -37,7 +37,7 @@ const chapter2BranchRules = [
     statePath: 'story.chapter2SetsunaBranch',
     decideOn: ['FixedPlot2', 'FixedPlot3', 'FixedPlot4'],
     lockedValues: ['secret', 'reserved'],
-    decide: (state) => (setsunaAffection(state) >= 10 ? 'secret' : 'reserved')
+    decide: (state) => (setsunaAffection(state) >= 15 ? 'secret' : 'reserved')
   }
 ];
 
@@ -58,12 +58,12 @@ const chapter2ConditionalSlotPlotOverrides = [
   {
     slotId: 'GameEnd1',
     when: (state) => readStatePath(state, 'story.chapter2SetsunaBranch') === 'secret'
-      && setsunaAffection(state) >= 15
-      && toumaAffection(state) >= 15
+      && setsunaAffection(state) >= 20
+      && toumaAffection(state) >= 30
       && performanceProficiency(state) >= 20,
     override: {
       plotType: 'FixedPlot7',
-      end: '2007.11.4: 22:00 星期日'
+      end: '2007.11.1: 22:00 星期四'
     }
   }
 ];
@@ -128,62 +128,62 @@ function resolveChapter2Timeline(state) {
     {
       id: 'FixedPlot1',
       plotKind: 'fixed',
-      end: '2007.10.25: 8:00 星期四',
-      range: { gt: '2007.10.24: 17:00 星期三', lte: '2007.10.24: 17:30 星期三' }
+      end: '2007.10.24: 8:00 星期三',
+      range: { gt: '2007.10.23: 17:00 星期二', lte: '2007.10.23: 17:30 星期二' }
     },
     {
       id: 'FreePlot1',
       plotKind: 'free',
-      end: '2007.10.29: 17:00 星期一',
-      range: { gt: '2007.10.24: 17:30 星期三', lte: '2007.10.29: 15:00 星期一' }
+      end: '2007.10.27: 17:00 星期六',
+      range: { gt: '2007.10.23: 17:30 星期二', lte: '2007.10.27: 15:00 星期六' }
     },
     {
       id: 'FixedPlot2',
       plotKind: 'fixed',
-      end: '2007.10.29: 18:00 星期一',
-      range: { gt: '2007.10.29: 15:00 星期一', lte: '2007.10.29: 17:00 星期一' }
+      end: '2007.10.27: 18:00 星期六',
+      range: { gt: '2007.10.27: 15:00 星期六', lte: '2007.10.27: 17:00 星期六' }
     },
     {
       id: 'FixedPlot3',
       plotKind: 'fixed',
-      end: '2007.10.29: 22:00 星期一',
-      range: { gt: '2007.10.29: 17:00 星期一', lte: '2007.10.29: 18:00 星期一' }
+      end: '2007.10.27: 22:00 星期六',
+      range: { gt: '2007.10.27: 17:00 星期六', lte: '2007.10.27: 18:00 星期六' }
     },
     {
       id: 'FreePlot2',
       plotKind: 'free',
-      end: '2007.10.30: 17:00 星期二',
-      range: { gt: '2007.10.29: 18:00 星期一', lte: '2007.10.30: 15:00 星期二' }
+      end: '2007.10.29: 17:00 星期一',
+      range: { gt: '2007.10.27: 18:00 星期六', lte: '2007.10.29: 15:00 星期一' }
     },
     {
       id: 'FixedPlot4',
       plotKind: 'fixed',
-      end: '2007.10.30: 17:30 星期二',
-      range: { gt: '2007.10.30: 15:00 星期二', lte: '2007.10.30: 17:00 星期二' }
+      end: '2007.10.29: 17:30 星期一',
+      range: { gt: '2007.10.29: 15:00 星期一', lte: '2007.10.29: 17:00 星期一' }
     },
     {
       id: 'FixedPlot5',
       plotKind: 'fixed',
-      end: '2007.10.30: 19:30 星期二',
-      range: { gt: '2007.10.30: 17:00 星期二', lte: '2007.10.30: 17:30 星期二' }
+      end: '2007.10.29: 19:30 星期一',
+      range: { gt: '2007.10.29: 17:00 星期一', lte: '2007.10.29: 17:30 星期一' }
     },
     {
       id: 'FreePlot3',
       plotKind: 'free',
-      end: '2007.11.2: 21:00 星期五',
-      range: { gt: '2007.10.30: 17:30 星期二', lte: '2007.11.2: 19:00 星期五' }
+      end: '2007.10.31: 21:00 星期三',
+      range: { gt: '2007.10.29: 17:30 星期一', lte: '2007.10.31: 19:00 星期三' }
     },
     {
       id: 'FixedPlot6',
       plotKind: 'fixed',
-      end: '2007.11.4: 21:00 星期日',
-      range: { gt: '2007.11.2: 19:00 星期五', lte: '2007.11.3: 21:00 星期六' }
+      end: '2007.11.1: 21:00 星期四',
+      range: { gt: '2007.10.31: 19:00 星期三', lte: '2007.10.31: 21:00 星期三' }
     },
     {
       id: 'GameEnd1',
       plotKind: 'fixed',
-      end: '2012.11.4: 22:00 星期日',
-      range: { gt: '2007.11.3: 21:00 星期六', lte: '2007.11.4: 21:00 星期日' }
+      end: '2012.11.1: 22:00 星期四',
+      range: { gt: '2007.10.31: 21:00 星期三', lte: '2007.11.1: 21:00 星期四' }
     },
   ];
   const currentTime = state.timeline && state.timeline.currentTime;

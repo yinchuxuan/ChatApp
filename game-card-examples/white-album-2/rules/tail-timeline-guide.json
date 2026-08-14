@@ -13,7 +13,7 @@
             {"when":{"state":{"temp.plotKind":"free"}},"content":"{{file:$temp.plotFile#$temp.plotMoodSection}}"},
             {"when":{"state":{"temp.plotKind":{"in":["free","fixed"]}}},"content":"{{file:$temp.plotFile#$temp.toumaAttitudeSection}}"},
             {"when":{"state":{"temp.plotKind":{"in":["free","fixed"]}}},"content":"{{file:$temp.plotFile#$temp.setsunaAttitudeSection}}"},
-            {"when":{"state":{"temp.includeFreeGuide":true}},"content":"{{file:$temp.plotFile#剧情限制}}"}
+            {"when":{"state":{"temp.PlotType":{"exists":true}}},"content":"{{file:$temp.plotFile#剧情限制}}"}
         ],
         "suffix":"\n\n{{file:roleplay_rules}}\n</wa2_turn_context>"
      }
