@@ -149,7 +149,9 @@ describe('game card schema', () => {
     const validateWhen = compileDefinition('when');
     const validatePredicate = compileDefinition('predicate');
 
-    ['init', 'pre_send'].forEach(phase => expect(validateWhen({ phase, length: 0 })).toBe(true));
+    ['init', 'pre_send', 'after_stream', 'after_response'].forEach(phase => {
+      expect(validateWhen({ phase, length: 0 })).toBe(true);
+    });
     expect(validateWhen({ phase: 'stream_preview', state: { ready: true } })).toBe(false);
     expect(validateWhen({ phase: 'pre_send', length: { gte: 1, lte: 5 } })).toBe(true);
     expect(validateWhen({ phase: 'pre_send', state: { route: 'alice', hp: { lte: 20 } } })).toBe(true);

@@ -115,6 +115,7 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 { "when": { "phase": "pre_send" } }
 { "when": { "phase": "pre_send", "length": 1 } }
 { "when": { "phase": "pre_send", "length": { "lte": 1 } } }
+{ "when": { "phase": "after_stream", "last": { "role": "assistant" } } }
 { "when": { "phase": "after_response", "last": { "role": "assistant" } } }
 { "when": { "phase": "pre_send", "last": { "num": 3, "role": "user", "content": { "contains": "陌生感" } } } }
 { "when": { "phase": "pre_send", "any": { "content": { "regex": "start_quest" } } } }
@@ -122,7 +123,7 @@ messages (含 system) -> adaptToProtocol -> API 请求体
 
 | 字段 | 类型 | 含义 |
 |---|---|---|
-| `phase` | string | 必填。`init`、`pre_send` 或 `after_response` |
+| `phase` | string | 必填。`init`、`pre_send`、`after_stream` 或 `after_response` |
 | `length` | number 或比较对象 | 消息总数。支持 `gt`/`gte`/`lt`/`lte`/`eq` |
 | `last` | predicate | 最后一条消息是否匹配 |
 | `any` | predicate | 是否有任意消息匹配 |
@@ -163,12 +164,13 @@ messages (含 system) -> adaptToProtocol -> API 请求体
   -> 普通模式：流游标越过完整 state_patch 时立即校验并写入 state
   -> 分段模式：阅读游标进入 patch 后的正文段时才校验并写入 state
   -> state 中变化的背景、立绘和 BGM 同步发布到展示层
+  -> 完整响应流结束后，执行 after_stream 规则
   -> 响应到达提交边界后，按顺序逐条判断 after_response 规则的 when
   -> 匹配则立即执行该规则的 then
   -> 显示 + 保存
 ```
 
-响应被视为正文和 `<state_patch>` 组成的有序时间线。普通模式的提交边界是流式接收位置；分段模式的提交边界是用户当前读到的段落，尾部 patch 在读完末段时提交。已越过的 patch 只应用一次，回看不会回滚 state；请求失败或取消后已应用的值保留，不修改 retry 使用的发送前 snapshot。`after_response` 始终在该响应的 patch 全部提交后执行。
+响应被视为正文和 `<state_patch>` 组成的有序时间线。`after_stream` 在完整响应流结束后立即执行，不等待分段阅读推进；适合处理只依赖完整 assistant 文本的逻辑。普通模式的提交边界是流式接收位置；分段模式的提交边界是用户当前读到的段落，尾部 patch 在读完末段时提交。已越过的 patch 只应用一次，回看不会回滚 state；请求失败或取消后已应用的值保留，不修改 retry 使用的发送前 snapshot。`after_response` 始终在该响应的 patch 全部提交后执行。
 
 ## 完整游戏卡结构
 

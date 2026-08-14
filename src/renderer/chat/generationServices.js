@@ -2,6 +2,7 @@ import { sendChatRequest } from './apiClient.js';
 import { normalizeGameCardError } from '../gameCard/runtimeError.js';
 import {
   prepareAfterResponseMessages,
+  prepareAfterStreamMessages,
   prepareInitMessages,
   preparePreSendMessages,
   toApiMessages as toGameCardApiMessages
@@ -18,6 +19,7 @@ function withPlatform(prepare) {
 const generationServices = {
   normalizeGameCardError,
   prepareAfterResponseMessages: withPlatform(prepareAfterResponseMessages),
+  prepareAfterStreamMessages: withPlatform(prepareAfterStreamMessages),
   prepareInitMessages: withPlatform(prepareInitMessages),
   preparePreSendMessages: withPlatform(preparePreSendMessages),
   prepareStatePatchAtCursor: withPlatform(prepareStatePatchAtCursor),

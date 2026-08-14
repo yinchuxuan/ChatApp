@@ -121,6 +121,36 @@ describe('useChatGeneration game card pipeline', () => {
     ]);
   });
 
+  test('applies after_stream when segmented output finishes', async () => {
+    global.platformMock.getActiveGameCard.mockResolvedValue({
+      success: true,
+      card: {
+        version: '1', id: 'segmented', name: 'Segmented',
+        display: { segmentedReading: true },
+        rules: [
+          { when: { phase: 'after_stream' }, then: [
+            { type: 'state.set', path: 'summaryApplied', value: true }
+          ] },
+          { when: { phase: 'after_response' }, then: [
+            { type: 'state.set', path: 'readingFinished', value: true }
+          ] }
+        ]
+      }
+    });
+    const setGameState = jest.fn();
+    const setMessages = jest.fn();
+    const { result } = renderGeneration({ setGameState, setMessages });
+
+    await act(async () => { await result.current.send('hello'); });
+
+    expect(setGameState).toHaveBeenLastCalledWith({ summaryApplied: true });
+    expect(setGameState).not.toHaveBeenCalledWith(expect.objectContaining({ readingFinished: true }));
+    expect(setMessages).toHaveBeenLastCalledWith([
+      expect.objectContaining({ role: 'user', content: 'hello' }),
+      expect.objectContaining({ role: 'assistant', content: 'ok' })
+    ]);
+  });
+
   test('passes and updates game state', async () => {
     const originalPreSend = generationServices.preparePreSendMessages;
     const originalAfter = generationServices.prepareAfterResponseMessages;

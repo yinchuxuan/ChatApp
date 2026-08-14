@@ -115,6 +115,31 @@ async function prepareAfterResponseMessages({
   };
 }
 
+async function prepareAfterStreamMessages({
+  messages = [], state = {}, event = {}, card, platform
+} = {}) {
+  const activeCard = card === undefined ? await loadActiveGameCard(platform) : card;
+  if (!activeCard) return { messages, state, trace: null, applied: false, card: null };
+  let resources;
+  try {
+    resources = await loadCardResources(activeCard, platform);
+  } catch (error) {
+    return { messages, state, trace: null, applied: false, card: null, error: error.message };
+  }
+  const prepared = prepareState(resources.card, state);
+  const result = await applyGameCardAsync({
+    card: resources.card, phase: 'after_stream', messages, state: prepared.state,
+    event, fileContents: resources.fileContents, dependencies: runtimeDependencies(platform)
+  });
+  return {
+    ...result,
+    presentationEffects: collectPresentationEffects(result.trace),
+    stateTrace: prepared.trace,
+    applied: true,
+    card: resources.card
+  };
+}
+
 function hasMessageChanges(before, after) {
   return JSON.stringify(before) !== JSON.stringify(after);
 }
@@ -167,6 +192,7 @@ export {
   loadActiveGameCard,
   loadCardResources,
   prepareAfterResponseMessages,
+  prepareAfterStreamMessages,
   prepareInitMessages,
   preparePreSendMessages,
   prepareState,

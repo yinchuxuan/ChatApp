@@ -2,6 +2,7 @@ import generationServices from './generationServices.js';
 import { createChatMessage, createMessageId } from './messageIds.js';
 import { cloneJson as cloneChatValue } from '../../shared/game-card/utils/jsonValue.js';
 import { sendStreamedGeneration } from './streamGeneration.js';
+import { finishChatGeneration } from './finishChatGeneration.js';
 
 function stripTurnContext(content) {
   return typeof content === 'string'
@@ -71,7 +72,7 @@ async function runChatGeneration(options) {
       onStatePatchApplied: options.onStatePatchApplied,
       onGameCardError: options.onGameCardError
     });
-    return await finishGeneration(preSend, messages, state, options, streamResult, streamMessageId);
+    return await finishChatGeneration(preSend, messages, state, options, streamResult, streamMessageId);
   } catch (err) {
     return handleGenerationException(
       err, options, preSend, messages, abortSignal, streamMessageId
@@ -79,58 +80,6 @@ async function runChatGeneration(options) {
   } finally {
     options.clearAbortSignal?.(abortSignal);
   }
-}
-
-async function finishGeneration(preSend, baseMessages, baseState, options, streamResult = {},
-  streamMessageId) {
-  const { setMessages, setGameState, setIsLoading, tw } = options;
-  tw.finishStreaming();
-  const content = tw.getRawContent?.() || streamResult.rawContent || tw.getAccumulatedContent();
-  if (!content) {
-    setIsLoading(false);
-    tw.clearStreaming();
-    return true;
-  }
-  const segmented = preSend.card?.display?.segmentedReading === true;
-  const playback = {
-    afterResponseApplied: !segmented,
-    appliedPatchCount: streamResult.appliedPatchCount || 0
-  };
-  const assistantMessage = createChatMessage({
-    id: streamMessageId,
-    role: 'assistant',
-    content,
-    _thinking: tw.getThinkingContent(),
-    thinking: tw.getThinkingContent(),
-    _meta: { statePatchPlayback: playback }
-  });
-  const base = preSend.applied ? preSend.messages : baseMessages;
-  const streamedState = streamResult.state || preSend.state || baseState;
-  if (segmented) {
-    if (options.appendAssistantWithUpdater) setMessages(prev => [...prev, assistantMessage]);
-    else setMessages([...base, assistantMessage]);
-    setIsLoading(false);
-    tw.clearStreaming();
-    return true;
-  }
-  const after = await generationServices.prepareAfterResponseMessages({
-    messages: [...base, assistantMessage],
-    state: streamedState,
-    card: preSend.card || null,
-    statePatchesApplied: true
-  });
-  if (after.state && setGameState) setGameState(after.state);
-  await options.onPresentationEffects?.(after.presentationEffects, {
-    card: after.card || preSend.card,
-    phase: 'after_response',
-    state: after.state
-  });
-  if (after.applied) setMessages(after.messages);
-  else if (options.appendAssistantWithUpdater) setMessages(prev => [...prev, assistantMessage]);
-  else setMessages([...base, assistantMessage]);
-  setIsLoading(false);
-  tw.clearStreaming();
-  return true;
 }
 
 function handleGenerationError(preSend, options) {

@@ -230,6 +230,20 @@
       "llmRead": false,
       "llmWrite": false
     },
+    "memory.summary": {
+      "type": "object",
+      "default": {
+        "version": 2,
+        "anchor": [],
+        "currentEvents": [],
+        "recent": [],
+        "turn": 0
+      },
+      "description": "WA2结构化剧情记忆，由游戏卡压缩脚本维护。",
+      "llmRead": false,
+      "llmWrite": false,
+      "uiVisible": false
+    },
     "visual.textPanel": {
       "type": "enum",
       "values": ["center", "left", "right"],

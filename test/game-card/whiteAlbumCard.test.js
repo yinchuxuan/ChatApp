@@ -13,7 +13,11 @@ const fileContents = {
   'system_prompt.md': readCardFile('system_prompt.md'),
   'first_msg.md': [
     '开场剧情',
-    '<summary>开场总结。</summary>',
+    '<summary>',
+    '<item priority="anchor" known_by="北原春希">2007.10.20下午｜第三音乐教室：春希决定保留演出。</item>',
+    '<item priority="current_event" known_by="北原春希">主唱和键盘手尚未确认。</item>',
+    '<item priority="recent" known_by="北原春希">2007.10.20下午｜第三音乐教室：春希补完招募启事。</item>',
+    '</summary>',
     'A. 继续交谈',
     'B. 整理录音',
     'C. 暂时沉默',
@@ -25,6 +29,7 @@ const fileContents = {
   'state/schema.json': JSON.stringify(stateSchema),
   'state/llm_schema.md': llmStateContract,
   'state/state_update_rules.md': readCardFile('state/state_update_rules.md'),
+  'scripts/summary-memory.js': readCardFile('scripts/summary-memory.js'),
   'scripts/timeline.js': readCardFile('scripts/timeline.js'),
   'scripts/timelines/chapter-1.js': readCardFile('scripts/timelines/chapter-1.js'),
   'scripts/timelines/chapter-2.js': readCardFile('scripts/timelines/chapter-2.js'),
@@ -36,6 +41,7 @@ const fileContents = {
     '## 水泽依绪', '世界书：水泽依绪',
     '## 柳原朋', '世界书：柳原朋'
   ].join('\n'),
+  'worldbook/location.md': readCardFile('worldbook/location.md'),
   'worldbook/index.md': readCardFile('worldbook/index.md')
 };
 function defaultState(overrides = {}) { return ensureStateDefaults(loadedCard.state.schema, overrides).state; }
@@ -58,9 +64,14 @@ function applyWhiteAlbum(messages) {
 }
 
 describe('white album 2 game card', () => {
-  test('uses declarative rules for compression and exec sourceFile for timeline logic', () => {
+  test('uses card scripts for memory compression and timeline logic', () => {
+    const applySummary = card.rules.find((rule) => rule.id === 'wa2-apply-response-summary');
     const compression = card.rules.find((rule) => rule.id === 'wa2-compress-assistant-history');
-    expect(JSON.stringify(compression.then)).not.toContain('"type":"exec"');
+    expect(applySummary.when.phase).toBe('after_stream');
+    expect(applySummary.then).toContainEqual({
+      type: 'exec', sourceFile: 'scripts/summary-memory.js'
+    });
+    expect(compression.then[0].type).toBe('remove');
     expect(JSON.stringify(card.rules)).toContain('"sourceFile":"scripts/timeline.js"');
   });
 
@@ -72,12 +83,14 @@ describe('white album 2 game card', () => {
     expect(result.messages[1].role).toBe('system');
     expect(result.messages[1]._meta.source).toBe('wa2_summary');
     expect(result.messages[1]._meta.visibility).toBe('llm_only');
-    expect(result.messages[1].content).toContain('历史对话总结');
+    expect(result.messages[1].content).toContain('# 历史记忆');
     expect(result.messages[1].content).not.toContain('<summary>');
     expect(result.messages[2].role).toBe('assistant');
     expect(result.messages[2]._meta.source).toBe('wa2_first_msg');
     expect(result.messages[2]._meta.visibility).toBe('user_visible');
-    expect(result.messages[2].content).toContain('<summary>开场总结。</summary>');
+    expect(result.messages[2].content).toContain('priority="anchor"');
+    expect(result.state.memory.summary.anchor).toHaveLength(1);
+    expect(result.messages[1].content).toContain('春希决定保留演出');
     expect(result.messages[2].content).toContain('<state_patch>');
     expect(result.messages[2].content).toContain('"touma.affection"');
     expect(result.messages[2].content).toContain('"setsuna.affection"');
@@ -124,57 +137,6 @@ describe('white album 2 game card', () => {
     expect(stateContext.content).toContain('audio.bgm');
     expect(stateContext.content).toContain('人物可写 `touma`（冬马和纱）');
     expect(stateContext.content).toContain('表情可写 `normal`（平静自然）');
-  });
-
-  test('compresses older assistant summaries and keeps latest user and assistant', () => {
-    const first = initWhiteAlbum();
-    const latestAssistant = { role: 'assistant', content: '没有总结标签的回复' };
-    const messages = [
-      ...first.messages,
-      { role: 'assistant', content: '雪菜站在门口。<summary>雪菜邀请春希排练。</summary>' },
-      user('旧选择'),
-      latestAssistant,
-      user('最新选择')
-    ];
-
-    const result = applyWhiteAlbum(messages);
-    const summary = result.messages.find((msg) => msg._meta?.source === 'wa2_summary');
-    const users = result.messages.filter((msg) => msg.role === 'user');
-
-    expect(result.trace.errors).toEqual([]);
-    expect(summary.content).toContain('- 雪菜邀请春希排练。');
-    expect(summary.content).not.toContain('暂无\n-');
-    expect(users).toHaveLength(1);
-    expect(users[0].content).toContain('最新选择');
-    expect(users[0].content).toContain('<wa2_turn_context>');
-    expect(users[0].content).toContain(fileContents['roleplay_rules.md']);
-    expect(result.messages.some((msg) => {
-      return msg.role === 'assistant' && msg.content.includes('<summary>');
-    })).toBe(false);
-    expect(result.messages).toContainEqual(latestAssistant);
-  });
-
-  test('keeps latest assistant with summary uncompressed for next turn context', () => {
-    const first = initWhiteAlbum();
-    const latestAssistant = {
-      role: 'assistant',
-      content: '春希犹豫着回应。<summary>春希回应了雪菜。</summary>'
-    };
-    const messages = [
-      ...first.messages,
-      { role: 'assistant', content: '雪菜站在门口。<summary>雪菜邀请春希排练。</summary>' },
-      user('旧选择'),
-      latestAssistant,
-      user('最新选择')
-    ];
-
-    const result = applyWhiteAlbum(messages);
-    const summary = result.messages.find((msg) => msg._meta?.source === 'wa2_summary');
-
-    expect(result.trace.errors).toEqual([]);
-    expect(summary.content).toContain('- 雪菜邀请春希排练。');
-    expect(summary.content).not.toContain('春希回应了雪菜');
-    expect(result.messages).toContainEqual(latestAssistant);
   });
 
   test('appends character worldbook entries into the fixed worldbook message', () => {

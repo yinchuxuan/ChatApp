@@ -126,6 +126,7 @@ append user message
   -> run pre_send rules
   -> send to LLM
   -> append assistant message
+  -> run after_stream rules
   -> ensureStateDefaults(schema, gameState)
   -> apply assistant state patches
   -> run after_response rules
