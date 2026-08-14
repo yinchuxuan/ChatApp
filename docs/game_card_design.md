@@ -164,6 +164,7 @@ messages (含 system) -> adaptToProtocol -> API 请求体
   -> 普通模式：流游标越过完整 state_patch 时立即校验并写入 state
   -> 分段模式：阅读游标进入 patch 后的正文段时才校验并写入 state
   -> state 中变化的背景、立绘和 BGM 同步发布到展示层
+  -> 完整响应流结束后执行 responseValidation；retry 时回滚并重生成，warn/通过时继续
   -> 完整响应流结束后，执行 after_stream 规则
   -> 响应到达提交边界后，按顺序逐条判断 after_response 规则的 when
   -> 匹配则立即执行该规则的 then

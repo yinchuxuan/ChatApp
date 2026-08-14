@@ -1,5 +1,5 @@
 import { applyStateAction } from './stateActions.js';
-import { cloneState } from './statePaths.js';
+import { cloneState, getStateValue } from './statePaths.js';
 
 const PATCH_PATTERN = /<state_patch>([\s\S]*?)<\/state_patch>/g;
 
@@ -35,6 +35,16 @@ function summarizeActions(actions) {
   }, new Set());
 }
 
+function buildUpdate(action, before, applied) {
+  if (!applied.trace.applied) return null;
+  return {
+    path: action.path,
+    operation: action.type,
+    before: getStateValue(before, action.path),
+    after: getStateValue(applied.state, action.path)
+  };
+}
+
 function applyParsedPatch(state, patchText, options) {
   let actions;
   try {
@@ -42,7 +52,9 @@ function applyParsedPatch(state, patchText, options) {
   } catch (_) {
     return {
       state: cloneState(state),
-      trace: { applied: false, reason: 'invalid_json', actions: [], changedKeys: [], setPaths: [] }
+      trace: {
+        applied: false, reason: 'invalid_json', actions: [], updates: [], changedKeys: [], setPaths: []
+      }
     };
   }
 
@@ -51,17 +63,20 @@ function applyParsedPatch(state, patchText, options) {
     : actions;
   const result = selectedActions.reduce((current, action) => {
     const applied = applyStateAction(current.state, action, options);
+    const update = buildUpdate(action, current.state, applied);
     return {
       state: applied.state,
-      actions: [...current.actions, applied.trace]
+      actions: [...current.actions, applied.trace],
+      updates: update ? [...current.updates, update] : current.updates
     };
-  }, { state: cloneState(state), actions: [] });
+  }, { state: cloneState(state), actions: [], updates: [] });
 
   return {
     state: result.state,
     trace: {
       applied: result.actions.some((action) => action.applied),
       actions: result.actions,
+      updates: result.updates,
       changedKeys: [...summarizeActions(result.actions)],
       setPaths: selectedActions
         .filter((action, index) => action?.type === 'state.set' && result.actions[index]?.applied)
@@ -83,7 +98,9 @@ function applyLatestAssistantStatePatch(messages = [], state = {}, options = {})
   if (patches.length === 0) {
     return {
       state: cloneState(state),
-      trace: { applied: false, reason: 'not_found', patches: [], changedKeys: [], setPaths: [] }
+      trace: {
+        applied: false, reason: 'not_found', patches: [], updates: [], changedKeys: [], setPaths: []
+      }
     };
   }
 
@@ -94,13 +111,14 @@ function applyLatestAssistantStatePatch(messages = [], state = {}, options = {})
       trace: {
         applied: current.trace.applied || result.trace.applied,
         patches: [...current.trace.patches, result.trace],
+        updates: [...current.trace.updates, ...(result.trace.updates || [])],
         changedKeys: [...new Set([...current.trace.changedKeys, ...result.trace.changedKeys])],
         setPaths: [...new Set([...current.trace.setPaths, ...result.trace.setPaths])]
       }
     };
   }, {
     state: cloneState(state),
-    trace: { applied: false, patches: [], changedKeys: [], setPaths: [] }
+    trace: { applied: false, patches: [], updates: [], changedKeys: [], setPaths: [] }
   });
 }
 

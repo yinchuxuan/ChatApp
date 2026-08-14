@@ -18,6 +18,8 @@ function useChatGeneration({
   setShowStreamThinking,
   onAudioSubmit,
   onRetryStateRestore,
+  onValidationRetry,
+  onResponseValidationWarning,
   onStreamContentStart,
   onStatePatchApplied,
   onPresentationEffects
@@ -37,13 +39,16 @@ function useChatGeneration({
       onStreamContentStart,
       onStatePatchApplied,
       onPresentationEffects,
+      onValidationRetry,
+      onResponseValidationWarning,
       onStreamPreviewState: setGameState,
       onGameCardError: setRuntimeError,
       onRequestError: setRequestError,
       ...generationControl,
       appendAssistantWithUpdater
     }))
-  ), [generationControl, modelConfig, onPresentationEffects, onStatePatchApplied, onStreamContentStart,
+  ), [generationControl, modelConfig, onPresentationEffects, onResponseValidationWarning,
+    onStatePatchApplied, onStreamContentStart, onValidationRetry,
     setGameState, setMessages, setRequestError, setRuntimeError, setShowStreamThinking, typewriter]);
 
   const send = React.useCallback(async (rawValue) => {
@@ -55,17 +60,19 @@ function useChatGeneration({
       return true;
     }
     onAudioSubmit?.();
+    onResponseValidationWarning?.(null);
     const nextMessages = [...messages, createChatMessage({ role: 'user', content: value })];
     persistence.setRetryBase(nextMessages, gameState);
     await run(nextMessages, gameState, true);
     return true;
-  }, [gameState, isLoading, messages, modelConfig, onAudioSubmit, persistence, run,
-    setMessages, setRequestError]);
+  }, [gameState, isLoading, messages, modelConfig, onAudioSubmit, onResponseValidationWarning,
+    persistence, run, setMessages, setRequestError]);
 
   const retry = React.useCallback(async (editedContent) => {
     if (!modelConfig?.apiUrl || !modelConfig?.apiKey) return false;
     if (chatGeneration.findLastUserIndex(messages) < 0) return false;
     onAudioSubmit?.();
+    onResponseValidationWarning?.(null);
     await generationControl.stopGeneration();
     const persisted = await persistence.refreshRetryBase();
     const persistedMessages = Array.isArray(persisted?.retryBaseMessages)
@@ -83,8 +90,8 @@ function useChatGeneration({
     setGameState(retryState);
     onRetryStateRestore?.(retryState);
     return run(retryMessages, retryState);
-  }, [generationControl, messages, modelConfig, onAudioSubmit, onRetryStateRestore,
-    persistence, run, setGameState]);
+  }, [generationControl, messages, modelConfig, onAudioSubmit, onResponseValidationWarning,
+    onRetryStateRestore, persistence, run, setGameState]);
 
   return React.useMemo(() => ({
     isLoading,

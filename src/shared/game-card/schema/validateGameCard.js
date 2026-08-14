@@ -48,6 +48,23 @@ function validateGameCard(card) {
   backgroundKeys.filter(key => cgKeys.has(key)).forEach(key => {
     errors.push(`visual.cg.${key}: key duplicates visual.background.${key}`);
   });
+  const validationRules = card?.responseValidation?.rules || [];
+  const ids = new Set();
+  validationRules.forEach((rule, index) => {
+    if (ids.has(rule.id)) {
+      errors.push(`responseValidation.rules[${index}].id: must be unique`);
+    }
+    ids.add(rule.id);
+    if (rule.type === 'state.update' && rule.path.includes('*')) {
+      errors.push(`responseValidation.rules[${index}].path: wildcards are not supported`);
+    }
+    if (rule.type !== 'content.regex') return;
+    try {
+      new RegExp(rule.pattern, rule.flags || '');
+    } catch (error) {
+      errors.push(`responseValidation.rules[${index}].pattern: ${error.message}`);
+    }
+  });
   return { valid: errors.length === 0, errors };
 }
 

@@ -5,6 +5,32 @@ function hasAfterStreamRule(card) {
   return card?.rules?.some(rule => rule?.when?.phase === 'after_stream') === true;
 }
 
+function validationWarning(validation) {
+  if (validation?.action !== 'warn' || !validation.violations?.length) return null;
+  return {
+    retryCount: validation.retryCount || 0,
+    retryExhausted: validation.retryExhausted === true,
+    violations: validation.violations.map(({ id, message, onFailure, actual }) => ({
+      id, message, onFailure, actual
+    }))
+  };
+}
+
+function withValidationWarning(message, warning) {
+  if (!warning) return message;
+  return {
+    ...message,
+    _meta: { ...message._meta, responseValidation: warning }
+  };
+}
+
+function attachValidationWarning(messages, messageId, warning) {
+  if (!warning) return messages;
+  return messages.map(message => (
+    message.id === messageId ? withValidationWarning(message, warning) : message
+  ));
+}
+
 async function applyAfterStream(messages, state, card, options) {
   if (!hasAfterStreamRule(card)) {
     return { messages, state, applied: false, card };
@@ -28,7 +54,8 @@ async function finishChatGeneration(preSend, baseMessages, baseState, options, s
   const { setMessages, setGameState, setIsLoading, tw } = options;
   tw.finishStreaming();
   const content = tw.getRawContent?.() || streamResult.rawContent || tw.getAccumulatedContent();
-  if (!content) {
+  const warning = validationWarning(streamResult.validation);
+  if (!content && !warning) {
     setIsLoading(false);
     tw.clearStreaming();
     return true;
@@ -52,19 +79,24 @@ async function finishChatGeneration(preSend, baseMessages, baseState, options, s
   const streamed = await applyAfterStream(
     [...base, assistantMessage], streamedState, preSend.card, options
   );
+  const streamedMessages = attachValidationWarning(
+    streamed.messages, streamMessageId, warning
+  );
+  const acceptedAssistant = withValidationWarning(assistantMessage, warning);
   if (segmented) {
     if (streamed.applied) {
       setGameState?.(streamed.state);
-      setMessages(streamed.messages);
+      setMessages(streamedMessages);
     } else if (options.appendAssistantWithUpdater) {
-      setMessages(previous => [...previous, assistantMessage]);
-    } else setMessages(streamed.messages);
+      setMessages(previous => [...previous, acceptedAssistant]);
+    } else setMessages(streamedMessages);
+    options.onResponseValidationWarning?.(warning);
     setIsLoading(false);
     tw.clearStreaming();
     return true;
   }
   const after = await generationServices.prepareAfterResponseMessages({
-    messages: streamed.messages,
+    messages: streamedMessages,
     state: streamed.state,
     card: streamed.card || preSend.card || null,
     statePatchesApplied: true
@@ -75,12 +107,21 @@ async function finishChatGeneration(preSend, baseMessages, baseState, options, s
     phase: 'after_response',
     state: after.state
   });
-  if (after.applied) setMessages(after.messages);
-  else if (options.appendAssistantWithUpdater) setMessages(previous => [...previous, assistantMessage]);
-  else setMessages(streamed.messages);
+  const afterMessages = attachValidationWarning(after.messages, streamMessageId, warning);
+  if (after.applied) setMessages(afterMessages);
+  else if (options.appendAssistantWithUpdater) {
+    setMessages(previous => [...previous, acceptedAssistant]);
+  } else setMessages(streamedMessages);
+  options.onResponseValidationWarning?.(warning);
   setIsLoading(false);
   tw.clearStreaming();
   return true;
 }
 
-export { applyAfterStream, finishChatGeneration, hasAfterStreamRule };
+export {
+  applyAfterStream,
+  attachValidationWarning,
+  finishChatGeneration,
+  hasAfterStreamRule,
+  validationWarning
+};

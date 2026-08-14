@@ -16,6 +16,7 @@ Read only the documents relevant to the current task.
 - [Game card predicates](./game_card/game_card_predicates.md)
 - [Game card content](./game_card/game_card_content.md)
 - [Game card imports](./game_card/game_card_imports.md)
+- [Game card response validation](./game_card/game_card_response_validation.md)
 - [Game card audio](./game_card/game_card_audio.md)
 - [Game card visual](./game_card/game_card_visual.md)
 - [Game card visual panel](./game_card/game_card_visual_panel.md)

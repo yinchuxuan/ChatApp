@@ -17,7 +17,7 @@ function requestOptions(modelConfig, messages, abortSignal) {
   };
 }
 
-async function applyPatch(patchText, state, preSend, options) {
+async function applyPatch(patchText, state, preSend, options, publish = true) {
   const result = await generationServices.prepareStatePatchAtCursor({
     patchText,
     messages: preSend.messages,
@@ -28,7 +28,7 @@ async function applyPatch(patchText, state, preSend, options) {
     options.onGameCardError?.(generationServices.normalizeGameCardError(result));
     return { state, result };
   }
-  if (result.applied) {
+  if (result.applied && publish) {
     options.onStreamPreviewState?.(result.state);
     options.onStatePatchApplied?.(result);
   }
@@ -47,8 +47,11 @@ async function sendStreamedGeneration({
 }) {
   const parser = createStatePatchStreamParser();
   const segmented = preSend.card?.display?.segmentedReading === true;
+  const validationEnabled = Boolean(preSend.card?.responseValidation?.rules?.length);
   let contentStarted = false;
   let latestState = preSend.state;
+  let validationState = preSend.state;
+  let validationUpdates = [];
   let patchCount = 0;
   let rawContent = '';
   let tokenQueue = Promise.resolve();
@@ -67,7 +70,21 @@ async function sendStreamedGeneration({
         if (!segmented || !contentStarted) {
           const applied = await applyPatch(event.text, latestState, preSend, options);
           latestState = applied.state;
+          validationState = latestState;
+          validationUpdates = [
+            ...validationUpdates,
+            ...(applied.result.trace?.updates || [])
+          ];
           tw.markPatchApplied?.(patchCount);
+        } else if (validationEnabled) {
+          const candidate = await applyPatch(
+            event.text, validationState, preSend, {}, false
+          );
+          validationState = candidate.state;
+          validationUpdates = [
+            ...validationUpdates,
+            ...(candidate.result.trace?.updates || [])
+          ];
         }
         continue;
       }
@@ -108,8 +125,10 @@ async function sendStreamedGeneration({
   await processEvents(parser.finish());
   return {
     appliedPatchCount: tw.getAppliedPatchCount?.() || 0,
-    rawContent,
-    state: latestState
+    rawContent: tw.getRawContent?.() || rawContent,
+    state: latestState,
+    validationState,
+    validationUpdates
   };
 }
 

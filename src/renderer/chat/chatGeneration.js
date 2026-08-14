@@ -1,8 +1,8 @@
 import generationServices from './generationServices.js';
 import { createChatMessage, createMessageId } from './messageIds.js';
 import { cloneJson as cloneChatValue } from '../../shared/game-card/utils/jsonValue.js';
-import { sendStreamedGeneration } from './streamGeneration.js';
 import { finishChatGeneration } from './finishChatGeneration.js';
+import { generateValidatedResponse } from './validatedGeneration.js';
 
 function stripTurnContext(content) {
   return typeof content === 'string'
@@ -62,17 +62,17 @@ async function runChatGeneration(options) {
       phase: 'pre_send',
       state: preSend.state
     });
-    const streamResult = await sendStreamedGeneration({
+    const generated = await generateValidatedResponse({
       preSend,
       modelConfig,
       tw,
       abortSignal,
-      onStreamContentStart: options.onStreamContentStart,
-      onStreamPreviewState: options.onStreamPreviewState,
-      onStatePatchApplied: options.onStatePatchApplied,
-      onGameCardError: options.onGameCardError
+      options,
+      initialMessageId: streamMessageId
     });
-    return await finishChatGeneration(preSend, messages, state, options, streamResult, streamMessageId);
+    return await finishChatGeneration(
+      preSend, messages, state, options, generated.streamResult, generated.streamMessageId
+    );
   } catch (err) {
     return handleGenerationException(
       err, options, preSend, messages, abortSignal, streamMessageId
@@ -127,7 +127,7 @@ function handleGenerationException(err, options, preSend, baseMessages, abortSig
   streamMessageId) {
   if (isAbortException(err, abortSignal)) {
     return handleGenerationAbort(
-      options, preSend, baseMessages, err.streamResult, streamMessageId
+      options, preSend, baseMessages, err.streamResult, err.streamMessageId || streamMessageId
     );
   }
   options.setIsLoading(false);

@@ -17,6 +17,7 @@
 @import url('./components.game-card-title.css');
 @import url('./components.game-card-error.css');
 @import url('./components.platform-request-error.css');
+@import url('./components.platform-response-warning.css');
 @import url('./components.chat-session.css');
 @import url('./components.game-card-audio.css');
 @import url('./components.chat-input.css');
