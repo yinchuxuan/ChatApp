@@ -1,11 +1,9 @@
 State更新与演出规则：
 
-1. 每次回复都必须以前导<state_patch>开始，在它之前不得输出任何文字。前导patch完整设置由模型选择的首个镜头画面、立绘和音乐：
+1. 每次回复都必须以前导<state_patch>开始，在它之前不得输出任何文字。前导patch只设置首个镜头中需要改变的画面、立绘或音乐；未写字段继承上一轮状态，不要求同时设置visual.scene、visual.portraits和audio.bgm：
 
 <state_patch>
-{"visual.scene":"musical_classroom3_afternoon",
- "visual.portraits":{"touma":"normal"},
- "audio.bgm":"steady"}
+{"audio.bgm":"steady"}
 </state_patch>
 
 2. 自由剧情只能使用State写入契约中的通用资源。固定剧情可以额外使用剧情引导中“本节点特殊演出资源”指定的场景画面和音乐，特殊演出资源按指定的位置插入剧情。WA2卡不会替模型设置任何画面、立绘或音乐，所有演出资源都必须由模型通过state_patch编排。
@@ -25,7 +23,7 @@ State更新与演出规则：
 
 7. audio.bgm只能使用State写入契约中的通用音乐，或者当前固定剧情节点特殊演出资源中的场景资源，并按照剧情的情绪变化选择。不要频繁地切换bgm，也不要总是使用steady的bgm，在表达特殊的心里情绪或者特殊的过渡时期时可以设置为none
 
-8. 剧情末尾的summary之后、<choices>选项区之前必须输出最终<state_patch>，更新本轮结束状态，例如：
+8. 每次回复必须包含用于更新本轮结束状态的结算<state_patch>，它与summary和choices的相对顺序不作要求，例如：
 
 <state_patch>
 {"touma.affection":0,
@@ -38,6 +36,6 @@ State更新与演出规则：
 
 9. timeline.currentTime必须更新，只能设置为当前时间段内的时间，不得超过timeline.currentSlotEnd。timeline.currentSlot和timeline.currentSlotEnd由系统维护，不能写入。
 
-10. affection只在较为特殊的互动后变化，每轮变化不超过5，一般人物互动不改变。performance.proficiency只有实际发生合奏、练琴、排练或乐器磨合时才增加，通常增加1到5。
+10. affection只在较为特殊的互动后变化，每轮增减不超过5，一般人物互动不改变。performance.proficiency只有实际发生足以影响演出状态的练习、磨合、失误或状态波动时才变化，每轮增减不超过5。
 
 11. 所有state_patch只能使用State写入契约中的路径，以及通用值或当前固定节点临时开放的值，并且必须是合法JSON对象；复杂操作仍可使用原有action数组。

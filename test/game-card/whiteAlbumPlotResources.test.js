@@ -21,6 +21,22 @@ const plotResources = [
   ['plot/chapter-2.md', 'GameEnd1', 'GameEnd1', 'unstoppable_dream']
 ];
 
+const memoryPolicies = [
+  ['plot/chapter-1.md', 'FixedPlot1', true],
+  ['plot/chapter-1.md', 'FixedPlot2', false],
+  ['plot/chapter-1.md', 'FixedPlot3', false],
+  ['plot/chapter-1.md', 'FixedPlot4', true],
+  ['plot/chapter-2.md', 'FixedPlot1', true],
+  ['plot/chapter-2.md', 'FixedPlot2', true],
+  ['plot/chapter-2.md', 'FixedPlot2Low', true],
+  ['plot/chapter-2.md', 'FixedPlot3', true],
+  ['plot/chapter-2.md', 'FixedPlot4', true],
+  ['plot/chapter-2.md', 'FixedPlot5', true],
+  ['plot/chapter-2.md', 'FixedPlot6', false],
+  ['plot/chapter-2.md', 'FixedPlot7', true],
+  ['plot/chapter-2.md', 'GameEnd1', true]
+];
+
 function readCardFile(relativePath) {
   return fs.readFileSync(path.join(cardDir, relativePath), 'utf-8');
 }
@@ -63,5 +79,23 @@ describe('white album fixed plot presentation resources', () => {
     expect(timeline).not.toMatch(/nodeBackground|nodeBgm/);
     expect(timeline).not.toMatch(/background:|bgm:/);
     expect(timeline).not.toContain('## 本节点演出资源');
+  });
+
+  test.each(memoryPolicies)('%s#%s declares its anchor policy', (file, sectionName, required) => {
+    const section = readSection(readCardFile(file), sectionName);
+    const policy = required
+      ? '记忆要求：本节点完成后新增一条 anchor'
+      : '记忆要求：本节点不新增 anchor';
+
+    expect(section).toContain(policy);
+    expect(section.match(/记忆要求：/g)).toHaveLength(1);
+  });
+
+  test('global rules make anchors rare instead of mandatory for fixed plots', () => {
+    const rules = readCardFile('roleplay_rules.md');
+
+    expect(rules).toContain('`priority="anchor"`：默认省略');
+    expect(rules).toContain('固定节点不当然产生 anchor');
+    expect(rules).not.toContain('固定节点必须记录anchor');
   });
 });

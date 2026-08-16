@@ -57,6 +57,10 @@ function App() {
 
   const handleGameCardPortraitChange = React.useCallback((detail) => {
     const nextPortraits = Array.isArray(detail?.portraits) ? detail.portraits : [];
+    if (detail?.immediate === true) {
+      setPortraitLayers(EMPTY_PORTRAIT_LAYERS);
+      return;
+    }
     setPortraitLayers(({ current }) => {
       const nextCharacters = new Set(nextPortraits.map(({ character }) => character));
       const exiting = current

@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import GameCardBackgroundRuntime from '../../src/renderer/components/GameCardBackgroundRuntime';
 
 const card = {
@@ -58,15 +58,32 @@ describe('GameCardBackgroundRuntime portraits', () => {
     const onChange = jest.fn();
     const cgState = { visual: { scene: 'invite', portraits: { touma: 'normal' } } };
     const { rerender } = render(React.createElement(GameCardBackgroundRuntime, {
-      portraitRequest: request(1, cgState),
+      portraitRequest: request(1, {
+        visual: { scene: 'school', portraits: { touma: 'normal' } }
+      }),
       onPortraitChange: onChange
     }));
-    await act(async () => Promise.resolve());
-    expect(onChange).toHaveBeenLastCalledWith({ portraits: [] });
+    await waitFor(() => expect(onChange).toHaveBeenLastCalledWith({
+      portraits: [{
+        character: 'touma',
+        expression: 'normal',
+        path: 'images/touma.png',
+        url: 'local:///images/touma.png'
+      }]
+    }));
+
+    rerender(React.createElement(GameCardBackgroundRuntime, {
+      portraitRequest: request(2, cgState),
+      onPortraitChange: onChange
+    }));
+    await waitFor(() => expect(onChange).toHaveBeenLastCalledWith({
+      portraits: [],
+      immediate: true
+    }));
     expect(cgState.visual.portraits).toEqual({ touma: 'normal' });
 
     rerender(React.createElement(GameCardBackgroundRuntime, {
-      portraitRequest: request(2, {
+      portraitRequest: request(3, {
         visual: { scene: 'school', portraits: { touma: 'normal' } }
       }),
       onPortraitChange: onChange

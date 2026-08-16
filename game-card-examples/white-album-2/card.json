@@ -8,6 +8,7 @@
   "visual": { "$import": "visual.json" },
   "display": { "$import": "display.json" },
   "ui": { "$import": "ui.json" },
+  "responseValidation": { "$import": "response-validation.json" },
   "rules": [
     {
       "$import": "rules/system-prompt.json"

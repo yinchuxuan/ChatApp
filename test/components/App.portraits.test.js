@@ -74,4 +74,15 @@ test('renders, updates and clears multiple game card portraits', async () => {
   fireEvent.animationEnd(exitingPortrait);
   expect(document.querySelector('.app-portrait-layer-exiting')).toBeNull();
   expect(document.querySelector('.app-container').className).not.toContain('has-portrait');
+
+  await act(async () => mockChatPanelProps.onPortraitChange({
+    portraits: [{ character: 'touma', expression: 'sad', url: 'touma-sad-url' }]
+  }));
+  await act(async () => mockChatPanelProps.onPortraitChange({
+    portraits: [],
+    immediate: true
+  }));
+  expect(document.querySelector('[data-gc-part="portrait-layer"]')).toBeNull();
+  expect(document.querySelector('.app-portrait-layer-exiting')).toBeNull();
+  expect(document.querySelector('.app-container').className).not.toContain('has-portrait');
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   getPortraitResources,
+  getSceneKind,
   getSceneRelativePath,
   normalizeTextPanel
 } from '../../shared/game-card/schema/visualConfig.js';
@@ -52,8 +53,9 @@ function usePortraitRequest(request, onChange) {
   React.useEffect(() => {
     if (!request) return;
     const cardId = request.card?.id || '';
+    const sceneKind = getSceneKind(request.card, request.state?.visual?.scene);
     const resources = getPortraitResources(request.card, request.state);
-    const signature = `${cardId}\0${resources.map(item => (
+    const signature = `${cardId}\0${sceneKind}\0${resources.map(item => (
       `${item.character}:${item.expression}:${item.path}`
     )).join('\0')}`;
     if (signature === currentRef.current.signature) return;
@@ -64,7 +66,9 @@ function usePortraitRequest(request, onChange) {
       url: await resolveImageUrl(cardId, item.path, `portrait ${item.character}`)
     }))).then(items => {
       if (!mountedRef.current || currentRef.current.revision !== revision) return;
-      handlerRef.current?.({ portraits: items.filter(item => item.url) });
+      const detail = { portraits: items.filter(item => item.url) };
+      if (sceneKind === 'cg') detail.immediate = true;
+      handlerRef.current?.(detail);
     });
   }, [request]);
 
