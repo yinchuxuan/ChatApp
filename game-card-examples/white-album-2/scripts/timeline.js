@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-/* global include, resolveAttitudeSection, resolveChapter1Timeline, resolveChapter2Timeline, resolvePlotMood */
+/* global include, resolveAttitudeSection, resolveChapter1EventCategory, resolveChapter1Timeline, resolveChapter2EventCategory, resolveChapter2Timeline, resolvePlotMood */
 /* exported run */
 
 include("./timelines/chapter-1.js");
@@ -55,12 +55,25 @@ function run(ctx) {
   function applyFreePlot() {
     const roll = utils.randomInt(1, 100);
     const mood = resolvePlotMood(roll);
+    const characterGuideRoll = utils.randomInt(1, 100);
+    const hasEvent = mood !== 'normal'
+      && ['plot.chapter.1', 'plot.chapter.2'].indexOf(state.temp.plotFile) !== -1;
+    const eventRoll = hasEvent ? utils.randomInt(1, 100) : 0;
+    let eventCategory = '';
+    if (state.temp.plotFile === 'plot.chapter.1' && hasEvent) {
+      eventCategory = resolveChapter1EventCategory(eventRoll);
+    } else if (state.temp.plotFile === 'plot.chapter.2' && hasEvent) {
+      eventCategory = resolveChapter2EventCategory(eventRoll);
+    }
     state.temp.plotKind = 'free';
     state.temp.includeFreeGuide = true;
     state.temp.plotDirectionRoll = roll;
-    state.temp.characterGuideRoll = utils.randomInt(1, 100);
+    state.temp.characterGuideRoll = characterGuideRoll;
     state.temp.plotMood = mood;
     state.temp.plotMoodSection = `PlotMood_${mood}`;
+    state.temp.plotEventRoll = eventRoll;
+    state.temp.plotEventCategory = eventCategory;
+    state.temp.plotEventSection = eventCategory ? `PlotEvent_${eventCategory}` : '';
     applyAttitudeSections();
   }
 
@@ -70,6 +83,9 @@ function run(ctx) {
     state.temp.characterGuideRoll = 0;
     state.temp.plotMood = '';
     state.temp.plotMoodSection = '';
+    state.temp.plotEventRoll = 0;
+    state.temp.plotEventCategory = '';
+    state.temp.plotEventSection = '';
     applyAttitudeSections();
   }
 

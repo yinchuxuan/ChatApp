@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-/* exported resolveAttitudeSection, resolveChapter1Timeline, resolvePlotMood */
+/* exported resolveAttitudeSection, resolveChapter1EventCategory, resolveChapter1Timeline, resolvePlotMood */
 
 function resolvePlotMood(roll) {
   if (roll <= 10) return 'tragic';
@@ -7,6 +7,13 @@ function resolvePlotMood(roll) {
   if (roll < 70) return 'normal';
   if (roll < 90) return 'daily';
   return 'happy';
+}
+
+function resolveChapter1EventCategory(roll) {
+  if (roll <= 50) return 'recruitment';
+  if (roll <= 70) return 'friends';
+  if (roll <= 85) return 'school';
+  return 'personal';
 }
 
 function resolveAttitudeSection(prefix, affection, threshold) {

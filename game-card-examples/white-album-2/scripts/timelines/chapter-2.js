@@ -1,6 +1,13 @@
 /* eslint-disable no-unused-vars */
 /* global inTimelineRange */
-/* exported resolveChapter2Timeline */
+/* exported resolveChapter2EventCategory, resolveChapter2Timeline */
+
+function resolveChapter2EventCategory(roll) {
+  if (roll <= 40) return 'touma_setsuna';
+  if (roll <= 65) return 'music';
+  if (roll <= 85) return 'friends';
+  return 'personal';
+}
 
 function setsunaAffection(state) {
   const value = state.setsuna && state.setsuna.affection;
