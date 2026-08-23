@@ -30,7 +30,7 @@ function runFinalSlot(proficiency) {
     setsuna: { affection: 80 },
     performance: { proficiency },
     story: { chapter2SetsunaBranch: 'secret' },
-    timeline: { currentTime: '2007.11.1: 21:00 星期四' }
+    timeline: { currentTime: '2007.10.28: 21:00 星期日' }
   }).state;
   return applyGameCard({
     card: loadedCard,
@@ -49,6 +49,7 @@ describe('white album performance proficiency', () => {
     expect(stateSchema.schema['performance.proficiency'].default).toBe(2);
     expect(llmStateContract).toContain('`performance.proficiency`');
     expect(llmStateContract).toContain('演出练习');
+    expect(llmStateContract).toContain('`state.inc`');
     expect(status.content).toContain('`performance.proficiency`');
     expect(status.content).toContain('performance.proficiency: 19');
     expect(status.content).toContain('演出熟练度');
@@ -62,8 +63,8 @@ describe('white album performance proficiency', () => {
     expect(result.state.story.progress).toBe('GameEnd1');
     expect(result.state.temp.PlotType).toBe('GameEnd1');
     expect(result.state.story.chapter2GameEnd1Reached).toBe(true);
-    expect(result.state.timeline.currentSlotEnd).toBe('2012.11.1: 22:00 星期四');
-    expect(guide.content).toContain('五年后的一个周四夜晚');
+    expect(result.state.timeline.currentSlotEnd).toBe('2012.10.28: 22:00 星期日');
+    expect(guide.content).toContain('五年后的一个周日夜晚');
     expect(guide.content).not.toContain('重建同好会的剧情完成');
   });
 });

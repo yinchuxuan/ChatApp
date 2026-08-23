@@ -26,7 +26,8 @@ const VALID_CHOICES = [
 ].join('\n');
 const VALID_FINAL_PATCH = [
   '<state_patch>',
-  '{"performance.proficiency":1,"timeline.currentTime":"2007.10.20: 9:15 星期六"}',
+  '[{"type":"state.inc","path":"performance.proficiency","value":-1},',
+  '{"type":"state.set","path":"timeline.currentTime","value":"2007.10.20: 9:15 星期六"}]',
   '</state_patch>'
 ].join('\n');
 
@@ -95,7 +96,8 @@ describe('white album response validation', () => {
   test('reports structural and state contract errors without automatic retry', () => {
     const finalPatch = [
       '<state_patch>',
-      '{"touma.affection":28,"story.progress":"Broken"}',
+      '[{"type":"state.inc","path":"touma.affection","value":10},',
+      '{"type":"state.set","path":"story.progress","value":"Broken"}]',
       '</state_patch>'
     ].join('\n');
     const choices = '<choices>\nA. 只有一个选项。\n</choices>';
@@ -109,6 +111,22 @@ describe('white album response validation', () => {
       'error-choices-structure'
     ]));
     expect(result.violations.every(item => item.onFailure === 'warn')).toBe(true);
+  });
+
+  test('requires incremental affection and proficiency updates', () => {
+    const finalPatch = [
+      '<state_patch>',
+      '[{"type":"state.set","path":"touma.affection","value":19},',
+      '{"type":"state.set","path":"performance.proficiency","value":3},',
+      '{"type":"state.set","path":"timeline.currentTime","value":"2007.10.20: 9:15 星期六"}]',
+      '</state_patch>'
+    ].join('\n');
+    const result = validate(response({ finalPatch }));
+
+    expect(violationIds(result)).toEqual(expect.arrayContaining([
+      'error-touma-affection-update',
+      'error-proficiency-update'
+    ]));
   });
 
   test('reports quality warnings while accepting an otherwise playable response', () => {

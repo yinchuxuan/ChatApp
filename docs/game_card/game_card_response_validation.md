@@ -144,6 +144,7 @@ pre_send
   "type": "state.update",
   "path": "setsuna.affection",
   "updates": { "lte": 1 },
+  "operations": ["state.inc"],
   "delta": { "gte": -2, "lte": 2 },
   "message": "雪菜好感度单轮变化不能超过 2"
 }

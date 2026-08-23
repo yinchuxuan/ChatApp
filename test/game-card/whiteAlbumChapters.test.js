@@ -50,7 +50,7 @@ function runAtTime(currentTime, overrides = {}) {
 
 describe('white album chapters', () => {
   test('switches to chapter 2 by timeline time and reads chapter 2 plot', () => {
-    const result = runAtTime('2007.10.27: 17:30 星期六', { setsuna: { affection: 15 } });
+    const result = runAtTime('2007.10.25: 17:30 星期四', { setsuna: { affection: 15 } });
     const guide = result.messages.find((msg) => msg.role === 'user');
     const status = result.messages.find((msg) => msg._meta?.source === 'wa2_state_context');
 
@@ -71,7 +71,7 @@ describe('white album chapters', () => {
   });
 
   test('uses a reserved Setsuna branch for fixed plot 2 when affection is below 15', () => {
-    const result = runAtTime('2007.10.27: 16:30 星期六', { setsuna: { affection: 14 } });
+    const result = runAtTime('2007.10.25: 16:30 星期四', { setsuna: { affection: 14 } });
     const guide = result.messages.find((msg) => msg.role === 'user');
 
     expect(result.trace.errors).toEqual([]);
@@ -79,7 +79,7 @@ describe('white album chapters', () => {
     expect(result.state.timeline.currentSlot).toBe('FixedPlot2');
     expect(result.state.temp.PlotType).toBe('FixedPlot2Low');
     expect(result.state.story.chapter2SetsunaBranch).toBe('reserved');
-    expect(result.state.timeline.currentSlotEnd).toBe('2007.10.27: 18:00 星期六');
+    expect(result.state.timeline.currentSlotEnd).toBe('2007.10.25: 18:00 星期四');
     expect(result.state.temp).not.toHaveProperty('nodeBackground');
     expect(guide.content).toContain('visual.scene: `park`');
     expect(guide.content).toContain('audio.bgm: `snow_scene`');
@@ -88,7 +88,7 @@ describe('white album chapters', () => {
   });
 
   test('uses a reserved Setsuna branch for fixed plot 3 when affection is below 15', () => {
-    const result = runAtTime('2007.10.27: 17:30 星期六', { setsuna: { affection: 14 } });
+    const result = runAtTime('2007.10.25: 17:30 星期四', { setsuna: { affection: 14 } });
     const guide = result.messages.find((msg) => msg.role === 'user');
 
     expect(result.trace.errors).toEqual([]);
@@ -97,7 +97,7 @@ describe('white album chapters', () => {
     expect(result.state.temp.PlotType).toBe('FixedPlot3Low');
     expect(result.state.temp.plotKind).toBe('free');
     expect(result.state.story.chapter2SetsunaBranch).toBe('reserved');
-    expect(result.state.timeline.currentSlotEnd).toBe('2007.10.27: 22:00 星期六');
+    expect(result.state.timeline.currentSlotEnd).toBe('2007.10.25: 22:00 星期四');
     expect(result.state.audio.bgm).toBe('daily');
     expect(result.state.visual.scene).toBe('musical_classroom3');
     expect(guide.content).toContain('剧情类型：自由剧情节点');
@@ -106,7 +106,7 @@ describe('white album chapters', () => {
   });
 
   test('loads fixed plot 3 low after the reserved branch is chosen', () => {
-    const result = runAtTime('2007.10.27: 17:30 星期六', {
+    const result = runAtTime('2007.10.25: 17:30 星期四', {
       setsuna: { affection: 80 },
       story: { chapter2SetsunaBranch: 'reserved' }
     });
@@ -124,7 +124,7 @@ describe('white album chapters', () => {
   });
 
   test('uses fixed plot 7 in the game end slot when both affections are high after the secret branch', () => {
-    const result = runAtTime('2007.11.1: 21:00 星期四', {
+    const result = runAtTime('2007.10.28: 21:00 星期日', {
       touma: { affection: 30 },
       setsuna: { affection: 20 },
       performance: { proficiency: 20 },
@@ -138,15 +138,15 @@ describe('white album chapters', () => {
     expect(result.state.temp.PlotType).toBe('FixedPlot7');
     expect(result.state.story.chapter2SuccessReached).toBe(true);
     expect(result.state.story.chapter2GameEnd1Reached).toBe(false);
-    expect(result.state.timeline.currentSlotEnd).toBe('2007.11.1: 22:00 星期四');
+    expect(result.state.timeline.currentSlotEnd).toBe('2007.10.28: 22:00 星期日');
     expect(guide.content).toContain('visual.scene: `agreement`');
     expect(guide.content).toContain('audio.bgm: `things`');
     expect(guide.content).toContain('重建同好会的剧情完成');
-    expect(guide.content).not.toContain('五年后的一个周四夜晚');
+    expect(guide.content).not.toContain('五年后的一个周日夜晚');
   });
 
   test('keeps game end 1 when the secret branch was not chosen', () => {
-    const result = runAtTime('2007.11.1: 21:00 星期四', {
+    const result = runAtTime('2007.10.28: 21:00 星期日', {
       touma: { affection: 80 },
       setsuna: { affection: 80 },
       story: { chapter2SetsunaBranch: 'reserved' }
@@ -157,9 +157,9 @@ describe('white album chapters', () => {
     expect(result.state.story.progress).toBe('GameEnd1');
     expect(result.state.temp.PlotType).toBe('GameEnd1');
     expect(result.state.story.chapter2GameEnd1Reached).toBe(true);
-    expect(result.state.timeline.currentSlotEnd).toBe('2012.11.1: 22:00 星期四');
+    expect(result.state.timeline.currentSlotEnd).toBe('2012.10.28: 22:00 星期日');
     expect(guide.content).toContain('visual.scene: `GameEnd1`');
-    expect(guide.content).toContain('五年后的一个周四夜晚');
+    expect(guide.content).toContain('五年后的一个周日夜晚');
     expect(guide.content).not.toContain('重建同好会的剧情完成');
   });
 
@@ -186,7 +186,7 @@ describe('white album chapters', () => {
   test('loads the chapter 2 first game ending guide', () => {
     const guide = resolveContent('{{file:plot.chapter.2#GameEnd1}}', {}, { card: loadedCard, fileContents });
 
-    expect(guide).toContain('五年后的一个周四夜晚');
+    expect(guide).toContain('五年后的一个周日夜晚');
     expect(guide).toContain('许久没有碰过的吉他');
     expect(guide).toContain('另一个平行时空');
   });

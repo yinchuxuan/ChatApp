@@ -58,6 +58,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
     expect(body.top_p).toBe(0.9);
     expect(body.frequency_penalty).toBe(0);
     expect(body.presence_penalty).toBe(0);
+    expect(body.reasoning_effort).toBeUndefined();
   });
 
   test('should include supported OpenAI generation parameters only', async () => {
@@ -73,6 +74,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
         topP: '0.9',
         frequencyPenalty: '0.2',
         presencePenalty: '0.4',
+        reasoningEffort: 'high',
         topK: '40',
         messages: [{ role: 'user', content: 'Hi' }]
       },
@@ -86,6 +88,7 @@ describe('sendChatRequest - OpenAI protocol', () => {
     expect(body.top_p).toBe(0.9);
     expect(body.frequency_penalty).toBe(0.2);
     expect(body.presence_penalty).toBe(0.4);
+    expect(body.reasoning_effort).toBe('high');
     expect(body.top_k).toBeUndefined();
   });
 

@@ -82,6 +82,7 @@
 
 ```json
 { "type": "state.set", "path": "route", "value": "alice" }
+{ "type": "state.inc", "path": "player.hp", "value": -5 }
 { "type": "state.delete", "path": "temp.lastRoll" }
 { "type": "state.append", "path": "inventory", "value": { "id": "key" } }
 { "type": "state.remove", "path": "inventory", "value": { "id": "key" } }
@@ -90,7 +91,7 @@
 { "type": "state.advance", "path": "timeline.currentSlot" }
 ```
 
-`state.roll` 支持 `d6` / `1d6` / `2d10` 形式，写入掷骰总和。`state.randomInt` 写入闭区间 `[min, max]` 的整数。`state.advance` 只支持 schema 中 `type: "enum"` 的路径，将当前值推进到 `values` 中的下一个值，已经在末尾时保持不变。
+`state.inc` 只接受有限数值增量且目标必须是已有的有限数值，结果继续经过 state schema 校验与 clamp。`state.roll` 支持 `d6` / `1d6` / `2d10` 形式，写入掷骰总和。`state.randomInt` 写入闭区间 `[min, max]` 的整数。`state.advance` 只支持 schema 中 `type: "enum"` 的路径，将当前值推进到 `values` 中的下一个值，已经在末尾时保持不变。
 
 所有 action 都支持可选 `when`，条件语义与 content 分支一致。规则级或 action 级 `find` 写入的 `temp.find.*` 可以被后续 action 的 `when` 读取：
 

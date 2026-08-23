@@ -49,6 +49,22 @@ function buildRequest(config) {
   return { protocol, ...request };
 }
 
+function reasoningDetailText(detail) {
+  if (detail?.type === 'reasoning.text' && typeof detail.text === 'string') return detail.text;
+  if (detail?.type !== 'reasoning.summary') return '';
+  if (typeof detail.summary === 'string') return detail.summary;
+  if (!Array.isArray(detail.summary)) return '';
+  return detail.summary.map(item => typeof item === 'string' ? item : (item?.text || '')).join('');
+}
+
+function openAIReasoningText(delta) {
+  const direct = [delta?.reasoning_content, delta?.reasoning]
+    .find(value => typeof value === 'string' && value);
+  if (direct) return direct;
+  if (!Array.isArray(delta?.reasoning_details)) return '';
+  return delta.reasoning_details.map(reasoningDetailText).join('');
+}
+
 async function emitProviderChunk(parsed, protocol, callbacks) {
   if (parsed.error || parsed.type === 'error') {
     throw new Error(parsed.error?.message || parsed.error?.error?.message || parsed.message || 'Provider stream error');
@@ -64,7 +80,8 @@ async function emitProviderChunk(parsed, protocol, callbacks) {
     return;
   }
   const delta = parsed.choices?.[0]?.delta;
-  if (delta?.reasoning_content) await callbacks.onThinkingToken?.(delta.reasoning_content);
+  const reasoning = openAIReasoningText(delta);
+  if (reasoning) await callbacks.onThinkingToken?.(reasoning);
   if (delta?.content) await callbacks.onToken?.(delta.content);
 }
 

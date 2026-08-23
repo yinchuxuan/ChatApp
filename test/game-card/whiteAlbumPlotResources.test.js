@@ -98,4 +98,14 @@ describe('white album fixed plot presentation resources', () => {
     expect(rules).toContain('固定节点不当然产生 anchor');
     expect(rules).not.toContain('固定节点必须记录anchor');
   });
+
+  test('global rules require plot constraints to be checked in CoT', () => {
+    const rules = readCardFile('roleplay_rules.md');
+
+    expect(rules).toContain('必须在CoT中明确加载本轮剧情引导的“剧情限制”');
+    expect(rules).toContain('逐条引用限制序号并分别标记“满足”或“需修正”');
+    expect(rules).toContain('再从第一条开始重新检查，直到全部满足');
+    expect(rules).toContain('最终输出前再次按序号逐项复检');
+    expect(rules).toContain('先调整情节再输出');
+  });
 });

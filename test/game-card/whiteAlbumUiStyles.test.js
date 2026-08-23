@@ -49,6 +49,7 @@ describe('white album ui styles', () => {
     expect(css).toContain('bottom: 34px');
     expect(css).toMatch(/\[data-gc-part="chat-input"\] \{[^}]*border: 0;[^}]*background: transparent;[^}]*box-shadow: none;[^}]*backdrop-filter: none;/);
     expect(css).toMatch(/\[data-gc-part="chat-input-textarea"\] \{[^}]*border-bottom: 1px solid rgba\(255, 255, 255, 0\.88\);[^}]*color: #ffffff;/);
+    expect(css).toMatch(/\[data-gc-part="chat-input-textarea"\] \{[^}]*font-size: clamp\(16px, 1\.15vw, 18px\);[^}]*font-weight: 600;/);
     expect(css).toMatch(/\[data-gc-part="chat-send-button"\] \{[^}]*width: 40px;[^}]*border: 0;[^}]*background: transparent;[^}]*color: #ffffff;[^}]*box-shadow: none;/);
     expect(css).not.toContain('-webkit-mask: var(--icon-edit) center / contain no-repeat');
     expect(css).not.toContain('content: "Enter  发送"');
@@ -97,7 +98,8 @@ describe('white album ui styles', () => {
     expect(css).toContain('[data-role="assistant"][data-gc-part="message-row"]');
     expect(css).toContain('align-items: center');
     expect(css).toContain('justify-content: center');
-    expect(css).toContain('font-size: clamp(14px, 1vw, 16px)');
+    expect(css).toContain('font-size: clamp(16px, 1.15vw, 18px)');
+    expect(css).toContain('font-weight: 600');
     expect(css).toContain('line-height: 1.55');
     expect(css).toContain('letter-spacing: 0.04em');
     expect(css).toContain('text-align: center');
@@ -123,7 +125,7 @@ describe('white album ui styles', () => {
     expect(displayCss).toContain('--wa2-icon-time');
     expect(displayCss).toContain('--wa2-icon-place');
     expect(displayCss).toMatch(/\.wa2-scene-meta \{[\s\S]*?width: fit-content;[\s\S]*?justify-content: center;[\s\S]*?margin: 0 auto 0\.95rem;[\s\S]*?padding: 0;[\s\S]*?border: 0;[\s\S]*?background: transparent;[\s\S]*?box-shadow: none;/);
-    expect(displayCss).toContain('font-size: 13px');
+    expect(displayCss).toMatch(/\.wa2-scene-meta \{[\s\S]*?font-size: clamp\(15px, 1\.05vw, 17px\);[\s\S]*?font-weight: 600;/);
     expect(displayCss).toContain('line-height: 1.42');
     expect(displayCss).toContain('.wa2-scene-time::before');
     expect(displayCss).toContain('background: var(--wa2-icon-time) center / contain no-repeat');
@@ -144,7 +146,9 @@ describe('white album ui styles', () => {
     expect(displayCss).toMatch(/\.wa2-choice-overlay \{[^}]*width: 100%;/);
     expect(displayCss).toMatch(/\.wa2-choice-overlay \{[^}]*align-items: stretch;[^}]*text-align: left;/);
     expect(displayCss).toContain('[data-gc-part="message-content"] .wa2-choice-prompt');
+    expect(displayCss).toMatch(/\.wa2-choice-prompt \{[^}]*font-size: clamp\(16px, 1\.3vw, 19px\);[^}]*font-weight: 600;/);
     expect(displayCss).toMatch(/\.wa2-choice \{[^}]*width: 100%;[^}]*align-items: flex-start;[^}]*justify-content: flex-start;[^}]*border: 0;[^}]*background: transparent;[^}]*text-align: left;/);
+    expect(displayCss).toMatch(/\.wa2-choice \{[^}]*font-size: clamp\(16px, 1\.3vw, 19px\);[^}]*font-weight: 600;/);
     expect(displayCss).toMatch(/\.wa2-choice-label \{[^}]*flex: 0 0 auto;[^}]*color: inherit;[^}]*font-weight: inherit;[^}]*letter-spacing: inherit;/);
     expect(displayCss).not.toMatch(/\.wa2-choice-label \{[^}]*(?:justify-content|text-align):/);
     expect(displayCss).not.toMatch(/\.wa2-choice:hover,[\s\S]*?transform:/);

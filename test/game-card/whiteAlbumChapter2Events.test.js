@@ -89,7 +89,7 @@ describe('white album chapter 2 random events', () => {
   });
 
   test('does not inject event prompts into a fixed plot', () => {
-    const result = runAt([0], '2007.10.29: 17:00 星期一');
+    const result = runAt([0], '2007.10.26: 17:00 星期五');
     const guide = latestUserGuide(result);
 
     expect(result.state.temp.plotKind).toBe('fixed');

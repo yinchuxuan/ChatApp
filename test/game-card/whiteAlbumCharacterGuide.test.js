@@ -78,7 +78,7 @@ describe('white album character weak guide', () => {
       .mockReturnValueOnce(0.99)
       .mockReturnValue(0);
 
-    const result = runFreePlot('2007.10.29: 19:30 星期一');
+    const result = runFreePlot('2007.10.26: 19:30 星期五');
 
     expect(result.state.temp.PlotType).toBe('FreePlot3');
     expect(result.state.temp.characterGuideRoll).toBe(100);

@@ -43,6 +43,10 @@ rendererServices.cards
 
 `tauriModelFetch.js` 使用 Rust `stream_model_request` 和 Channel，将响应包装成兼容 `fetch` 的 `ReadableStream`。`src/renderer/chat/apiClient.js` 因此继续复用 OpenAI/Anthropic SSE parser。
 
+模型配置中的 `reasoningEffort` 在未设置时省略；OpenAI 协议映射为 `reasoning_effort`，Anthropic 协议映射为 `output_config.effort`。设置界面提供当前协议的通用档位，具体模型可能只支持其中一部分。
+
+OpenAI-compatible 流中的 `reasoning_content`、`reasoning` 与可见的 `reasoning_details` 文本会统一写入消息 thinking；加密 reasoning detail 不进入 UI。
+
 `AbortSignal` 通过 request id 映射到 `cancel_model_stream`。renderer 不直接连接模型外网，也不维护额外 CORS 代理。
 
 ## 受控脚本

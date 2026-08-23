@@ -13,8 +13,10 @@ describe('white album 2 retry styles', () => {
     expect(css).toMatch(/\.wa2-retry-panel \{[\s\S]*?width: clamp\(300px, 46vw, 620px\);/);
     expect(css).toMatch(/\.wa2-retry-editor \{[\s\S]*?background: transparent;/);
     expect(css).toMatch(/\.wa2-retry-action \{[\s\S]*?background: transparent;/);
-    expect(css).toMatch(/\.wa2-retry-kicker \{[\s\S]*?font-size: clamp\(20px, 1\.8vw, 26px\);[\s\S]*?font-weight: 700;/);
-    expect(css).toMatch(/\.wa2-retry-title \{[\s\S]*?font-size: clamp\(16px, 1\.3vw, 19px\);/);
+    expect(css).toMatch(/\.wa2-retry-kicker \{[\s\S]*?font-size: clamp\(22px, 2vw, 28px\);[\s\S]*?font-weight: 700;/);
+    expect(css).toMatch(/\.wa2-retry-title \{[\s\S]*?font-size: clamp\(18px, 1\.5vw, 22px\);[\s\S]*?font-weight: 600;/);
+    expect(css).toMatch(/\.wa2-retry-editor \{[\s\S]*?font-size: clamp\(16px, 1\.15vw, 18px\);[\s\S]*?font-weight: 600;/);
+    expect(css).toMatch(/\.wa2-retry-action \{[\s\S]*?font-size: 16px;[\s\S]*?font-weight: 600;/);
     expect(css).toContain(':has(.wa2-ui-root[data-paused="true"])');
     expect(css).not.toContain('.wa2-pause-trigger');
   });

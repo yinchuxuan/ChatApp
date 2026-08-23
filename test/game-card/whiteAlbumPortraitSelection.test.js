@@ -9,7 +9,7 @@ const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 const loadedCard = mergeAudioStateSchema({ ...card, state: { ...card.state, schema: stateSchema } });
 const portraitCharacters = Object.keys(loadedCard.visual.portrait);
 const commonPortraitExpressions = [
-  'normal', 'happy', 'sad', 'cry', 'angry', 'surprise', 'joy', 'sweating_smile'
+  'normal', 'laugh', 'sad', 'cry', 'angry', 'surprise', 'joy', 'sweating_smile'
 ];
 const portraitNames = {
   touma: '冬马和纱',
@@ -24,7 +24,7 @@ const portraitNames = {
 };
 const portraitExpressionMeanings = {
   normal: '平静自然',
-  happy: '开心大笑',
+  laugh: '开心大笑',
   sad: '情绪低落',
   cry: '哭泣落泪',
   angry: '生气愤怒',
@@ -34,10 +34,15 @@ const portraitExpressionMeanings = {
   sleep: '趴桌睡觉'
 };
 const expressionAliases = {
-  yanagihara: { cry: 'sad', joy: 'happy', sweating_smile: 'normal' },
-  takahiro: { cry: 'sad', joy: 'happy', sweating_smile: 'normal' },
-  teacher1: { happy: 'joy', cry: 'sad', sweating_smile: 'normal' },
-  teacher2: { happy: 'joy', cry: 'sad', sweating_smile: 'normal' }
+  touma: { laugh: 'happy' },
+  setsuna: { laugh: 'happy' },
+  mizusawa: { laugh: 'happy' },
+  takeya: { laugh: 'happy' },
+  chikashi: { laugh: 'happy' },
+  yanagihara: { laugh: 'happy', cry: 'sad', joy: 'happy', sweating_smile: 'normal' },
+  takahiro: { laugh: 'happy', cry: 'sad', joy: 'happy', sweating_smile: 'normal' },
+  teacher1: { laugh: 'joy', cry: 'sad', sweating_smile: 'normal' },
+  teacher2: { laugh: 'joy', cry: 'sad', sweating_smile: 'normal' }
 };
 const portraitDirectories = { teacher1: 'teacher_1', teacher2: 'teacher_2' };
 const portraitProperties = stateSchema.schema['visual.portraits'].properties;
@@ -127,7 +132,7 @@ describe('white album portrait selection', () => {
     const portraits = {
       touma: 'sad',
       setsuna: 'normal',
-      mizusawa: 'happy',
+      mizusawa: 'laugh',
       takeya: 'surprise'
     };
     const { patched } = applyPortraitMessage(patchMessage(portraits));
@@ -137,7 +142,7 @@ describe('white album portrait selection', () => {
 
   test('keeps the current portraits when the response omits a valid selection', () => {
     const stale = {
-      visual: { portraits: { touma: 'happy' } }
+      visual: { portraits: { touma: 'laugh' } }
     };
     const missing = applyPortraitMessage({ role: 'assistant', content: '没有状态补丁' }, stale);
     const invalid = applyPortraitMessage(patchMessage({ haruki: 'normal' }), stale);
@@ -150,7 +155,7 @@ describe('white album portrait selection', () => {
     }), stale);
 
     [missing, invalid, tooMany].forEach(({ patched }) => {
-      expect(patched.state.visual.portraits).toEqual({ touma: 'happy' });
+      expect(patched.state.visual.portraits).toEqual({ touma: 'laugh' });
     });
   });
 });

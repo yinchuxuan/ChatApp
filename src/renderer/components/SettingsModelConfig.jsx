@@ -1,8 +1,27 @@
 import React from 'react';
+import { reasoningEffortsForProtocol } from '../chat/modelGenerationParams.js';
 import { PropTypes } from './componentPropTypes.js';
 
 // SettingsModelConfig - Model configuration settings section
 // Part of SettingsPanel component - inline editing, no separate edit mode
+
+const EFFORT_LABELS = {
+  none: '无（none）', minimal: '极低（minimal）', low: '低（low）',
+  medium: '中（medium）', high: '高（high）', xhigh: '极高（xhigh）', max: '最大（max）'
+};
+
+function selectOptions(field, protocol) {
+  if (field === 'protocol') {
+    return [{ value: 'openai', label: 'OpenAI' }, { value: 'anthropic', label: 'Anthropic' }];
+  }
+  if (field === 'reasoningEffort') {
+    return [
+      { value: '', label: '模型默认' },
+      ...reasoningEffortsForProtocol(protocol).map(value => ({ value, label: EFFORT_LABELS[value] }))
+    ];
+  }
+  return null;
+}
 
 function SettingsModelConfig({
   config,
@@ -14,8 +33,10 @@ function SettingsModelConfig({
   const [tempValue, setTempValue] = React.useState('');
 
   const startEdit = (field) => {
+    const options = selectOptions(field, config.protocol);
+    const value = config[field] ?? '';
     setEditingField(field);
-    setTempValue(config[field] ?? '');
+    setTempValue(options?.some(option => option.value === value) ? value : (options?.[0].value ?? value));
   };
 
   const finishEdit = () => {
@@ -33,8 +54,11 @@ function SettingsModelConfig({
 
   const renderField = (field, label, icon, type = 'text', placeholder = '') => {
     const isEditing = editingField === field;
-    const displayValue = field === 'apiKey' ? (maskApiKey(config[field]) || '未设置') : (config[field] || '未设置');
-    const protocolLabel = field === 'protocol' ? (config.protocol === 'anthropic' ? 'Anthropic' : 'OpenAI') : '';
+    const options = selectOptions(field, config.protocol);
+    const selectedOption = options?.find(option => option.value === config[field]);
+    const displayValue = field === 'apiKey'
+      ? (maskApiKey(config[field]) || '未设置')
+      : (selectedOption?.label || (options ? options[0].label : config[field]) || '未设置');
 
     return (
       <div className="settings-field-inline">
@@ -43,7 +67,7 @@ function SettingsModelConfig({
           {label}
         </span>
         {isEditing ? (
-          field === 'protocol' ? (
+          options ? (
             <select
               className="md-input settings-inline-input"
               value={tempValue}
@@ -52,8 +76,9 @@ function SettingsModelConfig({
               onKeyDown={handleKeyDown}
               autoFocus
             >
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
+              {options.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
             </select>
           ) : (
             <input
@@ -73,7 +98,7 @@ function SettingsModelConfig({
             className="settings-field-value"
             onClick={() => startEdit(field)}
           >
-            {field === 'protocol' ? protocolLabel : displayValue}
+            {displayValue}
           </span>
         )}
       </div>
@@ -106,6 +131,7 @@ function SettingsModelConfig({
           {renderField('apiKey', 'API Key', 'key', 'password', '输入您的 API Key')}
           {renderField('protocol', '协议类型', 'settings_ethernet')}
           {renderField('modelName', '模型名称', 'smart_toy', 'text', 'model-name')}
+          {renderField('reasoningEffort', '推理强度', 'psychology')}
           {renderField('maxTokens', '最大输出', 'short_text', 'number', '4096')}
           {renderField('temperature', 'Temperature', 'device_thermostat', 'number', '0.8')}
           {renderField('topP', 'Top P', 'filter_alt', 'number', '0.9')}

@@ -19,7 +19,7 @@ describe('white album state patch presentation', () => {
       {
         type: 'state.set',
         path: 'visual.portraits',
-        value: { touma: 'happy', setsuna: 'normal' }
+        value: { touma: 'laugh', setsuna: 'normal' }
       },
       { type: 'state.set', path: 'audio.bgm', value: 'WA_piano' }
     ]), state, { schema: loadedCard.state.schema });
@@ -31,7 +31,7 @@ describe('white album state patch presentation', () => {
     ]);
     expect(patched.state.visual).toEqual({
       scene: 'musical_classroom3',
-      portraits: { touma: 'happy', setsuna: 'normal' },
+      portraits: { touma: 'laugh', setsuna: 'normal' },
       textPanel: 'right'
     });
     expect(patched.state.audio.bgm).toBe('WA_piano');
@@ -57,17 +57,17 @@ describe('white album state patch presentation', () => {
     }).state;
     const cg = applyStatePatch(JSON.stringify({
       'visual.scene': 'invite',
-      'visual.portraits': { touma: 'happy' }
+      'visual.portraits': { touma: 'laugh' }
     }), state, { schema: loadedCard.state.schema });
     const background = applyStatePatch(JSON.stringify({
       'visual.scene': 'classroom'
     }), cg.state, { schema: loadedCard.state.schema });
 
     expect(cg.state.visual).toMatchObject({
-      scene: 'invite', portraits: { touma: 'happy' }
+      scene: 'invite', portraits: { touma: 'laugh' }
     });
     expect(background.state.visual).toMatchObject({
-      scene: 'classroom', portraits: { touma: 'happy' }
+      scene: 'classroom', portraits: { touma: 'laugh' }
     });
   });
 });

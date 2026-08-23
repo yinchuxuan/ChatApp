@@ -32,7 +32,7 @@
 .game-card-theme-white-album-2 .wa2-retry-kicker {
   margin-bottom: clamp(26px, 5vh, 48px);
   color: rgba(255, 255, 255, 0.78);
-  font-size: clamp(20px, 1.8vw, 26px);
+  font-size: clamp(22px, 2vw, 28px);
   font-weight: 700;
   letter-spacing: 0.2em;
   line-height: 1.5;
@@ -42,8 +42,8 @@
 .game-card-theme-white-album-2 .wa2-retry-title {
   margin: 0 0 16px;
   color: rgba(255, 255, 255, 0.82);
-  font-size: clamp(16px, 1.3vw, 19px);
-  font-weight: 500;
+  font-size: clamp(18px, 1.5vw, 22px);
+  font-weight: 600;
   letter-spacing: 0.12em;
   line-height: 1.5;
 }
@@ -64,7 +64,8 @@
   color: #ffffff;
   caret-color: #ffffff;
   font: inherit;
-  font-size: clamp(14px, 1.1vw, 16px);
+  font-size: clamp(16px, 1.15vw, 18px);
+  font-weight: 600;
   letter-spacing: 0.04em;
   line-height: 1.75;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.72);
@@ -79,7 +80,8 @@
 .game-card-theme-white-album-2 .wa2-retry-error {
   margin: 0;
   color: rgba(255, 255, 255, 0.58);
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1.7;
 }
 
@@ -106,7 +108,8 @@
   color: rgba(255, 255, 255, 0.68);
   cursor: pointer;
   font: inherit;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
   letter-spacing: 0.12em;
   line-height: 1.5;
   transition: color 180ms ease, border-color 180ms ease;
@@ -187,7 +190,8 @@
   justify-content: center;
   color: rgba(255, 255, 255, 0.74);
   font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
-  font-size: clamp(13px, 0.95vw, 15px);
+  font-size: clamp(16px, 1.15vw, 18px);
+  font-weight: 600;
   letter-spacing: 0.08em;
   line-height: 1.55;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72);

@@ -60,7 +60,7 @@ describe('white album affection status', () => {
 
   test.each([
     ['chapter 1', { currentTime: '2007.10.21: 16:00 星期日' }],
-    ['chapter 2', { currentTime: '2007.10.29: 17:00 星期一' }]
+    ['chapter 2', { currentTime: '2007.10.26: 17:00 星期五' }]
   ])('uses the revised affection thresholds in %s', (_chapter, fixedTime) => {
     const low = run('继续', state({
       timeline: fixedTime, touma: { affection: 24 }, setsuna: { affection: 14 }

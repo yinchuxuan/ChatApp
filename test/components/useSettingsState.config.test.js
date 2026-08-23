@@ -43,6 +43,7 @@ describe('useSettingsState Hook - Config Loading', () => {
     expect(result.current.config.topP).toBe('0.9');
     expect(result.current.config.frequencyPenalty).toBe('0');
     expect(result.current.config.presencePenalty).toBe('0');
+    expect(result.current.config.reasoningEffort).toBe('');
   });
 
   test('should load background config on mount', async () => {

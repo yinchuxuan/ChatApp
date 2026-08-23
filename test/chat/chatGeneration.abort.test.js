@@ -30,6 +30,7 @@ describe('ChatGeneration abort handling', () => {
     generationServices.prepareAfterResponseMessages = jest.fn();
     generationServices.sendChatRequest = jest.fn(async (config, callbacks) => {
       expect(config.signal).toBe(signal);
+      expect(config.reasoningEffort).toBe('high');
       callbacks.onToken('partial answer');
       signal.aborted = true;
       const error = new Error('The operation was aborted');
@@ -39,7 +40,9 @@ describe('ChatGeneration abort handling', () => {
 
     const ok = await ChatGeneration.runChatGeneration({
       messages: [{ role: 'user', content: 'hello' }],
-      modelConfig: { apiUrl: 'https://api.example.com/v1', apiKey: 'key', modelName: 'gpt-4' },
+      modelConfig: {
+        apiUrl: 'https://api.example.com/v1', apiKey: 'key', modelName: 'gpt-4', reasoningEffort: 'high'
+      },
       setMessages,
       setIsLoading,
       tw,

@@ -16,8 +16,8 @@ const updateRules = fs.readFileSync(
 );
 const scenes = [
   'apartment', 'classroom', 'corridor', 'musical_classroom2',
-  'musical_classroom3', 'school', 'setsuna_room', 'stairs', 'street',
-  'subway_station'
+  'musical_classroom3', 'school', 'setsuna_room', 'touma_home', 'stairs',
+  'street', 'subway_station'
 ];
 const times = ['morning', 'afternoon', 'night'];
 const expectedBackgrounds = scenes.flatMap(scene => times.map(time => `${scene}_${time}`));

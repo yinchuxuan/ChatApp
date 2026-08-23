@@ -51,12 +51,7 @@ describe('white album first message', () => {
         'visual.portraits': {},
         'audio.bgm': 'sad'
       },
-      {
-        'touma.affection': 18,
-        'setsuna.affection': 5,
-        'performance.proficiency': 2,
-        'timeline.currentTime': '2007.10.20: 15:00 星期六'
-      }
+      { 'timeline.currentTime': '2007.10.20: 15:00 星期六' }
     ]);
     expect(timeline.patches[0].boundary).toBe(0);
     expect(timeline.patches.map(patch => patch.boundary)).toEqual(

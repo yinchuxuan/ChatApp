@@ -5,8 +5,8 @@ const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
 const visual = require('../../game-card-examples/white-album-2/visual.json');
 const scenes = [
   'apartment', 'classroom', 'corridor', 'musical_classroom2',
-  'musical_classroom3', 'school', 'setsuna_room', 'stairs', 'street',
-  'subway_station'
+  'musical_classroom3', 'school', 'setsuna_room', 'touma_home', 'stairs',
+  'street', 'subway_station'
 ];
 const times = ['morning', 'afternoon', 'night'];
 const timedBackgrounds = scenes.flatMap(scene => times.map(time => `${scene}_${time}`));
@@ -38,9 +38,17 @@ describe('white album background assets', () => {
     });
   });
 
+  test('uses the same Touma home image for every time period', () => {
+    times.forEach(time => {
+      expect(visual.background[`touma_home_${time}`]).toBe(
+        'images/background/common/afternoon/tuoma_home.png'
+      );
+    });
+  });
+
   test('keeps every registered scene as a high-resolution RGB PNG', () => {
     const sceneFiles = [...Object.values(visual.background), ...Object.values(visual.cg)];
-    expect(sceneFiles).toHaveLength(44);
+    expect(sceneFiles).toHaveLength(47);
 
     sceneFiles.forEach((relativePath) => {
       const imagePath = path.join(cardDir, relativePath);

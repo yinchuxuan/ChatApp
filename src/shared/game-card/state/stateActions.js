@@ -112,6 +112,17 @@ function applySet(state, action, options) {
   return validateNextState(action.type, state, nextState, action.path, options);
 }
 
+function applyIncrement(state, action, options) {
+  if (!Number.isFinite(action?.value)) return fail(action?.type, state, 'invalid_value', options);
+  const current = getStateValue(state, action.path);
+  if (!Number.isFinite(current)) return fail(action.type, state, 'target_not_number', options);
+  const value = current + action.value;
+  if (!Number.isFinite(value)) return fail(action.type, state, 'invalid_value', options);
+  return validateNextState(
+    action.type, state, setStateValue(state, action.path, value), action.path, options
+  );
+}
+
 function applyDelete(state, action, options) {
   const nextState = deleteStateValue(state, action.path);
   return finish(action.type, state, nextState, action.path, options);
@@ -174,6 +185,7 @@ function applyAdvance(state, action, options) {
 function applyStateAction(state, action, options = {}) {
   if (!isValidPath(action?.path)) return fail(action?.type || 'unknown', state, 'invalid_path', options);
   if (action.type === 'state.set') return applySet(state, action, options);
+  if (action.type === 'state.inc') return applyIncrement(state, action, options);
   if (action.type === 'state.delete') return applyDelete(state, action, options);
   if (action.type === 'state.append') return applyAppend(state, action, options);
   if (action.type === 'state.remove') return applyRemove(state, action, options);

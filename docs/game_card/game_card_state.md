@@ -172,7 +172,7 @@ Content 描述符支持读取 state：
 第一版支持 `eq`、`gt`、`gte`、`lt`、`lte`、`in`、`nin`、`contains`、`exists`、`regex`。多 key 默认 AND。
 
 ## State 修改
-第二阶段支持 `state.set`、`state.delete`、`state.append`、`state.remove`、`state.roll`、`state.randomInt`、`state.advance`。`set` 写入 JSON 值；`delete` 删除变量；`append` 追加数组；`remove` 移除深相等值；`roll` 掷骰；`randomInt` 写入闭区间整数；`advance` 将 enum schema 路径推进到下一个枚举值，末尾保持不变。它们不修改 messages；命中 schema 必须校验，`onInvalid: "clamp"` 对 number 生效；未命中 schema 允许写入；`llmWrite` 留给后续 LLM patch。
+第二阶段支持 `state.set`、`state.inc`、`state.delete`、`state.append`、`state.remove`、`state.roll`、`state.randomInt`、`state.advance`。`set` 写入 JSON 值；`inc` 给已有有限数值加上有限增量；`delete` 删除变量；`append` 追加数组；`remove` 移除深相等值；`roll` 掷骰；`randomInt` 写入闭区间整数；`advance` 将 enum schema 路径推进到下一个枚举值，末尾保持不变。它们不修改 messages；命中 schema 必须校验，`onInvalid: "clamp"` 对 number 生效；未命中 schema 允许写入；`llmWrite` 留给后续 LLM patch。
 
 ## 持久化
 
@@ -193,7 +193,7 @@ state 随聊天历史保存：
 
 ## 后续扩展
 
-动态变量用于开放运行时命名空间，例如 `memory.*`、`flags.*`、`npc.*.notes`。未被 schema 或 dynamic 覆盖的 path 默认不可由 LLM 创建或写入。后续可按实际需求补充 `inc`、`toggle`、`merge` 等便利 action。
+动态变量用于开放运行时命名空间，例如 `memory.*`、`flags.*`、`npc.*.notes`。未被 schema 或 dynamic 覆盖的 path 默认不可由 LLM 创建或写入。后续可按实际需求补充 `toggle`、`merge` 等便利 action。
 
 LLM 不直接写持久化 state，而是在回复中输出隐藏 `<state_patch>`。顶层 action 或 action 数组沿用原格式；不带 `type` 的顶层对象是批量 `state.set` 语法糖，例如 `{"visual.scene":"rooftop","audio.bgm":"sad"}`。响应管线把正文与 patch 作为一条有序时间线：普通模式在流游标越过完整 patch 时应用；分段模式在阅读游标进入 patch 后的段落时应用，尾部 patch 在读完末段时应用。patch 按 schema 校验且只应用一次，回看不回滚；失败或取消后已应用的值保留，retry 使用发送前的独立 snapshot。全部 patch 提交后才执行 `after_response`。解析或校验失败不应中断聊天，只记录 warning 并跳过非法补丁。复杂状态逻辑继续使用 `exec`。
 

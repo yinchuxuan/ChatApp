@@ -61,6 +61,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
     expect(body.top_p).toBe(0.9);
     expect(body.frequency_penalty).toBeUndefined();
     expect(body.presence_penalty).toBeUndefined();
+    expect(body.output_config).toBeUndefined();
   });
 
   test('should include supported Anthropic generation parameters only', async () => {
@@ -75,6 +76,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
         maxTokens: '1024',
         temperature: '0.7',
         topP: '0.95',
+        reasoningEffort: 'medium',
         frequencyPenalty: '0.2',
         presencePenalty: '0.4',
         messages: [{ role: 'user', content: 'Hi' }]
@@ -87,6 +89,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
     expect(body.max_tokens).toBe(1024);
     expect(body.temperature).toBe(0.7);
     expect(body.top_p).toBe(0.95);
+    expect(body.output_config).toEqual({ effort: 'medium' });
     expect(body.frequency_penalty).toBeUndefined();
     expect(body.presence_penalty).toBeUndefined();
   });

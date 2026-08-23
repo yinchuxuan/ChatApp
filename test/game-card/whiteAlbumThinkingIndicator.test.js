@@ -54,6 +54,7 @@ describe('white album thinking indicator', () => {
 
   test('animates the ellipsis and hides it when streaming text appears', () => {
     expect(rootCss).toContain('@keyframes wa2-thinking-dot');
+    expect(rootCss).toMatch(/\.wa2-thinking-indicator \{[^}]*font-size: clamp\(16px, 1\.15vw, 18px\);[^}]*font-weight: 600;/);
     expect(rootCss).toMatch(/\.wa2-thinking-dots span \{[^}]*animation: wa2-thinking-dot 1\.2s/);
     expect(rootCss).toMatch(/\.wa2-thinking-label \{[^}]*text-overflow: ellipsis;[^}]*white-space: nowrap;/);
     expect(rootCss).toMatch(/\[data-gc-part="message-list"\][\s\S]*?> \[data-gc-part="message-row"\]\[data-role="assistant"\]:last-child[\s\S]*?\[data-gc-part="message-content"\]:not\(:empty\)/);

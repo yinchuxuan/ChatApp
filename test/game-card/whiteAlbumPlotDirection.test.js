@@ -91,11 +91,11 @@ describe('white album plot direction guide', () => {
   test('keeps the model-directed portraits during free and fixed plots', () => {
     jest.spyOn(Math, 'random').mockReturnValue(0.99);
     const freeState = ensureStateDefaults(loadedCard.state.schema, {
-      visual: { scene: 'classroom', portraits: { touma: 'happy' } }, audio: { bgm: 'sad' }
+      visual: { scene: 'classroom', portraits: { touma: 'laugh' } }, audio: { bgm: 'sad' }
     }).state;
     const fixedState = ensureStateDefaults(loadedCard.state.schema, {
       timeline: { currentTime: '2007.10.21: 16:00 星期日' },
-      visual: { scene: 'classroom', portraits: { touma: 'happy' } }, audio: { bgm: 'sad' }
+      visual: { scene: 'classroom', portraits: { touma: 'laugh' } }, audio: { bgm: 'sad' }
     }).state;
     const free = runWithState(freeState);
     const fixed = runWithState(fixedState);

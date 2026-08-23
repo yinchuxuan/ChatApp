@@ -31,27 +31,27 @@
       "type": "state.update",
       "path": "touma.affection",
       "updates": { "lte": 1 },
-      "operations": ["state.set"],
+      "operations": ["state.inc"],
       "delta": { "gte": -5, "lte": 5 },
-      "message": "【建议重新生成】冬马好感度单轮只能更新一次，变化幅度不得超过 5"
+      "message": "【建议重新生成】冬马好感度单轮只能用 state.inc 更新一次，增量不得超过 5"
     },
     {
       "id": "error-setsuna-affection-update",
       "type": "state.update",
       "path": "setsuna.affection",
       "updates": { "lte": 1 },
-      "operations": ["state.set"],
+      "operations": ["state.inc"],
       "delta": { "gte": -5, "lte": 5 },
-      "message": "【建议重新生成】雪菜好感度单轮只能更新一次，变化幅度不得超过 5"
+      "message": "【建议重新生成】雪菜好感度单轮只能用 state.inc 更新一次，增量不得超过 5"
     },
     {
       "id": "error-proficiency-update",
       "type": "state.update",
       "path": "performance.proficiency",
       "updates": { "lte": 1 },
-      "operations": ["state.set"],
+      "operations": ["state.inc"],
       "delta": { "gte": -5, "lte": 5 },
-      "message": "【建议重新生成】演出熟练度单轮只能更新一次，增减幅度不得超过 5"
+      "message": "【建议重新生成】演出熟练度单轮只能用 state.inc 更新一次，增量不得超过 5"
     },
     {
       "id": "error-protected-current-slot",
@@ -201,21 +201,6 @@
       "pattern": "<item priority=\"(?:anchor|recent)\" known_by=\"[^\"]+\">(?!(?:[^\\r\\n<｜]+｜[^\\r\\n<：]+：[^<]+)<\\/item>)[^<]*<\\/item>",
       "matches": { "eq": 0 },
       "message": "【质量提醒】anchor 和 recent 应使用“时间｜主要地点：事件”格式"
-    },
-    {
-      "id": "warning-content-length",
-      "type": "content.regex",
-      "pattern": "[\\u3400-\\u4DBF\\u4E00-\\u9FFF]",
-      "flags": "u",
-      "matches": { "gte": 3000, "lte": 5000 },
-      "message": "【质量提醒】非 state_patch 内容的汉字数量不在 3000 至 5000 范围内"
-    },
-    {
-      "id": "warning-writing-style",
-      "type": "content.regex",
-      "pattern": "(?:不是[^。！？\\n]{0,40}而是|并不是[^。！？\\n]{0,40}而是|不只是[^。！？\\n]{0,40}更是|与其[^。！？\\n]{0,40}不如|这一刻|某种意义上|说不清道不明|复杂的情绪|空气中弥漫着|命运的齿轮)",
-      "matches": { "eq": 0 },
-      "message": "【质量提醒】回复使用了文风规则明确禁止的表达"
     },
     {
       "id": "warning-japanese-kana",

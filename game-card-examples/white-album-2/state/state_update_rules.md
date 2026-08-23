@@ -26,16 +26,16 @@ State更新与演出规则：
 8. 每次回复必须包含用于更新本轮结束状态的结算<state_patch>，它与summary和choices的相对顺序不作要求，例如：
 
 <state_patch>
-{"touma.affection":0,
- "setsuna.affection":0,
- "performance.proficiency":2,
- "timeline.currentTime":"2007.10.20: 15:00 星期六"}
+[{"type":"state.inc","path":"touma.affection","value":2},
+ {"type":"state.inc","path":"setsuna.affection","value":-1},
+ {"type":"state.inc","path":"performance.proficiency","value":3},
+ {"type":"state.set","path":"timeline.currentTime","value":"2007.10.20: 15:00 星期六"}]
 </state_patch>
 
 在这个state_patch中不需要设置visual.scene, visual.portraits和audio.bgm
 
 9. timeline.currentTime必须更新，只能设置为当前时间段内的时间，不得超过timeline.currentSlotEnd。timeline.currentSlot和timeline.currentSlotEnd由系统维护，不能写入。
 
-10. affection只在较为特殊的互动后变化，每轮增减不超过5，一般人物互动不改变。performance.proficiency只有实际发生足以影响演出状态的练习、磨合、失误或状态波动时才变化，每轮增减不超过5。
+10. touma.affection、setsuna.affection和performance.proficiency只能用state.inc写入本轮增量，value为-5～5，禁止用state.set回写最终值。没有变化的字段直接省略，不写value为0的state.inc。affection只在较为特殊的互动后变化，一般人物互动不改变；performance.proficiency只有实际发生足以影响演出状态的练习、磨合、失误或状态波动时才变化。
 
-11. 所有state_patch只能使用State写入契约中的路径，以及通用值或当前固定节点临时开放的值，并且必须是合法JSON对象；复杂操作仍可使用原有action数组。
+11. 所有state_patch只能使用State写入契约中的路径，以及通用值或当前固定节点临时开放的值，并且必须是合法JSON对象或action数组。

@@ -111,7 +111,8 @@
   padding: 7px 4px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.88);
   color: #ffffff;
-  font-size: 15px;
+  font-size: clamp(16px, 1.15vw, 18px);
+  font-weight: 600;
   line-height: 1.5;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72);
 }
@@ -563,7 +564,8 @@
 .app-container.game-card-theme-white-album-2 [data-role="assistant"] [data-gc-part="message-bubble"] {
   max-width: min(960px, 100%);
   margin: auto;
-  font-size: clamp(14px, 1vw, 16px);
+  font-size: clamp(16px, 1.15vw, 18px);
+  font-weight: 600;
   line-height: 1.55;
   letter-spacing: 0.04em;
   text-align: center;

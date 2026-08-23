@@ -60,6 +60,9 @@
         "setsuna_room_morning",
         "setsuna_room_afternoon",
         "setsuna_room_night",
+        "touma_home_morning",
+        "touma_home_afternoon",
+        "touma_home_night",
         "stairs_morning",
         "stairs_afternoon",
         "stairs_night",
@@ -90,39 +93,39 @@
       "properties": {
         "touma": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile", "sleep"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile", "sleep"]
         },
         "setsuna": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "mizusawa": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "takeya": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "chikashi": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "yanagihara": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "takahiro": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "teacher1": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         },
         "teacher2": {
           "type": "enum",
-          "values": ["normal", "happy", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
+          "values": ["normal", "laugh", "sad", "cry", "angry", "surprise", "joy", "sweating_smile"]
         }
       },
       "additionalProperties": false,

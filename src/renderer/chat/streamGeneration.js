@@ -12,6 +12,7 @@ function requestOptions(modelConfig, messages, abortSignal) {
     topP: modelConfig.topP,
     frequencyPenalty: modelConfig.frequencyPenalty,
     presencePenalty: modelConfig.presencePenalty,
+    reasoningEffort: modelConfig.reasoningEffort,
     signal: abortSignal,
     messages: generationServices.toGameCardApiMessages(messages)
   };
