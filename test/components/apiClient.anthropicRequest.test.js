@@ -36,7 +36,7 @@ describe('sendChatRequest - Anthropic protocol', () => {
     expect(body.model).toBe('claude-sonnet-4-20250514');
     expect(body.messages).toEqual([{ role: 'user', content: 'Hello Claude' }]);
     expect(body.stream).toBe(true);
-    expect(body.max_tokens).toBe(4096);
+    expect(body.max_tokens).toBe(50000);
   });
 
   test('should use default Anthropic model when not specified', async () => {
@@ -56,9 +56,9 @@ describe('sendChatRequest - Anthropic protocol', () => {
     const [, options] = global.fetch.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.model).toBe('claude-sonnet-4-20250514');
-    expect(body.max_tokens).toBe(4096);
-    expect(body.temperature).toBe(0.8);
-    expect(body.top_p).toBe(0.9);
+    expect(body.max_tokens).toBe(50000);
+    expect(body.temperature).toBe(1);
+    expect(body.top_p).toBe(1);
     expect(body.frequency_penalty).toBeUndefined();
     expect(body.presence_penalty).toBeUndefined();
     expect(body.output_config).toBeUndefined();

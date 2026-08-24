@@ -132,9 +132,9 @@ function SettingsModelConfig({
           {renderField('protocol', '协议类型', 'settings_ethernet')}
           {renderField('modelName', '模型名称', 'smart_toy', 'text', 'model-name')}
           {renderField('reasoningEffort', '推理强度', 'psychology')}
-          {renderField('maxTokens', '最大输出', 'short_text', 'number', '4096')}
-          {renderField('temperature', 'Temperature', 'device_thermostat', 'number', '0.8')}
-          {renderField('topP', 'Top P', 'filter_alt', 'number', '0.9')}
+          {renderField('maxTokens', '最大输出', 'short_text', 'number', '50000')}
+          {renderField('temperature', 'Temperature', 'device_thermostat', 'number', '1')}
+          {renderField('topP', 'Top P', 'filter_alt', 'number', '1')}
           {renderField('frequencyPenalty', '频率惩罚', 'repeat', 'number', '0')}
           {renderField('presencePenalty', '存在惩罚', 'person_search', 'number', '0')}
         </div>

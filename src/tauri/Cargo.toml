@@ -1,6 +1,6 @@
 [package]
 name = "chatapp-tauri"
-version = "1.0.3"
+version = "1.0.4"
 description = "AI roleplay game desktop application"
 authors = ["ChatApp contributors"]
 edition = "2021"

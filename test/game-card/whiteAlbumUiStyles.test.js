@@ -72,6 +72,7 @@ describe('white album ui styles', () => {
     expect(css).toContain('height: 100%');
     expect(css).toContain('min-height: 0');
     expect(css).toContain('overflow-y: auto');
+    expect(css).toMatch(/\[data-gc-part="chat-history"\] \{[^}]*background: transparent;/);
     expect(css).toContain('[data-gc-part="message-list"]');
     expect(css).toContain('[data-gc-part="message-list"]::-webkit-scrollbar');
     expect(css).toContain('[data-gc-part="message-history-content"]');

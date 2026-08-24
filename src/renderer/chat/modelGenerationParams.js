@@ -1,7 +1,7 @@
 const DEFAULT_GENERATION_PARAMS = {
-  maxTokens: '4096',
-  temperature: '0.8',
-  topP: '0.9',
+  maxTokens: '50000',
+  temperature: '1',
+  topP: '1',
   frequencyPenalty: '0',
   presencePenalty: '0',
   reasoningEffort: ''

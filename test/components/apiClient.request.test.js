@@ -53,9 +53,9 @@ describe('sendChatRequest - OpenAI protocol', () => {
     const [, options] = global.fetch.mock.calls[0];
     const body = JSON.parse(options.body);
     expect(body.model).toBe('gpt-3.5-turbo');
-    expect(body.max_tokens).toBe(4096);
-    expect(body.temperature).toBe(0.8);
-    expect(body.top_p).toBe(0.9);
+    expect(body.max_tokens).toBe(50000);
+    expect(body.temperature).toBe(1);
+    expect(body.top_p).toBe(1);
     expect(body.frequency_penalty).toBe(0);
     expect(body.presence_penalty).toBe(0);
     expect(body.reasoning_effort).toBeUndefined();

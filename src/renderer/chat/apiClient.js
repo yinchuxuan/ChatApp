@@ -25,7 +25,7 @@ function buildOpenAIRequest(config) {
 function buildAnthropicRequest(config) {
   const adapted = adaptMessagesToProtocol(config.messages, 'anthropic');
   const body = {
-    model: config.modelName || 'claude-sonnet-4-20250514', max_tokens: 4096,
+    model: config.modelName || 'claude-sonnet-4-20250514',
     messages: adapted.messages, stream: true, ...buildAnthropicParams(config)
   };
   if (adapted.system) body.system = adapted.system;
