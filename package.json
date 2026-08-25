@@ -1,7 +1,7 @@
 {
   "name": "chatapp",
   "productName": "ChatApp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "AI roleplay game desktop application",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
