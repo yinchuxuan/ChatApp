@@ -78,6 +78,24 @@ describe('game card style host', () => {
     expect(style.dataset.gameCardId).toBe('card-b');
   });
 
+  test('keeps current styles until the next card is ready to commit', async () => {
+    const nextStyle = deferred();
+    const resources = { readText: jest.fn((cardId) => cardId === 'card-a'
+      ? Promise.resolve('.card-a {}')
+      : nextStyle.promise) };
+    host = createGameCardStyleHost(resources, document);
+    await host.load({ id: 'card-a', display: { stylesheet: 'display.css' } });
+    const style = document.getElementById('game-card-display-style');
+
+    const loading = host.load({ id: 'card-b', display: { stylesheet: 'display.css' } });
+    expect(style.textContent).toBe('.card-a {}');
+    expect(style.dataset.gameCardId).toBe('card-a');
+    nextStyle.resolve('.card-b {}');
+    await expect(loading).resolves.toBe(true);
+    expect(style.textContent).toBe('.card-b {}');
+    expect(style.dataset.gameCardId).toBe('card-b');
+  });
+
   test('clears missing and failed slots when loading a new card', async () => {
     const resources = { readText: jest.fn().mockResolvedValue('.card-a {}') };
     host = createGameCardStyleHost(resources, document);

@@ -6,7 +6,7 @@ import { useGameCardRuntime } from '../chat/GameCardRuntimeProvider.jsx';
 import { rendererServices } from '../platform/index.js';
 import { PropTypes } from './componentPropTypes.js';
 
-function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChanged, onSwitchSession, onActiveCardChanged, audioControl, onImportError, cardRepository = rendererServices.cards }) {
+function GameCardTitleControl({ modelName, isLoading = false, onBeforeSessionChange, onSessionChanged, onSwitchSession, onActiveCardChanged, audioControl, onImportError, cardRepository = rendererServices.cards }) {
   const { activeCard: card, changeActiveCard } = useGameCardRuntime();
   const [error, setError] = React.useState(null);
   const [isImporting, setIsImporting] = React.useState(false);
@@ -52,8 +52,8 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
           className="game-card-import-btn md-btn md-btn-icon"
           data-gc-part="game-card-import-button"
           onClick={handleImport}
-          disabled={isImporting}
-          title="导入游戏卡文件夹"
+          disabled={isImporting || isLoading}
+          title={isLoading ? '生成完成后可导入游戏卡' : '导入游戏卡文件夹'}
           aria-label="导入游戏卡文件夹"
         >
           <span className="material-icons">{isImporting ? 'hourglass_empty' : 'drive_folder_upload'}</span>
@@ -71,6 +71,7 @@ function GameCardTitleControl({ modelName, onBeforeSessionChange, onSessionChang
 
 GameCardTitleControl.propTypes = {
   modelName: PropTypes.string,
+  isLoading: PropTypes.bool,
   onBeforeSessionChange: PropTypes.func,
   onSessionChanged: PropTypes.func,
   onSwitchSession: PropTypes.func,

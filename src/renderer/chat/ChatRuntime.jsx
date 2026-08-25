@@ -169,7 +169,7 @@ function ChatRuntime({
       <div className="chat-header-hover-trigger" data-gc-part="chat-header-trigger" onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)} />
       <div className={`chat-header chat-header-clickable${isHeaderHovered ? ' chat-header-visible' : ''}`} data-gc-part="chat-header" onClick={toggleHistory} onMouseEnter={() => setIsHeaderHovered(true)} onMouseLeave={() => setIsHeaderHovered(false)}>
         {showMsgHistory ? <><span className="material-icons">history</span><span className="header-title">msg历史记录</span></> : <GameCardTitleControl
-          modelName={modelConfig?.apiUrl ? (modelConfig.modelName || '已连接') : ''}
+          modelName={modelConfig?.apiUrl ? (modelConfig.modelName || '已连接') : ''} isLoading={isLoading}
           onBeforeSessionChange={session.saveCurrent}
           onSessionChanged={session.reload}
           onSwitchSession={session.switchSession}

@@ -46,8 +46,10 @@ function createGameCardStyleHost(resources, doc = document) {
   async function load(card) {
     const version = ++requestVersion;
     const slots = ensureStyleSlots(doc);
-    slots.forEach(clearStyleSlot);
-    if (!card?.id || typeof resources?.readText !== 'function') return false;
+    if (!card?.id || typeof resources?.readText !== 'function') {
+      slots.forEach(clearStyleSlot);
+      return false;
+    }
 
     const styles = await Promise.all(STYLE_SLOTS.map(
       definition => readStyle(resources, card.id, definition, card)
@@ -55,8 +57,9 @@ function createGameCardStyleHost(resources, doc = document) {
     if (version !== requestVersion) return false;
 
     styles.forEach(({ source, content }, index) => {
-      if (!content) return;
       const style = slots[index];
+      clearStyleSlot(style);
+      if (!content) return;
       style.dataset.gameCardId = card.id;
       style.dataset.source = source;
       style.textContent = content;

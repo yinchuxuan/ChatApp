@@ -63,6 +63,17 @@ describe('GameCardTitleControl', () => {
     expect(screen.getByText('New Quest')).toBeInTheDocument();
   });
 
+  test('disables game card import during generation', async () => {
+    renderControl({ isLoading: true });
+    await screen.findByText('未加载游戏卡');
+
+    const button = screen.getByRole('button', { name: '导入游戏卡文件夹' });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('title', '生成完成后可导入游戏卡');
+    fireEvent.click(button);
+    expect(platformMock.importGameCardFromDirectory).not.toHaveBeenCalled();
+  });
+
   test('shows readable import errors without changing active card', async () => {
     const cardChanged = jest.fn();
     platformMock.importGameCardFromDirectory.mockResolvedValue({
