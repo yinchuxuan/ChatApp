@@ -6,7 +6,7 @@ const { card } = require('./whiteAlbumTestCard');
 const { applyAssistantDisplayRules, applyUserDisplayRules } = require('../../src/renderer/gameCard/displayRules');
 const renderers = require('../../src/renderer/components/ChatPanelMessageRenderers').default;
 const { subscribeChatInputCommands } = require('../../src/renderer/chat/chatInputCommands');
-const { splitReadingSegments } = require('../../src/renderer/chat/useSegmentedReading');
+const { resolveReadingSegments } = require('../../src/renderer/chat/useSegmentedReading');
 
 const sample = [
   '【时间地点】2007.10.20: 15:00 星期六｜峰城大附属第二音乐室',
@@ -70,11 +70,11 @@ describe('white album display rules', () => {
   test('keeps option CSS as a game card resource', () => {
     expect(card.display.stylesheet).toBe('display.css');
     expect(card.display.segmentedReading).toBe(true);
+    expect(card.display.segmentSeparator).toBe('\n');
   });
 
   test('keeps all choices together on one segmented reading page', () => {
-    const output = applyAssistantDisplayRules(sample, card.display);
-    const choicePages = splitReadingSegments(output)
+    const choicePages = resolveReadingSegments(sample, card.display)
       .filter(segment => segment.includes('class="wa2-choice"'));
 
     expect(choicePages).toHaveLength(1);

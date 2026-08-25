@@ -2,7 +2,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { card } = require('./whiteAlbumTestCard');
 const { applyGameCard } = require('../../src/renderer/gameCard/engine');
-const { buildStatePatchTimeline } = require('../../src/renderer/chat/segmentedReadingModel');
+const {
+  buildStatePatchTimeline,
+  resolveReadingSegments
+} = require('../../src/renderer/chat/segmentedReadingModel');
 const { extractLatestAssistantStatePatches } = require('../../src/shared/game-card/state/statePatch');
 
 const cardDir = path.join(__dirname, '../../game-card-examples/white-album-2');
@@ -18,7 +21,7 @@ function parsePatches() {
 describe('white album first message', () => {
   test('uses the same cinematic state patch timeline as generated replies', () => {
     const patches = parsePatches();
-    const timeline = buildStatePatchTimeline(firstMessage);
+    const timeline = buildStatePatchTimeline(firstMessage, card.display);
 
     expect(firstMessage.trimStart()).toMatch(/^<state_patch>/);
     expect(patches).toEqual([
@@ -57,6 +60,14 @@ describe('white album first message', () => {
     expect(timeline.patches.map(patch => patch.boundary)).toEqual(
       [...timeline.patches.map(patch => patch.boundary)].sort((left, right) => left - right)
     );
+  });
+
+  test('uses one physical line for each visible reading segment', () => {
+    const segments = resolveReadingSegments(firstMessage, card.display);
+
+    expect(firstMessage).not.toMatch(/\n[ \t]*\n/);
+    expect(segments.length).toBeGreaterThan(20);
+    expect(segments.every(segment => !segment.includes('\n'))).toBe(true);
   });
 
   test('shows the club breakup before Haruki starts recruiting replacements', () => {

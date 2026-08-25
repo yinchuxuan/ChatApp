@@ -31,11 +31,14 @@ describe('Tauri desktop scaffold', () => {
     ]);
   });
 
-  test('grants only core permissions to the main window', () => {
+  test('grants only required production permissions to the main window', () => {
     const capability = readJson('src/tauri/capabilities/default.json');
 
     expect(capability.windows).toEqual(['main']);
-    expect(capability.permissions).toEqual(['core:default']);
+    expect(capability.permissions).toEqual([
+      'core:default',
+      'core:window:allow-set-fullscreen'
+    ]);
   });
 
   test('declares scripts and desktop icons used by the bundle', () => {

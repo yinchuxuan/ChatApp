@@ -26,7 +26,10 @@ describe('Tauri WebView compatibility policy', () => {
     expect(cargo).toContain('reqwest =');
     expect(lib).toContain('model_commands::stream_model_request');
     expect(lib).toContain('model_commands::cancel_model_stream');
-    expect(capability.permissions).toEqual(['core:default']);
+    expect(capability.permissions).toEqual([
+      'core:default',
+      'core:window:allow-set-fullscreen'
+    ]);
   });
 
   test('bundles platform fonts without remote static resources', () => {

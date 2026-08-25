@@ -1,6 +1,7 @@
 {
   "stylesheet": "display.css",
   "segmentedReading": true,
+  "segmentSeparator": "\n",
   "assistant": [
     {
       "id": "wa2-hide-summary-block",
@@ -38,17 +39,9 @@
       "id": "wa2-choice-overlay",
       "stage": "before_markdown",
       "type": "regex_replace",
-      "pattern": "^(?:<choices>\\s*\\n(A\\.\\s+.+\\nB\\.\\s+.+\\nC\\.\\s+.+\\nD\\.\\s+.+)\\n\\s*<\\/choices>|(A\\.\\s+.+\\nB\\.\\s+.+\\nC\\.\\s+.+\\nD\\.\\s+.+))$",
+      "pattern": "^(?:<choices>[ \\t]*\\n)?A\\.\\s+(.+)\\nB\\.\\s+(.+)\\nC\\.\\s+(.+)\\nD\\.\\s+(.+)(?:\\n[ \\t]*<\\/choices>)?$",
       "flags": "gm",
-      "replace": "<div class=\"wa2-choice-overlay\" role=\"group\" aria-label=\"请选择下一步行动\">\n<div class=\"wa2-choice-prompt\">请选择下一步行动</div>\n$1$2\n</div>"
-    },
-    {
-      "id": "wa2-choice-card",
-      "stage": "before_markdown",
-      "type": "regex_replace",
-      "pattern": "^([A-D])\\.\\s+(.+)$",
-      "flags": "gm",
-      "replace": "<button type=\"button\" class=\"wa2-choice\" data-gc-chat-input-label=\"$1\" data-gc-chat-input-text-selector=\".wa2-choice-text\"><span class=\"wa2-choice-label\">$1</span><span class=\"wa2-choice-text\">$2</span></button>"
+      "replace": "<div class=\"wa2-choice-overlay\" role=\"group\" aria-label=\"请选择下一步行动\"><div class=\"wa2-choice-prompt\">请选择下一步行动</div><button type=\"button\" class=\"wa2-choice\" data-gc-chat-input-label=\"A\" data-gc-chat-input-text-selector=\".wa2-choice-text\"><span class=\"wa2-choice-label\">A</span><span class=\"wa2-choice-text\">$1</span></button><button type=\"button\" class=\"wa2-choice\" data-gc-chat-input-label=\"B\" data-gc-chat-input-text-selector=\".wa2-choice-text\"><span class=\"wa2-choice-label\">B</span><span class=\"wa2-choice-text\">$2</span></button><button type=\"button\" class=\"wa2-choice\" data-gc-chat-input-label=\"C\" data-gc-chat-input-text-selector=\".wa2-choice-text\"><span class=\"wa2-choice-label\">C</span><span class=\"wa2-choice-text\">$3</span></button><button type=\"button\" class=\"wa2-choice\" data-gc-chat-input-label=\"D\" data-gc-chat-input-text-selector=\".wa2-choice-text\"><span class=\"wa2-choice-label\">D</span><span class=\"wa2-choice-text\">$4</span></button></div>"
     }
   ],
   "user": [

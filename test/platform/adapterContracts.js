@@ -14,6 +14,9 @@ async function verifyRendererServices(services) {
   await services.sessions.rename('session-1', 'Renamed');
   await services.sessions.delete('session-1');
   await services.cards.importDirectory();
+  const fullscreen = await services.window.isFullscreen();
+  await services.window.setFullscreen(!fullscreen);
+  expect(await services.window.isFullscreen()).toBe(!fullscreen);
 }
 
 async function verifyGameCardPlatform(platform) {

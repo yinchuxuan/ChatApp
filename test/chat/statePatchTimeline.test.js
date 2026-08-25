@@ -48,4 +48,18 @@ describe('state patch response timeline', () => {
     expect(timeline.pageCount).toBe(3);
     expect(timeline.patches.map(item => item.boundary)).toEqual([0, 2, 3]);
   });
+
+  test('uses the configured separator for patch boundaries', () => {
+    const content = [
+      patch('visual.scene', 'school'),
+      '第一段。',
+      patch('visual.portraits', { touma: 'sad' }),
+      '第二段。'
+    ].join('\n');
+    const display = { segmentSeparator: '\n' };
+    const timeline = buildStatePatchTimeline(content, display);
+
+    expect(resolveReadingSegments(content, display)).toEqual(['第一段。', '第二段。']);
+    expect(timeline.patches.map(item => item.boundary)).toEqual([0, 1]);
+  });
 });

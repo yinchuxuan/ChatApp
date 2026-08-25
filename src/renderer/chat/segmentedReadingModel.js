@@ -4,15 +4,22 @@ import { messageKey } from './messageSelection.js';
 const INPUT_ACTION_PATTERN = /data-gc-chat-input-(?:value|value-from|label)/;
 const STATE_PATCH_PATTERN = /<state_patch>([\s\S]*?)<\/state_patch>/g;
 
-function splitReadingSegments(content) {
-  return String(content || '')
-    .replace(/\r\n?/g, '\n')
-    .split(/\n[ \t]*\n+/)
-    .filter(segment => segment.trim());
+function splitReadingSegments(content, separator) {
+  const normalized = String(content || '').replace(/\r\n?/g, '\n');
+  const normalizedSeparator = typeof separator === 'string'
+    ? separator.replace(/\r\n?/g, '\n')
+    : '';
+  const segments = normalizedSeparator
+    ? normalized.split(normalizedSeparator)
+    : normalized.split(/\n[ \t]*\n+/);
+  return segments.filter(segment => segment.trim());
 }
 
 function resolveReadingSegments(content, display, includeInputActions = true) {
-  const segments = splitReadingSegments(applyAssistantDisplayRules(content, display));
+  const segments = splitReadingSegments(
+    applyAssistantDisplayRules(content, display),
+    display?.segmentSeparator
+  );
   return includeInputActions
     ? segments
     : segments.filter(segment => !INPUT_ACTION_PATTERN.test(segment));

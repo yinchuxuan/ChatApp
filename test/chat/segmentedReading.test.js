@@ -57,6 +57,11 @@ describe('segmented reading', () => {
     ]);
   });
 
+  test('uses the game card literal separator after normalizing line endings', () => {
+    expect(splitReadingSegments('第一行\r\n第二行\n\n第三行', '\r\n')).toEqual(['第一行', '第二行', '第三行']);
+    expect(resolveReadingSegments('甲<page>乙<page><page>丙', { segmentSeparator: '<page>' })).toEqual(['甲', '乙', '丙']);
+  });
+
   test('shows one paragraph and exposes its page count to the reading surface', () => {
     const toggleThinking = jest.fn();
     const { container } = renderSegmented('第一段。\n\n第二段。', 0, undefined, toggleThinking);
@@ -189,7 +194,6 @@ describe('segmented reading', () => {
       '',
       '<button data-gc-chat-input-value="A. 继续">继续</button>'
     ].join('\n');
-
     expect(resolveReadingSegments(content, undefined)).toHaveLength(2);
     expect(resolveReadingSegments(content, undefined, false)).toEqual(['剧情正文。']);
   });

@@ -35,9 +35,10 @@ rendererServices.config
 rendererServices.background
 rendererServices.sessions
 rendererServices.cards
+rendererServices.window
 ```
 
-`tauriRendererServices.js` 将 contract 映射为业务级 command，并用 `listen` 订阅背景配置变更。adapter 负责将 Rust 错误、取消和校验详情归一化为 JavaScript `Error`。
+`tauriRendererServices.js` 将 contract 映射为业务级 command 和受控窗口 API，并用 `listen` 订阅背景配置变更。adapter 负责将 Rust 错误、取消和校验详情归一化为 JavaScript `Error`。
 
 ## 模型网络
 

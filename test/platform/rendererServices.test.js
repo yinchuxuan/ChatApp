@@ -3,6 +3,7 @@ import { createTauriRendererServices } from '../../src/renderer/platform/tauriRe
 import { verifyRendererServices } from './adapterContracts.js';
 
 function mockTauriClient() {
+  let fullscreen = false;
   const invoke = jest.fn(async (command, args) => {
     const values = {
       get_model_config: {}, save_model_config: args.config,
@@ -19,7 +20,11 @@ function mockTauriClient() {
   return {
     invoke,
     listen: jest.fn(async () => () => {}),
-    convertFileSrc: path => `asset:///${encodeURIComponent(path)}`
+    convertFileSrc: path => `asset:///${encodeURIComponent(path)}`,
+    getCurrentWindow: () => ({
+      isFullscreen: async () => fullscreen,
+      setFullscreen: async value => { fullscreen = value; }
+    })
   };
 }
 

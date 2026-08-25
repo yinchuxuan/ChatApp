@@ -23,12 +23,14 @@
  */
 /** @typedef {Record<string, (...args: any[]) => Promise<any>>} SessionRepository */
 /** @typedef {{importDirectory: () => Promise<GameCard|null>}} CardRepository */
+/** @typedef {{isFullscreen: () => Promise<boolean>, setFullscreen: (value: boolean) => Promise<void>}} WindowService */
 /**
  * @typedef {Object} RendererServices
  * @property {ConfigService} config
  * @property {BackgroundService} background
  * @property {SessionRepository} sessions
  * @property {CardRepository} cards
+ * @property {WindowService} window
  */
 
 export {};

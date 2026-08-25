@@ -3,6 +3,7 @@ import ChatPanel from './ChatPanel.jsx';
 import GameCardPortraitLayers from './components/GameCardPortraitLayers.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
 import { rendererServices } from './platform/index.js';
+import useFullscreenHotkey from './useFullscreenHotkey.js';
 
 const EMPTY_PORTRAIT_LAYERS = {
   current: [], exiting: [], exitingCount: 0, expressionExits: []
@@ -10,6 +11,7 @@ const EMPTY_PORTRAIT_LAYERS = {
 
 // App Component
 function App() {
+  useFullscreenHotkey(rendererServices.window);
   const [theme, setTheme] = React.useState('light');
   const [backgroundConfig, setBackgroundConfig] = React.useState({
     backgroundImageUrl: '',

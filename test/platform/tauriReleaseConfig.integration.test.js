@@ -14,7 +14,10 @@ describe('Tauri desktop release configuration', () => {
     expect(base.app.security.capabilities).toEqual(['default']);
     expect(e2e.app.security.capabilities[0].identifier).toBe('e2e');
     expect(e2e.app.security.capabilities[0].permissions).toContain('wdio:default');
-    expect(capability.permissions).toEqual(['core:default']);
+    expect(capability.permissions).toEqual([
+      'core:default',
+      'core:window:allow-set-fullscreen'
+    ]);
   });
 
   test('builds the intended installer types on every desktop platform', () => {

@@ -19,6 +19,12 @@ jest.mock('@tauri-apps/api/core', () => ({
   invoke: mockTauriApi.invoke
 }));
 jest.mock('@tauri-apps/api/event', () => ({ listen: mockTauriApi.listen }));
+jest.mock('@tauri-apps/api/window', () => ({
+  getCurrentWindow: () => ({
+    isFullscreen: jest.fn().mockResolvedValue(false),
+    setFullscreen: jest.fn().mockResolvedValue(undefined)
+  })
+}));
 
 // Mock native commands used through the Tauri renderer adapter.
 global.platformMock = {

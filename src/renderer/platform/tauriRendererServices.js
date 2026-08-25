@@ -68,6 +68,10 @@ function createTauriRendererServices(client = tauriBridge) {
         invalidateGameCardRuntimeCache();
         return card;
       }
+    }),
+    window: Object.freeze({
+      isFullscreen: () => client.getCurrentWindow().isFullscreen(),
+      setFullscreen: fullscreen => client.getCurrentWindow().setFullscreen(fullscreen)
     })
   });
 }
