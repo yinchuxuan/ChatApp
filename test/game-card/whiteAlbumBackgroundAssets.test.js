@@ -27,7 +27,8 @@ describe('white album background assets', () => {
       'musical_classroom2', 'musical_classroom3', 'school', 'classroom',
       ...timedBackgrounds
     ]);
-    expect(Object.keys(visual.cg)).toHaveLength(10);
+    expect(Object.keys(visual.cg)).toContain('window');
+    expect(Object.keys(visual.cg)).toHaveLength(11);
     Object.values(visual.background).forEach(relativePath => {
       expect(relativePath).toMatch(
         /^images\/background\/common\/(morning|afternoon|night)\/[^/]+\.png$/
@@ -48,7 +49,7 @@ describe('white album background assets', () => {
 
   test('keeps every registered scene as a high-resolution RGB PNG', () => {
     const sceneFiles = [...Object.values(visual.background), ...Object.values(visual.cg)];
-    expect(sceneFiles).toHaveLength(47);
+    expect(sceneFiles).toHaveLength(48);
 
     sceneFiles.forEach((relativePath) => {
       const imagePath = path.join(cardDir, relativePath);

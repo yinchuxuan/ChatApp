@@ -68,6 +68,16 @@ describe('white album fixed plot presentation resources', () => {
     }
   });
 
+  test('fixed plot 4 stages the window cg before Touma catches Haruki', () => {
+    const section = readSection(readCardFile('plot/chapter-2.md'), 'FixedPlot4');
+    const windowScene = section.indexOf('visual.scene: `window`');
+    const toumaHandScene = section.indexOf('visual.scene: `touma_hand`');
+
+    expect(windowScene).toBeGreaterThanOrEqual(0);
+    expect(toumaHandScene).toBeGreaterThan(windowScene);
+    expect(visual.cg.window).toBe('images/background/story/window.png');
+  });
+
   test('timeline code does not own presentation resource hints', () => {
     const timeline = [
       readCardFile('scripts/timeline.js'),
