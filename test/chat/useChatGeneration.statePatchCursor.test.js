@@ -64,11 +64,7 @@ describe('useChatGeneration state patch cursor', () => {
     expect(completedMessages.at(-1).content).toContain('<state_patch>');
   });
 
-  test.each([
-    ['aborts', 'AbortError'],
-    ['fails', 'Error']
-  ])('keeps the applied patch after the request %s', async (_label, errorName) => {
-    const patchedState = { visual: { portraits: { touma: 'normal' } } };
+  function mockPatchedFailure(patchedState, errorName) {
     generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({
       applied: false, card: { id: 'card' }, messages, state
     }));
@@ -77,18 +73,43 @@ describe('useChatGeneration state patch cursor', () => {
     }));
     generationServices.sendChatRequest = jest.fn(async (_request, callbacks) => {
       callbacks.onToken(
-        '<state_patch>{"type":"state.set","path":"scene.portrait","value":"touma_normal"}</state_patch>'
+        '<state_patch>{"type":"state.set","path":"visual.scene","value":"room"}</state_patch>'
       );
       const error = new Error(errorName);
       error.name = errorName;
       throw error;
     });
     generationServices.toGameCardApiMessages = jest.fn(messages => messages);
+  }
+
+  test('keeps the applied patch after the user aborts', async () => {
+    const patchedState = { visual: { portraits: { touma: 'normal' } } };
+    mockPatchedFailure(patchedState, 'AbortError');
     const { result, options } = renderRetryGeneration();
 
     await act(async () => { await result.current.retry(); });
 
     expect(options.setGameState).toHaveBeenCalledWith(patchedState);
     expect(options.setGameState).toHaveBeenLastCalledWith(patchedState);
+  });
+
+  test('restores the request snapshot after a provider failure', async () => {
+    const baseMessages = [{ role: 'user', content: 'Q' }];
+    const baseState = { visual: { scene: 'school', portraits: {} } };
+    const patchedState = { visual: { scene: 'room', portraits: { touma: 'normal' } } };
+    const onRequestFailureRestore = jest.fn();
+    mockPatchedFailure(patchedState, 'Error');
+    const { result, options } = renderRetryGeneration({
+      retryBaseMessages: baseMessages,
+      retryBaseState: baseState,
+      options: { onRequestFailureRestore }
+    });
+
+    await act(async () => { await result.current.retry(); });
+
+    expect(options.setGameState).toHaveBeenCalledWith(patchedState);
+    expect(options.setGameState).toHaveBeenLastCalledWith(baseState);
+    expect(options.setMessages).toHaveBeenLastCalledWith(baseMessages);
+    expect(onRequestFailureRestore).toHaveBeenCalledWith(baseState);
   });
 });

@@ -121,6 +121,7 @@ gameState.visual.scene
 - 相同 key 不重复解析资源 URL。
 - 平台默认在首个正文 token 到达时调用两个 update 函数；首 token 前失败或取消不会自动切换画面。
 - `state_patch` 改变视觉字段时，在普通模式的流游标或分段模式的阅读游标越过该 patch 后立即发布变化。
+- 供应商请求失败时重新发布请求开始前的背景和立绘；用户主动取消时保留当前画面。
 - scene 属于 `background` 时允许叠加立绘；属于 `cg` 时立即清空当前及退场中的立绘渲染层，但不修改 `gameState.visual.portraits`。
 - scene 变化必须同时刷新基础画面与立绘层，使进入 CG 时立绘消失、返回 background 时保留的立绘重新显示。
 - `presentation.autoUpdateOnFirstToken: false` 可关闭默认调用；卡片可在 `pre_send` / `after_response` 使用 `visual.updateBackground`、`visual.updatePortrait` 手动发布。

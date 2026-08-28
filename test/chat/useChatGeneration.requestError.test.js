@@ -1,10 +1,13 @@
 import { act } from '@testing-library/react';
+import generationServices from '../../src/renderer/chat/generationServices.js';
 import { renderRetryGeneration } from './useChatGenerationTestHarness.js';
 
 describe('useChatGeneration request errors', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  afterEach(() => jest.restoreAllMocks());
 
   test('reports provider failures without appending an assistant message', async () => {
     global.fetch.mockRejectedValue(new Error('Network failed'));
@@ -34,5 +37,32 @@ describe('useChatGeneration request errors', () => {
       expect.objectContaining({ role: 'user', content: 'hello' })
     ]);
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test('rolls back pre-send progress and injected messages when the request fails', async () => {
+    const baseState = { story: { progress: 'FreePlot1' }, visual: { scene: 'school' } };
+    const progressedState = { story: { progress: 'FixedPlot1' }, visual: { scene: 'school' } };
+    const onRequestFailureRestore = jest.fn();
+    jest.spyOn(generationServices, 'preparePreSendMessages').mockImplementation(async ({ messages }) => ({
+      applied: true,
+      card: { id: 'card' },
+      messages: [...messages, { role: 'system', content: 'injected' }],
+      state: progressedState
+    }));
+    jest.spyOn(generationServices, 'sendChatRequest').mockRejectedValue(new Error('Network failed'));
+    jest.spyOn(generationServices, 'toGameCardApiMessages').mockImplementation(messages => messages);
+    const { result, options } = renderRetryGeneration({
+      messages: [{ role: 'assistant', content: 'old' }],
+      gameState: baseState,
+      options: { onRequestFailureRestore }
+    });
+
+    await act(async () => { await result.current.send('next'); });
+
+    const requestMessages = options.setMessages.mock.calls[0][0];
+    expect(options.setGameState).toHaveBeenCalledWith(progressedState);
+    expect(options.setGameState).toHaveBeenLastCalledWith(baseState);
+    expect(options.setMessages).toHaveBeenLastCalledWith(requestMessages);
+    expect(onRequestFailureRestore).toHaveBeenCalledWith(baseState);
   });
 });

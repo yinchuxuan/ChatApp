@@ -62,7 +62,7 @@ function ChatRuntime({
     setRequestError,
     setShowStreamThinking,
     onAudioSubmit: presentation.stopBgm,
-    onRetryStateRestore: presentationHandlers.onRetryStateRestore,
+    onRetryStateRestore: presentationHandlers.onRetryStateRestore, onRequestFailureRestore: presentationHandlers.onRequestFailureRestore,
     onValidationRetry: presentationHandlers.onValidationRetry,
     onResponseValidationWarning: setResponseWarning,
     onPresentationEffects: presentation.applyEffects,

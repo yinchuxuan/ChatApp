@@ -18,6 +18,7 @@ function useChatGeneration({
   setShowStreamThinking,
   onAudioSubmit,
   onRetryStateRestore,
+  onRequestFailureRestore,
   onValidationRetry,
   onResponseValidationWarning,
   onStreamContentStart,
@@ -40,6 +41,7 @@ function useChatGeneration({
       onStatePatchApplied,
       onPresentationEffects,
       onValidationRetry,
+      onRequestFailureRestore,
       onResponseValidationWarning,
       onStreamPreviewState: setGameState,
       onGameCardError: setRuntimeError,
@@ -47,7 +49,7 @@ function useChatGeneration({
       ...generationControl,
       appendAssistantWithUpdater
     }))
-  ), [generationControl, modelConfig, onPresentationEffects, onResponseValidationWarning,
+  ), [generationControl, modelConfig, onPresentationEffects, onRequestFailureRestore, onResponseValidationWarning,
     onStatePatchApplied, onStreamContentStart, onValidationRetry,
     setGameState, setMessages, setRequestError, setRuntimeError, setShowStreamThinking, typewriter]);
 

@@ -42,17 +42,22 @@ function buildRetryMessages(messages, retryBaseMessages, editedContent) {
 
 async function runChatGeneration(options) {
   const { messages, state = {}, modelConfig, setMessages, setGameState, setIsLoading, tw } = options;
+  const requestMessages = cloneChatValue(messages);
+  const requestState = cloneChatValue(state);
   const abortSignal = options.createAbortSignal?.();
   const streamMessageId = createMessageId();
   let preSend = null;
-  setMessages(messages);
+  setMessages(requestMessages);
   setIsLoading(true);
   options.onRequestError?.(null);
   tw.clearStreaming?.();
   tw.startStreaming(streamMessageId);
   options.setShowStreamThinking?.(true);
   try {
-    preSend = await generationServices.preparePreSendMessages({ messages, state });
+    preSend = await generationServices.preparePreSendMessages({
+      messages: requestMessages,
+      state: requestState
+    });
     if (preSend.error) return handleGenerationError(preSend, options);
     options.onGameCardError?.(null);
     if (preSend.state && setGameState) setGameState(preSend.state);
@@ -71,11 +76,12 @@ async function runChatGeneration(options) {
       initialMessageId: streamMessageId
     });
     return await finishChatGeneration(
-      preSend, messages, state, options, generated.streamResult, generated.streamMessageId
+      preSend, requestMessages, requestState, options,
+      generated.streamResult, generated.streamMessageId
     );
   } catch (err) {
     return handleGenerationException(
-      err, options, preSend, messages, abortSignal, streamMessageId
+      err, options, preSend, requestMessages, requestState, abortSignal, streamMessageId
     );
   } finally {
     options.clearAbortSignal?.(abortSignal);
@@ -123,13 +129,17 @@ function handleGenerationAbort(options, preSend, baseMessages, streamResult = {}
   return true;
 }
 
-function handleGenerationException(err, options, preSend, baseMessages, abortSignal,
-  streamMessageId) {
+function handleGenerationException(err, options, preSend, baseMessages, baseState,
+  abortSignal, streamMessageId) {
   if (isAbortException(err, abortSignal)) {
     return handleGenerationAbort(
       options, preSend, baseMessages, err.streamResult, err.streamMessageId || streamMessageId
     );
   }
+  const restoredState = cloneChatValue(baseState);
+  options.setMessages(baseMessages);
+  options.setGameState?.(restoredState);
+  options.onRequestFailureRestore?.(restoredState);
   options.setIsLoading(false);
   options.tw.reset();
   options.onRequestError?.(`请求失败: ${err.message}`);

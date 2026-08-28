@@ -63,4 +63,16 @@ describe('chat presentation handlers', () => {
     expect(updates.stopBgm).not.toHaveBeenCalled();
     expect(updates.updateChanged).toHaveBeenCalledWith(card, state, []);
   });
+
+  test('restores the complete presentation after a provider failure', () => {
+    const card = { display: { segmentedReading: true } };
+    const state = { visual: { scene: 'school' }, audio: { bgm: 'calm' } };
+    const updates = presentation();
+    const { result } = renderHook(() => useChatPresentationHandlers(card, updates));
+
+    act(() => result.current.onRequestFailureRestore(state));
+
+    expect(updates.stopBgm).toHaveBeenCalledTimes(1);
+    expect(updates.updateAll).toHaveBeenCalledWith(card, state);
+  });
 });

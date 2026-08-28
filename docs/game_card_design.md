@@ -171,7 +171,7 @@ messages (含 system) -> adaptToProtocol -> API 请求体
   -> 显示 + 保存
 ```
 
-响应被视为正文和 `<state_patch>` 组成的有序时间线。`after_stream` 在完整响应流结束后立即执行，不等待分段阅读推进；适合处理只依赖完整 assistant 文本的逻辑。普通模式的提交边界是流式接收位置；分段模式的提交边界是用户当前读到的段落，尾部 patch 在读完末段时提交。已越过的 patch 只应用一次，回看不会回滚 state；请求失败或取消后已应用的值保留，不修改 retry 使用的发送前 snapshot。`after_response` 始终在该响应的 patch 全部提交后执行。
+响应被视为正文和 `<state_patch>` 组成的有序时间线。`after_stream` 在完整响应流结束后立即执行，不等待分段阅读推进；适合处理只依赖完整 assistant 文本的逻辑。普通模式的提交边界是流式接收位置；分段模式的提交边界是用户当前读到的段落，尾部 patch 在读完末段时提交。已越过的 patch 只应用一次，回看不会回滚 state。供应商请求失败时丢弃本轮响应，并恢复请求开始前的 messages、state 和背景、立绘、BGM；用户主动取消则保留部分 assistant 和已经应用的值。两种情况都不修改 retry 使用的发送前 snapshot。`after_response` 始终在该响应的 patch 全部提交后执行。
 
 ## 完整游戏卡结构
 

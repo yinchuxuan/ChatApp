@@ -118,6 +118,7 @@ gameState.audio.bgm
 播放时机：
 
 - 用户提交消息后立即停止当前 BGM；仅键入输入不停止
+- 供应商请求失败时恢复提交前的 BGM；用户主动取消时保持停止并保留部分回复
 - LLM 只输出 thinking/reasoning 时保持停止
 - 普通模式在正文第一个 token 开始流式输出时，按当前 `gameState.audio.bgm` 从头加载并播放
 - 分段模式不在 session 加载或正文首 token 时自动播放 BGM
