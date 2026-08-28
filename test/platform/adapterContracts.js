@@ -13,6 +13,8 @@ async function verifyRendererServices(services) {
   await services.sessions.setActive('session-1');
   await services.sessions.rename('session-1', 'Renamed');
   await services.sessions.delete('session-1');
+  await expect(services.cards.list()).resolves.toEqual(expect.any(Array));
+  await services.cards.setActive(null);
   await services.cards.importDirectory();
   const fullscreen = await services.window.isFullscreen();
   await services.window.setFullscreen(!fullscreen);

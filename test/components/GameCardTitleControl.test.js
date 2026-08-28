@@ -4,24 +4,25 @@ import GameCardTitleControl from '../../src/renderer/components/GameCardTitleCon
 import { GameCardRuntimeProvider } from '../../src/renderer/chat/GameCardRuntimeProvider.jsx';
 
 describe('GameCardTitleControl', () => {
-  test('uses the CardRepository game card result directly after import', async () => {
+  test('routes import through the game card switch callback', async () => {
     const card = { id: 'imported', name: 'Imported Card', version: '1', rules: [] };
-    const onActiveCardChanged = jest.fn();
+    const onImportCard = jest.fn(async () => card);
     const platform = { repository: { getActiveCard: jest.fn(async () => null) } };
-    const cardRepository = { importDirectory: jest.fn(async () => card) };
+    const cardRepository = { list: jest.fn(async () => []) };
 
     render(
       <GameCardRuntimeProvider platform={platform}>
         <GameCardTitleControl
           cardRepository={cardRepository}
-          onActiveCardChanged={onActiveCardChanged}
+          onActivateCard={jest.fn()}
+          onImportCard={onImportCard}
         />
       </GameCardRuntimeProvider>
     );
 
-    fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
+    fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
+    fireEvent.click(await screen.findByRole('button', { name: '导入游戏卡文件夹' }));
 
-    await screen.findByText('Imported Card');
-    await waitFor(() => expect(onActiveCardChanged).toHaveBeenCalledWith(card));
+    await waitFor(() => expect(onImportCard).toHaveBeenCalled());
   });
 });

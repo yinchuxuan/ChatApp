@@ -49,7 +49,7 @@ describe('ChatPanel without header clear history action', () => {
     expect(document.querySelector('.chat-header-clear-btn')).toBeNull();
   });
 
-  test('keeps game card import and session buttons in the title control', async () => {
+  test('keeps game card switcher and session buttons in the title control', async () => {
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -60,6 +60,6 @@ describe('ChatPanel without header clear history action', () => {
     const titleControl = document.querySelector('.game-card-title-control');
     expect(titleControl).not.toBeNull();
     expect(titleControl.querySelector('.chat-session-btn')).not.toBeNull();
-    expect(titleControl.querySelector('.game-card-import-btn')).not.toBeNull();
+    expect(titleControl.querySelector('.game-card-title-main')).not.toBeNull();
   });
 });

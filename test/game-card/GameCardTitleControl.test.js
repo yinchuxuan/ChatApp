@@ -4,18 +4,31 @@ import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 import '../../src/renderer/components/ChatSessionManager.jsx';
 import GameCardTitleControl from '../../src/renderer/components/GameCardTitleControl.jsx';
 import { GameCardRuntimeProvider } from '../../src/renderer/chat/GameCardRuntimeProvider.jsx';
+import { rendererServices } from '../../src/renderer/platform/index.js';
 
 const platformMock = global.platformMock;
 
 function renderControl(props = {}, parentProps = null) {
-  const control = <GameCardRuntimeProvider><GameCardTitleControl {...props} /></GameCardRuntimeProvider>;
+  const callbacks = {
+    onActivateCard: jest.fn(async () => null),
+    onImportCard: () => rendererServices.cards.importDirectory()
+  };
+  const control = <GameCardRuntimeProvider>
+    <GameCardTitleControl {...callbacks} {...props} />
+  </GameCardRuntimeProvider>;
   return render(parentProps ? <div {...parentProps}>{control}</div> : control);
+}
+
+async function openSwitcher() {
+  fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
+  await screen.findByText('切换游戏卡');
 }
 
 describe('GameCardTitleControl', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     platformMock.getActiveGameCard.mockResolvedValue({ success: true, card: null });
+    platformMock.getGameCards.mockResolvedValue({ success: true, cards: [] });
     platformMock.importGameCardFromDirectory.mockResolvedValue({ success: false, canceled: true, card: null });
     platformMock.listChatSessions.mockResolvedValue({
       success: true,
@@ -37,45 +50,44 @@ describe('GameCardTitleControl', () => {
     await screen.findByText('Quest Card');
   });
 
-  test('shows empty state when no game card is loaded', async () => {
+  test('shows normal chat when no game card is active', async () => {
     renderControl();
 
-    await screen.findByText('未加载游戏卡');
+    await screen.findByText('普通聊天');
   });
 
-  test('imports a game card and stops header click propagation', async () => {
+  test('starts game card import and stops header click propagation', async () => {
     const headerClick = jest.fn();
-    const cardChanged = jest.fn();
+    const importedCard = { id: 'new_quest', name: 'New Quest', rules: [] };
     platformMock.importGameCardFromDirectory.mockResolvedValue({
       success: true,
-      card: { id: 'new_quest', name: 'New Quest', rules: [] }
+      card: importedCard
     });
-    renderControl({ onActiveCardChanged: cardChanged }, { onClick: headerClick });
+    renderControl({}, { onClick: headerClick });
 
-    await screen.findByText('未加载游戏卡');
+    await screen.findByText('普通聊天');
+    await openSwitcher();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
     });
 
     expect(platformMock.importGameCardFromDirectory).toHaveBeenCalled();
     expect(headerClick).not.toHaveBeenCalled();
-    expect(cardChanged).toHaveBeenCalledWith({ id: 'new_quest', name: 'New Quest', rules: [] });
-    expect(screen.getByText('New Quest')).toBeInTheDocument();
   });
 
-  test('disables game card import during generation', async () => {
+  test('disables game card switching during generation', async () => {
     renderControl({ isLoading: true });
-    await screen.findByText('未加载游戏卡');
+    await screen.findByText('普通聊天');
 
-    const button = screen.getByRole('button', { name: '导入游戏卡文件夹' });
+    const button = screen.getByRole('button', { name: '切换游戏卡' });
     expect(button).toBeDisabled();
-    expect(button).toHaveAttribute('title', '生成完成后可导入游戏卡');
+    expect(button).toHaveAttribute('title', '生成完成后可切换游戏卡');
     fireEvent.click(button);
+    expect(screen.queryByText('切换游戏卡')).not.toBeInTheDocument();
     expect(platformMock.importGameCardFromDirectory).not.toHaveBeenCalled();
   });
 
   test('shows readable import errors without changing active card', async () => {
-    const cardChanged = jest.fn();
     platformMock.importGameCardFromDirectory.mockResolvedValue({
       success: false,
       error: '游戏卡状态 schema 校验失败',
@@ -83,8 +95,9 @@ describe('GameCardTitleControl', () => {
       file: 'state/schema.json',
       details: [{ file: 'state/schema.json', message: 'schema.timeline.currentTime.default: must be a string' }]
     });
-    renderControl({ onActiveCardChanged: cardChanged });
-    await screen.findByText('未加载游戏卡');
+    renderControl();
+    await screen.findByText('普通聊天');
+    await openSwitcher();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
     });
@@ -94,13 +107,12 @@ describe('GameCardTitleControl', () => {
     expect(screen.getByText('阶段: 状态 schema 校验')).toBeInTheDocument();
     expect(screen.getAllByText(/state\/schema\.json/).length).toBeGreaterThan(0);
     expect(screen.getByText(/schema\.timeline\.currentTime\.default/)).toBeInTheDocument();
-    expect(cardChanged).not.toHaveBeenCalled();
   });
 
   test('opens session manager without showing session name in title', async () => {
     renderControl();
 
-    await screen.findByText('未加载游戏卡');
+    await screen.findByText('普通聊天');
     const sessionButton = screen.getByRole('button', { name: '管理聊天会话' });
     expect(sessionButton.querySelector('.material-icons')).toHaveTextContent('inventory_2');
     await act(async () => {
@@ -113,7 +125,7 @@ describe('GameCardTitleControl', () => {
     expect(document.querySelector('[data-gc-part="chat-session-manager"]')).toBeTruthy();
     expect(document.querySelector('[data-gc-part="chat-session-row"]')).toBeTruthy();
     expect(screen.getByText('默认会话')).toBeInTheDocument();
-    expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
+    expect(screen.getByText('普通聊天')).toBeInTheDocument();
     fireEvent.click(sessionButton);
     expect(document.querySelector('[data-gc-part="chat-session-panel"]')).toHaveAttribute('data-state', 'closing');
     expect(sessionButton).toHaveAttribute('aria-expanded', 'false');
@@ -122,7 +134,7 @@ describe('GameCardTitleControl', () => {
   test('renders audio control in the title bar', async () => {
     renderControl({ audioControl: <button className="audio-test" aria-label="关闭 BGM">music_note</button> });
 
-    await screen.findByText('未加载游戏卡');
+    await screen.findByText('普通聊天');
     const actions = document.querySelector('.game-card-title-actions');
     expect(document.querySelector('[data-gc-part="game-card-title"]')).toBeTruthy();
     expect(actions.dataset.gcPart).toBe('game-card-title-actions');
@@ -139,7 +151,7 @@ describe('GameCardTitleControl', () => {
       .mockResolvedValue({ success: true, activeId: 'session-1', sessions: [{ id: 'session-1', title: '新会话' }] });
 
     renderControl({ onBeforeSessionChange: before, onSessionChanged: changed });
-    await screen.findByText('未加载游戏卡');
+    await screen.findByText('普通聊天');
     fireEvent.click(screen.getByRole('button', { name: '管理聊天会话' }));
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '新建会话' }));
@@ -163,7 +175,7 @@ describe('GameCardTitleControl', () => {
     platformMock.createChatSession.mockResolvedValue({ success: true, id: 'archive-1' });
 
     renderControl({ onBeforeSessionChange: before });
-    await screen.findByText('未加载游戏卡');
+    await screen.findByText('普通聊天');
     fireEvent.click(screen.getByRole('button', { name: '管理聊天会话' }));
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '保存当前会话' }));

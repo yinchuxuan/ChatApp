@@ -5,6 +5,8 @@ function createMemoryRendererServices(initial = {}) {
   let history = initial.history || { messages: [] };
   let sessions = initial.sessions || [];
   let activeId = initial.activeId || null;
+  let cards = initial.cards || [];
+  let activeCardId = initial.activeCardId || null;
   let fullscreen = initial.fullscreen === true;
   const listeners = new Set();
   return {
@@ -28,7 +30,16 @@ function createMemoryRendererServices(initial = {}) {
       rename: async (id, title) => { sessions = sessions.map(item => item.id === id ? { ...item, title } : item); return { id, title }; },
       delete: async id => { sessions = sessions.filter(item => item.id !== id); if (activeId === id) activeId = sessions[0]?.id || null; return { id: activeId }; }
     },
-    cards: { importDirectory: async () => initial.importedCard || null },
+    cards: {
+      list: async () => cards,
+      setActive: async id => { activeCardId = id || null; return { id: activeCardId }; },
+      importDirectory: async () => {
+        const card = initial.importedCard || null;
+        if (card && !cards.some(item => item.id === card.id)) cards = [...cards, card];
+        activeCardId = card?.id || activeCardId;
+        return card;
+      }
+    },
     window: {
       isFullscreen: async () => fullscreen,
       setFullscreen: async value => { fullscreen = value; }

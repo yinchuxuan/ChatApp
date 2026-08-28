@@ -24,7 +24,7 @@ describe('ChatPanel Component - UI', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.getByText('未加载游戏卡')).toBeInTheDocument();
+    expect(_screen.getByText('普通聊天')).toBeInTheDocument();
 
     const header = document.querySelector('.chat-header');
     _fireEvent.click(header);
@@ -124,7 +124,7 @@ describe('ChatPanel Component - UI', () => {
 
     await act(async () => { await Promise.resolve(); });
 
-    expect(_screen.getByText('未加载游戏卡')).toBeInTheDocument();
+    expect(_screen.getByText('普通聊天')).toBeInTheDocument();
 
     global.platformMock = originalPlatformMock;
   });

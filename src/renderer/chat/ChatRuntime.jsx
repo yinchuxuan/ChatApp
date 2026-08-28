@@ -25,6 +25,7 @@ import useChatPresentationHandlers from './useChatPresentationHandlers.js';
 import useChatPersistence from './useChatPersistence.js';
 import useChatScroll from './useChatScroll.js';
 import useChatSession from './useChatSession.js';
+import useGameCardSwitching from './useGameCardSwitching.js';
 import useGameCardPresentation from './useGameCardPresentation.js';
 import useModelConfig from './useModelConfig.js';
 import useReadingStatePatches from './useReadingStatePatches.js';
@@ -80,6 +81,7 @@ function ChatRuntime({
     onResetView: scroll.collapseHistory,
     onSessionLoaded: presentationHandlers.onSessionLoaded
   });
+  const gameCards = useGameCardSwitching({ isLoading, presentation, runtime, session });
   React.useEffect(() => { setRequestError(null); setResponseWarning(null); }, [session.revision]);
   const editUserMessage = useLastUserMessageEdit(React, messages, isLoading);
   const handleReadProgress = useReadingStatePatches({
@@ -115,10 +117,6 @@ function ChatRuntime({
     if (ok) editUserMessage.finish();
     return ok;
   }, [editUserMessage, generation]);
-  const handleCardChanged = React.useCallback(async () => {
-    runtime.setRuntimeError(null);
-    await session.reload();
-  }, [runtime, session]);
   const toggleHistory = () => {
     const next = !showMsgHistory;
     setShowMsgHistory(next);
@@ -173,7 +171,8 @@ function ChatRuntime({
           onBeforeSessionChange={session.saveCurrent}
           onSessionChanged={session.reload}
           onSwitchSession={session.switchSession}
-          onActiveCardChanged={handleCardChanged}
+          onActivateCard={gameCards.activate}
+          onImportCard={gameCards.importCard}
           onImportError={setActionError}
           audioControl={<BgmPlayer updateRequest={presentation.bgmRequest} stopToken={presentation.bgmStopToken} />}
         />}

@@ -22,7 +22,7 @@ describe('Tauri chat panel UI', () => {
     await expect($('.header-title')).toHaveText('msg历史记录');
     await expect($('.chat-history')).toHaveText(expect.stringContaining('暂无消息历史记录'));
     await toggleHistory();
-    await expect($('.game-card-title-name')).toHaveText('未加载游戏卡');
+    await expect($('.game-card-title-name')).toHaveText('普通聊天');
   });
 
   it('should keep native scrolling without custom scrollbar components', async () => {
@@ -45,26 +45,26 @@ describe('Tauri chat panel UI', () => {
     expect(count).toBe(0);
   });
 
-  it('should keep session, import and BGM actions in the title control', async () => {
+  it('should keep session, game card and BGM controls in the title control', async () => {
     await revealHeader();
     const result = await browser.execute(() => {
       const title = document.querySelector('.game-card-title-control');
       const actions = title?.querySelector('.game-card-title-actions');
       const bgm = actions?.querySelector('.game-card-bgm-btn');
       const session = actions?.querySelector('.chat-session-btn');
-      const importButton = title?.querySelector('.game-card-import-btn');
+      const switchButton = title?.querySelector('.game-card-title-main');
       const header = document.querySelector('.chat-header');
-      if (!title || !bgm || !session || !importButton || !header) return null;
+      if (!title || !bgm || !session || !switchButton || !header) return null;
       return {
         bgmIcon: bgm.textContent.trim(),
-        vertical: [bgm, session, importButton].map(button => {
+        vertical: [bgm, session, switchButton].map(button => {
           const rect = button.getBoundingClientRect();
           return { height: rect.height, center: rect.top + rect.height / 2 };
         }),
         gap: Math.round(session.getBoundingClientRect().left - bgm.getBoundingClientRect().right),
         paddingRight: getComputedStyle(title).paddingRight,
         rightGap: Math.round(header.getBoundingClientRect().right
-          - importButton.getBoundingClientRect().right)
+          - session.getBoundingClientRect().right)
       };
     });
     expect(result).not.toBeNull();

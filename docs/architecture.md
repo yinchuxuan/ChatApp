@@ -32,7 +32,7 @@ repository.getActiveCard()
 scriptExecutor.run(source, context, options)
 ```
 
-配置、背景、会话和导入通过 `rendererServices` 的 `config`、`background`、`sessions`、`cards` 接口访问。组件不直接调用 Tauri API。
+配置、背景、会话和游戏卡仓库通过 `rendererServices` 的 `config`、`background`、`sessions`、`cards` 接口访问。`cards` 提供已导入卡列表、active card 切换和目录导入；组件不直接调用 Tauri API。
 
 ## 样式
 

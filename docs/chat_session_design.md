@@ -139,6 +139,15 @@ Tauri adapter 分别映射到 Rust commands：
 
 session 控件不应该依赖 msg 历史调试面板；msg 历史仍只用于查看当前保存内容。
 
+游戏卡选择器与 session 控件相互独立。选择器固定提供“普通聊天”，并列出所有已导入游戏卡；“普通聊天”对应 active game card 为 `null`。切换作用域时平台必须按以下顺序执行：
+
+1. 保存旧作用域的当前 session。
+2. 更新 active game card。
+3. 清理旧游戏卡的 BGM、背景、立绘、样式和自定义 UI。
+4. 加载目标作用域的 active session，并恢复其消息、gameState 和阅读位置。
+
+生成期间禁用游戏卡切换。切换不会删除任何游戏卡或 session，也不会把游戏卡消息复制到 `no-card`。
+
 ## 测试范围
 
 Rust 测试：

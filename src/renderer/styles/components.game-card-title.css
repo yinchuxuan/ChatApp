@@ -16,10 +16,25 @@
 .game-card-title-main {
   display: inline-flex;
   align-items: center;
+  box-sizing: border-box;
+  height: 40px;
   gap: 10px;
   min-width: 0;
   max-width: min(46vw, 520px);
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--md-shape-corner-small);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 }
+
+.game-card-title-main:hover,
+.game-card-title-main[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--md-primary) 10%, transparent);
+}
+
+.game-card-title-main:disabled { cursor: default; opacity: 0.6; }
 
 .game-card-title-icon {
   flex: 0 0 auto;
@@ -36,15 +51,6 @@
   font-weight: 600;
   color: currentColor;
   font-family: 'Google Sans Display', 'Google Sans', sans-serif;
-}
-
-.game-card-import-btn {
-  width: 40px;
-  height: 40px;
-  padding: 8px;
-  border-radius: var(--md-shape-corner-full);
-  color: var(--md-primary);
-  flex: 0 0 auto;
 }
 
 .game-card-title-actions {
@@ -65,7 +71,6 @@
   flex: 0 0 auto;
 }
 
-.game-card-import-btn .material-icons,
 .game-card-title-error .material-icons {
   font-size: 20px;
   color: currentColor;

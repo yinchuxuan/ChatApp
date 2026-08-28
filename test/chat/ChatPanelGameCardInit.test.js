@@ -92,6 +92,7 @@ describe('ChatPanel game card init', () => {
 
     render(React.createElement(ChatPanel));
     await screen.findByText('Init Card');
+    fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
     });
@@ -123,6 +124,7 @@ describe('ChatPanel game card init', () => {
       card: nextCard
     });
     global.platformMock.importGameCardFromDirectory.mockResolvedValue({ success: true, card: nextCard });
+    fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
     });

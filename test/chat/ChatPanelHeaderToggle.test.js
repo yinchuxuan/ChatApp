@@ -32,7 +32,7 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
+    const chatHeader = screen.getByText('普通聊天').closest('.chat-header');
     expect(chatHeader).toBeTruthy();
     expect(chatHeader.classList.contains('chat-header-clickable')).toBe(true);
   });
@@ -45,9 +45,9 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
+    expect(screen.getByText('普通聊天')).toBeInTheDocument();
 
-    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
+    const chatHeader = screen.getByText('普通聊天').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -67,7 +67,7 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    const chatHeader = screen.getByText('未加载游戏卡').closest('.chat-header');
+    const chatHeader = screen.getByText('普通聊天').closest('.chat-header');
     fireEvent.click(chatHeader);
 
     await act(async () => {
@@ -85,11 +85,11 @@ describe('ChatPanel Header Toggle Click', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(screen.getByText('未加载游戏卡')).toBeInTheDocument();
+    expect(screen.getByText('普通聊天')).toBeInTheDocument();
     expect(screen.getByText('开始对话')).toBeInTheDocument();
   });
 
-  test('should not have separate toggle button', async () => {
+  test('only uses a toggle control for the game card switcher', async () => {
     render(React.createElement(ChatPanel));
 
     await act(async () => {
@@ -98,6 +98,7 @@ describe('ChatPanel Header Toggle Click', () => {
     });
 
     const toggleButtons = screen.queryAllByRole('button', { name: /toggle|切换/i });
-    expect(toggleButtons.length).toBe(0);
+    expect(toggleButtons).toHaveLength(1);
+    expect(toggleButtons[0]).toHaveAccessibleName('切换游戏卡');
   });
 });

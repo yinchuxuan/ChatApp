@@ -22,7 +22,12 @@
  * @property {(listener: (value: JsonObject) => void) => (() => void)} subscribe
  */
 /** @typedef {Record<string, (...args: any[]) => Promise<any>>} SessionRepository */
-/** @typedef {{importDirectory: () => Promise<GameCard|null>}} CardRepository */
+/**
+ * @typedef {Object} CardRepository
+ * @property {() => Promise<GameCard[]>} list
+ * @property {(id: string|null) => Promise<unknown>} setActive
+ * @property {() => Promise<GameCard|null>} importDirectory
+ */
 /** @typedef {{isFullscreen: () => Promise<boolean>, setFullscreen: (value: boolean) => Promise<void>}} WindowService */
 /**
  * @typedef {Object} RendererServices

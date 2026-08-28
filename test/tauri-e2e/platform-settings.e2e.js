@@ -21,7 +21,7 @@ describe('Tauri startup and settings', () => {
   it('should launch and display main window', async () => {
     await expect($('.app-container')).toExist();
     await expect($('.chat-panel')).toExist();
-    await expect($('.game-card-title-name')).toHaveText('未加载游戏卡');
+    await expect($('.game-card-title-name')).toHaveText('普通聊天');
   });
 
   it('should display the initial Chat panel controls and empty state', async () => {

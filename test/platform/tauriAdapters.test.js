@@ -9,6 +9,8 @@ describe('Tauri renderer adapters', () => {
     await services.config.save({ modelName: 'model' });
     await services.sessions.saveHistory([{ role: 'user' }], { gameState: { score: 1 } });
     await services.sessions.rename('session-1', 'Renamed');
+    await services.cards.list();
+    await services.cards.setActive('card-1');
 
     expect(invoke).toHaveBeenNthCalledWith(1, 'save_model_config', {
       config: { modelName: 'model' }
@@ -19,6 +21,8 @@ describe('Tauri renderer adapters', () => {
     expect(invoke).toHaveBeenNthCalledWith(3, 'rename_chat_session', {
       id: 'session-1', title: 'Renamed'
     });
+    expect(invoke).toHaveBeenNthCalledWith(4, 'get_game_cards', {});
+    expect(invoke).toHaveBeenNthCalledWith(5, 'set_active_game_card', { id: 'card-1' });
   });
 
   test('maps resource calls and accepts command result envelopes', async () => {

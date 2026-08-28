@@ -63,6 +63,12 @@ function createTauriRendererServices(client = tauriBridge) {
       delete: id => call('delete_chat_session', { id })
     }),
     cards: Object.freeze({
+      list: () => call('get_game_cards', {}, 'cards'),
+      setActive: async id => {
+        const result = await call('set_active_game_card', { id });
+        invalidateGameCardRuntimeCache();
+        return result;
+      },
       importDirectory: async () => {
         const card = await call('import_game_card_from_directory', {}, 'card');
         invalidateGameCardRuntimeCache();
