@@ -8,8 +8,11 @@ const { render: _render, screen: _screen, act } = require('@testing-library/reac
 const mockSettingsBackground = (_props) =>
   React.createElement('div', { className: 'settings-background-mock' }, 'SettingsBackground Mock');
 
-const mockSettingsModelConfig = (_props) =>
-  React.createElement('div', { className: 'settings-model-config-mock' }, 'SettingsModelConfig Mock');
+let lastModelConfigProps;
+const mockSettingsModelConfig = (props) => {
+  lastModelConfigProps = props;
+  return React.createElement('div', { className: 'settings-model-config-mock' }, 'SettingsModelConfig Mock');
+};
 
 const mockUseSettingsStateReturn = {
   config: { apiUrl: 'http://api.example.com', apiKey: 'test-key', modelName: 'gpt-4' },
@@ -17,6 +20,7 @@ const mockUseSettingsStateReturn = {
   isConfigured: 'http://api.example.com',
   maskApiKey: (key) => key ? '****' : '',
   handleChange: jest.fn(),
+  handleTestConnection: jest.fn(),
   handleBackgroundChange: jest.fn(),
   handleSelectBackgroundImage: jest.fn(),
   handleClearBackgroundImage: jest.fn()
@@ -31,6 +35,7 @@ jest.mock('../../src/renderer/components/SettingsModelConfig.jsx', () => ({ __es
 describe('SettingsPanel Component - Components', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    lastModelConfigProps = null;
   });
 
   test('should render SettingsBackground component when available', async () => {
@@ -59,6 +64,7 @@ describe('SettingsPanel Component - Components', () => {
     await act(async () => { await Promise.resolve(); });
 
     expect(_screen.getByText('SettingsModelConfig Mock')).toBeInTheDocument();
+    expect(lastModelConfigProps.onTestConnection).toBe(mockUseSettingsStateReturn.handleTestConnection);
   });
 
   test('should render SettingsBackground without a global registration', async () => {

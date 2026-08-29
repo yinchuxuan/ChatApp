@@ -62,16 +62,6 @@ function useChatPersistence({ messages, gameState, isLoading, repository = rende
     setViewState(next);
   }, []);
 
-  const refreshRetryBase = React.useCallback(async () => {
-    try {
-      const result = await repository.loadHistory();
-      hydrate(result);
-      return result;
-    } catch {
-      return null;
-    }
-  }, [hydrate, repository]);
-
   React.useEffect(() => {
     if (!loadedRef.current || isLoading) return;
     void save().catch(() => {});
@@ -82,7 +72,6 @@ function useChatPersistence({ messages, gameState, isLoading, repository = rende
   return React.useMemo(() => ({
     hydrate,
     markLoaded,
-    refreshRetryBase,
     reset,
     retryBaseRef,
     retryBaseStateRef,
@@ -91,7 +80,7 @@ function useChatPersistence({ messages, gameState, isLoading, repository = rende
     save,
     setReadingPosition,
     setRetryBase
-  }), [hydrate, markLoaded, refreshRetryBase, reset, save, setReadingPosition, setRetryBase]);
+  }), [hydrate, markLoaded, reset, save, setReadingPosition, setRetryBase]);
 }
 
 export default useChatPersistence;

@@ -24,7 +24,6 @@ function renderRetryGeneration(overrides = {}) {
   const persistence = {
     retryBaseRef,
     retryBaseStateRef,
-    refreshRetryBase: jest.fn(async () => overrides.persisted || null),
     setRetryBase: jest.fn((messages, state) => {
       retryBaseRef.current = messages;
       retryBaseStateRef.current = state;

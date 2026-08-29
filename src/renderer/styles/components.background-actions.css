@@ -25,3 +25,37 @@
   font-weight: 500;
   color: var(--md-on-surface);
 }
+
+.model-connection-status {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  transition: filter var(--md-motion-duration-short2) var(--md-motion-easing-standard);
+}
+
+.model-connection-status:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+
+.model-connection-status:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.config-status.configured.model-connection-status.success {
+  background: var(--md-success-container);
+  color: var(--md-success);
+}
+
+.config-status.configured.model-connection-status.success::before {
+  background: var(--md-success);
+}
+
+.config-status.configured.model-connection-status.error {
+  background: var(--md-error-container);
+  color: var(--md-error);
+}
+
+.config-status.configured.model-connection-status.error::before {
+  background: var(--md-error);
+}

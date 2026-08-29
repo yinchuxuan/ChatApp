@@ -77,7 +77,7 @@ function useSegmentedReading({
     const previous = previousRef.current;
     const generationStarted = enabled && isLoading && !previous.isLoading;
     const loadingHistoryChanged = enabled && isLoading && previous.isLoading
-      && latestCompletedKey !== previous.latestCompletedKey;
+      && (latestCompletedKey !== previous.latestCompletedKey || latestKey !== previous.latestKey);
     const idleMessageChanged = enabled && !isLoading && !previous.isLoading
       && latestKey !== previous.latestKey;
     if (enabled !== previous.enabled || scopeKey !== previous.scopeKey

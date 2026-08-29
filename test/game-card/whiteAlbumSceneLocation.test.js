@@ -16,8 +16,8 @@ const updateRules = fs.readFileSync(
 );
 const scenes = [
   'apartment', 'classroom', 'corridor', 'musical_classroom2',
-  'musical_classroom3', 'school', 'setsuna_room', 'touma_home', 'stairs',
-  'street', 'subway_station'
+  'musical_classroom3', 'school', 'setsuna_room', 'setsuna_home',
+  'touma_home', 'stairs', 'street', 'subway_station'
 ];
 const times = ['morning', 'afternoon', 'night'];
 const expectedBackgrounds = scenes.flatMap(scene => times.map(time => `${scene}_${time}`));
@@ -52,6 +52,23 @@ describe('white album reusable presentation resources', () => {
     ]);
   });
 
+  test('allows every registered scene in the state schema', () => {
+    const registeredScenes = [
+      ...Object.keys(card.visual.background),
+      ...Object.keys(card.visual.cg)
+    ];
+
+    registeredScenes.forEach((scene) => {
+      const state = ensureStateDefaults(loadedCard.state.schema, {}).state;
+      const result = applyStatePatch(JSON.stringify({
+        type: 'state.set', path: 'visual.scene', value: scene
+      }), state, { schema: loadedCard.state.schema });
+
+      expect(result.trace.applied).toBe(true);
+      expect(result.state.visual.scene).toBe(scene);
+    });
+  });
+
   test.each(reusableBackgrounds)(
     'allows the reusable background %s',
     (background) => {
@@ -71,7 +88,7 @@ describe('white album reusable presentation resources', () => {
 
   test('keeps fixed-only backgrounds out of the LLM write contract', () => {
     ['invite', 'rooftop', 'haiku', 'rooftop2', 'park', 'ktv',
-      'touma_hand', 'home_party', 'agreement', 'GameEnd1', 'event1']
+      'touma_hand', 'home_party', 'agreement', 'window', 'GameEnd1', 'event1']
       .forEach(background => expect(llmStateContract).not.toContain(`\`${background}\``));
   });
 

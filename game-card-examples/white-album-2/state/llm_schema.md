@@ -28,6 +28,7 @@
 | 峰城大附属第三音乐教室 | `musical_classroom3_morning` | `musical_classroom3_afternoon` | `musical_classroom3_night` |
 | 峰城大附属校园、校舍外部 | `school_morning` | `school_afternoon` | `school_night` |
 | 小木曾雪菜的卧室 | `setsuna_room_morning` | `setsuna_room_afternoon` | `setsuna_room_night` |
+| 小木曾雪菜家客厅 | `setsuna_home_morning` | `setsuna_home_afternoon` | `setsuna_home_night` |
 | 冬马和纱家室内 | `touma_home_morning` | `touma_home_afternoon` | `touma_home_night` |
 | 峰城大附属教学楼楼梯 | `stairs_morning` | `stairs_afternoon` | `stairs_night` |
 | 住宅区或城市街道 | `street_morning` | `street_afternoon` | `street_night` |

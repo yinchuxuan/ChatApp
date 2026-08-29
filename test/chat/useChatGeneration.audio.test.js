@@ -24,7 +24,7 @@ function renderGeneration({ pushResult = 'ok', onAudioSubmit = jest.fn(), onStre
     typewriter,
     persistence: {
       retryBaseRef: { current: null }, retryBaseStateRef: { current: null },
-      setRetryBase: jest.fn(), refreshRetryBase: jest.fn(async () => null)
+      setRetryBase: jest.fn()
     },
     isLoading: false,
     setIsLoading: jest.fn(),

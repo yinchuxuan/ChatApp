@@ -10,7 +10,7 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
   const {
     config, backgroundConfig, isConfigured, maskApiKey,
     handleBackgroundChange, handleSelectBackgroundImage, handleClearBackgroundImage,
-    handleChange
+    handleChange, handleTestConnection
   } = state;
 
   const handleMouseEnter = () => setVisible(true);
@@ -43,6 +43,7 @@ function SettingsPanel({ onToggleTheme, theme, onBackgroundChange }) {
           <SettingsModelConfig
               config={config}
               onChange={handleChange}
+              onTestConnection={handleTestConnection}
               maskApiKey={maskApiKey}
               isConfigured={isConfigured}
           />

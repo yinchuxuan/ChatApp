@@ -60,6 +60,9 @@
         "setsuna_room_morning",
         "setsuna_room_afternoon",
         "setsuna_room_night",
+        "setsuna_home_morning",
+        "setsuna_home_afternoon",
+        "setsuna_home_night",
         "touma_home_morning",
         "touma_home_afternoon",
         "touma_home_night",
@@ -81,6 +84,7 @@
         "ktv",
         "home_party",
         "agreement",
+        "window",
         "GameEnd1"
       ],
       "default": "musical_classroom3",

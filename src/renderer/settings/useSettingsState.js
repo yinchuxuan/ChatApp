@@ -1,6 +1,7 @@
 import React from 'react';
 import { DEFAULT_GENERATION_PARAMS, withDefaultGenerationParams } from '../chat/modelGenerationParams.js';
 import { publishModelConfig } from '../chat/modelConfigService.js';
+import { testModelConnection } from '../chat/modelConnectionTest.js';
 import { rendererServices } from '../platform/index.js';
 import useLatestSave from './useLatestSave.js';
 
@@ -9,7 +10,11 @@ const DEFAULT_CONFIG = {
 };
 const DEFAULT_BACKGROUND = { backgroundImageUrl: '', backgroundOpacity: 0.5 };
 
-function useSettingsState(onBackgroundChange, services = rendererServices) {
+function useSettingsState(
+  onBackgroundChange,
+  services = rendererServices,
+  connectionTester = testModelConnection
+) {
   const [config, setConfig] = React.useState(DEFAULT_CONFIG);
   const [backgroundConfig, setBackgroundConfig] = React.useState(DEFAULT_BACKGROUND);
   const [error, setError] = React.useState(null);
@@ -84,6 +89,11 @@ function useSettingsState(onBackgroundChange, services = rendererServices) {
     handleBackgroundChange('backgroundImageUrl', '');
   }, [handleBackgroundChange]);
 
+  const handleTestConnection = React.useCallback(
+    () => connectionTester(configRef.current),
+    [connectionTester]
+  );
+
   const maskApiKey = key => {
     if (!key || key.length <= 8) return key ? '****' : '';
     return `${key.substring(0, 4)}****${key.substring(key.length - 4)}`;
@@ -93,7 +103,7 @@ function useSettingsState(onBackgroundChange, services = rendererServices) {
     config, backgroundConfig, error, isBackgroundBusy,
     isConfigured: config.apiUrl || config.apiKey || config.modelName,
     maskApiKey, handleChange, handleBackgroundChange,
-    handleSelectBackgroundImage, handleClearBackgroundImage
+    handleSelectBackgroundImage, handleClearBackgroundImage, handleTestConnection
   };
 }
 

@@ -19,8 +19,7 @@ function createPersistence() {
   return {
     retryBaseRef: { current: null },
     retryBaseStateRef: { current: null },
-    setRetryBase: jest.fn(),
-    refreshRetryBase: jest.fn(async () => null)
+    setRetryBase: jest.fn()
   };
 }
 

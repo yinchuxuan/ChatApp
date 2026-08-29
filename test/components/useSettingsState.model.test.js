@@ -57,6 +57,22 @@ describe('useSettingsState Hook - Model Handlers', () => {
     expect(result.current.config.modelName).toBe('new-model');
   });
 
+  test('tests the latest in-memory model config', async () => {
+    const connectionTester = jest.fn().mockResolvedValue(undefined);
+    const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
+    const { result } = renderHook(() => useSettingsState(
+      jest.fn(), undefined, connectionTester
+    ));
+    await hookAct(async () => { await Promise.resolve(); });
+
+    hookAct(() => { result.current.handleChange('modelName', 'latest-model'); });
+    await hookAct(async () => { await result.current.handleTestConnection(); });
+
+    expect(connectionTester).toHaveBeenCalledWith(
+      expect.objectContaining({ modelName: 'latest-model' })
+    );
+  });
+
   test('should publish model config on save', async () => {
     const useSettingsState = require('../../src/renderer/settings/useSettingsState.js').default;
     const { subscribeModelConfig } = require('../../src/renderer/chat/modelConfigService.js');

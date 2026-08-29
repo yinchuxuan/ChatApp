@@ -24,7 +24,7 @@ test('useChatGeneration saves retry base without transient context', async () =>
     typewriter,
     persistence: {
       retryBaseRef: { current: null }, retryBaseStateRef: { current: null },
-      setRetryBase, refreshRetryBase: jest.fn(async () => null)
+      setRetryBase
     },
     isLoading: false,
     setIsLoading: jest.fn(),

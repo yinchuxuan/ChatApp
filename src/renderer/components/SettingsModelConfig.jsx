@@ -9,6 +9,9 @@ const EFFORT_LABELS = {
   none: '无（none）', minimal: '极低（minimal）', low: '低（low）',
   medium: '中（medium）', high: '高（high）', xhigh: '极高（xhigh）', max: '最大（max）'
 };
+const CONNECTION_LABELS = {
+  testing: '连接中…', success: '已连接', error: '连接失败'
+};
 
 function selectOptions(field, protocol) {
   if (field === 'protocol') {
@@ -26,11 +29,25 @@ function selectOptions(field, protocol) {
 function SettingsModelConfig({
   config,
   onChange,
+  onTestConnection,
   maskApiKey,
   isConfigured
 }) {
   const [editingField, setEditingField] = React.useState(null);
   const [tempValue, setTempValue] = React.useState('');
+  const [testResult, setTestResult] = React.useState(null);
+  const testRunRef = React.useRef(0);
+  const hasConnectionConfig = ['apiUrl', 'apiKey', 'modelName']
+    .every(field => String(config[field] || '').trim());
+  const connectionLabel = CONNECTION_LABELS[testResult?.status] || '已配置';
+  const connectionTitle = testResult?.status === 'error'
+    ? testResult.message
+    : '发送一条极短消息验证完整生成链路，可能消耗少量额度';
+
+  React.useEffect(() => {
+    testRunRef.current += 1;
+    setTestResult(null);
+  }, [config.apiUrl, config.apiKey, config.modelName, config.protocol]);
 
   const startEdit = (field) => {
     const options = selectOptions(field, config.protocol);
@@ -49,6 +66,22 @@ function SettingsModelConfig({
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.currentTarget.blur();
+    }
+  };
+
+  const handleTestConnection = async () => {
+    if (!hasConnectionConfig || editingField || !onTestConnection) return;
+    const run = ++testRunRef.current;
+    setTestResult({ status: 'testing', message: '' });
+    try {
+      await onTestConnection();
+      if (run === testRunRef.current) {
+        setTestResult({ status: 'success', message: '' });
+      }
+    } catch (error) {
+      if (run === testRunRef.current) {
+        setTestResult({ status: 'error', message: error?.message || '连接失败' });
+      }
     }
   };
 
@@ -110,7 +143,18 @@ function SettingsModelConfig({
       <div className="model-config-header">
         <span className="material-icons">smart_toy</span>
         <span className="model-label">模型配置</span>
-        {isConfigured && <span className="config-status configured">已配置</span>}
+        {isConfigured ? (
+          <button
+            type="button"
+            className={`config-status configured model-connection-status ${testResult?.status || ''}`}
+            disabled={!hasConnectionConfig || Boolean(editingField) || testResult?.status === 'testing' || !onTestConnection}
+            onClick={handleTestConnection}
+            title={connectionTitle}
+            aria-label={testResult?.status === 'error' ? `${connectionLabel}：${testResult.message}` : connectionLabel}
+          >
+            {connectionLabel}
+          </button>
+        ) : null}
       </div>
       {!isConfigured && !editingField ? (
         <div
@@ -144,8 +188,9 @@ function SettingsModelConfig({
 }
 
 SettingsModelConfig.propTypes = {
-  config: PropTypes.shape({ protocol: PropTypes.string }).isRequired,
+  config: PropTypes.shape({ apiUrl: PropTypes.string, apiKey: PropTypes.string, modelName: PropTypes.string, protocol: PropTypes.string }).isRequired,
   onChange: PropTypes.func.isRequired,
+  onTestConnection: PropTypes.func,
   maskApiKey: PropTypes.func.isRequired,
   isConfigured: PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
 };

@@ -73,11 +73,11 @@ describe('useChatPersistence', () => {
     expect(repository.saveHistory).not.toHaveBeenCalled();
   });
 
-  test('refreshes retry base from the active session', async () => {
+  test('hydrates retry base with the active session', () => {
     const persisted = { retryBaseMessages: [{ role: 'user', content: 'Q' }], retryBaseState: { score: 4 } };
-    const repository = { loadHistory: jest.fn(async () => persisted), saveHistory: jest.fn() };
+    const repository = { saveHistory: jest.fn() };
     const { result } = renderHook(() => useChatPersistence({ messages: [], gameState: {}, isLoading: false, repository }));
-    await act(async () => { await result.current.refreshRetryBase(); });
+    act(() => result.current.hydrate(persisted));
     expect(result.current.retryBaseRef.current).toEqual(persisted.retryBaseMessages);
     expect(result.current.retryBaseStateRef.current).toEqual({ score: 4 });
   });

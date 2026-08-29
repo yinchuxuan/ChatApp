@@ -50,6 +50,8 @@ OpenAI-compatible 流中的 `reasoning_content`、`reasoning` 与可见的 `reas
 
 `AbortSignal` 通过 request id 映射到 `cancel_model_stream`。renderer 不直接连接模型外网，也不维护额外 CORS 代理。
 
+模型设置中的“已配置”状态按钮复用同一条生成链路，向当前模型发送限长的 `Hi` 流式请求；通过后显示“已连接”。测试因此会同时验证 URL、密钥、模型名、协议和响应格式，并可能产生少量模型费用；它不是独立的 HTTP 健康检查。
+
 ## 受控脚本
 
 `controlledScriptExecutor.js` 在独立 Worker 中执行游戏卡 JavaScript，超时会终止 Worker。脚本 context 和 result 协议位于 `src/shared/game-card/exec`；DOM、native command 和本地文件能力不会进入脚本上下文。

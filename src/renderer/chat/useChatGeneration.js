@@ -75,18 +75,15 @@ function useChatGeneration({
     if (chatGeneration.findLastUserIndex(messages) < 0) return false;
     onAudioSubmit?.();
     onResponseValidationWarning?.(null);
+    const retryBaseMessages = persistence.retryBaseRef.current;
+    const retryBaseState = persistence.retryBaseStateRef.current;
     await generationControl.stopGeneration();
-    const persisted = await persistence.refreshRetryBase();
-    const persistedMessages = Array.isArray(persisted?.retryBaseMessages)
-      ? persisted.retryBaseMessages
-      : persistence.retryBaseRef.current;
-    const retryMessages = chatGeneration.buildRetryMessages(messages, persistedMessages, editedContent);
+    const retryMessages = chatGeneration.buildRetryMessages(
+      messages, retryBaseMessages, editedContent
+    );
     if (!retryMessages) return false;
-    const persistedState = persisted?.retryBaseState !== undefined
-      ? persisted.retryBaseState
-      : persistence.retryBaseStateRef.current;
-    const retryState = persistedState !== undefined && persistedState !== null
-      ? chatGeneration.cloneChatValue(persistedState)
+    const retryState = retryBaseState !== undefined && retryBaseState !== null
+      ? chatGeneration.cloneChatValue(retryBaseState)
       : {};
     persistence.setRetryBase(retryMessages, retryState);
     setGameState(retryState);

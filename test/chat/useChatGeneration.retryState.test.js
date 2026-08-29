@@ -44,27 +44,24 @@ describe('useChatGeneration retry state snapshot', () => {
     expect(generationServices.preparePreSendMessages.mock.calls[0][0].state).toEqual({});
   });
 
-  test('refreshes retry base from persisted session', async () => {
+  test('uses the retry base already hydrated in memory', async () => {
     generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
-    const persisted = {
+    const { result } = renderRetryGeneration({
       retryBaseMessages: [{ role: 'user', content: 'Q' }],
-      retryBaseState: { timeline: { currentTime: 'persisted-time' } }
-    };
-    const { result } = renderRetryGeneration({ persisted, retryBaseState: { timeline: { currentTime: 'old-time' } } });
+      retryBaseState: { timeline: { currentTime: 'hydrated-time' } }
+    });
     await act(async () => { await result.current.retry(); });
-    expect(generationServices.preparePreSendMessages.mock.calls[0][0].state).toEqual({ timeline: { currentTime: 'persisted-time' } });
+    expect(generationServices.preparePreSendMessages.mock.calls[0][0].state).toEqual({
+      timeline: { currentTime: 'hydrated-time' }
+    });
   });
 
   test('removes transient turn context before rerunning pre_send', async () => {
     generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
-    const persisted = {
-      retryBaseMessages: [
-        { role: 'system', content: 'old state', ttl: 1 },
-        { role: 'user', content: '选择A\n\n---\n<wa2_turn_context>\n旧上下文\n</wa2_turn_context>' }
-      ],
-      retryBaseState: {}
-    };
-    const { result } = renderRetryGeneration({ persisted });
+    const { result } = renderRetryGeneration({ retryBaseMessages: [
+      { role: 'system', content: 'old state', ttl: 1 },
+      { role: 'user', content: '选择A\n\n---\n<wa2_turn_context>\n旧上下文\n</wa2_turn_context>' }
+    ] });
     await act(async () => { await result.current.retry(); });
     expect(generationServices.preparePreSendMessages.mock.calls[0][0].messages).toEqual([{ role: 'user', content: '选择A' }]);
   });
@@ -72,11 +69,10 @@ describe('useChatGeneration retry state snapshot', () => {
   test('does not rely on structuredClone for persisted state', async () => {
     global.structuredClone = jest.fn(() => ({}));
     generationServices.preparePreSendMessages = jest.fn(async ({ messages, state }) => ({ messages, state, applied: false, card: { id: 'card' } }));
-    const persisted = {
+    const { result } = renderRetryGeneration({
       retryBaseMessages: [{ role: 'user', content: 'Q' }],
       retryBaseState: { timeline: { currentTime: 'persisted-time' } }
-    };
-    const { result } = renderRetryGeneration({ persisted });
+    });
     await act(async () => { await result.current.retry(); });
     expect(generationServices.preparePreSendMessages.mock.calls[0][0].state).toEqual({ timeline: { currentTime: 'persisted-time' } });
   });
