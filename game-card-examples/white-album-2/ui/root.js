@@ -57,7 +57,9 @@ function Root({ React, messages = [], emit, ui = {} }) {
         }
         return;
       }
-      if (event.key !== 'Escape') return;
+      const isPauseKey = event.key === ' ' || event.code === 'Space';
+      if (!isPauseKey || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey
+        || isReadingControlTarget(event.target)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       if (paused) setPaused(false);

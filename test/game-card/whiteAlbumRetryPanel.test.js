@@ -43,10 +43,12 @@ describe('white album 2 retry panel', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  test('opens from Escape and retries with the edited last action', () => {
+  test('opens from Space and retries with the edited last action', () => {
     const { emit } = renderRetryRoot();
 
     fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    fireEvent.keyDown(window, { key: ' ', code: 'Space' });
     fireEvent.change(screen.getByRole('textbox', { name: '编辑上一次行动' }), {
       target: { value: '改为去找冬马。' }
     });
@@ -56,6 +58,20 @@ describe('white album 2 retry panel', () => {
       type: 'chat.retry',
       content: '改为去找冬马。'
     });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('keeps Space available in editable controls', () => {
+    const { root } = renderRetryRoot();
+    const input = document.createElement('textarea');
+    root.appendChild(input);
+    const space = new KeyboardEvent('keydown', {
+      key: ' ', code: 'Space', bubbles: true, cancelable: true
+    });
+
+    input.dispatchEvent(space);
+
+    expect(space.defaultPrevented).toBe(false);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
