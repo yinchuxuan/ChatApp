@@ -73,6 +73,11 @@ function createTauriRendererServices(client = tauriBridge) {
         const card = await call('import_game_card_from_directory', {}, 'card');
         invalidateGameCardRuntimeCache();
         return card;
+      },
+      importFile: async () => {
+        const card = await call('import_game_card_from_file', {}, 'card');
+        invalidateGameCardRuntimeCache();
+        return card;
       }
     }),
     window: Object.freeze({

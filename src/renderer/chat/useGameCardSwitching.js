@@ -27,7 +27,7 @@ function useGameCardSwitching({
   const importCard = React.useCallback(async () => {
     if (isLoading) return null;
     await session.saveCurrent();
-    const card = await repository.importDirectory();
+    const card = await repository.importFile();
     if (!card) return null;
     return finishSwitch(card);
   }, [finishSwitch, isLoading, repository, session]);

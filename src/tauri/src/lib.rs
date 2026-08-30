@@ -1,11 +1,16 @@
 mod app_storage;
 mod config_commands;
 mod electron_migration;
+mod game_card_archive;
 mod game_card_commands;
 mod game_card_copy;
 mod game_card_error;
 mod game_card_imports;
+mod game_card_package;
 mod game_card_paths;
+mod game_card_png;
+mod game_card_png_read;
+mod game_card_png_write;
 mod game_card_references;
 mod game_card_repository;
 mod game_card_schema;
@@ -95,6 +100,7 @@ pub fn run() {
             game_card_commands::get_game_card,
             game_card_commands::save_game_card,
             game_card_commands::import_game_card_from_directory,
+            game_card_commands::import_game_card_from_file,
             game_card_commands::set_active_game_card,
             game_card_commands::get_active_game_card,
             game_card_commands::read_game_card_file,
@@ -105,6 +111,23 @@ pub fn run() {
         .expect("error while running Tauri application");
 }
 
+pub fn export_game_card_package(
+    source: &std::path::Path,
+    output_dir: &std::path::Path,
+    format: &str,
+    cover: Option<&std::path::Path>,
+) -> Result<(std::path::PathBuf, String), String> {
+    let format = match format {
+        "gamecard" => game_card_package::ExportFormat::GameCard,
+        "png" => game_card_package::ExportFormat::Png,
+        value => return Err(format!("unsupported game card export format: {value}")),
+    };
+    game_card_package::export_package(source, output_dir, format, cover)
+        .map_err(|error| error.error)
+}
+
+#[cfg(test)]
+mod game_card_package_tests;
 #[cfg(test)]
 mod game_card_tests;
 #[cfg(test)]

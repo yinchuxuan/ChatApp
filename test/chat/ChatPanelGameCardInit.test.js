@@ -82,7 +82,7 @@ describe('ChatPanel game card init', () => {
   });
 
   test('renders import errors outside the auto-hidden header', async () => {
-    global.platformMock.importGameCardFromDirectory.mockResolvedValue({
+    global.platformMock.importGameCardFromFile.mockResolvedValue({
       success: false,
       error: '游戏卡主文件 schema 校验失败',
       stage: 'validate_card',
@@ -94,7 +94,7 @@ describe('ChatPanel game card init', () => {
     await screen.findByText('Init Card');
     fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
+      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件' }));
     });
 
     const panel = document.querySelector('.chat-main > .game-card-error-panel.import');
@@ -123,10 +123,10 @@ describe('ChatPanel game card init', () => {
       success: true,
       card: nextCard
     });
-    global.platformMock.importGameCardFromDirectory.mockResolvedValue({ success: true, card: nextCard });
+    global.platformMock.importGameCardFromFile.mockResolvedValue({ success: true, card: nextCard });
     fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
+      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件' }));
     });
 
     await waitFor(() => expect(screen.getByText('intro')).toBeInTheDocument());

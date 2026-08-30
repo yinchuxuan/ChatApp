@@ -38,6 +38,12 @@ function createMemoryRendererServices(initial = {}) {
         if (card && !cards.some(item => item.id === card.id)) cards = [...cards, card];
         activeCardId = card?.id || activeCardId;
         return card;
+      },
+      importFile: async () => {
+        const card = initial.importedCard || null;
+        if (card && !cards.some(item => item.id === card.id)) cards = [...cards, card];
+        activeCardId = card?.id || activeCardId;
+        return card;
       }
     },
     window: {

@@ -108,8 +108,8 @@ function GameCardSwitcher({
         {cards.map(renderCard)}
       </div>
       <button type="button" className="game-card-switch-import" onClick={importCard}
-        disabled={busy} aria-label="导入游戏卡文件夹">
-        <span className="material-icons">drive_folder_upload</span><span>导入游戏卡</span>
+        disabled={busy} aria-label="导入游戏卡文件">
+        <span className="material-icons">upload_file</span><span>导入游戏卡</span>
       </button>
     </div> : null}
   </div>;

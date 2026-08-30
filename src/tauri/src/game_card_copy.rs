@@ -30,23 +30,21 @@ fn copy_tree(source: &Path, target: &Path) -> CardResult<()> {
     Ok(())
 }
 
-pub fn prepare(source: &Path, target: &Path) -> CardResult<PathBuf> {
-    let parent = target
-        .parent()
-        .ok_or_else(|| GameCardError::new("Invalid game card target directory"))?;
+pub fn prepare(source: &Path, parent: &Path) -> CardResult<PathBuf> {
     fs::create_dir_all(parent)?;
-    let temp = parent.join(format!(
-        ".{}-import-{}",
-        target
-            .file_name()
-            .and_then(|value| value.to_str())
-            .unwrap_or("card"),
-        Uuid::new_v4()
-    ));
+    let temp = staging_path(parent, "directory");
     if let Err(error) = copy_tree(source, &temp) {
         let _ = fs::remove_dir_all(&temp);
         return Err(error);
     }
+    Ok(temp)
+}
+
+pub fn staging_path(parent: &Path, hint: &str) -> PathBuf {
+    parent.join(format!(".{hint}-import-{}", Uuid::new_v4()))
+}
+
+pub fn preserve_sessions(target: &Path, temp: &Path) -> CardResult<()> {
     let sessions = target.join("sessions");
     if sessions.exists() {
         let temp_sessions = temp.join("sessions");
@@ -56,7 +54,7 @@ pub fn prepare(source: &Path, target: &Path) -> CardResult<PathBuf> {
             return Err(error);
         }
     }
-    Ok(temp)
+    Ok(())
 }
 
 pub fn replace(temp: &Path, target: &Path) -> CardResult<()> {

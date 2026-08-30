@@ -9,7 +9,7 @@ function setup({ isLoading = false, importedCard = null } = {}) {
   };
   const repository = {
     setActive: jest.fn(async id => { events.push(`activate:${id ?? 'no-card'}`); }),
-    importDirectory: jest.fn(async () => { events.push('import'); return importedCard; })
+    importFile: jest.fn(async () => { events.push('import'); return importedCard; })
   };
   const runtime = {
     setRuntimeError: jest.fn(() => events.push('clear-error')),

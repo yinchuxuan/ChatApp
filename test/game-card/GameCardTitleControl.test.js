@@ -11,7 +11,7 @@ const platformMock = global.platformMock;
 function renderControl(props = {}, parentProps = null) {
   const callbacks = {
     onActivateCard: jest.fn(async () => null),
-    onImportCard: () => rendererServices.cards.importDirectory()
+    onImportCard: () => rendererServices.cards.importFile()
   };
   const control = <GameCardRuntimeProvider>
     <GameCardTitleControl {...callbacks} {...props} />
@@ -29,7 +29,7 @@ describe('GameCardTitleControl', () => {
     jest.clearAllMocks();
     platformMock.getActiveGameCard.mockResolvedValue({ success: true, card: null });
     platformMock.getGameCards.mockResolvedValue({ success: true, cards: [] });
-    platformMock.importGameCardFromDirectory.mockResolvedValue({ success: false, canceled: true, card: null });
+    platformMock.importGameCardFromFile.mockResolvedValue({ success: false, canceled: true, card: null });
     platformMock.listChatSessions.mockResolvedValue({
       success: true,
       activeId: 'default',
@@ -59,7 +59,7 @@ describe('GameCardTitleControl', () => {
   test('starts game card import and stops header click propagation', async () => {
     const headerClick = jest.fn();
     const importedCard = { id: 'new_quest', name: 'New Quest', rules: [] };
-    platformMock.importGameCardFromDirectory.mockResolvedValue({
+    platformMock.importGameCardFromFile.mockResolvedValue({
       success: true,
       card: importedCard
     });
@@ -68,10 +68,10 @@ describe('GameCardTitleControl', () => {
     await screen.findByText('普通聊天');
     await openSwitcher();
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
+      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件' }));
     });
 
-    expect(platformMock.importGameCardFromDirectory).toHaveBeenCalled();
+    expect(platformMock.importGameCardFromFile).toHaveBeenCalled();
     expect(headerClick).not.toHaveBeenCalled();
   });
 
@@ -84,11 +84,11 @@ describe('GameCardTitleControl', () => {
     expect(button).toHaveAttribute('title', '生成完成后可切换游戏卡');
     fireEvent.click(button);
     expect(screen.queryByText('切换游戏卡')).not.toBeInTheDocument();
-    expect(platformMock.importGameCardFromDirectory).not.toHaveBeenCalled();
+    expect(platformMock.importGameCardFromFile).not.toHaveBeenCalled();
   });
 
   test('shows readable import errors without changing active card', async () => {
-    platformMock.importGameCardFromDirectory.mockResolvedValue({
+    platformMock.importGameCardFromFile.mockResolvedValue({
       success: false,
       error: '游戏卡状态 schema 校验失败',
       stage: 'validate_state_schema',
@@ -99,7 +99,7 @@ describe('GameCardTitleControl', () => {
     await screen.findByText('普通聊天');
     await openSwitcher();
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件夹' }));
+      fireEvent.click(screen.getByRole('button', { name: '导入游戏卡文件' }));
     });
 
     expect(screen.getByText('导入游戏卡失败')).toBeInTheDocument();

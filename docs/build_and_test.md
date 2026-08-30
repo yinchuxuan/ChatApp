@@ -12,6 +12,8 @@ Tauri is the only desktop target.
 | `npm run build` | Build the renderer and native Tauri desktop installer |
 | `npm run renderer:dev` | Start only the Vite renderer on port `1420` |
 | `npm run renderer:build` | Build only the renderer to `dist/renderer/` |
+| `npm run game-card:export -- <card-dir> --format gamecard` | Validate and export a game card package to `dist/game-cards/` |
+| `npm run game-card:export -- <card-dir> --format png --cover <path>` | Export a renderable PNG containing the complete game card |
 | `npm run test` | Run Jest, integration, Rust and Tauri desktop E2E tests |
 | `npm run test:js` | Run Jest unit and JavaScript integration tests |
 | `npm run test:rust` | Run Tauri Rust backend tests |

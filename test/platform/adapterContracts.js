@@ -16,6 +16,7 @@ async function verifyRendererServices(services) {
   await expect(services.cards.list()).resolves.toEqual(expect.any(Array));
   await services.cards.setActive(null);
   await services.cards.importDirectory();
+  await services.cards.importFile();
   const fullscreen = await services.window.isFullscreen();
   await services.window.setFullscreen(!fullscreen);
   expect(await services.window.isFullscreen()).toBe(!fullscreen);

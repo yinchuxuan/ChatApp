@@ -2,6 +2,7 @@ use crate::app_storage::AppStorage;
 use crate::game_card_copy;
 use crate::game_card_error::{CardResult, GameCardError};
 use crate::game_card_imports::read_card;
+use crate::game_card_package;
 use crate::game_card_paths::{card_dir, existing_file, is_safe_id, require_safe_id};
 use crate::game_card_schema::validate_card;
 use crate::json_store::{exists, read_json, write_json};
@@ -90,29 +91,67 @@ pub async fn read_text(storage: &AppStorage, id: &str, relative: &str) -> CardRe
     fs::read_to_string(path).map_err(GameCardError::from)
 }
 
-pub async fn import(storage: &AppStorage, source: &Path) -> CardResult<Value> {
-    let source = source
-        .canonicalize()
-        .map_err(|_| GameCardError::new("Selected folder must contain card.json"))?;
-    let card = read_card(&source)?;
+async fn install_staged(storage: &AppStorage, staging: &Path) -> CardResult<Value> {
+    let card = read_card(staging)?;
     let id = card
         .get("id")
         .and_then(Value::as_str)
         .ok_or_else(|| GameCardError::new("Game card must have a safe id"))?;
     require_safe_id(id)?;
-    validate_card(&card, &source)?;
+    validate_card(&card, staging)?;
     let target = card_dir(&cards_dir(storage), id)?;
     let _guard = storage.lock(&target).await;
-    if target.canonicalize().ok().as_ref() != Some(&source) {
-        let temp = game_card_copy::prepare(&source, &target)?;
-        let result = read_card(&temp).and_then(|installed| validate_card(&installed, &temp));
-        if let Err(error) = result {
-            let _ = fs::remove_dir_all(temp);
-            return Err(error);
-        }
-        game_card_copy::replace(&temp, &target)?;
-    }
+    game_card_copy::preserve_sessions(&target, staging)?;
+    game_card_copy::replace(staging, &target)?;
     drop(_guard);
     set_active(storage, Some(id)).await?;
     Ok(card)
+}
+
+async fn install_with_cleanup(storage: &AppStorage, staging: &Path) -> CardResult<Value> {
+    let result = install_staged(storage, staging).await;
+    if result.is_err() {
+        let _ = fs::remove_dir_all(staging);
+    }
+    result
+}
+
+pub async fn import(storage: &AppStorage, source: &Path) -> CardResult<Value> {
+    let source = source
+        .canonicalize()
+        .map_err(|_| GameCardError::new("Selected folder must contain card.json"))?;
+    let card = read_card(&source)?;
+    validate_card(&card, &source)?;
+    let id = card
+        .get("id")
+        .and_then(Value::as_str)
+        .ok_or_else(|| GameCardError::new("Game card must have a safe id"))?;
+    let target = card_dir(&cards_dir(storage), id)?;
+    if target.canonicalize().ok().as_ref() == Some(&source) {
+        set_active(storage, Some(id)).await?;
+        return Ok(card);
+    }
+    let staging = game_card_copy::prepare(&source, &cards_dir(storage))?;
+    install_with_cleanup(storage, &staging).await
+}
+
+pub async fn import_file(storage: &AppStorage, source: &Path) -> CardResult<Value> {
+    let source = source
+        .canonicalize()
+        .map_err(|_| GameCardError::new("Selected game card file was not found"))?;
+    let parent = cards_dir(storage);
+    fs::create_dir_all(&parent)?;
+    let staging = game_card_copy::staging_path(&parent, "package");
+    let extraction_source = source.clone();
+    let extraction_staging = staging.clone();
+    let extraction = tokio::task::spawn_blocking(move || {
+        game_card_package::extract_package(&extraction_source, &extraction_staging)
+    })
+    .await
+    .map_err(|error| GameCardError::new(format!("game card import task failed: {error}")))?;
+    if let Err(error) = extraction {
+        let _ = fs::remove_dir_all(&staging);
+        return Err(error);
+    }
+    install_with_cleanup(storage, &staging).await
 }

@@ -50,6 +50,7 @@ describe('Tauri desktop scaffold', () => {
       build: 'cd src/tauri && tauri build',
       'renderer:build': 'vite build --config vite.config.mjs',
       'renderer:dev': 'vite --config vite.config.mjs',
+      'game-card:export': expect.stringContaining('--bin game-card-export'),
       'tauri:dev': 'npm run dev',
       'tauri:build': 'npm run build'
     }));
@@ -68,12 +69,14 @@ describe('Tauri desktop scaffold', () => {
     const schema = fs.readFileSync(path.join(rootDir, 'src/tauri/src/game_card_schema.rs'), 'utf8');
 
     expect(cargo).toContain('tauri-plugin-dialog = "2"');
+    expect(cargo).toContain('default-run = "chatapp-tauri"');
     expect(lib).toContain('.plugin(tauri_plugin_dialog::init())');
     [
       'get_game_cards',
       'get_game_card',
       'save_game_card',
       'import_game_card_from_directory',
+      'import_game_card_from_file',
       'set_active_game_card',
       'get_active_game_card',
       'read_game_card_file'

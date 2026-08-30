@@ -27,6 +27,7 @@
  * @property {() => Promise<GameCard[]>} list
  * @property {(id: string|null) => Promise<unknown>} setActive
  * @property {() => Promise<GameCard|null>} importDirectory
+ * @property {() => Promise<GameCard|null>} importFile
  */
 /** @typedef {{isFullscreen: () => Promise<boolean>, setFullscreen: (value: boolean) => Promise<void>}} WindowService */
 /**

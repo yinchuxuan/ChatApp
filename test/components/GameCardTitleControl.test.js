@@ -21,7 +21,7 @@ describe('GameCardTitleControl', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
-    fireEvent.click(await screen.findByRole('button', { name: '导入游戏卡文件夹' }));
+    fireEvent.click(await screen.findByRole('button', { name: '导入游戏卡文件' }));
 
     await waitFor(() => expect(onImportCard).toHaveBeenCalled());
   });

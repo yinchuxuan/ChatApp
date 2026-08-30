@@ -73,6 +73,15 @@ describe('Tauri renderer adapters', () => {
     ]);
   });
 
+  test('imports packaged game cards through the native file picker', async () => {
+    const invoke = jest.fn(async () => ({ success: true, card: { id: 'packaged' } }));
+    const services = createTauriRendererServices({ invoke, listen: jest.fn() });
+
+    await expect(services.cards.importFile()).resolves.toEqual({ id: 'packaged' });
+
+    expect(invoke).toHaveBeenCalledWith('import_game_card_from_file', {});
+  });
+
   test('normalizes rejected and business errors with validation details', async () => {
     const failure = { error: 'invalid card', stage: 'validate', file: 'card.json', details: [{ message: 'bad' }] };
     const rejected = createTauriGameCardPlatform({ invoke: async () => { throw failure; } });

@@ -42,6 +42,27 @@ pub async fn import_game_card_from_directory(
 }
 
 #[tauri::command]
+pub async fn import_game_card_from_file(
+    app: AppHandle,
+    state: State<'_, AppStorage>,
+) -> CardResult<Value> {
+    #[cfg(feature = "e2e")]
+    if let Some(path) = std::env::var_os("CHATAPP_E2E_IMPORT_FILE") {
+        return game_card_repository::import_file(&state, std::path::Path::new(&path)).await;
+    }
+    let selected = app
+        .dialog()
+        .file()
+        .add_filter("游戏卡文件", &["gamecard", "png"])
+        .blocking_pick_file()
+        .ok_or_else(GameCardError::canceled)?;
+    let path = selected
+        .into_path()
+        .map_err(|error| GameCardError::new(error.to_string()))?;
+    game_card_repository::import_file(&state, &path).await
+}
+
+#[tauri::command]
 pub async fn set_active_game_card(
     state: State<'_, AppStorage>,
     id: Option<String>,
