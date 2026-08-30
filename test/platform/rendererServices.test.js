@@ -23,7 +23,9 @@ function mockTauriClient() {
     listen: jest.fn(async () => () => {}),
     convertFileSrc: path => `asset:///${encodeURIComponent(path)}`,
     getCurrentWindow: () => ({
+      destroy: async () => {},
       isFullscreen: async () => fullscreen,
+      onCloseRequested: async () => () => {},
       setFullscreen: async value => { fullscreen = value; }
     })
   };

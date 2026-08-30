@@ -10,4 +10,14 @@ function createChatMessage(message) {
   return { id: createMessageId(), ...message };
 }
 
-export { createChatMessage, createMessageId };
+function ensureMessageIds(messages = []) {
+  let changed = false;
+  const normalized = messages.map(message => {
+    if (typeof message?.id === 'string' && message.id) return message;
+    changed = true;
+    return { ...message, id: createMessageId() };
+  });
+  return changed ? normalized : messages;
+}
+
+export { createChatMessage, createMessageId, ensureMessageIds };

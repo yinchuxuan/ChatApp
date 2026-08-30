@@ -121,7 +121,7 @@ gameState.audio.bgm
 - 供应商请求失败时恢复提交前的 BGM；用户主动取消时保持停止并保留部分回复
 - LLM 只输出 thinking/reasoning 时保持停止
 - 普通模式在正文第一个 token 开始流式输出时，按当前 `gameState.audio.bgm` 从头加载并播放
-- 分段模式不在 session 加载或正文首 token 时自动播放 BGM
+- 分段模式在 session 加载时恢复存档中的 BGM，但不在正文首 token 时自动继承播放
 - 分段模式每次成功执行 `state.set audio.bgm` 时，在阅读游标越过该 patch 后发布播放请求；即使值未变化也会重新播放
 - 普通模式下，`state_patch` 改变 `audio.bgm` 时，在流游标越过该 patch 后发布播放请求
 - 普通模式的 `pre_send` / `after_response` 可通过 `audio.updateBgm` 手动发布播放请求；分段模式忽略该动作
@@ -133,7 +133,7 @@ gameState.audio.bgm
 - active game card 为空时停止播放
 - 当前 key 缺失或资源不存在时停止播放并记录错误
 - 切换游戏卡时停止旧音频
-- 普通模式切换 session 后按恢复出的 `gameState.audio.bgm` 播放；分段模式等待后续显式 set
+- 切换 session 后按恢复出的 `gameState.audio.bgm` 播放；分段模式后续仍只响应显式 set
 - 相同 key 不重复加载
 - 音频循环播放默认开启
 

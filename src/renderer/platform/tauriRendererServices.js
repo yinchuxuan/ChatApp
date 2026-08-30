@@ -28,6 +28,21 @@ function subscribeToBackground(client, listener) {
   };
 }
 
+function subscribeToWindowClose(client, listener) {
+  let disposed = false;
+  let unlisten = null;
+  Promise.resolve(client.getCurrentWindow().onCloseRequested(listener))
+    .then((nextUnlisten) => {
+      if (disposed) nextUnlisten();
+      else unlisten = nextUnlisten;
+    })
+    .catch(() => {});
+  return () => {
+    disposed = true;
+    if (unlisten) unlisten();
+  };
+}
+
 /** @returns {import('./contracts.js').RendererServices} */
 function createTauriRendererServices(client = tauriBridge) {
   const call = (command, args, field) => invokeTauriCommand(client.invoke, command, args, field);
@@ -81,7 +96,9 @@ function createTauriRendererServices(client = tauriBridge) {
       }
     }),
     window: Object.freeze({
+      destroy: () => client.getCurrentWindow().destroy(),
       isFullscreen: () => client.getCurrentWindow().isFullscreen(),
+      onCloseRequested: listener => subscribeToWindowClose(client, listener),
       setFullscreen: fullscreen => client.getCurrentWindow().setFullscreen(fullscreen)
     })
   });

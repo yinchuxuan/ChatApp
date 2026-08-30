@@ -1,5 +1,6 @@
 import React from 'react';
 import { cloneChatValue, normalizeRetryMessages } from './chatGeneration.js';
+import { createLatestSaveQueue } from './latestSaveQueue.js';
 import { rendererServices } from '../platform/index.js';
 
 function normalizedViewState(value) {
@@ -17,6 +18,9 @@ function useChatPersistence({ messages, gameState, isLoading, repository = rende
   const gameStateRef = React.useRef(gameState);
   messagesRef.current = messages;
   gameStateRef.current = gameState;
+  const saveQueue = React.useMemo(() => createLatestSaveQueue(snapshot => (
+    repository.saveHistory(snapshot.messages, snapshot.options)
+  )), [repository]);
 
   const hydrate = React.useCallback((result = {}) => {
     if (Array.isArray(result.retryBaseMessages)) retryBaseRef.current = result.retryBaseMessages;
@@ -41,14 +45,21 @@ function useChatPersistence({ messages, gameState, isLoading, repository = rende
     retryBaseStateRef.current = cloneChatValue(nextState || {});
   }, []);
 
-  const save = React.useCallback(async (nextMessages, nextState) => {
-    return repository.saveHistory(nextMessages ?? messagesRef.current, {
+  const snapshot = React.useCallback((nextMessages, nextState) => ({
+    messages: nextMessages ?? messagesRef.current,
+    options: {
       gameState: nextState ?? gameStateRef.current,
       retryBaseMessages: retryBaseRef.current,
       retryBaseState: retryBaseStateRef.current,
       viewState: viewStateRef.current
-    });
-  }, [repository]);
+    }
+  }), []);
+  const save = React.useCallback((nextMessages, nextState) => (
+    saveQueue.flush(snapshot(nextMessages, nextState))
+  ), [saveQueue, snapshot]);
+  const flush = React.useCallback(() => (
+    loadedRef.current ? saveQueue.flush(snapshot()) : saveQueue.waitForIdle()
+  ), [saveQueue, snapshot]);
 
   const setReadingPosition = React.useCallback((position) => {
     const messageId = String(position?.messageId || '');
@@ -64,13 +75,14 @@ function useChatPersistence({ messages, gameState, isLoading, repository = rende
 
   React.useEffect(() => {
     if (!loadedRef.current || isLoading) return;
-    void save().catch(() => {});
-  }, [messages, gameState, isLoading, save, viewState]);
+    void saveQueue.enqueue(snapshot()).catch(() => {});
+  }, [gameState, isLoading, messages, saveQueue, snapshot, viewState]);
 
   const markLoaded = React.useCallback(() => { loadedRef.current = true; }, []);
 
   return React.useMemo(() => ({
     hydrate,
+    flush,
     markLoaded,
     reset,
     retryBaseRef,
@@ -80,7 +92,7 @@ function useChatPersistence({ messages, gameState, isLoading, repository = rende
     save,
     setReadingPosition,
     setRetryBase
-  }), [hydrate, markLoaded, reset, save, setReadingPosition, setRetryBase]);
+  }), [flush, hydrate, markLoaded, reset, save, setReadingPosition, setRetryBase]);
 }
 
 export default useChatPersistence;

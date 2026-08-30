@@ -20,6 +20,7 @@ import useSegmentedReading from './useSegmentedReading.js';
 import useTypewriter from './useTypewriter.js';
 import { rendererServices } from '../platform/index.js';
 import { useGameCardRuntime } from './GameCardRuntimeProvider.jsx';
+import useAppClosePersistence from './useAppClosePersistence.js';
 import useChatGeneration from './useChatGeneration.js';
 import useChatPresentationHandlers from './useChatPresentationHandlers.js';
 import useChatPersistence from './useChatPersistence.js';
@@ -70,6 +71,7 @@ function ChatRuntime({
     onStatePatchApplied: presentationHandlers.onStatePatchApplied,
     onStreamContentStart: presentationHandlers.onStreamContentStart
   });
+  useAppClosePersistence({ stopGeneration: generation.stop, flush: persistence.flush });
   const scroll = useChatScroll({ messages, isLoading, displayedCount: typewriter.displayedCount, showMsgHistory });
   const session = useChatSession({
     setMessages,
@@ -188,7 +190,6 @@ function ChatRuntime({
     <ChatInputArea isLoading={isLoading} isInputHovered={isInputHovered} setIsInputHovered={setIsInputHovered} isInputTriggerHovered={isInputTriggerHovered} setIsInputTriggerHovered={setIsInputTriggerHovered} onSend={generation.send} onStop={generation.stop} />
   </div>;
 }
-
 ChatRuntime.propTypes = {
   BgmPlayer: PropTypes.elementType,
   BackgroundRuntime: PropTypes.elementType,

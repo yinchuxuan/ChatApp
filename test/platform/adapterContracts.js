@@ -17,9 +17,13 @@ async function verifyRendererServices(services) {
   await services.cards.setActive(null);
   await services.cards.importDirectory();
   await services.cards.importFile();
+  const unsubscribeClose = services.window.onCloseRequested(() => {});
+  expect(unsubscribeClose).toEqual(expect.any(Function));
+  unsubscribeClose();
   const fullscreen = await services.window.isFullscreen();
   await services.window.setFullscreen(!fullscreen);
   expect(await services.window.isFullscreen()).toBe(!fullscreen);
+  await services.window.destroy();
 }
 
 async function verifyGameCardPlatform(platform) {

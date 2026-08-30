@@ -73,6 +73,17 @@ describe('useChatPersistence', () => {
     expect(repository.saveHistory).not.toHaveBeenCalled();
   });
 
+  test('does not overwrite history when closing before hydration finishes', async () => {
+    const repository = { saveHistory: jest.fn(async () => ({})) };
+    const { result } = renderHook(() => useChatPersistence({
+      messages: [], gameState: {}, isLoading: false, repository
+    }));
+
+    await act(async () => { await result.current.flush(); });
+
+    expect(repository.saveHistory).not.toHaveBeenCalled();
+  });
+
   test('hydrates retry base with the active session', () => {
     const persisted = { retryBaseMessages: [{ role: 'user', content: 'Q' }], retryBaseState: { score: 4 } };
     const repository = { saveHistory: jest.fn() };
@@ -80,5 +91,35 @@ describe('useChatPersistence', () => {
     act(() => result.current.hydrate(persisted));
     expect(result.current.retryBaseRef.current).toEqual(persisted.retryBaseMessages);
     expect(result.current.retryBaseStateRef.current).toEqual({ score: 4 });
+  });
+
+  test('flushes the latest snapshot after an earlier save finishes', async () => {
+    let finishFirst;
+    const repository = {
+      saveHistory: jest.fn()
+        .mockImplementationOnce(() => new Promise(resolve => { finishFirst = resolve; }))
+        .mockResolvedValue({})
+    };
+    const { result, rerender } = renderHook((props) => useChatPersistence({
+      ...props, repository
+    }), {
+      initialProps: { messages: [], gameState: { score: 0 }, isLoading: false }
+    });
+    act(() => result.current.markLoaded());
+    rerender({ messages: [], gameState: { score: 1 }, isLoading: false });
+    await waitFor(() => expect(repository.saveHistory).toHaveBeenCalledTimes(1));
+
+    rerender({ messages: [], gameState: { score: 2 }, isLoading: false });
+    const flushed = result.current.flush();
+    expect(repository.saveHistory).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      finishFirst({});
+      await flushed;
+    });
+
+    expect(repository.saveHistory).toHaveBeenCalledTimes(2);
+    expect(repository.saveHistory).toHaveBeenLastCalledWith([], expect.objectContaining({
+      gameState: { score: 2 }
+    }));
   });
 });

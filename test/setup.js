@@ -21,7 +21,9 @@ jest.mock('@tauri-apps/api/core', () => ({
 jest.mock('@tauri-apps/api/event', () => ({ listen: mockTauriApi.listen }));
 jest.mock('@tauri-apps/api/window', () => ({
   getCurrentWindow: () => ({
+    destroy: jest.fn().mockResolvedValue(undefined),
     isFullscreen: jest.fn().mockResolvedValue(false),
+    onCloseRequested: jest.fn().mockResolvedValue(jest.fn()),
     setFullscreen: jest.fn().mockResolvedValue(undefined)
   })
 }));

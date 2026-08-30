@@ -125,6 +125,7 @@ Tauri adapter 分别映射到 Rust commands：
 - 新 session 初始包含空 `messages.json` 和空 `retry-base.json`。
 - 切换 session 前先保存当前内存中的 messages、gameState、viewState 和 retry base。
 - retry 使用发送前保存在内存中的 retry base；不得为 retry 重新 hydrate Session 或阅读位置。
+- 自动保存按最新快照串行合并；关闭桌面窗口时先停止生成并等待保存队列清空，再销毁窗口。
 - 切换 session 后重新调用现有历史加载流程，并重新执行 game card init。
 - 删除当前 session 后切换到最近更新的其它 session；如果没有其它 session，则创建新的 `default`。
 - session id 必须复用现有安全 id 规则，避免路径穿越。

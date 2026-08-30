@@ -46,4 +46,57 @@ describe('segmented reading persistence', () => {
       && call[1]?.viewState?.reading?.segmentIndex === 2
     ))).toBe(true));
   });
+
+  test('keeps an init-inserted first message on the same segment after reload', async () => {
+    global.platformMock.getActiveGameCard.mockResolvedValue({
+      success: true,
+      card: {
+        version: '1', id: 'segmented-init', name: 'Segmented Init',
+        display: { segmentedReading: true, segmentSeparator: '\n' },
+        rules: [{
+          when: { phase: 'init' },
+          then: [
+            { type: 'insert', role: 'system', content: 'system prompt' },
+            { type: 'insert', role: 'system', content: 'summary' },
+            {
+              type: 'insert', role: 'assistant', content: '第一段。\n第二段。\n第三段。',
+              _meta: {
+                visibility: 'user_visible',
+                statePatchPlayback: { appliedPatchCount: 0, afterResponseApplied: true }
+              }
+            }
+          ]
+        }]
+      }
+    });
+    global.platformMock.getChatHistory.mockResolvedValue({
+      success: true, messages: [], gameState: {}, viewState: {}
+    });
+    const ChatPanel = require('../../src/renderer/ChatPanel.jsx').default;
+    const first = render(React.createElement(ChatPanel));
+
+    await screen.findByText('第一段。');
+    fireEvent.click(first.container.querySelector('[data-gc-part="chat-panel"]'));
+    await screen.findByText('第二段。');
+    const saved = await waitFor(() => {
+      const match = global.platformMock.saveChatHistory.mock.calls.find(call => (
+        call[1]?.viewState?.reading?.segmentIndex === 1
+      ));
+      expect(match).toBeDefined();
+      return match;
+    });
+    expect(new Set(saved[0].map(message => message.id)).size).toBe(3);
+    const savedId = saved[0][2].id;
+    expect(savedId).toEqual(expect.any(String));
+    expect(saved[1].viewState.reading.messageId).toBe(savedId);
+
+    first.unmount();
+    global.platformMock.getChatHistory.mockResolvedValue({
+      success: true, messages: saved[0], ...saved[1]
+    });
+    render(React.createElement(ChatPanel));
+
+    await screen.findByText('第二段。');
+    expect(screen.queryByText('第一段。')).toBeNull();
+  });
 });

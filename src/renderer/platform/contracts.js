@@ -29,7 +29,13 @@
  * @property {() => Promise<GameCard|null>} importDirectory
  * @property {() => Promise<GameCard|null>} importFile
  */
-/** @typedef {{isFullscreen: () => Promise<boolean>, setFullscreen: (value: boolean) => Promise<void>}} WindowService */
+/**
+ * @typedef {Object} WindowService
+ * @property {() => Promise<void>} destroy
+ * @property {() => Promise<boolean>} isFullscreen
+ * @property {(handler: Function) => (() => void)} onCloseRequested
+ * @property {(value: boolean) => Promise<void>} setFullscreen
+ */
 /**
  * @typedef {Object} RendererServices
  * @property {ConfigService} config

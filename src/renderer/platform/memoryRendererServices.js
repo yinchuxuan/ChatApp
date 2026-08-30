@@ -9,6 +9,7 @@ function createMemoryRendererServices(initial = {}) {
   let activeCardId = initial.activeCardId || null;
   let fullscreen = initial.fullscreen === true;
   const listeners = new Set();
+  const closeListeners = new Set();
   return {
     config: {
       load: async () => config,
@@ -47,7 +48,12 @@ function createMemoryRendererServices(initial = {}) {
       }
     },
     window: {
+      destroy: async () => {},
       isFullscreen: async () => fullscreen,
+      onCloseRequested: listener => {
+        closeListeners.add(listener);
+        return () => closeListeners.delete(listener);
+      },
       setFullscreen: async value => { fullscreen = value; }
     }
   };

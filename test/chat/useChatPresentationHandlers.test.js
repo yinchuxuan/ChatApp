@@ -14,7 +14,7 @@ function presentation() {
 }
 
 describe('chat presentation handlers', () => {
-  test('does not restore or start inherited BGM for segmented cards', () => {
+  test('restores saved BGM for segmented cards without replaying it on first token', () => {
     const card = { display: { segmentedReading: true } };
     const state = { audio: { bgm: 'calm' } };
     const updates = presentation();
@@ -23,10 +23,11 @@ describe('chat presentation handlers', () => {
     act(() => result.current.onSessionLoaded({ card, state }));
     act(() => result.current.onStreamContentStart({ card, state }));
 
-    expect(updates.updateAll).not.toHaveBeenCalled();
-    expect(updates.stopBgm).toHaveBeenCalledTimes(1);
-    expect(updates.updateBackground).toHaveBeenCalledTimes(2);
-    expect(updates.updatePortrait).toHaveBeenCalledTimes(2);
+    expect(updates.updateAll).toHaveBeenCalledTimes(1);
+    expect(updates.updateAll).toHaveBeenCalledWith(card, state);
+    expect(updates.stopBgm).not.toHaveBeenCalled();
+    expect(updates.updateBackground).toHaveBeenCalledTimes(1);
+    expect(updates.updatePortrait).toHaveBeenCalledTimes(1);
   });
 
   test('publishes every explicit segmented BGM set, including an unchanged value', () => {

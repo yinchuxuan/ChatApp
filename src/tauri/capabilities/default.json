@@ -3,5 +3,9 @@
   "identifier": "default",
   "description": "Core permissions for the main desktop window",
   "windows": ["main"],
-  "permissions": ["core:default", "core:window:allow-set-fullscreen"]
+  "permissions": [
+    "core:default",
+    "core:window:allow-destroy",
+    "core:window:allow-set-fullscreen"
+  ]
 }

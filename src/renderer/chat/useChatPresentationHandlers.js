@@ -22,9 +22,8 @@ function useChatPresentationHandlers(card, presentation) {
   }, [updateInitialPresentation]);
 
   const onSessionLoaded = React.useCallback(({ card: loadedCard, state }) => {
-    if (loadedCard?.display?.segmentedReading === true) stopBgm();
-    updateInitialPresentation(loadedCard, state);
-  }, [stopBgm, updateInitialPresentation]);
+    updateAll(loadedCard, state);
+  }, [updateAll]);
 
   const onRetryStateRestore = React.useCallback((state) => {
     if (card?.presentation?.autoUpdateOnFirstToken === false) return;

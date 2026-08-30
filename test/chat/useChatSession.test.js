@@ -23,9 +23,14 @@ describe('useChatSession', () => {
     const repository = { loadHistory: jest.fn(async () => history) };
     const options = createOptions(repository);
     renderHook(() => useChatSession(options));
-    await waitFor(() => expect(options.setMessages).toHaveBeenCalledWith(history.messages));
+    await waitFor(() => expect(options.setMessages).toHaveBeenCalled());
+    const loadedMessages = options.setMessages.mock.calls[0][0];
+    expect(loadedMessages).toEqual([
+      { id: expect.any(String), role: 'user', content: 'saved' }
+    ]);
     expect(options.setGameState).toHaveBeenCalledWith({ score: 2 });
     expect(options.persistence.hydrate).toHaveBeenCalledWith(history);
+    expect(options.persistence.save).toHaveBeenCalledWith(loadedMessages, { score: 2 });
     expect(options.persistence.markLoaded).toHaveBeenCalled();
   });
 

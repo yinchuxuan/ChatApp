@@ -1,5 +1,6 @@
 import React from 'react';
 import generationServices from './generationServices.js';
+import { ensureMessageIds } from './messageIds.js';
 import { normalizeGameCardError } from '../gameCard/runtimeError.js';
 import { rendererServices } from '../platform/index.js';
 
@@ -22,13 +23,15 @@ function useChatSession({
       const loadedMessages = result.messages || [];
       const loadedState = result.gameState || {};
       const init = await generationServices.prepareInitMessages({ messages: loadedMessages, state: loadedState });
-      const nextMessages = init.changed ? init.messages : loadedMessages;
+      const initializedMessages = init.changed ? init.messages : loadedMessages;
+      const nextMessages = ensureMessageIds(initializedMessages);
+      const idsAdded = nextMessages !== initializedMessages;
       const nextState = init.state || loadedState;
       setRuntimeError(init.error ? normalizeGameCardError(init) : null);
       setMessages(nextMessages);
       setGameState(nextState);
       onSessionLoaded?.({ card: init.card || null, state: nextState });
-      if (init.changed) await persistence.save(nextMessages, nextState);
+      if (init.changed || idsAdded) await persistence.save(nextMessages, nextState);
       return result;
     } catch (error) {
       setRuntimeError(normalizeGameCardError(error));
