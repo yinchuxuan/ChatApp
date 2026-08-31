@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import GameCardSwitcher from '../../src/renderer/components/GameCardSwitcher.jsx';
 
 describe('GameCardSwitcher', () => {
@@ -10,7 +10,7 @@ describe('GameCardSwitcher', () => {
     const repository = { list: jest.fn(async () => [activeCard, otherCard]) };
 
     render(<GameCardSwitcher activeCard={activeCard} repository={repository}
-      onActivate={onActivate} onImport={jest.fn()} />);
+      onActivate={onActivate} onImport={jest.fn()} onUninstall={jest.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
 
     expect(await screen.findByText('Other Card')).toBeInTheDocument();
@@ -19,5 +19,56 @@ describe('GameCardSwitcher', () => {
     });
 
     expect(onActivate).toHaveBeenCalledWith(null);
+  });
+
+  test('shows import progress and the imported card name on success', async () => {
+    let finishImport;
+    const imported = { id: 'new-card', name: 'New Card' };
+    const onImport = jest.fn(() => new Promise(resolve => { finishImport = resolve; }));
+    const repository = { list: jest.fn(async () => [imported]) };
+    render(<GameCardSwitcher repository={repository} onActivate={jest.fn()}
+      onImport={onImport} onUninstall={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
+    fireEvent.click(await screen.findByRole('button', { name: '导入游戏卡文件' }));
+
+    expect(screen.getByText('正在导入游戏卡…')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: '游戏卡导入进度' })).toBeInTheDocument();
+    await act(async () => { finishImport(imported); });
+
+    expect(await screen.findByText('导入成功：New Card')).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  test('keeps the panel open and reports a failed import', async () => {
+    const onError = jest.fn();
+    const error = new Error('invalid card');
+    const repository = { list: jest.fn(async () => []) };
+    render(<GameCardSwitcher repository={repository} onActivate={jest.fn()}
+      onImport={jest.fn(async () => { throw error; })} onUninstall={jest.fn()} onError={onError} />);
+    fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
+    fireEvent.click(await screen.findByRole('button', { name: '导入游戏卡文件' }));
+
+    expect(await screen.findByText('导入失败，请查看错误详情')).toBeInTheDocument();
+    expect(screen.getByText('切换游戏卡')).toBeInTheDocument();
+    await waitFor(() => expect(onError).toHaveBeenCalledWith(expect.objectContaining({
+      title: '导入游戏卡失败', message: 'invalid card'
+    })));
+  });
+
+  test('confirms and uninstalls a game card with all of its saves', async () => {
+    const card = { id: 'quest', name: 'Quest Card' };
+    const repository = { list: jest.fn()
+      .mockResolvedValueOnce([card]).mockResolvedValueOnce([]) };
+    const onUninstall = jest.fn(async () => null);
+    const confirm = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<GameCardSwitcher repository={repository} onActivate={jest.fn()}
+      onImport={jest.fn()} onUninstall={onUninstall} />);
+    fireEvent.click(screen.getByRole('button', { name: '切换游戏卡' }));
+    fireEvent.click(await screen.findByRole('button', { name: '卸载 Quest Card' }));
+
+    await waitFor(() => expect(onUninstall).toHaveBeenCalledWith(card));
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('全部存档'));
+    await waitFor(() => expect(screen.queryByText('Quest Card')).not.toBeInTheDocument());
+    confirm.mockRestore();
   });
 });

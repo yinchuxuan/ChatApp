@@ -16,6 +16,7 @@ describe('GameCardTitleControl', () => {
           cardRepository={cardRepository}
           onActivateCard={jest.fn()}
           onImportCard={onImportCard}
+          onUninstallCard={jest.fn()}
         />
       </GameCardRuntimeProvider>
     );

@@ -34,6 +34,11 @@ function createMemoryRendererServices(initial = {}) {
     cards: {
       list: async () => cards,
       setActive: async id => { activeCardId = id || null; return { id: activeCardId }; },
+      uninstall: async id => {
+        cards = cards.filter(card => card.id !== id);
+        if (activeCardId === id) activeCardId = null;
+        return { id };
+      },
       importDirectory: async () => {
         const card = initial.importedCard || null;
         if (card && !cards.some(item => item.id === card.id)) cards = [...cards, card];

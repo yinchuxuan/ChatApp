@@ -84,6 +84,11 @@ function createTauriRendererServices(client = tauriBridge) {
         invalidateGameCardRuntimeCache();
         return result;
       },
+      uninstall: async id => {
+        const result = await call('delete_game_card', { id });
+        invalidateGameCardRuntimeCache();
+        return result;
+      },
       importDirectory: async () => {
         const card = await call('import_game_card_from_directory', {}, 'card');
         invalidateGameCardRuntimeCache();

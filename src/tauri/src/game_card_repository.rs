@@ -68,6 +68,31 @@ pub async fn set_active(storage: &AppStorage, id: Option<&str>) -> CardResult<()
     }
 }
 
+pub async fn delete(storage: &AppStorage, id: &str) -> CardResult<()> {
+    require_safe_id(id)?;
+    let active_path = storage.game_cards_dir().join("active.json");
+    let _active_guard = storage.lock(&active_path).await;
+    let root = card_dir(&cards_dir(storage), id)?;
+    let _card_guard = storage.lock(&root).await;
+    let metadata =
+        fs::symlink_metadata(&root).map_err(|_| GameCardError::new("Game card not found"))?;
+    if !metadata.is_dir() || metadata.file_type().is_symlink() || !root.join("card.json").is_file()
+    {
+        return Err(GameCardError::new("Game card not found"));
+    }
+    let active = read_json::<Value>(&active_path).map_err(GameCardError::from)?;
+    fs::remove_dir_all(&root)?;
+    if active
+        .as_ref()
+        .and_then(|value| value.get("id"))
+        .and_then(Value::as_str)
+        == Some(id)
+    {
+        write_json(&active_path, &json!({ "id": null })).map_err(GameCardError::from)?;
+    }
+    Ok(())
+}
+
 pub async fn active(storage: &AppStorage) -> CardResult<Option<Value>> {
     let path = storage.game_cards_dir().join("active.json");
     let active = read_json::<Value>(&path).map_err(GameCardError::from)?;

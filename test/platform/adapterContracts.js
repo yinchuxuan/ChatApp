@@ -15,6 +15,7 @@ async function verifyRendererServices(services) {
   await services.sessions.delete('session-1');
   await expect(services.cards.list()).resolves.toEqual(expect.any(Array));
   await services.cards.setActive(null);
+  await services.cards.uninstall('card');
   await services.cards.importDirectory();
   await services.cards.importFile();
   const unsubscribeClose = services.window.onCloseRequested(() => {});

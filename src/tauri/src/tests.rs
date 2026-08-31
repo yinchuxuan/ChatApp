@@ -154,7 +154,7 @@ async fn concurrent_session_saves_are_serialized_per_session() {
 }
 
 #[tokio::test]
-async fn session_management_and_card_scopes_match_electron_storage() {
+async fn session_management_and_card_scopes_persist() {
     let dir = TestDir::new();
     let storage = AppStorage::new(dir.0.clone());
     let no_card_root = sessions::session_root(&storage.game_cards_dir()).unwrap();

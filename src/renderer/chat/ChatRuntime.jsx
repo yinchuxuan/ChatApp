@@ -174,7 +174,7 @@ function ChatRuntime({
           onSessionChanged={session.reload}
           onSwitchSession={session.switchSession}
           onActivateCard={gameCards.activate}
-          onImportCard={gameCards.importCard}
+          onImportCard={gameCards.importCard} onUninstallCard={gameCards.uninstallCard}
           onImportError={setActionError}
           audioControl={<BgmPlayer updateRequest={presentation.bgmRequest} stopToken={presentation.bgmStopToken} />}
         />}

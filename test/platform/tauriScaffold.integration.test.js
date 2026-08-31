@@ -37,6 +37,7 @@ describe('Tauri desktop scaffold', () => {
     expect(capability.windows).toEqual(['main']);
     expect(capability.permissions).toEqual([
       'core:default',
+      'core:window:allow-destroy',
       'core:window:allow-set-fullscreen'
     ]);
   });
@@ -78,6 +79,7 @@ describe('Tauri desktop scaffold', () => {
       'import_game_card_from_directory',
       'import_game_card_from_file',
       'set_active_game_card',
+      'delete_game_card',
       'get_active_game_card',
       'read_game_card_file'
     ].forEach(command => expect(lib).toContain(`game_card_commands::${command}`));

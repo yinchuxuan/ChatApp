@@ -26,6 +26,7 @@
  * @typedef {Object} CardRepository
  * @property {() => Promise<GameCard[]>} list
  * @property {(id: string|null) => Promise<unknown>} setActive
+ * @property {(id: string) => Promise<unknown>} uninstall
  * @property {() => Promise<GameCard|null>} importDirectory
  * @property {() => Promise<GameCard|null>} importFile
  */

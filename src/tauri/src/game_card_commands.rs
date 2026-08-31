@@ -72,6 +72,12 @@ pub async fn set_active_game_card(
 }
 
 #[tauri::command]
+pub async fn delete_game_card(state: State<'_, AppStorage>, id: String) -> CardResult<Value> {
+    game_card_repository::delete(&state, &id).await?;
+    Ok(json!({}))
+}
+
+#[tauri::command]
 pub async fn get_active_game_card(state: State<'_, AppStorage>) -> CardResult<Option<Value>> {
     game_card_repository::active(&state).await
 }

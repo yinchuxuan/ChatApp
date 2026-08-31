@@ -49,12 +49,9 @@ config/{model,background}.json
 game-cards/active.json
 game-cards/no-card/sessions/
 game-cards/cards/<card-id>/{card.json,sessions/}
-migration/electron-user-data-v1.json
 ```
 
 所有业务 JSON 使用同目录临时文件和 rename 原子替换；同一 session 的写入串行执行。
-
-首次启动会查找旧 Electron `ChatApp` 与 `harness_lab` userData。迁移在临时目录完成并原子安装；完成标记或已有 Tauri 业务数据会阻止重复覆盖。该兼容导入属于 Tauri backend，不代表仓库仍依赖 Electron runtime。
 
 ## 游戏卡协议
 

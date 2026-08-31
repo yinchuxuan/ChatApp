@@ -5,7 +5,7 @@ import GameCardSwitcher from './GameCardSwitcher.jsx';
 import { useGameCardRuntime } from '../chat/GameCardRuntimeProvider.jsx';
 import { PropTypes } from './componentPropTypes.js';
 
-function GameCardTitleControl({ modelName, isLoading = false, onBeforeSessionChange, onSessionChanged, onSwitchSession, onActivateCard, onImportCard, audioControl, onImportError, cardRepository }) {
+function GameCardTitleControl({ modelName, isLoading = false, onBeforeSessionChange, onSessionChanged, onSwitchSession, onActivateCard, onImportCard, onUninstallCard, audioControl, onImportError, cardRepository }) {
   const { activeCard: card } = useGameCardRuntime();
   const [error, setError] = React.useState(null);
 
@@ -20,7 +20,7 @@ function GameCardTitleControl({ modelName, isLoading = false, onBeforeSessionCha
   return (
     <div className={`game-card-title-control ${card ? 'loaded' : ''}`} data-gc-part="game-card-title" title={errorTitle || title}>
       <GameCardSwitcher activeCard={card} isLoading={isLoading}
-        onActivate={onActivateCard} onImport={onImportCard} onError={reportError}
+        onActivate={onActivateCard} onImport={onImportCard} onUninstall={onUninstallCard} onError={reportError}
         repository={cardRepository} />
       {modelName ? <span className="config-status configured game-card-model-status" data-gc-part="model-status">{modelName}</span> : null}
       <div className="game-card-title-actions" data-gc-part="game-card-title-actions">
@@ -50,6 +50,7 @@ GameCardTitleControl.propTypes = {
   onSwitchSession: PropTypes.func,
   onActivateCard: PropTypes.func.isRequired,
   onImportCard: PropTypes.func.isRequired,
+  onUninstallCard: PropTypes.func.isRequired,
   audioControl: PropTypes.node,
   onImportError: PropTypes.func,
   cardRepository: PropTypes.shape({ list: PropTypes.func.isRequired })

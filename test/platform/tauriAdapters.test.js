@@ -11,6 +11,7 @@ describe('Tauri renderer adapters', () => {
     await services.sessions.rename('session-1', 'Renamed');
     await services.cards.list();
     await services.cards.setActive('card-1');
+    await services.cards.uninstall('card-2');
 
     expect(invoke).toHaveBeenNthCalledWith(1, 'save_model_config', {
       config: { modelName: 'model' }
@@ -23,6 +24,7 @@ describe('Tauri renderer adapters', () => {
     });
     expect(invoke).toHaveBeenNthCalledWith(4, 'get_game_cards', {});
     expect(invoke).toHaveBeenNthCalledWith(5, 'set_active_game_card', { id: 'card-1' });
+    expect(invoke).toHaveBeenNthCalledWith(6, 'delete_game_card', { id: 'card-2' });
   });
 
   test('maps resource calls and accepts command result envelopes', async () => {

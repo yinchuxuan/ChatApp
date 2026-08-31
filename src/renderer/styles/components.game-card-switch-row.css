@@ -1,0 +1,35 @@
+.game-card-switch-item {
+  display: flex;
+  align-items: center;
+}
+
+.game-card-switch-item .game-card-switch-row {
+  width: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.game-card-switch-remove {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--md-shape-corner-full);
+  background: transparent;
+  color: var(--md-error);
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.game-card-switch-remove:hover,
+.game-card-switch-remove:focus-visible {
+  opacity: 1;
+  background: var(--md-error-container);
+}
+
+.game-card-switch-remove:disabled { cursor: default; opacity: 0.35; }
+.game-card-switch-remove .material-icons { font-size: 20px; color: currentColor; }
+.game-card-switch-remove .material-icons.importing {
+  animation: game-card-import-spin 900ms linear infinite;
+}

@@ -124,3 +124,54 @@
 
 .game-card-switch-import:disabled { opacity: 0.6; cursor: default; }
 .game-card-switch-import .material-icons { font-size: 20px; color: currentColor; animation: none; }
+
+.game-card-switch-import .material-icons.importing {
+  animation: game-card-import-spin 900ms linear infinite;
+}
+
+.game-card-import-status {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 16px 10px;
+  border-top: 1px solid var(--md-outline-variant);
+  color: var(--md-on-surface-variant);
+  font-size: 12px;
+}
+
+.game-card-import-status[data-state="success"] { color: var(--md-success); }
+.game-card-import-status[data-state="error"] { color: var(--md-error); }
+.game-card-import-status > .material-icons { font-size: 18px; }
+
+.game-card-import-message {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-card-import-progress {
+  grid-column: 1 / -1;
+  height: 3px;
+  overflow: hidden;
+  border-radius: var(--md-shape-corner-full);
+  background: color-mix(in srgb, var(--md-primary) 18%, transparent);
+}
+
+.game-card-import-progress > span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--md-primary);
+  animation: game-card-import-progress 1.2s var(--md-motion-easing-standard) infinite;
+}
+
+@keyframes game-card-import-spin { to { transform: rotate(360deg); } }
+
+@keyframes game-card-import-progress {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(340%); }
+}

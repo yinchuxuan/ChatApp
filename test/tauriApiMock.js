@@ -25,6 +25,7 @@ const commandMethods = {
   import_game_card_from_directory: ['importGameCardFromDirectory'],
   import_game_card_from_file: ['importGameCardFromFile'],
   set_active_game_card: ['setActiveGameCard', 'id'],
+  delete_game_card: ['deleteGameCard', 'id'],
   get_active_game_card: ['getActiveGameCard'],
   read_game_card_file: ['readGameCardFile', 'cardId', 'relativePath']
 };

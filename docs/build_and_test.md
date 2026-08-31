@@ -48,16 +48,12 @@ Coverage thresholds remain 70% branches, 80% functions, 85% lines and 82% statem
 - config, history, retry state and session isolation;
 - game card imports, schema parity and path safety;
 - resource authorization, MIME and audio Range responses;
-- model request validation, streaming and cancellation;
-- legacy Electron user data migration, idempotency and rollback.
-
-The migration tests are compatibility tests for old user data; they do not require Electron runtime.
-
+- model request validation, streaming and cancellation.
 ## Tauri E2E
 
 `test/tauri-e2e` uses WebdriverIO with the embedded Tauri WebDriver provider. The `e2e` Cargo feature enables test-only plugins, an isolated app data directory and a fixed fixture import directory.
 
-The suite covers the former Electron E2E flows: startup, settings, background, Session and history storage, retry, message collapse, game card rules, file content, exec, state patches, multi-turn TTL, visibility, stream abort, card import, dynamic React UI, controlled image/audio URLs and process restart persistence. A local streaming endpoint records requests made by the real Rust HTTP Channel.
+The suite covers startup, settings, background, Session and history storage, retry, message collapse, game card rules, file content, exec, state patches, multi-turn TTL, visibility, stream abort, card import, dynamic React UI, controlled image/audio URLs and process restart persistence. A local streaming endpoint records requests made by the real Rust HTTP Channel.
 
 Real provider calls are excluded from the default suite. Set `E2E_OPENAI_URL`, `E2E_OPENAI_KEY`, `E2E_OPENAI_MODEL` and/or the equivalent `E2E_ANTHROPIC_*` variables before running `npm run test:e2e-real-api`.
 

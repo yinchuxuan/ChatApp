@@ -28,7 +28,7 @@ Tauri 是唯一桌面 target；memory adapter 用于 unit test，不参与生产
 
 ## Renderer Services
 
-配置、背景、Session 与卡片导入 contract 集中定义在 `src/renderer/platform/contracts.js`：
+配置、背景、Session 与游戏卡安装管理 contract 集中定义在 `src/renderer/platform/contracts.js`：
 
 ```txt
 rendererServices.config
@@ -39,6 +39,8 @@ rendererServices.window
 ```
 
 `tauriRendererServices.js` 将 contract 映射为业务级 command 和受控窗口 API，并用 `listen` 订阅背景配置变更。adapter 负责将 Rust 错误、取消和校验详情归一化为 JavaScript `Error`。
+
+`cards.uninstall(id)` 删除已导入游戏卡；如果目标是当前 active card，后端同时清空 active card。游戏卡选择器负责在调用前二次确认，并在卸载当前卡后切回普通聊天 Session。
 
 ## 模型网络
 

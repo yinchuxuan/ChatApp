@@ -11,7 +11,8 @@ const platformMock = global.platformMock;
 function renderControl(props = {}, parentProps = null) {
   const callbacks = {
     onActivateCard: jest.fn(async () => null),
-    onImportCard: () => rendererServices.cards.importFile()
+    onImportCard: () => rendererServices.cards.importFile(),
+    onUninstallCard: card => rendererServices.cards.uninstall(card.id)
   };
   const control = <GameCardRuntimeProvider>
     <GameCardTitleControl {...callbacks} {...props} />

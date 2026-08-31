@@ -32,7 +32,16 @@ function useGameCardSwitching({
     return finishSwitch(card);
   }, [finishSwitch, isLoading, repository, session]);
 
-  return { activate, importCard };
+  const uninstallCard = React.useCallback(async (card) => {
+    if (isLoading || !card?.id) return null;
+    const isActive = runtime.activeCard?.id === card.id;
+    if (isActive) await session.saveCurrent();
+    await repository.uninstall(card.id);
+    if (isActive) return finishSwitch(null);
+    return card;
+  }, [finishSwitch, isLoading, repository, runtime.activeCard?.id, session]);
+
+  return { activate, importCard, uninstallCard };
 }
 
 export default useGameCardSwitching;

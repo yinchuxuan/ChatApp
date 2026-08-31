@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import useGameCardSwitching from '../../src/renderer/chat/useGameCardSwitching.js';
 
-function setup({ isLoading = false, importedCard = null } = {}) {
+function setup({ activeCard = null, isLoading = false, importedCard = null } = {}) {
   const events = [];
   const session = {
     saveCurrent: jest.fn(async () => { events.push('save'); }),
@@ -9,9 +9,11 @@ function setup({ isLoading = false, importedCard = null } = {}) {
   };
   const repository = {
     setActive: jest.fn(async id => { events.push(`activate:${id ?? 'no-card'}`); }),
+    uninstall: jest.fn(async id => { events.push(`uninstall:${id}`); }),
     importFile: jest.fn(async () => { events.push('import'); return importedCard; })
   };
   const runtime = {
+    activeCard,
     setRuntimeError: jest.fn(() => events.push('clear-error')),
     changeActiveCard: jest.fn(card => events.push(`runtime:${card?.id || 'no-card'}`))
   };
@@ -65,7 +67,33 @@ describe('useGameCardSwitching', () => {
 
     await act(async () => context.result.current.activate({ id: 'card' }));
     await act(async () => context.result.current.importCard());
+    await act(async () => context.result.current.uninstallCard({ id: 'card' }));
 
     expect(context.events).toEqual([]);
+  });
+
+  test('uninstalls the active card and switches to normal chat', async () => {
+    const card = { id: 'card', name: 'Card' };
+    const context = setup({ activeCard: card });
+
+    await act(async () => context.result.current.uninstallCard(card));
+
+    expect(context.events).toEqual([
+      'save',
+      'uninstall:card',
+      'clear-error',
+      'runtime:no-card',
+      'stop-bgm',
+      'clear-visual',
+      'reload'
+    ]);
+  });
+
+  test('uninstalls an inactive card without changing the current session', async () => {
+    const context = setup({ activeCard: { id: 'active' } });
+
+    await act(async () => context.result.current.uninstallCard({ id: 'other' }));
+
+    expect(context.events).toEqual(['uninstall:other']);
   });
 });

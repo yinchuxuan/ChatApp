@@ -1,6 +1,5 @@
 mod app_storage;
 mod config_commands;
-mod electron_migration;
 mod game_card_archive;
 mod game_card_commands;
 mod game_card_copy;
@@ -17,10 +16,6 @@ mod game_card_schema;
 mod game_card_state_schema;
 mod history;
 mod json_store;
-mod migration_chat;
-mod migration_fs;
-mod migration_layout;
-mod migration_report;
 mod model_commands;
 mod model_http;
 mod resource_assets;
@@ -60,23 +55,6 @@ pub fn run() {
         })
         .setup(|app| {
             let data_dir = storage_dir(app)?;
-            if !cfg!(feature = "e2e") {
-                let config_base = app.path().config_dir()?;
-                let data_base = app.path().data_dir()?;
-                let electron_roots =
-                    electron_migration::roots_for(std::env::consts::OS, &config_base, &data_base);
-                match electron_migration::run(&data_dir, &electron_roots) {
-                    Ok(report) => {
-                        for warning in report.warnings {
-                            eprintln!(
-                                "Electron data migration warning at {} ({}): {}",
-                                warning.stage, warning.path, warning.message
-                            );
-                        }
-                    }
-                    Err(error) => eprintln!("{error}"),
-                }
-            }
             std::fs::create_dir_all(&data_dir)?;
             app.manage(AppStorage::new(data_dir));
             app.manage(ModelNetworkState::new()?);
@@ -102,6 +80,7 @@ pub fn run() {
             game_card_commands::import_game_card_from_directory,
             game_card_commands::import_game_card_from_file,
             game_card_commands::set_active_game_card,
+            game_card_commands::delete_game_card,
             game_card_commands::get_active_game_card,
             game_card_commands::read_game_card_file,
             model_commands::stream_model_request,
@@ -131,7 +110,7 @@ mod game_card_package_tests;
 #[cfg(test)]
 mod game_card_tests;
 #[cfg(test)]
-mod migration_tests;
+mod game_card_uninstall_tests;
 #[cfg(test)]
 mod model_tests;
 #[cfg(test)]
